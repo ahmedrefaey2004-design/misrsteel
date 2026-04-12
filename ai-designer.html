@@ -513,17 +513,6 @@ body.ar .step{border-right:none;border-left:1px solid var(--border)}
 <script>
 // ── Config ─────────────────────────────────────
 var API_URL = 'https://misrsteel-backend.vercel.app/api/generate';
-var BACKEND_URL = 'https://misrsteel-backend.vercel.app';
-
-// Auto-generate user token from browser
-function getUserToken() {
-  var token = localStorage.getItem('ms_user_token');
-  if (!token) {
-    token = 'user_' + Math.random().toString(36).substr(2,9) + '_' + Date.now();
-    localStorage.setItem('ms_user_token', token);
-  }
-  return token;
-}
 
 // ── State ──────────────────────────────────────
 var state = {
@@ -812,10 +801,7 @@ CREDITS.init(); return;
 
     var response = await fetch(API_URL, {
       method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'x-user-token': getUserToken()
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     });
 
