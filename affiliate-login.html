@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>بوابة المسوّقين — MISR STEEL Affiliate Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+body{background:var(--bg);min-height:100vh;display:flex;flex-direction:column}
+.aff-page{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px}
+.aff-wrap{display:grid;grid-template-columns:1fr 1fr;max-width:900px;width:100%;background:#fff;border-radius:8px;box-shadow:var(--shadow-lg);overflow:hidden}
+.aff-left{background:linear-gradient(145deg,#111,#2a2a2a);color:#fff;padding:48px 40px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+.aff-left::before{content:'';position:absolute;inset-inline-end:-60px;top:-60px;width:200px;height:200px;border:1px solid rgba(255,106,0,.2);border-radius:50%}
+.aff-left::after{content:'';position:absolute;inset-inline-start:-40px;bottom:-40px;width:160px;height:160px;background:rgba(255,106,0,.05);border-radius:50%}
+.al-logo{font-size:22px;font-weight:700;margin-bottom:8px;color:var(--orange)}
+.al-logo-sub{font-family:'DM Sans',sans-serif;font-size:12px;color:rgba(255,255,255,.4);letter-spacing:.1em;text-transform:uppercase;margin-bottom:32px}
+.al-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,106,0,.1);border:1px solid rgba(255,106,0,.25);padding:7px 14px;margin-bottom:20px;border-radius:2px}
+.al-badge-dot{width:8px;height:8px;border-radius:50%;background:var(--orange);animation:blink 1.5s ease-in-out infinite}
+.al-badge-txt{font-size:11px;color:var(--orange);letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+.al-title{font-size:26px;font-weight:700;line-height:1.3;margin-bottom:10px;position:relative;z-index:1}
+body.en .al-title{font-family:'DM Sans',sans-serif}
+.al-sub{font-size:13px;color:rgba(255,255,255,.55);line-height:1.75;margin-bottom:24px;position:relative;z-index:1}
+.comm-preview{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:24px;position:relative;z-index:1}
+.cp-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);padding:12px;text-align:center;border-radius:2px}
+.cp-pct{font-size:28px;font-weight:700;color:var(--orange);line-height:1}
+.cp-label{font-size:10px;color:rgba(255,255,255,.5);margin-top:3px;letter-spacing:.04em}
+.al-bottom{position:relative;z-index:1}
+.client-link{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,.5);background:rgba(255,255,255,.06);padding:7px 12px;border-radius:2px;border:1px solid rgba(255,255,255,.1);transition:all .2s}
+.client-link:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.1)}
+
+.aff-right{padding:40px}
+.tabs{display:flex;gap:0;margin-bottom:24px;border-bottom:2px solid var(--border)}
+.tab-btn{flex:1;padding:10px;background:none;border:none;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted);font-family:inherit;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s}
+.tab-btn.active{color:var(--orange);border-bottom-color:var(--orange)}
+.tab-pane{display:none}.tab-pane.active{display:block}
+.input-wrap{position:relative}
+.input-icon{position:absolute;top:50%;transform:translateY(-50%);inset-inline-start:12px;font-size:15px;color:var(--muted)}
+.input-wrap input{padding-inline-start:38px}
+.code-input{background:rgba(255,106,0,.04);border:1.5px solid rgba(255,106,0,.25);font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.code-input:focus{border-color:var(--orange)}
+.dashboard-preview{background:#fafaf7;border:1.5px solid var(--border);border-radius:4px;padding:14px;margin-bottom:14px}
+.dp-title{font-size:11px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;font-weight:600}
+.dp-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px}
+.dp-row:last-child{border-bottom:none}
+.dp-label{color:var(--muted)}
+.dp-val{font-weight:700;color:var(--orange)}
+.success-box{display:none;text-align:center;padding:24px 0}
+.success-box .s-icon{font-size:44px;margin-bottom:10px}
+
+@media(max-width:640px){
+  .aff-wrap{grid-template-columns:1fr}
+  .aff-left{padding:28px 20px}
+  .aff-right{padding:24px 16px}
+  .comm-preview{grid-template-columns:repeat(3,1fr)}
+}
+</style>
+</head>
+<body>
+
+<div id="navPlaceholder"></div>
+<div id="cartPlaceholder"></div>
+
+<div class="aff-page">
+  <div class="aff-wrap">
+
+    <!-- LEFT -->
+    <div class="aff-left">
+      <div>
+        <div class="al-logo ar">مصر ستيل</div>
+        <div class="al-logo en-t">MISR STEEL</div>
+        <div class="al-logo-sub">Affiliate Portal · بوابة المسوّقين</div>
+        <div class="al-badge"><div class="al-badge-dot"></div><span class="al-badge-txt ar">البرنامج مفتوح</span><span class="al-badge-txt en-t">Program Open</span></div>
+        <div class="al-title ar">بوابة المسوّقين<br>بالعمولة</div>
+        <div class="al-title en-t">Affiliate &<br>Commission Portal</div>
+        <p class="al-sub ar">سجّل دخولك لمتابعة أوردراتك وعمولاتك ورابط التتبع الخاص بك.</p>
+        <p class="al-sub en-t">Sign in to track your referred orders, commissions and personal referral link.</p>
+        <div class="comm-preview">
+          <div class="cp-card"><div class="cp-pct">3%</div><div class="cp-label ar">مبدئي</div><div class="cp-label en-t">Starter</div></div>
+          <div class="cp-card" style="border-color:rgba(255,106,0,.3)"><div class="cp-pct" style="color:#ffb380">5%</div><div class="cp-label">Pro</div></div>
+          <div class="cp-card"><div class="cp-pct">7%</div><div class="cp-label">Premium</div></div>
+        </div>
+      </div>
+      <div class="al-bottom">
+        <p style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:8px" class="ar">لست مسوّقاً؟ أنت عميل؟</p>
+        <p style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:8px" class="en-t">Not an affiliate? You're a client?</p>
+        <a href="login.html" class="client-link">👤 <span class="ar">بوابة العملاء</span><span class="en-t">Client Portal</span></a>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="aff-right">
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('login')"><span class="ar">دخول المسوّق</span><span class="en-t">Affiliate Login</span></button>
+        <button class="tab-btn" onclick="switchTab('apply')"><span class="ar">التسجيل كمسوّق</span><span class="en-t">Apply Now</span></button>
+      </div>
+
+      <!-- LOGIN TAB -->
+      <div class="tab-pane active" id="tab-login">
+        <form onsubmit="doAffLogin(event)">
+          <div class="form-group">
+            <label><span class="ar">الإيميل المسجّل</span><span class="en-t">Registered email</span></label>
+            <div class="input-wrap"><span class="input-icon">✉️</span><input type="email" id="al_email" required placeholder="affiliate@email.com"></div>
+          </div>
+          <div class="form-group">
+            <label><span class="ar">كلمة المرور</span><span class="en-t">Password</span></label>
+            <div class="input-wrap"><span class="input-icon">🔒</span><input type="password" id="al_pass" required placeholder="••••••••"></div>
+          </div>
+          <div class="form-group">
+            <label><span class="ar">كود المسوّق (اختياري)</span><span class="en-t">Referral code (optional)</span></label>
+            <input type="text" class="code-input" id="al_code" placeholder="STEEL-XXXX" oninput="this.value=this.value.toUpperCase()">
+          </div>
+          <button type="submit" class="btn btn-orange btn-full btn-lg">
+            <span class="ar">دخول لوحة المسوّق ←</span><span class="en-t">Enter Affiliate Dashboard →</span>
+          </button>
+        </form>
+        <div class="success-box" id="loginSuccess">
+          <div class="s-icon">✅</div>
+          <h3><span class="ar">أهلاً!</span><span class="en-t">Welcome!</span></h3>
+          <div class="dashboard-preview">
+            <div class="dp-title ar">لوحة تحكمك</div><div class="dp-title en-t">Your dashboard</div>
+            <div class="dp-row"><span class="dp-label ar">كودك</span><span class="dp-label en-t">Your code</span><span class="dp-val" id="dashCode">STEEL-XXXX</span></div>
+            <div class="dp-row"><span class="dp-label ar">عمولات هذا الشهر</span><span class="dp-label en-t">This month's commissions</span><span class="dp-val">$0</span></div>
+            <div class="dp-row"><span class="dp-label ar">أوردرات معلقة</span><span class="dp-label en-t">Pending orders</span><span class="dp-val">0</span></div>
+          </div>
+          <a href="misrsteel_affiliate.html" class="btn btn-orange btn-full" style="display:flex"><span class="ar">تصفح صفحة البرنامج</span><span class="en-t">Browse affiliate page</span></a>
+        </div>
+      </div>
+
+      <!-- APPLY TAB -->
+      <div class="tab-pane" id="tab-apply">
+        <form onsubmit="doApply(event)">
+          <div class="form-row-2">
+            <div class="form-group">
+              <label><span class="ar">الاسم</span><span class="en-t">Full name</span></label>
+              <input type="text" id="ap_name" required placeholder="أحمد / Ahmed">
+            </div>
+            <div class="form-group">
+              <label><span class="ar">المهنة</span><span class="en-t">Job title</span></label>
+              <select id="ap_job">
+                <option>مهندس ديكور / Interior designer</option>
+                <option>مقاول / Contractor</option>
+                <option>موزع / Distributor</option>
+                <option>وسيط عقاري / Real estate</option>
+                <option>Hotel/Restaurant buyer</option>
+                <option>Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>WhatsApp</label>
+            <div class="input-wrap"><span class="input-icon">📱</span><input type="tel" id="ap_wa" required placeholder="+20 ..."></div>
+          </div>
+          <div class="form-group">
+            <label><span class="ar">الإيميل</span><span class="en-t">Email</span></label>
+            <div class="input-wrap"><span class="input-icon">✉️</span><input type="email" id="ap_email" required></div>
+          </div>
+          <div class="form-group">
+            <label><span class="ar">الدولة</span><span class="en-t">Country</span></label>
+            <select id="ap_country">
+              <option>🇪🇬 مصر / Egypt</option>
+              <option>🇮🇶 العراق / Iraq</option>
+              <option>🇸🇦 السعودية / Saudi Arabia</option>
+              <option>🇦🇪 الإمارات / UAE</option>
+              <option>🇰🇼 الكويت / Kuwait</option>
+              <option>🇶🇦 قطر / Qatar</option>
+              <option>🇯🇴 الأردن / Jordan</option>
+              <option>🇱🇾 ليبيا / Libya</option>
+              <option>🇩🇿 الجزائر / Algeria</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label><span class="ar">حجم الأوردرات المتوقعة شهرياً</span><span class="en-t">Expected monthly order volume</span></label>
+            <select>
+              <option>أقل من $5,000 / Under $5,000</option>
+              <option>$5,000 – $20,000</option>
+              <option>$20,000 – $50,000</option>
+              <option>أكتر من $50,000 / Above $50,000</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-orange btn-full btn-lg">
+            <span class="ar">إرسال طلب الانضمام ←</span><span class="en-t">Submit application →</span>
+          </button>
+        </form>
+        <div class="success-box" id="applySuccess">
+          <div class="s-icon">🤝</div>
+          <h3><span class="ar">تم استلام طلبك!</span><span class="en-t">Application received!</span></h3>
+          <p><span class="ar">سنراجع طلبك ونتواصل معاك خلال 24 ساعة بكودك الخاص ورابط التتبع.</span><span class="en-t">We'll review and contact you within 24h with your referral code and tracking link.</span></p>
+          <a href="misrsteel_affiliate.html" class="btn btn-orange" style="margin-top:14px;display:inline-flex"><span class="ar">اعرف المزيد عن البرنامج</span><span class="en-t">Learn more about program</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="footerPlaceholder"></div>
+
+<script src="shared.js"></script>
+<script>
+function switchTab(t){
+  document.querySelectorAll('.tab-btn').forEach(function(b,i){ b.classList.toggle('active', i===(t==='login'?0:1)); });
+  document.getElementById('tab-login').classList.toggle('active', t==='login');
+  document.getElementById('tab-apply').classList.toggle('active', t==='apply');
+}
+function doAffLogin(e){
+  e.preventDefault();
+  var email = document.getElementById('al_email').value;
+  var code = 'STEEL-' + Math.floor(Math.random()*9000+1000);
+  Auth.loginAffiliate({email:email, code:code});
+  document.querySelector('#tab-login form').style.display='none';
+  document.getElementById('dashCode').textContent = code;
+  document.getElementById('loginSuccess').style.display='block';
+}
+function doApply(e){
+  e.preventDefault();
+  document.querySelector('#tab-apply form').style.display='none';
+  document.getElementById('applySuccess').style.display='block';
+}
+document.addEventListener('DOMContentLoaded', function(){
+  document.getElementById('navPlaceholder').innerHTML = buildNav('');
+  document.getElementById('cartPlaceholder').innerHTML = buildCartDrawer();
+  document.getElementById('footerPlaceholder').innerHTML = buildFooter();
+  if(window.location.search.indexOf('tab=apply')>-1) switchTab('apply');
+});
+</script>
+</body>
+</html>

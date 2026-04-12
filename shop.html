@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>متجر مصر ستيل — MISR STEEL Shop</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+.shop-hero{background:var(--orange);color:#fff;padding:28px 20px;text-align:center}
+.shop-hero h1{font-size:24px;font-weight:700}
+body.en .shop-hero h1{font-family:'DM Sans',sans-serif}
+.shop-hero p{font-size:13px;opacity:.85;margin-top:4px}
+.shop-layout{max-width:1200px;margin:0 auto;padding:28px 20px;display:grid;grid-template-columns:1fr 360px;gap:24px;align-items:start}
+
+/* FILTERS */
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.filter-btn{padding:7px 14px;border:1.5px solid var(--border);background:#fff;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;transition:all .2s;color:var(--muted)}
+.filter-btn:hover,.filter-btn.active{border-color:var(--orange);color:var(--orange);background:var(--orange-lt)}
+
+/* PRODUCT LIST (detailed Alibaba style) */
+.shop-prod-list{display:flex;flex-direction:column;gap:16px}
+.shop-prod{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);display:grid;grid-template-columns:140px 1fr auto;gap:16px;align-items:center;padding:16px;transition:all .2s;cursor:default}
+.shop-prod:hover{border-color:var(--orange);box-shadow:0 2px 12px rgba(255,106,0,.1)}
+.shop-prod-img{width:140px;height:110px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;border-radius:var(--radius);flex-shrink:0;position:relative;overflow:hidden}
+.shop-prod-badge{position:absolute;top:6px;inset-inline-start:6px;font-size:9px;font-weight:700;padding:2px 7px;border-radius:2px;text-transform:uppercase;letter-spacing:.04em}
+.badge-bs{background:var(--orange);color:#fff}
+.badge-new{background:var(--green-dk);color:#fff}
+.shop-prod-info{}
+.shop-prod-name{font-size:16px;font-weight:700;margin-bottom:4px}
+body.en .shop-prod-name{font-family:'DM Sans',sans-serif}
+.shop-prod-spec{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:8px}
+.shop-prod-prices{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.shop-prod-usd{font-size:22px;font-weight:700;color:var(--orange)}
+.shop-prod-egp{font-size:14px;color:var(--muted)}
+.shop-prod-tags{display:flex;gap:6px;flex-wrap:wrap}
+.shop-prod-tag{padding:3px 10px;background:var(--orange-lt);color:var(--orange-dk);border-radius:20px;font-size:11px;font-weight:600}
+.shop-prod-actions{display:flex;flex-direction:column;align-items:center;gap:10px;flex-shrink:0}
+.qty-ctrl{display:flex;align-items:center;border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.qty-btn{width:36px;height:36px;background:#f5f5f5;border:none;font-size:18px;cursor:pointer;color:var(--text);transition:background .2s;display:flex;align-items:center;justify-content:center}
+.qty-btn:hover{background:var(--orange-lt);color:var(--orange)}
+.qty-inp{width:56px;height:36px;border:none;border-inline:1.5px solid var(--border);text-align:center;font-size:14px;font-weight:700;font-family:inherit;color:var(--text);outline:none}
+.add-cart-btn{padding:10px 20px;background:var(--orange);color:#fff;border:none;border-radius:var(--radius);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;transition:background .2s}
+.add-cart-btn:hover{background:var(--orange-dk)}
+.moq-note{font-size:11px;color:var(--muted);text-align:center}
+
+/* CHECKOUT PANEL */
+.checkout-panel{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);position:sticky;top:80px;overflow:hidden}
+.cp-head{background:var(--orange);padding:16px 18px;color:#fff}
+.cp-head-title{font-size:15px;font-weight:700}
+.cp-head-sub{font-size:12px;opacity:.8;margin-top:2px}
+.cp-body{padding:18px}
+.order-lines{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.ol{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border)}
+.ol:last-child{border-bottom:none}
+.ol-label{color:var(--muted)}
+.ol-val{font-weight:700;color:var(--text)}
+.total-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:2px solid var(--orange);font-size:15px;font-weight:700;margin-top:4px}
+.total-row .val{color:var(--orange)}
+.deposit-box{background:var(--orange-lt);border:1px solid rgba(255,106,0,.2);padding:10px 12px;border-radius:var(--radius);margin-bottom:12px;font-size:12px;color:var(--orange-dk);line-height:1.65}
+.deposit-box strong{display:block;font-weight:700;margin-bottom:2px}
+
+/* CHECKOUT FORM */
+.checkout-steps{display:flex;gap:0;margin-bottom:0;border-bottom:2px solid var(--border)}
+.cs-step{flex:1;text-align:center;padding:8px 4px;font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);border-bottom:3px solid transparent;transition:all .2s;margin-bottom:-2px}
+.cs-step.active{color:var(--orange);border-bottom-color:var(--orange);font-weight:700}
+.cs-step.done{color:var(--green-dk);border-bottom-color:var(--green-dk)}
+.cs-pane{display:none;padding:14px 0}.cs-pane.active{display:block}
+
+/* Payment methods */
+.pm-list{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}
+.pm-opt{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:all .2s}
+.pm-opt:hover,.pm-opt.active{border-color:var(--orange);background:var(--orange-lt)}
+.pm-radio{width:16px;height:16px;border:2px solid var(--muted);border-radius:50%;flex-shrink:0;transition:all .2s;position:relative}
+.pm-opt.active .pm-radio{border-color:var(--orange)}
+.pm-opt.active .pm-radio::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:7px;height:7px;background:var(--orange);border-radius:50%}
+.pm-name{font-size:13px;font-weight:600}
+.pm-desc{font-size:11px;color:var(--muted)}
+.pm-logo-wrap{margin-inline-start:auto;display:flex;gap:4px}
+.pm-logo-chip{font-size:9px;font-weight:700;padding:2px 6px;border-radius:2px;background:var(--bg);color:var(--muted);border:1px solid var(--border)}
+.card-fields{background:#fafaf7;border:1px solid var(--border);padding:12px;border-radius:var(--radius);display:none;margin-bottom:10px}
+.card-fields.show{display:block}
+.cf2{display:grid;grid-template-columns:1fr 70px 70px;gap:8px}
+.bank-info{background:#fafaf7;border:1px solid var(--border);padding:12px;border-radius:var(--radius);display:none;margin-bottom:10px;font-size:12px}
+.bank-info.show{display:block}
+.bi-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:12px}
+.bi-row:last-child{border-bottom:none}
+.bi-label{color:var(--muted)}
+.bi-val{font-weight:700;color:var(--text)}
+.sec-strip{display:flex;gap:10px;justify-content:center;padding:10px 0;border-top:1px solid var(--border);flex-wrap:wrap}
+.sec-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--muted)}
+
+.success-state{display:none;text-align:center;padding:24px}
+.ss-icon{font-size:44px;margin-bottom:10px}
+.ss-ref{background:#fafaf7;border:1px solid var(--border);padding:10px;border-radius:var(--radius);margin:12px 0;font-size:12px;color:var(--muted)}
+.ss-ref strong{font-size:16px;color:var(--text);display:block;margin-bottom:2px}
+
+@media(max-width:768px){
+  .shop-layout{grid-template-columns:1fr;padding:16px}
+  .checkout-panel{position:static}
+  .shop-prod{grid-template-columns:100px 1fr;gap:10px}
+  .shop-prod-actions{grid-column:1/-1;flex-direction:row;justify-content:space-between;flex-wrap:wrap}
+}
+</style>
+</head>
+<body>
+
+<div id="navPlaceholder"></div>
+<div id="cartPlaceholder"></div>
+
+<div class="shop-hero">
+  <h1 class="ar">🛒 متجر مصر ستيل</h1>
+  <h1 class="en-t">🛒 MISR STEEL Shop</h1>
+  <p class="ar">اختار منتجاتك — الحد الأدنى 50 كرسي · 20 طاولة · دفع آمن عبر Paymob</p>
+  <p class="en-t">Select your products — Min. 50 chairs · 20 tables · Secure payment via Paymob</p>
+</div>
+
+<div class="shop-layout">
+
+  <!-- PRODUCTS -->
+  <div>
+    <div class="filters">
+      <button class="filter-btn active" onclick="filterShop(this,'all')"><span class="ar">الكل</span><span class="en-t">All</span></button>
+      <button class="filter-btn" onclick="filterShop(this,'chairs')"><span class="ar">🪑 الكراسي</span><span class="en-t">🪑 Chairs</span></button>
+      <button class="filter-btn" onclick="filterShop(this,'tables')"><span class="ar">🍽 الترابيزات</span><span class="en-t">🍽 Tables</span></button>
+    </div>
+
+    <!-- Affiliate code bar -->
+    <div style="background:#fff;border:1.5px solid rgba(255,106,0,.25);padding:10px 14px;margin-bottom:16px;display:flex;align-items:center;gap:10px;border-radius:var(--radius)">
+      <span style="font-size:13px;color:var(--muted)" class="ar">🎟 كود مسوّق؟</span>
+      <span style="font-size:13px;color:var(--muted)" class="en-t">🎟 Affiliate code?</span>
+      <input type="text" id="affCodeInp" placeholder="STEEL-XXXX" maxlength="12" style="flex:1;border:1.5px solid var(--border);padding:7px 11px;border-radius:var(--radius);font-size:13px;font-family:inherit;text-transform:uppercase;outline:none" oninput="this.value=this.value.toUpperCase()">
+      <button onclick="applyAffCode()" class="btn btn-orange btn-sm"><span class="ar">تطبيق</span><span class="en-t">Apply</span></button>
+      <span id="affCodeOk" style="font-size:12px;color:var(--green-dk);font-weight:700;display:none">✓ <span class="ar">تم</span><span class="en-t">Applied</span></span>
+    </div>
+
+    <div class="shop-prod-list" id="shopProdList"></div>
+  </div>
+
+  <!-- CHECKOUT PANEL -->
+  <div class="checkout-panel" id="checkoutPanel">
+    <div class="cp-head">
+      <div class="cp-head-title ar">🔒 إتمام الطلب</div>
+      <div class="cp-head-title en-t">🔒 Complete Order</div>
+      <div class="cp-head-sub ar">دفع آمن مشفر بـ SSL</div>
+      <div class="cp-head-sub en-t">SSL-encrypted secure payment</div>
+    </div>
+    <div class="cp-body">
+      <div class="checkout-steps">
+        <div class="cs-step active" id="csi1"><span class="ar">ملخص</span><span class="en-t">Summary</span></div>
+        <div class="cs-step" id="csi2"><span class="ar">بياناتك</span><span class="en-t">Your Info</span></div>
+        <div class="cs-step" id="csi3"><span class="ar">الدفع</span><span class="en-t">Payment</span></div>
+      </div>
+
+      <!-- STEP 1: Summary -->
+      <div class="cs-pane active" id="csp1">
+        <div class="order-lines" id="cartSummaryLines"><div style="color:var(--muted);font-size:13px;padding:12px 0;text-align:center" class="ar">أضف منتجات للسلة أولاً</div><div style="color:var(--muted);font-size:13px;padding:12px 0;text-align:center" class="en-t">Add products to cart first</div></div>
+        <div class="total-row"><span class="ar">الإجمالي</span><span class="en-t">Total</span><span class="val" id="summaryTotal">$0</span></div>
+        <div style="margin:4px 0 12px;font-size:12px;color:var(--muted);display:flex;justify-content:space-between"><span class="ar">بالجنيه المصري</span><span class="en-t">In EGP</span><span id="summaryEGP">0 ج.م</span></div>
+        <div class="deposit-box">
+          <strong class="ar">المقدم المطلوب الآن (50%)</strong>
+          <strong class="en-t">Deposit due now (50%)</strong>
+          <span class="ar">تدفع </span><strong id="depositAmt">$0</strong><span class="ar"> لتأكيد الطلب وبدء التصنيع. الباقي قبل الشحن.</span>
+          <span class="en-t">Pay </span><span class="en-t"> to confirm order and start production.</span>
+        </div>
+        <button class="btn btn-orange btn-full" onclick="goCS(2)" id="toStep2Btn"><span class="ar">متابعة ← بياناتك</span><span class="en-t">Continue → Your Info</span></button>
+      </div>
+
+      <!-- STEP 2: Info -->
+      <div class="cs-pane" id="csp2">
+        <div class="form-row-2">
+          <div class="form-group"><label><span class="ar">الاسم</span><span class="en-t">Name</span></label><input type="text" id="ci_name" required></div>
+          <div class="form-group"><label><span class="ar">الشركة</span><span class="en-t">Company</span></label><input type="text" id="ci_company"></div>
+        </div>
+        <div class="form-group"><label><span class="ar">الدولة</span><span class="en-t">Country</span></label>
+          <select id="ci_country">
+            <option value="EG">🇪🇬 مصر / Egypt</option>
+            <option value="IQ">🇮🇶 العراق / Iraq</option>
+            <option value="SA">🇸🇦 السعودية / Saudi Arabia</option>
+            <option value="AE">🇦🇪 الإمارات / UAE</option>
+            <option value="KW">🇰🇼 الكويت / Kuwait</option>
+            <option value="QA">🇶🇦 قطر / Qatar</option>
+            <option value="JO">🇯🇴 الأردن / Jordan</option>
+            <option value="LY">🇱🇾 ليبيا / Libya</option>
+            <option value="DZ">🇩🇿 الجزائر / Algeria</option>
+            <option>🌍 Other</option>
+          </select>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group"><label>WhatsApp</label><input type="tel" id="ci_wa" placeholder="+20 ..."></div>
+          <div class="form-group"><label>Email</label><input type="email" id="ci_email"></div>
+        </div>
+        <div class="form-group"><label><span class="ar">ملاحظات</span><span class="en-t">Notes</span></label><textarea rows="2" id="ci_notes" placeholder="مواصفات خاصة / Special specs..."></textarea></div>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <button class="btn btn-sm" style="background:var(--bg);color:var(--muted);border:1.5px solid var(--border)" onclick="goCS(1)"><span class="ar">← رجوع</span><span class="en-t">← Back</span></button>
+          <button class="btn btn-orange" style="flex:1" onclick="goCS(3)"><span class="ar">متابعة ← الدفع</span><span class="en-t">Continue → Payment</span></button>
+        </div>
+      </div>
+
+      <!-- STEP 3: Payment -->
+      <div class="cs-pane" id="csp3">
+        <div style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:#fafaf7;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:12px">
+          <span style="font-size:15px;font-weight:700">Pay<span style="color:var(--orange)">mob</span></span>
+          <span style="font-size:11px;color:var(--muted)" class="ar">بوابة دفع مرخصة ومشفرة</span>
+          <span style="font-size:11px;color:var(--muted)" class="en-t">Licensed & encrypted gateway</span>
+        </div>
+        <div class="pm-list">
+          <div class="pm-opt active" onclick="selectPM(this,'card')">
+            <div class="pm-radio"></div>
+            <div><div class="pm-name ar">بطاقة (فيزا / ماستر / ميزة)</div><div class="pm-name en-t">Card (Visa / Mastercard / Meeza)</div></div>
+            <div class="pm-logo-wrap"><div class="pm-logo-chip">VISA</div><div class="pm-logo-chip">MC</div><div class="pm-logo-chip">MEEZA</div></div>
+          </div>
+          <div class="pm-opt" onclick="selectPM(this,'fawry')">
+            <div class="pm-radio"></div>
+            <div><div class="pm-name">Fawry</div><div class="pm-desc ar">ادفع في أقرب نقطة فوري</div><div class="pm-desc en-t">Pay at any Fawry outlet</div></div>
+            <div class="pm-logo-wrap"><div class="pm-logo-chip" style="background:#f5a623;color:#fff;border-color:#f5a623">FAWRY</div></div>
+          </div>
+          <div class="pm-opt" onclick="selectPM(this,'wallet')">
+            <div class="pm-radio"></div>
+            <div><div class="pm-name ar">محفظة إلكترونية</div><div class="pm-name en-t">Mobile Wallet</div><div class="pm-desc ar">فودافون كاش · اتصالات · وي</div><div class="pm-desc en-t">Vodafone Cash · Etisalat · WE</div></div>
+            <div class="pm-logo-wrap"><div class="pm-logo-chip" style="background:#e60000;color:#fff;border-color:#e60000">VF</div></div>
+          </div>
+          <div class="pm-opt" onclick="selectPM(this,'bank')">
+            <div class="pm-radio"></div>
+            <div><div class="pm-name ar">تحويل بنكي (دولي)</div><div class="pm-name en-t">Bank Transfer (International)</div><div class="pm-desc ar">للعملاء خارج مصر</div><div class="pm-desc en-t">For international clients</div></div>
+            <div class="pm-logo-wrap"><div class="pm-logo-chip">SWIFT</div></div>
+          </div>
+        </div>
+
+        <!-- Card form -->
+        <div class="card-fields show" id="cardFields">
+          <div class="form-group"><label><span class="ar">رقم البطاقة</span><span class="en-t">Card number</span></label><input type="text" placeholder="•••• •••• •••• ••••" maxlength="19" oninput="fmtCard(this)" style="font-family:'DM Sans',sans-serif;letter-spacing:.08em"></div>
+          <div class="cf2">
+            <div class="form-group"><label><span class="ar">اسم حامل البطاقة</span><span class="en-t">Cardholder name</span></label><input type="text" placeholder="AHMED MOHAMED" style="text-transform:uppercase"></div>
+            <div class="form-group"><label><span class="ar">انتهاء</span><span class="en-t">Expiry</span></label><input type="text" placeholder="MM/YY" maxlength="5"></div>
+            <div class="form-group"><label>CVV</label><input type="password" placeholder="•••" maxlength="3"></div>
+          </div>
+        </div>
+
+        <!-- Bank info -->
+        <div class="bank-info" id="bankFields">
+          <div class="bi-row"><span class="bi-label ar">البنك</span><span class="bi-label en-t">Bank</span><span class="bi-val">البنك الأهلي المصري / NBE</span></div>
+          <div class="bi-row"><span class="bi-label ar">اسم الحساب</span><span class="bi-label en-t">Account name</span><span class="bi-val">مصر ستيل / MISR STEEL</span></div>
+          <div class="bi-row"><span class="bi-label">SWIFT</span><span class="bi-val">NBEGEGCX</span></div>
+          <div class="bi-row"><span class="bi-label">IBAN</span><span class="bi-val">EG ____________________</span></div>
+          <div style="margin-top:8px;padding:8px;background:rgba(255,106,0,.06);border:1px solid rgba(255,106,0,.15);border-radius:2px;font-size:11px;color:var(--orange-dk)" class="ar">بعد التحويل — ابعت صورة الإيصال على واتساب لتأكيد الطلب</div>
+          <div style="margin-top:8px;padding:8px;background:rgba(255,106,0,.06);border:1px solid rgba(255,106,0,.15);border-radius:2px;font-size:11px;color:var(--orange-dk)" class="en-t">After transfer — send receipt photo on WhatsApp to confirm order</div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding:8px 0;border-top:1px solid var(--border)">
+          <span style="font-size:13px;color:var(--muted)" class="ar">المبلغ الآن</span>
+          <span style="font-size:13px;color:var(--muted)" class="en-t">Amount now</span>
+          <span style="font-size:18px;font-weight:700;color:var(--orange)" id="payNowAmt">$0</span>
+        </div>
+
+        <div class="sec-strip">
+          <div class="sec-item">🔒 SSL 256</div>
+          <div class="sec-item">✓ PCI DSS</div>
+          <div class="sec-item">🛡 <span class="ar">مشفر</span><span class="en-t">Encrypted</span></div>
+          <div class="sec-item">↩ <span class="ar">استرداد 14 يوم</span><span class="en-t">14d refund</span></div>
+        </div>
+
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn btn-sm" style="background:var(--bg);color:var(--muted);border:1.5px solid var(--border)" onclick="goCS(2)"><span class="ar">← رجوع</span><span class="en-t">← Back</span></button>
+          <button class="btn btn-orange" style="flex:1;font-size:14px" onclick="processPayment()" id="payBtn">🔒 <span class="ar">ادفع الآن</span><span class="en-t">Pay Now</span></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="success-state" id="successState">
+      <div class="ss-icon">✅</div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:6px" class="ar">تم تأكيد طلبك!</div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:6px" class="en-t">Order Confirmed!</div>
+      <div class="ss-ref"><strong id="orderRef">REF-2025-XXXX</strong><span class="ar">رقم الطلب</span><span class="en-t">Order reference</span></div>
+      <p style="font-size:13px;color:var(--muted);line-height:1.7" class="ar">تم استلام دفعتك. فريقنا سيتواصل معك على واتساب لتأكيد المواصفات وبدء التصنيع.</p>
+      <p style="font-size:13px;color:var(--muted);line-height:1.7" class="en-t">Payment received. Our team will contact you on WhatsApp to confirm specs and start production.</p>
+      <button class="btn btn-green btn-full" style="margin-top:14px" onclick="openWA()">💬 <span class="ar">تابع على واتساب</span><span class="en-t">Track on WhatsApp</span></button>
+      <button class="btn btn-sm" style="margin-top:8px;width:100%;background:var(--bg);color:var(--muted);border:1.5px solid var(--border)" onclick="window.location.href='index.html'"><span class="ar">العودة للرئيسية</span><span class="en-t">Back to home</span></button>
+    </div>
+  </div>
+</div>
+
+<div id="footerPlaceholder"></div>
+
+<script src="shared.js"></script>
+<script>
+var PRODUCTS = [
+  {
+    id:1,
+    nameAr:'كرسي رويال ذهبي',
+    nameEn:'Royal Gold Chair',
+    specAr:'إطار استانلس ذهبي · تنجيد مخمل · متاح بألوان متعددة · مثالي لقاعات الأفراح والفنادق',
+    specEn:'Gold stainless frame · Velvet upholstery · Multiple colors · Perfect for wedding halls & hotels',
+    descAr:'كرسي فاخر بتصميم زهري مميز وإطار ستانلس ذهبي لامع. التنجيد مخمل ناعم متاح بألوان بيج وأبيض وأزرق وروز. الارتفاع 98 سم — مثالي لقاعات الأفراح والفنادق.',
+    descEn:'Luxury chair with distinctive floral back design and shiny gold stainless frame. Soft velvet upholstery available in beige, white, blue and rose. Height 98cm — ideal for wedding halls and hotels.',
+    prices:[{qty:50,label:'50–99',price:45},{qty:100,label:'100–499',price:40},{qty:500,label:'500+ (حاوية كاملة)',price:35}],
+    imgFile:'images/chair-rose-gold.jpg',
+    badge:'bestseller',
+    cat:'chairs',
+    minQty:50, step:50, svgKey:'chair'
+  },
+  {
+    id:2,
+    nameAr:'كرسي لاونج ذهبي',
+    nameEn:'Lounge Gold Armchair',
+    specAr:'إطار استانلس ذهبي · مسند ذراعين · تنجيد كتاني فاخر · للمطاعم والكافيهات',
+    specEn:'Gold stainless frame · Double armrests · Linen fabric · Restaurants & cafes',
+    descAr:'كرسي لاونج عصري بمسند ذراعين وإطار ذهبي. التنجيد قماش كتاني بيج ناعم مريح للجلوس الطويل. مثالي للمطاعم الراقية والكافيهات.',
+    descEn:'Modern lounge armchair with double armrests and gold frame. Comfortable linen fabric upholstery in beige. Ideal for upscale restaurants and cafes.',
+    prices:[{qty:50,label:'50–99',price:48},{qty:100,label:'100–499',price:43},{qty:500,label:'500+ (حاوية كاملة)',price:38}],
+    imgFile:'images/chair-linen-gold.jpg',
+    badge:'new',
+    cat:'chairs',
+    minQty:50, step:50, svgKey:'armchair'
+  },
+  {
+    id:3,
+    nameAr:'كرسي بوكليه أسود',
+    nameEn:'Boucle Black Chair',
+    specAr:'إطار استانلس أسود مات · تنجيد بوكليه · تصميم عصري · للمطاعم والأوفيسات',
+    specEn:'Matte black stainless · Boucle fabric · Modern design · Restaurants & offices',
+    descAr:'كرسي عصري بقماش بوكليه الفاخر وإطار أسود مات. تصميم مريح مع ظهر يحضن الجسم. مناسب للمطاعم العصرية ومناطق الانتظار.',
+    descEn:'Modern chair with premium boucle fabric and matte black frame. Comfortable design with body-hugging back. Suitable for contemporary restaurants and waiting areas.',
+    prices:[{qty:50,label:'50–99',price:42},{qty:100,label:'100–499',price:37},{qty:500,label:'500+ (حاوية كاملة)',price:32}],
+    imgFile:'images/chair-boucle-black.jpg',
+    badge:'',
+    cat:'chairs',
+    minQty:50, step:50, svgKey:'chair'
+  },
+  {
+    id:4,
+    nameAr:'كرسي فيلفيت أحمر',
+    nameEn:'Velvet Red Chair',
+    specAr:'إطار استانلس أسود · مخمل أحمر عميق · تصميم كابيتوني · فنادق وقاعات VIP',
+    specEn:'Black stainless frame · Deep red velvet · Capitone design · Hotels & VIP halls',
+    descAr:'كرسي بتنجيد مخمل أحمر كابيتوني فاخر وإطار أسود متين. تصميم ظهر ضخم مريح. متاح أيضاً بالأخضر والأزرق الداكن والرمادي.',
+    descEn:'Chair with luxurious red capitone velvet upholstery and sturdy black frame. Comfortable large back design. Also available in green, dark blue and grey.',
+    prices:[{qty:50,label:'50–99',price:50},{qty:100,label:'100–499',price:45},{qty:500,label:'500+ (حاوية كاملة)',price:40}],
+    imgFile:'images/chair-velvet-red.jpg',
+    badge:'',
+    cat:'chairs',
+    minQty:50, step:50, svgKey:'chair'
+  },
+  {
+    id:5,
+    nameAr:'كرسي ميداليون فضي',
+    nameEn:'Medallion Silver Chair',
+    specAr:'إطار استانلس فضي لامع · ظهر دائري مزدان · مخمل رمادي · قاعات الأفراح',
+    specEn:'Shiny silver stainless · Ornate round back · Grey velvet · Wedding halls',
+    descAr:'كرسي كلاسيكي بإطار استانلس فضي وظهر دائري مزدان بالتنجيد الكابيتوني. تنجيد مخمل رمادي ناعم. الأكثر طلباً لقاعات الأفراح الفاخرة.',
+    descEn:'Classic chair with silver stainless frame and ornate round capitone back. Soft grey velvet upholstery. Most popular for luxury wedding halls.',
+    prices:[{qty:50,label:'50–99',price:55},{qty:100,label:'100–499',price:49},{qty:500,label:'500+ (حاوية كاملة)',price:44}],
+    imgFile:'images/chair-medallion-silver.jpg',
+    badge:'bestseller',
+    cat:'chairs',
+    minQty:50, step:50, svgKey:'chair'
+  },
+  {
+    id:6,
+    nameAr:'كرسي برميل ذهبي',
+    nameEn:'Barrel Gold Chair',
+    specAr:'إطار استانلس ذهبي دائري · تصميم برميل فريد · مخمل · للكافيهات واللاونج',
+    specEn:'Round gold stainless frame · Unique barrel design · Velvet · Cafes & lounges',
+    descAr:'كرسي برميل فريد بإطار ذهبي دائري وتنجيد مخمل. متاح بالأزرق الداكن والأخضر. تصميم مميز يضيف طابعاً فاخراً لأي مكان.',
+    descEn:'Unique barrel chair with round gold frame and velvet upholstery. Available in dark blue and green. Distinctive design adding luxury to any space.',
+    prices:[{qty:50,label:'50–99',price:65},{qty:100,label:'100–499',price:58},{qty:500,label:'500+ (حاوية كاملة)',price:52}],
+    imgFile:'images/chair-barrel-gold.jpg',
+    badge:'new',
+    cat:'chairs',
+    minQty:50, step:50, svgKey:'armchair'
+  },
+  {
+    id:7,
+    nameAr:'كرسي كيلتد ذهبي',
+    nameEn:'Quilted Gold Armchair',
+    specAr:'إطار استانلس ذهبي · تنجيد كيلتد بيج · مسند ذراعين · مريح للجلوس الطويل',
+    specEn:'Gold stainless frame · Quilted beige fabric · Armrests · Comfortable for long sitting',
+    descAr:'كرسي بمسند ذراعين وتنجيد كيلتد أنيق بقماش بيج دافي. إطار ذهبي قوي. مثالي للمطاعم والفنادق التي تحتاج راحة عالية.',
+    descEn:'Armchair with elegant quilted beige fabric and strong gold frame. Perfect for restaurants and hotels requiring maximum comfort.',
+    prices:[{qty:50,label:'50–99',price:52},{qty:100,label:'100–499',price:46},{qty:500,label:'500+ (حاوية كاملة)',price:41}],
+    imgFile:'images/chair-quilted-gold.jpg',
+    badge:'',
+    cat:'chairs',
+    minQty:50, step:50, svgKey:'armchair'
+  },
+  {
+    id:8,
+    nameAr:'كرسي رابتشر أسود',
+    nameEn:'Rapture Black Chair',
+    specAr:'إطار استانلس أسود · قماش رمادي دافي · تصميم يلتف حول الجسم · المطاعم العصرية',
+    specEn:'Black stainless · Warm grey fabric · Body-wrap design · Modern restaurants',
+    descAr:'كرسي بتصميم يلتف حول الجسم لراحة قصوى. إطار أسود مات وقماش رمادي دافي. بسيط وأنيق — مناسب للمطاعم العصرية.',
+    descEn:'Chair with body-wrap design for maximum comfort. Matte black frame and warm grey fabric. Simple and elegant — suitable for modern restaurants.',
+    prices:[{qty:50,label:'50–99',price:40},{qty:100,label:'100–499',price:35},{qty:500,label:'500+ (حاوية كاملة)',price:30}],
+    imgFile:'images/chair-wrap-black.jpg',
+    badge:'',
+    cat:'chairs',
+    minQty:50, step:50, svgKey:'chair'
+  },
+  {
+    id:9,
+    nameAr:'كرسي آرك ذهبي',
+    nameEn:'Arc Gold Chair',
+    specAr:'إطار استانلس ذهبي قوس · تنجيد رمادي فاتح · أناقة عصرية · للكافيهات والفنادق',
+    specEn:'Arc gold stainless frame · Light grey upholstery · Modern elegance · Cafes & hotels',
+    descAr:'كرسي بإطار ذهبي بشكل قوس مميز وتنجيد رمادي فاتح. تصميم عصري أنيق يناسب الكافيهات الراقية والفنادق.',
+    descEn:'Chair with distinctive arc gold frame and light grey upholstery. Elegant modern design suitable for upscale cafes and hotels.',
+    prices:[{qty:50,label:'50–99',price:48},{qty:100,label:'100–499',price:43},{qty:500,label:'500+ (حاوية كاملة)',price:38}],
+    imgFile:'images/chair-arc-gold.jpg',
+    badge:'new',
+    cat:'chairs',
+    minQty:50, step:50, svgKey:'armchair'
+  },
+  {
+    id:10,
+    nameAr:'كرسي تافتد بيج',
+    nameEn:'Tufted Beige Armchair',
+    specAr:'إطار استانلس أسود · تنجيد كيلتد بيج · مسند ذراعين · للاستقبال والانتظار',
+    specEn:'Black stainless · Tufted beige fabric · Armrests · Reception & waiting areas',
+    descAr:'كرسي بمسند ذراعين وتنجيد كيلتد بيج مريح. إطار أسود متين. مثالي لمناطق الاستقبال والانتظار في الفنادق والمستشفيات.',
+    descEn:'Comfortable tufted beige armchair with sturdy black frame. Ideal for reception and waiting areas in hotels and hospitals.',
+    prices:[{qty:50,label:'50–99',price:44},{qty:100,label:'100–499',price:39},{qty:500,label:'500+ (حاوية كاملة)',price:34}],
+    imgFile:'images/chair-tufted-beige.jpg',
+    badge:'',
+    cat:'chairs',
+    minQty:50, step:50, svgKey:'armchair'
+  },
+];
+
+
+var currentCat = 'all';
+var currentPM = 'card';
+
+function filterShop(btn, cat){
+  currentCat = cat;
+  document.querySelectorAll('.filter-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  renderShopProducts();
+}
+
+
+function vPriceTiers(p, isEn){
+  if(!p.prices) return '<div class="shop-prod-prices"><span class="shop-prod-usd"><sup>$</sup>'+p.price+'</span></div>';
+  var html = '<div style="margin-bottom:8px">';
+  html += '<div style="font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px;font-weight:600">'+(isEn?'Price by quantity':'السعر حسب الكمية')+'</div>';
+  html += '<div style="display:flex;flex-direction:column;gap:4px">';
+  p.prices.forEach(function(tier){
+    var egp = Math.round(tier.price * USD_EGP).toLocaleString('ar-EG');
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 8px;background:var(--bg);border-radius:4px;font-size:12px">';
+    html += '<span style="color:var(--muted)">'+tier.label+' '+(isEn?'units':'قطعة')+'</span>';
+    html += '<span><strong style="color:var(--orange);font-size:14px">$'+tier.price+'</strong> <span style="color:var(--muted);font-size:11px">= '+egp+' ج.م</span></span>';
+    html += '</div>';
+  });
+  html += '</div></div>';
+  html += '<div style="display:flex;gap:5px;flex-wrap:wrap">';
+  html += '<span class="shop-prod-tag ar">الحد الأدنى '+p.minQty+' قطعة</span>';
+  html += '<span class="shop-prod-tag en-t">Min. '+p.minQty+' units</span>';
+  html += '<span class="shop-prod-tag">FOB Alex</span>';
+  html += '</div>';
+  return html;
+}
+
+function renderShopProducts(){
+  var filtered = currentCat==='all' ? PRODUCTS : PRODUCTS.filter(function(p){ return p.cat===currentCat; });
+  var isEn = document.body.classList.contains('en');
+  var html = '';
+  filtered.forEach(function(p){
+    var egp = Math.round(p.price * USD_EGP).toLocaleString('ar-EG');
+    var badge = p.badge==='bestseller' ? '<div class="shop-prod-badge badge-bs ar">الأكثر طلباً</div><div class="shop-prod-badge badge-bs en-t">Bestseller</div>' : p.badge==='new' ? '<div class="shop-prod-badge badge-new ar">جديد</div><div class="shop-prod-badge badge-new en-t">New</div>' : '';
+    html += '<div class="shop-prod" id="sp'+p.id+'">' +
+      '<div class="shop-prod-img">' + badge + getProductSVG(p.svgKey, 110, 90) + '</div>' +
+      '<div class="shop-prod-info">' +
+        '<div class="shop-prod-name">' + (isEn?p.nameEn:p.nameAr) + '</div>' +
+        '<div class="shop-prod-spec">' + (isEn?p.specEn:p.specAr) + '</div>' +
+        '<div class="shop-prod-prices"><span class="shop-prod-usd"><sup>$</sup>' + p.price + ' <span style="font-size:13px;color:var(--muted)">' + (isEn?'/ unit':'/ قطعة') + '</span></span><span class="shop-prod-egp">' + egp + ' ج.م</span></div>' +
+        '<div class="shop-prod-tags"><span class="shop-prod-tag ar">الحد الأدنى ' + p.minQty + ' قطعة</span><span class="shop-prod-tag en-t">Min. ' + p.minQty + ' units</span><span class="shop-prod-tag">FOB Alex</span></div>' +
+      '</div>' +
+      '<div class="shop-prod-actions">' +
+        '<div class="qty-ctrl">' +
+          '<button class="qty-btn" onclick="changeShopQty('+p.id+',-'+p.step+')">−</button>' +
+          '<input type="number" class="qty-inp" id="shopQty'+p.id+'" value="'+p.minQty+'" min="'+p.minQty+'" step="'+p.step+'" onchange="clampQty('+p.id+','+p.minQty+','+p.step+')">' +
+          '<button class="qty-btn" onclick="changeShopQty('+p.id+','+p.step+')">+</button>' +
+        '</div>' +
+        '<button class="add-cart-btn" onclick="addToCartFromShop('+p.id+')"><span class="ar">أضف للسلة 🛒</span><span class="en-t">Add to cart 🛒</span></button>' +
+        '<div class="moq-note ar">الحد الأدنى: '+p.minQty+' قطعة</div>' +
+        '<div class="moq-note en-t">Min. order: '+p.minQty+' units</div>' +
+      '</div>' +
+    '</div>';
+  });
+  document.getElementById('shopProdList').innerHTML = html;
+}
+
+function changeShopQty(id, delta){
+  var inp = document.getElementById('shopQty'+id);
+  var p = PRODUCTS.find(function(x){ return x.id===id; });
+  var val = parseInt(inp.value)||p.minQty;
+  val = Math.max(p.minQty, val + delta);
+  inp.value = val;
+}
+
+function clampQty(id, min, step){
+  var inp = document.getElementById('shopQty'+id);
+  var val = parseInt(inp.value)||min;
+  if(val < min) val = min;
+  val = Math.round(val/step)*step;
+  inp.value = val;
+}
+
+function addToCartFromShop(id){
+  var p = PRODUCTS.find(function(x){ return x.id===id; });
+  var qty = parseInt(document.getElementById('shopQty'+id).value)||p.minQty;
+  Cart.add(p, qty);
+  updateCheckoutSummary();
+}
+
+function updateCheckoutSummary(){
+  var lines = document.getElementById('cartSummaryLines');
+  var total = Cart.getTotal();
+  var deposit = Math.round(total * 0.5);
+  if(Cart.items.length === 0){
+    lines.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:12px 0;text-align:center" class="ar">أضف منتجات للسلة أولاً</div><div style="color:var(--muted);font-size:13px;padding:12px 0;text-align:center" class="en-t">Add products to cart first</div>';
+  } else {
+    var html = '';
+    Cart.items.forEach(function(i){ html += '<div class="ol"><span class="ol-label">'+i.nameAr+' ('+i.qty+')</span><span class="ol-val">$'+( i.price*i.qty).toLocaleString()+'</span></div>'; });
+    lines.innerHTML = html;
+  }
+  document.getElementById('summaryTotal').textContent = '$'+total.toLocaleString();
+  document.getElementById('summaryEGP').textContent = usdToEgp(total)+' ج.م';
+  document.getElementById('depositAmt').textContent = '$'+deposit.toLocaleString();
+  document.getElementById('payNowAmt').textContent = '$'+deposit.toLocaleString();
+}
+
+function goCS(step){
+  if(step===2 && Cart.items.length===0){ showToast(document.body.classList.contains('en')?'Add products first!':'أضف منتجات للسلة أولاً','error'); return; }
+  [1,2,3].forEach(function(i){
+    document.getElementById('csp'+i).classList.toggle('active', i===step);
+    var si = document.getElementById('csi'+i);
+    si.classList.remove('active','done');
+    if(i < step) si.classList.add('done');
+    else if(i===step) si.classList.add('active');
+  });
+  document.getElementById('checkoutPanel').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function selectPM(el, type){
+  currentPM = type;
+  document.querySelectorAll('.pm-opt').forEach(function(o){ o.classList.remove('active'); });
+  el.classList.add('active');
+  document.getElementById('cardFields').classList.toggle('show', type==='card');
+  document.getElementById('bankFields').classList.toggle('show', type==='bank');
+}
+
+function fmtCard(inp){
+  var v = inp.value.replace(/\D/g,'').substring(0,16);
+  inp.value = v.replace(/(.{4})/g,'$1 ').trim();
+}
+
+function processPayment(){
+  var btn = document.getElementById('payBtn');
+  btn.innerHTML = '⏳ ...';
+  btn.disabled = true;
+  setTimeout(function(){
+    var ref = 'REF-'+new Date().getFullYear()+'-'+Math.floor(Math.random()*9000+1000);
+    document.getElementById('orderRef').textContent = ref;
+    document.querySelector('.cp-body').style.display = 'none';
+    document.getElementById('successState').style.display = 'block';
+    Cart.items = []; Cart.save();
+    updateCheckoutSummary();
+  }, 2500);
+}
+
+function openWA(){
+  var ref = document.getElementById('orderRef').textContent;
+  window.open('https://wa.me/201050595250?text='+encodeURIComponent('طلبي رقم: '+ref));
+}
+
+function applyAffCode(){
+  var code = document.getElementById('affCodeInp').value.trim();
+  if(code.length >= 4){ document.getElementById('affCodeOk').style.display='inline'; showToast('✓ '+code+' — كود صالح','success'); }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  document.getElementById('navPlaceholder').innerHTML = buildNav('shop');
+  document.getElementById('cartPlaceholder').innerHTML = buildCartDrawer();
+  document.getElementById('footerPlaceholder').innerHTML = buildFooter();
+  renderShopProducts();
+  Cart.load();
+  updateCheckoutSummary();
+  // Override cart render to also update checkout summary
+  var origSave = Cart.save.bind(Cart);
+  Cart.save = function(){ origSave(); updateCheckoutSummary(); };
+  // Check for checkout redirect from cart
+  if(window.location.hash === '#checkout'){
+    var saved = localStorage.getItem('ms_checkout_cart');
+    if(saved){ Cart.items = JSON.parse(saved); Cart.updateBadge(); updateCheckoutSummary(); goCS(2); }
+  }
+});
+</script>
+</body>
+</html>

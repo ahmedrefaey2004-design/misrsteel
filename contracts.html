@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>العقود والشروط — MISR STEEL</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+.contracts-hero{background:linear-gradient(135deg,#111,#1a1a1a);color:#fff;padding:48px 20px;text-align:center;border-bottom:3px solid var(--orange)}
+.ch-title{font-size:30px;font-weight:700;margin-bottom:8px}
+body.en .ch-title{font-family:'DM Sans',sans-serif}
+.ch-sub{font-size:14px;color:rgba(255,255,255,.55);max-width:560px;margin:0 auto}
+.contracts-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:900px;margin:0 auto}
+.contract-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:all .2s}
+.contract-card:hover{border-color:var(--orange);box-shadow:0 4px 20px rgba(255,106,0,.1)}
+.cc-header{background:linear-gradient(135deg,#111,#222);padding:24px;display:flex;align-items:flex-start;gap:16px}
+.cc-icon{width:48px;height:48px;background:rgba(255,106,0,.15);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;border:1px solid rgba(255,106,0,.25)}
+.cc-title{font-size:16px;font-weight:700;color:#fff;margin-bottom:4px}
+body.en .cc-title{font-family:'DM Sans',sans-serif}
+.cc-sub{font-size:12px;color:rgba(255,255,255,.45)}
+.cc-body{padding:20px}
+.cc-sections{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.cc-section{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);padding:6px 0;border-bottom:1px solid var(--border)}
+.cc-section:last-child{border-bottom:none}
+.cc-section-icon{font-size:14px;width:20px;text-align:center}
+.cc-actions{display:flex;gap:8px}
+.cc-download{flex:1;padding:10px;background:var(--orange);color:#fff;border:none;border-radius:var(--radius);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .2s}
+.cc-download:hover{background:var(--orange-dk)}
+.cc-preview{flex:0 0 auto;padding:10px 14px;background:transparent;border:1.5px solid var(--border);border-radius:var(--radius);font-size:13px;cursor:pointer;font-family:inherit;transition:all .2s}
+.cc-preview:hover{border-color:var(--orange);color:var(--orange)}
+
+/* Terms section */
+.terms-section{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.terms-header{background:var(--orange);color:#fff;padding:16px 20px;display:flex;align-items:center;gap:10px}
+.terms-body{padding:24px}
+.terms-body h3{font-size:15px;font-weight:700;color:var(--orange);margin-bottom:8px;margin-top:20px}
+.terms-body h3:first-child{margin-top:0}
+.terms-body p{font-size:13px;color:var(--muted);line-height:1.75;margin-bottom:8px}
+.terms-body ul{padding-inline-start:20px;margin-bottom:8px}
+.terms-body li{font-size:13px;color:var(--muted);line-height:1.75;margin-bottom:4px}
+.terms-body strong{color:var(--text)}
+
+/* Preview modal */
+.preview-modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:400;display:none;align-items:center;justify-content:center;padding:20px}
+.preview-modal.open{display:flex}
+.pm-box{background:#fff;width:100%;max-width:700px;max-height:85vh;overflow-y:auto;border-radius:var(--radius);position:relative}
+.pm-header{background:var(--black);color:#fff;padding:16px 20px;position:sticky;top:0;display:flex;justify-content:space-between;align-items:center;z-index:1}
+.pm-header h3{font-size:15px;font-weight:700}
+.pm-close{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;line-height:1;padding:4px 8px}
+.pm-body{padding:28px}
+.pm-body table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:13px}
+.pm-body table th{background:var(--orange);color:#fff;padding:8px 12px;text-align:start;font-weight:600}
+.pm-body table td{padding:8px 12px;border-bottom:1px solid var(--border)}
+.pm-body table tr:nth-child(even) td{background:var(--bg)}
+.pm-section-title{font-size:15px;font-weight:700;color:var(--orange);border-bottom:2px solid var(--orange);padding-bottom:6px;margin-bottom:12px;margin-top:20px}
+.pm-section-title:first-child{margin-top:0}
+.pm-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px}
+.pm-row-label{color:var(--muted)}
+.pm-row-val{font-weight:600;color:var(--text)}
+.pm-blank{display:inline-block;min-width:120px;border-bottom:1.5px solid var(--muted);height:16px}
+.sign-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:24px}
+.sign-box{border-top:2px solid var(--orange);padding-top:10px}
+.sign-label{font-size:12px;color:var(--muted);margin-bottom:6px}
+.sign-line{border-bottom:1px solid var(--text);height:32px;margin-bottom:6px}
+
+@media(max-width:640px){
+  .contracts-grid{grid-template-columns:1fr}
+  .sign-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div id="navPlaceholder"></div>
+<div id="cartPlaceholder"></div>
+
+<!-- HERO -->
+<div class="contracts-hero">
+  <div class="ch-title ar">📄 العقود والشروط</div>
+  <div class="ch-title en-t">📄 Contracts & Terms</div>
+  <p class="ch-sub ar">جميع عقود مصر ستيل شفافة وقانونية — يمكنك تحميل أي عقد بصيغة Word لملئه وإرساله</p>
+  <p class="ch-sub en-t">All MISR STEEL contracts are transparent and legally binding — download any contract as Word file to fill and send</p>
+</div>
+
+<!-- CONTRACTS -->
+<div class="section">
+  <div class="contracts-grid">
+
+    <!-- Sales Contract -->
+    <div class="contract-card">
+      <div class="cc-header">
+        <div class="cc-icon">🤝</div>
+        <div>
+          <div class="cc-title ar">عقد بيع المنتجات</div>
+          <div class="cc-title en-t">Sales Contract</div>
+          <div class="cc-sub ar">بين العميل ومصر ستيل · عربي وإنجليزي</div>
+          <div class="cc-sub en-t">Between client and MISR STEEL · Arabic & English</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div class="cc-sections">
+          <div class="cc-section"><span class="cc-section-icon">📋</span><span class="ar">بيانات الطرفين وتفاصيل الأوردر</span><span class="en-t">Party details and order info</span></div>
+          <div class="cc-section"><span class="cc-section-icon">💰</span><span class="ar">شروط الدفع (50% مقدم + 50% قبل الشحن)</span><span class="en-t">Payment terms (50% deposit + 50% before shipping)</span></div>
+          <div class="cc-section"><span class="cc-section-icon">📦</span><span class="ar">الإنتاج والتسليم (21 يوم · FOB الإسكندرية)</span><span class="en-t">Production & delivery (21 days · FOB Alexandria)</span></div>
+          <div class="cc-section"><span class="cc-section-icon">🛡</span><span class="ar">الضمان سنة كاملة على عيوب التصنيع</span><span class="en-t">1-year warranty on manufacturing defects</span></div>
+          <div class="cc-section"><span class="cc-section-icon">⚖️</span><span class="ar">سياسة الإلغاء وحل النزاعات</span><span class="en-t">Cancellation policy & dispute resolution</span></div>
+        </div>
+        <div class="cc-actions">
+          <button class="cc-download" onclick="downloadContract('sales')">⬇️ <span class="ar">تحميل Word</span><span class="en-t">Download Word</span></button>
+          <button class="cc-preview" onclick="openPreview('sales')"><span class="ar">معاينة</span><span class="en-t">Preview</span></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Affiliate Contract -->
+    <div class="contract-card">
+      <div class="cc-header">
+        <div class="cc-icon">🤝</div>
+        <div>
+          <div class="cc-title ar">عقد شراكة مسوّق</div>
+          <div class="cc-title en-t">Affiliate Agreement</div>
+          <div class="cc-sub ar">للمسوّقين بالعمولة · سري ومفصّل</div>
+          <div class="cc-sub en-t">For affiliate marketers · Confidential & detailed</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div class="cc-sections">
+          <div class="cc-section"><span class="cc-section-icon">💵</span><span class="ar">هيكل العمولات (3% / 5% / 7%) بالتفصيل</span><span class="en-t">Commission structure (3% / 5% / 7%) in detail</span></div>
+          <div class="cc-section"><span class="cc-section-icon">📅</span><span class="ar">صرف العمولات خلال 7 أيام عمل</span><span class="en-t">Commission payout within 7 working days</span></div>
+          <div class="cc-section"><span class="cc-section-icon">🔒</span><span class="ar">السرية وعدم المنافسة</span><span class="en-t">Confidentiality & non-competition</span></div>
+          <div class="cc-section"><span class="cc-section-icon">📋</span><span class="ar">التزامات الطرفين بالتفصيل</span><span class="en-t">Both parties' detailed obligations</span></div>
+          <div class="cc-section"><span class="cc-section-icon">⚖️</span><span class="ar">مدة الاتفاقية والإنهاء وحل النزاعات</span><span class="en-t">Term, termination & dispute resolution</span></div>
+        </div>
+        <div class="cc-actions">
+          <button class="cc-download" onclick="downloadContract('affiliate')">⬇️ <span class="ar">تحميل Word</span><span class="en-t">Download Word</span></button>
+          <button class="cc-preview" onclick="openPreview('affiliate')"><span class="ar">معاينة</span><span class="en-t">Preview</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TERMS OF USE -->
+  <div style="max-width:900px;margin:24px auto 0">
+    <div class="terms-section">
+      <div class="terms-header">
+        <span style="font-size:20px">📜</span>
+        <div>
+          <div style="font-size:15px;font-weight:700" class="ar">شروط الاستخدام والخصوصية</div>
+          <div style="font-size:15px;font-weight:700" class="en-t">Terms of Use & Privacy Policy</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.7);margin-top:2px" class="ar">آخر تحديث: 2025</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.7);margin-top:2px" class="en-t">Last updated: 2025</div>
+        </div>
+      </div>
+      <div class="terms-body">
+        <h3 class="ar">1. قبول الشروط</h3><h3 class="en-t">1. Acceptance of Terms</h3>
+        <p class="ar">باستخدام موقع مصر ستيل أو إجراء أي عملية شراء، فأنت توافق على الشروط التالية. إذا كنت لا توافق، يُرجى عدم استخدام الموقع.</p>
+        <p class="en-t">By using the MISR STEEL website or making any purchase, you agree to the following terms. If you do not agree, please do not use the site.</p>
+
+        <h3 class="ar">2. المنتجات والأسعار</h3><h3 class="en-t">2. Products & Pricing</h3>
+        <ul class="ar"><li>جميع الأسعار بالدولار الأمريكي (USD) ما لم يُذكر غير ذلك</li><li>الأسعار قابلة للتغيير دون إشعار مسبق — السعر المعتمد هو وقت تأكيد الطلب</li><li>الحد الأدنى للطلب: 50 قطعة للكراسي، 20 قطعة للطاولات</li><li>الصور على الموقع للتوضيح — قد تختلف تفاصيل دقيقة</li></ul>
+        <ul class="en-t"><li>All prices in USD unless otherwise stated</li><li>Prices subject to change without notice — confirmed order price is binding</li><li>Minimum order: 50 chairs, 20 tables</li><li>Site images are illustrative — minor details may vary</li></ul>
+
+        <h3 class="ar">3. الدفع والأمان</h3><h3 class="en-t">3. Payment & Security</h3>
+        <ul class="ar"><li>المدفوعات تتم عبر Paymob — بوابة دفع مرخصة ومشفرة بـ SSL 256-bit</li><li>المقدم المطلوب 50% لتأكيد الطلب وبدء التصنيع</li><li>الباقي (50%) يُسدَّد قبل الشحن</li><li>نقبل: فيزا، ماستركارد، ميزة، فوري، محافظ إلكترونية، تحويل بنكي</li></ul>
+        <ul class="en-t"><li>Payments via Paymob — licensed gateway with SSL 256-bit encryption</li><li>50% deposit required to confirm order and start production</li><li>Remaining 50% due before shipping</li><li>We accept: Visa, Mastercard, Meeza, Fawry, e-wallets, bank transfer</li></ul>
+
+        <h3 class="ar">4. الإلغاء والاسترداد</h3><h3 class="en-t">4. Cancellation & Refund</h3>
+        <ul class="ar"><li>إلغاء قبل بدء التصنيع: استرداد 25% من المقدم</li><li>إلغاء بعد بدء التصنيع: لا يُسترد المقدم</li><li>عيوب تصنيع: إصلاح مجاني أو استبدال خلال 14 يوم</li></ul>
+        <ul class="en-t"><li>Cancellation before production: 25% of deposit refunded</li><li>Cancellation after production starts: deposit non-refundable</li><li>Manufacturing defects: free repair or replacement within 14 days</li></ul>
+
+        <h3 class="ar">5. الشحن والتسليم</h3><h3 class="en-t">5. Shipping & Delivery</h3>
+        <ul class="ar"><li>التسليم FOB ميناء الإسكندرية — تكاليف الشحن الدولي على العميل</li><li>مدة التصنيع: 21 يوم عمل من تأكيد الطلب</li><li>التأخير بسبب قوة قاهرة لا يُحتسب في مدة التصنيع</li></ul>
+        <ul class="en-t"><li>Delivery FOB Port of Alexandria — international shipping at buyer's expense</li><li>Production time: 21 working days from order confirmation</li><li>Force majeure delays not counted in production time</li></ul>
+
+        <h3 class="ar">6. الخصوصية وحماية البيانات</h3><h3 class="en-t">6. Privacy & Data Protection</h3>
+        <p class="ar">نحترم خصوصيتك. بياناتك الشخصية تُستخدم فقط لإتمام طلباتك والتواصل معك. لا نشارك بياناتك مع أي طرف ثالث بدون موافقتك.</p>
+        <p class="en-t">We respect your privacy. Your personal data is used only to process your orders and communicate with you. We do not share your data with any third party without your consent.</p>
+
+        <h3 class="ar">7. القانون الحاكم</h3><h3 class="en-t">7. Governing Law</h3>
+        <p class="ar">تخضع هذه الشروط للقانون المصري. أي نزاع يُحال لمحاكم القاهرة الابتدائية بعد محاولة التسوية الودية.</p>
+        <p class="en-t">These terms are governed by Egyptian law. Any dispute is referred to Cairo courts after attempting amicable resolution.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PREVIEW MODAL -->
+<div class="preview-modal" id="previewModal" onclick="if(event.target===this)closePreview()">
+  <div class="pm-box">
+    <div class="pm-header">
+      <h3 id="pmTitle">معاينة العقد</h3>
+      <button class="pm-close" onclick="closePreview()">✕</button>
+    </div>
+    <div class="pm-body" id="pmBody"></div>
+  </div>
+</div>
+
+<div id="footerPlaceholder"></div>
+
+<script src="shared.js"></script>
+<script>
+var SALES_PREVIEW = '<div class="pm-section-title ar">عقد بيع منتجات — مصر ستيل</div><div class="pm-section-title en-t">Sales Contract — MISR STEEL</div><div style="text-align:center;padding:12px;background:#fafaf7;margin-bottom:16px;font-size:12px;color:var(--muted)"><div style="font-size:18px;font-weight:700;color:var(--orange)">مصر ستيل · MISR STEEL</div><div class="ar">عقد بيع منتجات أثاث استانلس</div><div class="en-t">Stainless Furniture Sales Contract</div><div style="margin-top:4px">رقم العقد: <span class="pm-blank"></span> · التاريخ: <span class="pm-blank"></span></div></div><div class="pm-section-title ar">الطرف الأول — البائع</div><div class="pm-section-title en-t">First Party — Seller</div><table><tr><th class="ar">البيان</th><th class="en-t">Field</th><th class="ar">القيمة</th><th class="en-t">Value</th></tr><tr><td class="ar">الاسم التجاري</td><td class="en-t">Trade Name</td><td>مصر ستيل للأثاث الاستانلس</td><td>MISR STEEL</td></tr><tr><td class="ar">العنوان</td><td class="en-t">Address</td><td colspan="2">القاهرة، جمهورية مصر العربية / Cairo, Egypt</td></tr></table><div class="pm-section-title ar">الطرف الثاني — المشتري</div><div class="pm-section-title en-t">Second Party — Buyer</div><table><tr><th class="ar">البيان</th><th class="en-t">Field</th><th class="ar">القيمة</th><th class="en-t">Value</th></tr><tr><td class="ar">الاسم</td><td class="en-t">Name</td><td colspan="2"><span class="pm-blank"></span></td></tr><tr><td class="ar">الدولة</td><td class="en-t">Country</td><td colspan="2"><span class="pm-blank"></span></td></tr><tr><td class="ar">الواتساب</td><td class="en-t">WhatsApp</td><td colspan="2"><span class="pm-blank"></span></td></tr></table><div class="pm-section-title ar">تفاصيل الأوردر</div><div class="pm-section-title en-t">Order Details</div><table><tr><th>المنتج / Product</th><th>الكمية / Qty</th><th>سعر الوحدة / Price</th><th>الإجمالي / Total</th></tr><tr><td><span class="pm-blank"></span></td><td><span class="pm-blank"></span></td><td>$ <span class="pm-blank"></span></td><td>$ <span class="pm-blank"></span></td></tr></table><div class="pm-section-title ar">شروط الدفع</div><div class="pm-section-title en-t">Payment Terms</div><div class="pm-row"><span class="pm-row-label ar">المقدم (50%) الآن</span><span class="pm-row-label en-t">Deposit (50%) now</span><span class="pm-row-val">$ <span class="pm-blank"></span></span></div><div class="pm-row"><span class="pm-row-label ar">الباقي (50%) قبل الشحن</span><span class="pm-row-label en-t">Balance (50%) before shipping</span><span class="pm-row-val">$ <span class="pm-blank"></span></span></div><div class="pm-section-title ar">التوقيعات</div><div class="pm-section-title en-t">Signatures</div><div class="sign-grid"><div class="sign-box"><div class="sign-label ar">الطرف الأول — البائع</div><div class="sign-label en-t">First Party — Seller</div><div class="sign-line"></div><div style="font-size:12px;color:var(--muted)">الاسم / Name: <span class="pm-blank"></span></div></div><div class="sign-box"><div class="sign-label ar">الطرف الثاني — المشتري</div><div class="sign-label en-t">Second Party — Buyer</div><div class="sign-line"></div><div style="font-size:12px;color:var(--muted)">الاسم / Name: <span class="pm-blank"></span></div></div></div>';
+
+var AFF_PREVIEW = '<div style="text-align:center;padding:12px;background:#fafaf7;margin-bottom:16px;font-size:12px;color:var(--muted)"><div style="font-size:18px;font-weight:700;color:var(--orange)">مصر ستيل · MISR STEEL</div><div class="ar">عقد شراكة مسوّق بعمولة</div><div class="en-t">Affiliate Commission Agreement</div></div><div class="pm-section-title ar">هيكل العمولات</div><div class="pm-section-title en-t">Commission Structure</div><table><tr><th class="ar">المستوى</th><th class="en-t">Tier</th><th class="ar">حجم الأوردر</th><th class="en-t">Order Size</th><th class="ar">النسبة</th><th class="en-t">Rate</th></tr><tr><td class="ar">مبدئي</td><td class="en-t">Starter</td><td class="ar">أقل من $5,000</td><td class="en-t">Under $5,000</td><td style="color:var(--orange);font-weight:700">3%</td></tr><tr style="background:#fafaf7"><td class="ar">محترف</td><td class="en-t">Pro</td><td>$5,000 – $20,000</td><td>$5,000 – $20,000</td><td style="color:var(--orange);font-weight:700">5%</td></tr><tr><td class="ar">بريميوم</td><td class="en-t">Premium</td><td class="ar">فوق $20,000</td><td class="en-t">Above $20,000</td><td style="color:var(--orange);font-weight:700">7%</td></tr></table><div class="pm-section-title ar">بيانات الأطراف</div><div class="pm-section-title en-t">Party Details</div><div class="pm-row"><span class="pm-row-label ar">اسم المسوّق</span><span class="pm-row-label en-t">Affiliate name</span><span class="pm-blank"></span></div><div class="pm-row"><span class="pm-row-label ar">كود التتبع</span><span class="pm-row-label en-t">Referral code</span><span class="pm-blank"></span></div><div class="pm-row"><span class="pm-row-label ar">تاريخ بدء الاتفاقية</span><span class="pm-row-label en-t">Agreement start date</span><span class="pm-blank"></span></div><div class="pm-row"><span class="pm-row-label ar">مدة الصرف</span><span class="pm-row-label en-t">Payout timeline</span><span class="pm-row-val ar">7 أيام عمل</span><span class="pm-row-val en-t">7 working days</span></div><div class="sign-grid"><div class="sign-box"><div class="sign-label ar">الشركة</div><div class="sign-label en-t">Company</div><div class="sign-line"></div></div><div class="sign-box"><div class="sign-label ar">المسوّق</div><div class="sign-label en-t">Affiliate</div><div class="sign-line"></div></div></div>';
+
+function openPreview(type){
+  var modal = document.getElementById('previewModal');
+  var body = document.getElementById('pmBody');
+  var title = document.getElementById('pmTitle');
+  if(type==='sales'){
+    title.innerHTML = '<span class="ar">معاينة عقد البيع</span><span class="en-t">Sales Contract Preview</span>';
+    body.innerHTML = SALES_PREVIEW;
+  } else {
+    title.innerHTML = '<span class="ar">معاينة عقد المسوّق</span><span class="en-t">Affiliate Contract Preview</span>';
+    body.innerHTML = AFF_PREVIEW;
+  }
+  modal.classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closePreview(){
+  document.getElementById('previewModal').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+function downloadContract(type){
+  var filename = type==='sales' ? 'misrsteel_sales_contract.docx' : 'misrsteel_affiliate_contract.docx';
+  var link = document.createElement('a');
+  link.href = filename;
+  link.download = filename;
+  link.click();
+  showToast(document.body.classList.contains('en') ? '⬇️ Downloading...' : '⬇️ جاري التحميل...', 'success');
+}
+
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closePreview(); });
+
+document.addEventListener('DOMContentLoaded', function(){
+  document.getElementById('navPlaceholder').innerHTML = buildNav('contracts');
+  document.getElementById('cartPlaceholder').innerHTML = buildCartDrawer();
+  document.getElementById('footerPlaceholder').innerHTML = buildFooter();
+});
+</script>
+</body>
+</html>

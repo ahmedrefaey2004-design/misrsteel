@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مصمم الغرفة بالذكاء الاصطناعي — MISR STEEL</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--orange:#ff6000;--orange-dk:#d94f00;--black:#111;--white:#fff;--bg:#f5f5f5;--border:#e5e5e5;--muted:#888}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Cairo',sans-serif;background:var(--bg);direction:rtl}
+body.en{font-family:'DM Sans',sans-serif;direction:ltr}
+.ar{display:block}.en-t{display:none}
+body.en .ar{display:none}
+body.en .en-t{display:block}
+
+/* NAV */
+nav{background:var(--black);padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{color:var(--orange);font-size:18px;font-weight:800;text-decoration:none}
+.nav-back{color:rgba(255,255,255,.6);font-size:12px;text-decoration:none;display:flex;align-items:center;gap:6px;transition:color .2s}
+.nav-back:hover{color:#fff}
+.lang-btn{padding:6px 14px;border:1px solid rgba(255,255,255,.2);background:transparent;color:rgba(255,255,255,.7);font-family:inherit;font-size:11px;cursor:pointer;border-radius:4px}
+
+/* HERO */
+.ai-hero{background:linear-gradient(135deg,#1a0800,#2d1200,#ff6000);padding:48px 24px;text-align:center;color:#fff}
+.ai-hero h1{font-size:clamp(24px,4vw,42px);font-weight:800;margin-bottom:10px}
+.ai-hero h1 span{color:#ffd580}
+.ai-hero p{font-size:14px;color:rgba(255,255,255,.7);max-width:560px;margin:0 auto;line-height:1.75}
+
+/* MAIN LAYOUT */
+.ai-main{max-width:1100px;margin:0 auto;padding:28px 20px;display:grid;grid-template-columns:1fr 1fr;gap:24px}
+
+/* PANELS */
+.panel{background:#fff;border-radius:8px;border:1px solid var(--border);overflow:hidden}
+.panel-head{background:var(--black);padding:14px 18px;display:flex;align-items:center;gap:8px}
+.panel-head h3{color:#fff;font-size:14px;font-weight:700}
+.panel-body{padding:20px}
+
+/* STEP INDICATOR */
+.steps{display:flex;gap:0;margin-bottom:20px;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.step{flex:1;padding:10px 6px;text-align:center;font-size:11px;font-weight:700;color:var(--muted);background:#fafafa;border-right:1px solid var(--border);transition:all .2s;cursor:default}
+body.ar .step{border-right:none;border-left:1px solid var(--border)}
+.step:last-child{border:none}
+.step.active{background:var(--orange);color:#fff}
+.step.done{background:#e8f5ec;color:#00a650}
+.step-n{font-size:16px;display:block;margin-bottom:2px}
+
+/* UPLOAD ZONE */
+.upload-zone{border:2px dashed var(--border);border-radius:8px;padding:32px 16px;text-align:center;cursor:pointer;transition:all .25s;margin-bottom:14px;background:#fafafa}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--orange);background:#fff8f5}
+.upload-zone input{display:none}
+.upload-icon{font-size:36px;margin-bottom:8px}
+.upload-txt{font-size:13px;font-weight:700;color:var(--black);margin-bottom:4px}
+.upload-sub{font-size:11px;color:var(--muted)}
+
+/* DEMO ROOMS */
+.demo-label{font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.demo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px}
+.demo-card{border:2px solid var(--border);border-radius:6px;padding:10px 6px;text-align:center;cursor:pointer;transition:all .2s;background:#fafafa}
+.demo-card:hover,.demo-card.active{border-color:var(--orange);background:#fff8f5}
+.demo-card-icon{font-size:22px;margin-bottom:4px}
+.demo-card-name{font-size:10px;font-weight:700;color:var(--black)}
+
+/* CONTROLS */
+.ctrl-section{margin-bottom:16px}
+.ctrl-label{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px;display:block}
+.ctrl-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ctrl-select{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit;outline:none;background:#fafafa;transition:border-color .2s}
+.ctrl-select:focus{border-color:var(--orange)}
+
+/* PRODUCT SELECTOR */
+.prod-selector{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.prod-opt{border:2px solid var(--border);border-radius:6px;padding:8px;text-align:center;cursor:pointer;transition:all .2s;background:#fafafa}
+.prod-opt:hover,.prod-opt.selected{border-color:var(--orange);background:#fff8f5}
+.prod-opt img{width:100%;height:60px;object-fit:cover;border-radius:4px;margin-bottom:4px}
+.prod-opt-name{font-size:9px;font-weight:700;color:var(--black);line-height:1.3}
+.prod-opt-price{font-size:10px;color:var(--orange);font-weight:700}
+
+/* GENERATE BTN */
+.gen-btn{width:100%;padding:14px;background:var(--orange);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:8px}
+.gen-btn:hover{background:var(--orange-dk)}
+.gen-btn:disabled{opacity:.6;cursor:not-allowed}
+
+/* RESULT PANEL */
+.result-empty{text-align:center;padding:48px 20px;color:var(--muted)}
+.result-empty-icon{font-size:56px;margin-bottom:12px;opacity:.4}
+.result-empty-txt{font-size:13px;line-height:1.7}
+
+/* SPINNER */
+.spinner-wrap{text-align:center;padding:48px 20px;display:none}
+.spinner{width:40px;height:40px;border:3px solid rgba(255,96,0,.2);border-top-color:var(--orange);border-radius:50%;animation:spin .9s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner-txt{font-size:13px;color:var(--muted);font-weight:600}
+.spinner-steps{display:flex;flex-direction:column;gap:6px;margin-top:12px;max-width:280px;margin-inline:auto}
+.spinner-step{font-size:11px;color:var(--muted);padding:5px 12px;border-radius:20px;background:#f5f5f5;transition:all .3s}
+.spinner-step.active{background:var(--orange);color:#fff}
+
+/* RESULT IMAGE */
+.result-img-wrap{position:relative;border-radius:8px;overflow:hidden;margin-bottom:14px;border:1px solid var(--border)}
+.result-img-wrap img{width:100%;display:block}
+.result-badge{position:absolute;top:10px;inset-inline-start:10px;background:var(--orange);color:#fff;font-size:10px;font-weight:700;padding:4px 12px;border-radius:20px}
+.result-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.btn-order{padding:11px;background:var(--orange);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .2s}
+.btn-order:hover{background:var(--orange-dk)}
+.btn-retry{padding:11px;background:#f5f5f5;color:var(--black);border:1.5px solid var(--border);border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-retry:hover{border-color:var(--orange);color:var(--orange)}
+
+/* RESULT STATS */
+.result-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.rs{background:#fff8f5;border:1px solid rgba(255,96,0,.15);border-radius:6px;padding:10px;text-align:center}
+.rs-n{font-size:18px;font-weight:800;color:var(--orange)}
+.rs-l{font-size:9px;color:var(--muted);margin-top:2px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+
+/* REVISED PROMPT */
+.revised-prompt{background:#f9f9f9;border:1px solid var(--border);border-radius:6px;padding:12px;margin-top:10px;font-size:11px;color:var(--muted);line-height:1.6;display:none}
+.revised-prompt strong{color:var(--black);display:block;margin-bottom:4px}
+
+/* ERROR */
+.error-box{background:#fff0f0;border:1px solid #ffcccc;border-radius:6px;padding:14px;font-size:12px;color:#cc0000;display:none;margin-bottom:14px}
+
+/* HOW IT WORKS */
+.how-section{max-width:1100px;margin:0 auto 32px;padding:0 20px}
+.how-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.how-card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:20px 16px;text-align:center}
+.how-num{width:32px;height:32px;background:var(--orange);color:#fff;border-radius:50%;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
+.how-title{font-size:13px;font-weight:700;margin-bottom:4px}
+.how-desc{font-size:11px;color:var(--muted);line-height:1.6}
+
+/* CREDITS SYSTEM */
+.credits-bar{background:var(--black);color:#fff;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.credits-info{display:flex;align-items:center;gap:10px;font-size:13px}
+.credits-badge{background:var(--orange);color:#fff;font-size:12px;font-weight:800;padding:4px 14px;border-radius:20px}
+.credits-badge.low{background:#cc0000}
+.credits-badge.free{background:#00a650}
+.credits-sub{font-size:11px;color:rgba(255,255,255,.5)}
+.credits-topup{padding:7px 18px;background:var(--orange);color:#fff;border:none;border-radius:4px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .2s}
+.credits-topup:hover{background:var(--orange-dk)}
+
+/* PAYMENT MODAL */
+.pay-modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:600;display:none;align-items:center;justify-content:center;padding:20px}
+.pay-modal.open{display:flex}
+.pay-box{background:#fff;width:100%;max-width:420px;border-radius:8px;overflow:hidden}
+.pay-head{background:var(--black);padding:18px 22px;display:flex;justify-content:space-between;align-items:center}
+.pay-head h3{color:#fff;font-size:15px;font-weight:700}
+.pay-x{background:none;border:none;color:rgba(255,255,255,.5);font-size:22px;cursor:pointer}
+.pay-body{padding:22px}
+.pay-plan{border:2px solid var(--border);border-radius:8px;padding:18px;text-align:center;margin-bottom:16px;cursor:pointer;transition:all .2s}
+.pay-plan:hover,.pay-plan.selected{border-color:var(--orange);background:#fff8f5}
+.pay-plan-price{font-size:32px;font-weight:800;color:var(--orange)}
+.pay-plan-credits{font-size:14px;font-weight:700;color:var(--black);margin-top:4px}
+.pay-plan-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.pay-btn{width:100%;padding:13px;background:var(--orange);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:background .2s}
+.pay-btn:hover{background:var(--orange-dk)}
+.pay-success{display:none;text-align:center;padding:24px 0}
+.pay-success-icon{font-size:48px;margin-bottom:10px}
+.pay-note{font-size:11px;color:var(--muted);text-align:center;margin-top:10px;line-height:1.6}
+
+/* WA FLOAT */
+.wa-fab{position:fixed;bottom:20px;inset-inline-end:20px;z-index:100;background:#25D366;color:#fff;padding:12px 18px;border-radius:50px;display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;text-decoration:none;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+
+@media(max-width:768px){
+  .ai-main{grid-template-columns:1fr}
+  .how-grid{grid-template-columns:repeat(2,1fr)}
+  .demo-grid{grid-template-columns:repeat(2,1fr)}
+  .prod-selector{grid-template-columns:repeat(2,1fr)}
+}
+
+/* CREDITS BAR */
+.credits-bar{background:#1a1a1a;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;border-bottom:2px solid var(--orange)}
+.credits-info{display:flex;align-items:center;gap:10px;font-size:13px;color:#fff}
+.credits-num{background:var(--orange);color:#fff;font-size:13px;font-weight:800;padding:4px 16px;border-radius:20px;min-width:80px;text-align:center}
+.credits-num.free{background:#00a650}
+.credits-num.low{background:#cc3300}
+.credits-num.empty{background:#888}
+.credits-sub{font-size:11px;color:rgba(255,255,255,.45)}
+.credits-topup-btn{padding:7px 18px;background:var(--orange);color:#fff;border:none;border-radius:4px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+
+/* PAY MODAL */
+.pay-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:900;display:none;align-items:center;justify-content:center;padding:20px}
+.pay-overlay.open{display:flex}
+.pay-box{background:#fff;width:100%;max-width:400px;border-radius:8px;overflow:hidden;animation:slideUp .25s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.pay-head{background:var(--black);padding:16px 20px;display:flex;justify-content:space-between;align-items:center}
+.pay-head h3{color:#fff;font-size:15px;font-weight:700}
+.pay-x{background:none;border:none;color:rgba(255,255,255,.5);font-size:22px;cursor:pointer;line-height:1}
+.pay-body{padding:20px}
+.pay-plan{border:2px solid var(--orange);border-radius:8px;padding:18px;text-align:center;margin-bottom:14px;background:#fff8f5}
+.pay-price{font-size:36px;font-weight:800;color:var(--orange)}
+.pay-credits{font-size:15px;font-weight:700;color:var(--black);margin-top:4px}
+.pay-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.pay-features{background:#f9f9f9;border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:14px;font-size:12px;color:var(--muted);line-height:1.8}
+.pay-btn{width:100%;padding:13px;background:var(--orange);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit}
+.pay-btn:hover{background:var(--orange-dk)}
+.pay-note{font-size:10px;color:var(--muted);text-align:center;margin-top:8px;line-height:1.6}
+.pay-success{display:none;text-align:center;padding:20px 0}
+.pay-success-icon{font-size:52px;margin-bottom:10px}
+
+/* BLOCKED MODAL */
+.blocked-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:800;display:none;align-items:center;justify-content:center;padding:20px}
+.blocked-overlay.open{display:flex}
+.blocked-box{background:#fff;width:100%;max-width:380px;border-radius:8px;overflow:hidden;text-align:center}
+.blocked-head{background:var(--orange);padding:20px;color:#fff}
+.blocked-head .bi{font-size:40px;margin-bottom:8px}
+.blocked-head h3{font-size:18px;font-weight:800}
+.blocked-body{padding:20px}
+.blocked-body p{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:16px}
+.blocked-btn{width:100%;padding:12px;background:var(--orange);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;margin-bottom:8px}
+.blocked-wa{width:100%;padding:10px;background:#25D366;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">مصر ستيل</a>
+  <button class="lang-btn" onclick="toggleLang()">EN / ع</button>
+  <a class="nav-back" href="index.html">
+    <span class="ar">← الرئيسية</span>
+    <span class="en-t">← Home</span>
+  </a>
+</nav>
+
+<!-- CREDITS BAR -->
+<div class="credits-bar" id="creditsBar">
+  <div class="credits-info">
+    <span class="ar">رصيدك:</span><span class="en-t">Your balance:</span>
+    <span class="credits-num free" id="creditsNum">2 مجاني</span>
+    <span class="credits-sub" id="creditsSub">
+      <span class="ar">تصميمان مجانيان متبقيان</span>
+      <span class="en-t">2 free designs remaining</span>
+    </span>
+  </div>
+  <button class="credits-topup-btn" onclick="openPay()">
+    💳 <span class="ar">شحن $50</span><span class="en-t">Top Up $50</span>
+  </button>
+</div>
+
+<!-- PAY MODAL -->
+<div class="pay-overlay" id="payOverlay">
+  <div class="pay-box">
+    <div class="pay-head">
+      <h3>💳 <span class="ar">شحن رصيد التصميم</span><span class="en-t">Top Up Design Credits</span></h3>
+      <button class="pay-x" onclick="closePay()">✕</button>
+    </div>
+    <div class="pay-body">
+      <div id="payForm">
+        <div class="pay-plan">
+          <div class="pay-price">$50</div>
+          <div class="pay-credits ar">25 تصميم بالذكاء الاصطناعي</div>
+          <div class="pay-credits en-t">25 AI Room Designs</div>
+          <div class="pay-sub ar">$2 للتصميم الواحد</div>
+          <div class="pay-sub en-t">$2 per design</div>
+        </div>
+        <div class="pay-features">
+          <strong style="color:var(--black);display:block;margin-bottom:4px" class="ar">✅ ماذا تحصل؟</strong>
+          <strong style="color:var(--black);display:block;margin-bottom:4px" class="en-t">✅ What you get:</strong>
+          <span class="ar">🤖 25 تصميم واقعي بالذكاء الاصطناعي<br>📸 صور احترافية عالية الجودة<br>💬 مشاركة فورية على واتساب<br>♾️ الرصيد لا ينتهي</span>
+          <span class="en-t">🤖 25 realistic AI room designs<br>📸 High quality professional images<br>💬 Instant WhatsApp sharing<br>♾️ Credits never expire</span>
+        </div>
+        <button class="pay-btn" onclick="doPay()">
+          🔒 <span class="ar">ادفع $50 عبر Paymob</span><span class="en-t">Pay $50 via Paymob</span>
+        </button>
+        <p class="pay-note ar">دفع آمن · فيزا · ماستر · فوري · محافظ إلكترونية<br>يتم إضافة الرصيد فوراً بعد الدفع</p>
+        <p class="pay-note en-t">Secure payment · Visa · Mastercard · Fawry · Wallets<br>Credits added instantly after payment</p>
+      </div>
+      <div class="pay-success" id="paySuccess">
+        <div class="pay-success-icon">🎉</div>
+        <h3 style="font-size:20px;font-weight:800;margin-bottom:6px" class="ar">تم شحن الرصيد!</h3>
+        <h3 style="font-size:20px;font-weight:800;margin-bottom:6px" class="en-t">Credits Added!</h3>
+        <p style="font-size:13px;color:var(--muted)" class="ar">تمت إضافة 25 تصميم لرصيدك بنجاح ✅</p>
+        <p style="font-size:13px;color:var(--muted)" class="en-t">25 designs added to your account ✅</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BLOCKED MODAL -->
+<div class="blocked-overlay" id="blockedOverlay">
+  <div class="blocked-box">
+    <div class="blocked-head">
+      <div class="bi">🔒</div>
+      <h3 class="ar">انتهى رصيدك المجاني</h3>
+      <h3 class="en-t">Free Credits Used</h3>
+    </div>
+    <div class="blocked-body">
+      <p class="ar">استخدمت التصميمَين المجانيَين.<br>اشحن $50 واحصل على 25 تصميم إضافي بالذكاء الاصطناعي.</p>
+      <p class="en-t">You've used your 2 free designs.<br>Top up $50 to get 25 more AI designs.</p>
+      <button class="blocked-btn" onclick="closeBlocked();openPay()">
+        💳 <span class="ar">شحن $50 — 25 تصميم</span><span class="en-t">Top Up $50 — 25 Designs</span>
+      </button>
+      <button class="blocked-wa" onclick="window.open('https://wa.me/201050595250?text=عاوز أشحن رصيد التصميم')">
+        💬 <span class="ar">تواصل على واتساب</span><span class="en-t">Contact on WhatsApp</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<div class="ai-hero">
+  <h1 class="ar">🤖 صمّم غرفتك بـ <span>الذكاء الاصطناعي</span></h1>
+  <h1 class="en-t">🤖 Design Your Room with <span>AI</span></h1>
+  <p class="ar">ارفع صورة مكانك واختار منتجاتنا — الذكاء الاصطناعي هيصمملك الغرفة بالأثاث اللي اخترته ويوريلك النتيجة قبل ما تطلب</p>
+  <p class="en-t">Upload your space photo and choose our products — AI will design your room with the selected furniture and show you the result before you order</p>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="how-section" style="margin-top:24px">
+  <div class="how-grid">
+    <div class="how-card"><div class="how-num">1</div><div class="how-title ar">ارفع صورة مكانك</div><div class="how-title en-t">Upload your space</div><div class="how-desc ar">مطعم أو فندق أو قاعة</div><div class="how-desc en-t">Restaurant, hotel or hall</div></div>
+    <div class="how-card"><div class="how-num">2</div><div class="how-title ar">اختار المنتج</div><div class="how-title en-t">Choose product</div><div class="how-desc ar">من كتالوج مصر ستيل</div><div class="how-desc en-t">From MISR STEEL catalog</div></div>
+    <div class="how-card"><div class="how-num">3</div><div class="how-title ar">الذكاء الاصطناعي يصمم</div><div class="how-title en-t">AI designs</div><div class="how-desc ar">يولد صورة واقعية للمكان</div><div class="how-desc en-t">Generates realistic room image</div></div>
+    <div class="how-card"><div class="how-num">4</div><div class="how-title ar">اطلب مباشرة</div><div class="how-title en-t">Order directly</div><div class="how-desc ar">بسعر المصنع وضمان سنة</div><div class="how-desc en-t">Factory price, 1-year warranty</div></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="ai-main">
+
+  <!-- LEFT: INPUT -->
+  <div class="panel">
+    <div class="panel-head">
+      <span style="font-size:18px">🏠</span>
+      <h3><span class="ar">إعدادات التصميم</span><span class="en-t">Design Settings</span></h3>
+    </div>
+    <div class="panel-body">
+
+      <div class="steps">
+        <div class="step active" id="st1"><span class="step-n">📸</span><span class="ar">المكان</span><span class="en-t">Space</span></div>
+        <div class="step" id="st2"><span class="step-n">🪑</span><span class="ar">المنتج</span><span class="en-t">Product</span></div>
+        <div class="step" id="st3"><span class="step-n">⚙️</span><span class="ar">الأسلوب</span><span class="en-t">Style</span></div>
+        <div class="step" id="st4"><span class="step-n">🤖</span><span class="ar">توليد</span><span class="en-t">Generate</span></div>
+      </div>
+
+      <!-- STEP 1: Space -->
+      <div id="step1">
+        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()" ondragover="onDrag(event,1)" ondragleave="onDrag(event,0)" ondrop="onDrop(event)">
+          <input type="file" id="fileInput" accept="image/*" onchange="onFile(this.files[0])">
+          <div class="upload-icon">📸</div>
+          <div class="upload-txt ar">ارفع صورة مكانك هنا</div>
+          <div class="upload-txt en-t">Upload your space photo here</div>
+          <div class="upload-sub ar">JPG, PNG — اسحب هنا أو اضغط</div>
+          <div class="upload-sub en-t">JPG, PNG — drag & drop or click</div>
+        </div>
+
+        <div class="demo-label ar">أو اختار غرفة ديمو:</div>
+        <div class="demo-label en-t">Or choose a demo room:</div>
+        <div class="demo-grid">
+          <div class="demo-card" onclick="setDemo('restaurant',this)"><div class="demo-card-icon">🍽</div><div class="demo-card-name ar">مطعم</div><div class="demo-card-name en-t">Restaurant</div></div>
+          <div class="demo-card" onclick="setDemo('hotel',this)"><div class="demo-card-icon">🏨</div><div class="demo-card-name ar">فندق</div><div class="demo-card-name en-t">Hotel</div></div>
+          <div class="demo-card" onclick="setDemo('cafe',this)"><div class="demo-card-icon">☕</div><div class="demo-card-name ar">كافيه</div><div class="demo-card-name en-t">Cafe</div></div>
+          <div class="demo-card" onclick="setDemo('hall',this)"><div class="demo-card-icon">🎪</div><div class="demo-card-name ar">قاعة</div><div class="demo-card-name en-t">Hall</div></div>
+        </div>
+
+        <div id="spacePreview" style="display:none;margin-bottom:14px">
+          <img id="spaceImg" src="" alt="" style="width:100%;border-radius:8px;border:1px solid var(--border);max-height:160px;object-fit:cover">
+          <div style="font-size:11px;color:var(--muted);margin-top:5px;text-align:center" class="ar">✓ تم اختيار المكان — اضغط التالي</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:5px;text-align:center" class="en-t">✓ Space selected — press Next</div>
+        </div>
+
+        <button class="gen-btn" onclick="goStep(2)" id="nextBtn1" style="display:none">
+          <span class="ar">التالي — اختار المنتج ←</span>
+          <span class="en-t">Next — Choose Product →</span>
+        </button>
+      </div>
+
+      <!-- STEP 2: Product -->
+      <div id="step2" style="display:none">
+        <div class="ctrl-label ar">اختار المنتج:</div>
+        <div class="ctrl-label en-t">Choose product:</div>
+        <div class="prod-selector">
+          <div class="prod-opt selected" onclick="selectProd(this,'كرسي رويال ذهبي','Royal Gold Chair',45)" data-name-ar="كرسي رويال ذهبي" data-name-en="Royal Gold Chair" data-price="45">
+            <img src="images/p01-rose-gold-chair.jpg" alt="كرسي رويال" onerror="this.style.display='none'">
+            <div class="prod-opt-name ar">رويال ذهبي</div><div class="prod-opt-name en-t">Royal Gold</div>
+            <div class="prod-opt-price">$45</div>
+          </div>
+          <div class="prod-opt" onclick="selectProd(this,'كرسي ميداليون فضي','Medallion Silver Chair',55)" data-name-ar="كرسي ميداليون فضي" data-name-en="Medallion Silver Chair" data-price="55">
+            <img src="images/p04-medallion-silver.jpg" alt="ميداليون" onerror="this.style.display='none'">
+            <div class="prod-opt-name ar">ميداليون فضي</div><div class="prod-opt-name en-t">Medallion Silver</div>
+            <div class="prod-opt-price">$55</div>
+          </div>
+          <div class="prod-opt" onclick="selectProd(this,'كرسي فيلفيت أحمر','Velvet Red Chair',50)" data-name-ar="كرسي فيلفيت أحمر" data-name-en="Velvet Red Chair" data-price="50">
+            <img src="images/p05-velvet-red.jpg" alt="فيلفيت" onerror="this.style.display='none'">
+            <div class="prod-opt-name ar">فيلفيت أحمر</div><div class="prod-opt-name en-t">Velvet Red</div>
+            <div class="prod-opt-price">$50</div>
+          </div>
+          <div class="prod-opt" onclick="selectProd(this,'كرسي لاونج ذهبي','Lounge Gold Chair',48)" data-name-ar="كرسي لاونج ذهبي" data-name-en="Lounge Gold Chair" data-price="48">
+            <img src="images/p02-linen-armchair.jpg" alt="لاونج" onerror="this.style.display='none'">
+            <div class="prod-opt-name ar">لاونج ذهبي</div><div class="prod-opt-name en-t">Lounge Gold</div>
+            <div class="prod-opt-price">$48</div>
+          </div>
+          <div class="prod-opt" onclick="selectProd(this,'كرسي برميل ذهبي','Barrel Gold Chair',65)" data-name-ar="كرسي برميل ذهبي" data-name-en="Barrel Gold Chair" data-price="65">
+            <img src="images/p03-barrel-gold.jpg" alt="برميل" onerror="this.style.display='none'">
+            <div class="prod-opt-name ar">برميل ذهبي</div><div class="prod-opt-name en-t">Barrel Gold</div>
+            <div class="prod-opt-price">$65</div>
+          </div>
+          <div class="prod-opt" onclick="selectProd(this,'كرسي هوبي ذهبي','Hoop Gold Chair',68)" data-name-ar="كرسي هوبي ذهبي" data-name-en="Hoop Gold Chair" data-price="68">
+            <img src="images/p15-new-e.jpg" alt="هوبي" onerror="this.style.display='none'">
+            <div class="prod-opt-name ar">هوبي ذهبي</div><div class="prod-opt-name en-t">Hoop Gold</div>
+            <div class="prod-opt-price">$68</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn-retry" onclick="goStep(1)" style="flex:0 0 auto;padding:11px 16px"><span class="ar">← رجوع</span><span class="en-t">← Back</span></button>
+          <button class="gen-btn" onclick="goStep(3)"><span class="ar">التالي ←</span><span class="en-t">Next →</span></button>
+        </div>
+      </div>
+
+      <!-- STEP 3: Style -->
+      <div id="step3" style="display:none">
+        <div class="ctrl-section">
+          <label class="ctrl-label"><span class="ar">أسلوب التصميم</span><span class="en-t">Design Style</span></label>
+          <div class="ctrl-grid">
+            <select class="ctrl-select" id="styleSelect">
+              <option value="modern luxury">مودرن فاخر / Modern Luxury</option>
+              <option value="classic elegant">كلاسيك أنيق / Classic Elegant</option>
+              <option value="minimalist">مينيمال / Minimalist</option>
+              <option value="arabic heritage">تراث عربي / Arabic Heritage</option>
+            </select>
+            <select class="ctrl-select" id="lightSelect">
+              <option value="warm golden lighting">إضاءة ذهبية دافئة</option>
+              <option value="bright natural lighting">إضاءة طبيعية ساطعة</option>
+              <option value="dramatic moody lighting">إضاءة درامية</option>
+              <option value="soft ambient lighting">إضاءة ناعمة</option>
+            </select>
+          </div>
+        </div>
+        <div class="ctrl-section">
+          <label class="ctrl-label"><span class="ar">الكمية المقدرة</span><span class="en-t">Estimated Quantity</span></label>
+          <div class="ctrl-grid">
+            <select class="ctrl-select" id="qtySelect">
+              <option value="20" data-qty="20">20 قطعة / 20 pieces</option>
+              <option value="50" data-qty="50" selected>50 قطعة / 50 pieces</option>
+              <option value="100" data-qty="100">100 قطعة / 100 pieces</option>
+              <option value="200" data-qty="200">200 قطعة / 200 pieces</option>
+              <option value="500" data-qty="500">500+ قطعة / 500+ pieces</option>
+            </select>
+            <select class="ctrl-select" id="arrangementSelect">
+              <option value="arranged in neat rows">صفوف منظمة / Rows</option>
+              <option value="around round tables">حول طاولات دايرة / Round tables</option>
+              <option value="banquet style">بانكيت / Banquet</option>
+              <option value="lounge clusters">مجموعات لاونج / Lounge</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn-retry" onclick="goStep(2)" style="flex:0 0 auto;padding:11px 16px"><span class="ar">← رجوع</span><span class="en-t">← Back</span></button>
+          <button class="gen-btn" onclick="generateAI()">
+            🤖 <span class="ar">ولّد التصميم</span><span class="en-t">Generate Design</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- RIGHT: RESULT -->
+  <div class="panel">
+    <div class="panel-head">
+      <span style="font-size:18px">✨</span>
+      <h3><span class="ar">نتيجة الذكاء الاصطناعي</span><span class="en-t">AI Result</span></h3>
+    </div>
+    <div class="panel-body">
+
+      <!-- Empty state -->
+      <div class="result-empty" id="resultEmpty">
+        <div class="result-empty-icon">🏠</div>
+        <div class="result-empty-txt ar">اختار مكانك ومنتجك من اليسار<br>وضغط "ولّد التصميم"<br>وشوف غرفتك مفروشة بكراسي مصر ستيل</div>
+        <div class="result-empty-txt en-t">Choose your space and product on the left<br>then press "Generate Design"<br>to see your room furnished with MISR STEEL chairs</div>
+      </div>
+
+      <!-- Spinner -->
+      <div class="spinner-wrap" id="spinnerWrap">
+        <div class="spinner"></div>
+        <div class="spinner-txt" id="spinnerTxt">جاري تحليل المكان...</div>
+        <div class="spinner-steps">
+          <div class="spinner-step active" id="ss1">🔍 <span class="ar">تحليل المكان</span><span class="en-t">Analyzing space</span></div>
+          <div class="spinner-step" id="ss2">🪑 <span class="ar">اختيار المنتجات</span><span class="en-t">Selecting products</span></div>
+          <div class="spinner-step" id="ss3">🎨 <span class="ar">تصميم التخطيط</span><span class="en-t">Designing layout</span></div>
+          <div class="spinner-step" id="ss4">✨ <span class="ar">توليد الصورة</span><span class="en-t">Generating image</span></div>
+        </div>
+      </div>
+
+      <!-- Error -->
+      <div class="error-box" id="errorBox"></div>
+
+      <!-- Result -->
+      <div id="resultWrap" style="display:none">
+        <div class="result-img-wrap">
+          <img id="resultImg" src="" alt="AI Generated Room">
+          <div class="result-badge">🤖 <span class="ar">مولّد بالذكاء الاصطناعي</span><span class="en-t">AI Generated</span></div>
+        </div>
+        <div class="result-stats" style="margin-bottom:14px">
+          <div class="rs"><div class="rs-n" id="rsQty">50</div><div class="rs-l ar">قطعة</div><div class="rs-l en-t">Pieces</div></div>
+          <div class="rs"><div class="rs-n" id="rsPrice">$2,250</div><div class="rs-l ar">تقديري</div><div class="rs-l en-t">Est. price</div></div>
+          <div class="rs"><div class="rs-n">21</div><div class="rs-l ar">يوم تصنيع</div><div class="rs-l en-t">Days lead</div></div>
+        </div>
+        <div class="result-actions">
+          <button class="btn-order" onclick="window.location='shop.html'">🛒 <span class="ar">اطلب دلوقتي</span><span class="en-t">Order Now</span></button>
+          <button class="btn-retry" onclick="resetAll()">🔄 <span class="ar">تصميم جديد</span><span class="en-t">New Design</span></button>
+        </div>
+        <button class="btn-order" style="width:100%;background:#25D366" onclick="shareWA()">💬 <span class="ar">شارك على واتساب</span><span class="en-t">Share on WhatsApp</span></button>
+        <div class="revised-prompt" id="revisedPrompt"><strong class="ar">الوصف المستخدم:</strong><strong class="en-t">Prompt used:</strong><span id="promptTxt"></span></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<a class="wa-fab" href="https://wa.me/201050595250" target="_blank">
+  💬 <span class="ar">واتساب</span><span class="en-t">WhatsApp</span>
+</a>
+
+<script>
+// ── Config ─────────────────────────────────────
+var API_URL = 'https://misrsteel-backend.vercel.app/api/generate';
+var BACKEND_URL = 'https://misrsteel-backend.vercel.app';
+
+// Auto-generate user token from browser
+function getUserToken() {
+  var token = localStorage.getItem('ms_user_token');
+  if (!token) {
+    token = 'user_' + Math.random().toString(36).substr(2,9) + '_' + Date.now();
+    localStorage.setItem('ms_user_token', token);
+  }
+  return token;
+}
+
+// ── State ──────────────────────────────────────
+var state = {
+  spaceType: null,
+  spaceImg: null,
+  product: {nameAr:'كرسي رويال ذهبي', nameEn:'Royal Gold Chair', price:45},
+  currentStep: 1
+};
+
+
+// ── Credits System ─────────────────────────────
+var CREDITS = {
+  FREE_LIMIT: 2,
+  PAID_AMOUNT: 25,
+  
+  get() {
+    var data = JSON.parse(localStorage.getItem('ms_credits') || 'null');
+    if (!data) {
+      data = { free: 2, paid: 0, used: 0 };
+      this.save(data);
+    }
+    return data;
+  },
+  
+  save(data) {
+    localStorage.setItem('ms_credits', JSON.stringify(data));
+    this.updateUI(data);
+  },
+  
+  available() {
+    var d = this.get();
+    return d.free > 0 || d.paid > 0;
+  },
+  
+  use() {
+    var d = this.get();
+    if (d.free > 0) d.free--;
+    else if (d.paid > 0) d.paid--;
+    d.used++;
+    this.save(d);
+  },
+  
+  topup() {
+    var d = this.get();
+    d.paid += 25;
+    this.save(d);
+  },
+  
+  updateUI(d) {
+    if (!d) d = this.get();
+    var badge = document.getElementById('creditsNum');
+    var sub = document.getElementById('creditsSub');
+    var total = d.free + d.paid;
+    var isAr = !document.body.classList.contains('en');
+    
+    if (d.free > 0) {
+      badge.className = 'credits-num free';
+      badge.textContent = isAr ? d.free + ' مجاني' : d.free + ' Free';
+      sub.innerHTML = isAr 
+        ? '<span class="ar">تصميم مجاني متبقي</span>'
+        : '<span class="en-t">' + d.free + ' free design(s) remaining</span>';
+    } else if (d.paid > 0) {
+      badge.className = 'credits-num' + (d.paid < 5 ? ' low' : '');
+      badge.textContent = d.paid + (isAr ? ' تصميم' : ' designs');
+      sub.innerHTML = isAr
+        ? '<span class="ar">رصيد مدفوع متبقي</span>'
+        : '<span class="en-t">paid credits remaining</span>';
+    } else {
+      badge.className = 'credits-num empty';
+      badge.textContent = isAr ? 'لا يوجد رصيد' : 'No credits';
+      sub.innerHTML = isAr
+        ? '<span class="ar">اشحن للاستمرار</span>'
+        : '<span class="en-t">Top up to continue</span>';
+    }
+  },
+  
+  init() { this.updateUI(this.get()); }
+};
+
+function openPay() { document.getElementById('payOverlay').classList.add('open'); }
+function closePay() { 
+  document.getElementById('payOverlay').classList.remove('open');
+  document.getElementById('payForm').style.display = 'block';
+  document.getElementById('paySuccess').style.display = 'none';
+}
+function openBlocked() { document.getElementById('blockedOverlay').classList.add('open'); }
+function closeBlocked() { document.getElementById('blockedOverlay').classList.remove('open'); }
+
+function doPay() {
+  // TODO: Replace with real Paymob integration
+  // For now — simulate payment success
+  // In production: redirect to Paymob payment page then add credits on callback
+  document.getElementById('payForm').style.display = 'none';
+  document.getElementById('paySuccess').style.display = 'block';
+  CREDITS.topup();
+  setTimeout(function() { closePay(); }, 2500);
+}
+
+// ── Lang ───────────────────────────────────────
+function toggleLang(){
+  document.body.classList.toggle('en');
+  document.documentElement.dir = document.body.classList.contains('en') ? 'ltr' : 'rtl';
+}
+
+// ── Steps ──────────────────────────────────────
+function goStep(n){
+  [1,2,3,4].forEach(function(i){
+    document.getElementById('step'+i) && (document.getElementById('step'+i).style.display = i===n?'block':'none');
+    var st = document.getElementById('st'+i);
+    st.classList.remove('active','done');
+    if(i < n) st.classList.add('done');
+    else if(i === n) st.classList.add('active');
+  });
+  state.currentStep = n;
+}
+
+// ── Upload ─────────────────────────────────────
+function onDrag(e, on){ e.preventDefault(); document.getElementById('uploadZone').style.borderColor = on ? 'var(--orange)' : 'var(--border)'; }
+function onDrop(e){ e.preventDefault(); var f=e.dataTransfer.files[0]; if(f && f.type.startsWith('image/')) onFile(f); }
+function onFile(file){
+  var reader = new FileReader();
+  reader.onload = function(ev){
+    state.spaceImg = ev.target.result;
+    state.spaceType = null;
+    document.getElementById('spaceImg').src = ev.target.result;
+    document.getElementById('spacePreview').style.display = 'block';
+    document.getElementById('nextBtn1').style.display = 'flex';
+    document.querySelectorAll('.demo-card').forEach(function(c){ c.classList.remove('active'); });
+  };
+  reader.readAsDataURL(file);
+}
+
+function setDemo(type, el){
+  state.spaceType = type;
+  state.spaceImg = null;
+  document.querySelectorAll('.demo-card').forEach(function(c){ c.classList.remove('active'); });
+  el.classList.add('active');
+  var icons = {restaurant:'🍽',hotel:'🏨',cafe:'☕',hall:'🎪'};
+  document.getElementById('spaceImg').src = '';
+  document.getElementById('spacePreview').style.display = 'block';
+  document.getElementById('nextBtn1').style.display = 'flex';
+}
+
+// ── Product selection ──────────────────────────
+function selectProd(el, nameAr, nameEn, price){
+  document.querySelectorAll('.prod-opt').forEach(function(p){ p.classList.remove('selected'); });
+  el.classList.add('selected');
+  state.product = {nameAr:nameAr, nameEn:nameEn, price:price};
+}
+
+// ── Generate ────────────────────────────────────
+var spinMsgs = [
+  'تحليل المكان...',
+  'اختيار المنتجات المناسبة...',
+  'تصميم التخطيط...',
+  'توليد الصورة بالذكاء الاصطناعي...'
+];
+var spinSteps = ['ss1','ss2','ss3','ss4'];
+
+function buildPrompt(){
+  var style = document.getElementById('styleSelect').value;
+  var light = document.getElementById('lightSelect').value;
+  var qty = parseInt(document.getElementById('qtySelect').value);
+  var arr = document.getElementById('arrangementSelect').value;
+  var prod = state.product;
+
+  // Professional space descriptions
+  var spaceTemplates = {
+    restaurant: {
+      scene: 'a high-end Egyptian restaurant interior',
+      details: 'with marble floors, decorative ceiling, warm ambient lighting, and professionally set dining tables',
+      camera: 'wide-angle architectural photography showing the full dining room depth'
+    },
+    hotel: {
+      scene: 'a grand luxury hotel ballroom',
+      details: 'with crystal chandeliers, ornate ceiling moldings, polished floors, and elegant draping',
+      camera: 'professional hotel photography with dramatic perspective showing the entire venue'
+    },
+    cafe: {
+      scene: 'a modern upscale cafe interior',
+      details: 'with wooden accents, pendant lighting, exposed brick walls, and artisan coffee bar',
+      camera: 'editorial cafe photography with lifestyle atmosphere'
+    },
+    hall: {
+      scene: 'a luxury wedding and events banquet hall',
+      details: 'with grand chandeliers, floral centerpieces, elegant table settings, and decorated stage',
+      camera: 'event venue photography showing full hall capacity and grandeur'
+    }
+  };
+
+  var sp = spaceTemplates[state.spaceType] || spaceTemplates.restaurant;
+
+  // Chair descriptions by product
+  var chairDesc = {
+    'Royal Gold Chair': 'royal gold stainless steel frame chairs with premium beige velvet upholstery and tufted button detailing',
+    'Medallion Silver Chair': 'ornate silver stainless steel medallion-back chairs with grey velvet seat cushions',
+    'Velvet Red Chair': 'sleek black stainless steel frame chairs with deep crimson red velvet capitone upholstery',
+    'Lounge Gold Chair': 'elegant gold stainless steel armchairs with linen fabric and armrest detailing',
+    'Barrel Gold Chair': 'unique barrel-shaped gold stainless steel frame chairs with wrapped velvet upholstery',
+    'Hoop Gold Chair': 'contemporary hoop-design gold stainless steel chairs with premium velvet seating'
+  };
+
+  var chairDescription = chairDesc[prod.nameEn] || 'premium stainless steel chairs with elegant upholstery and gold frame details';
+
+  // Arrangement descriptions
+  var arrDesc = {
+    'arranged in neat rows': 'arranged in perfectly aligned rows with equal spacing between each chair',
+    'around round tables': 'elegantly arranged around round dining tables with floral centerpieces',
+    'banquet style': 'set in classic banquet-style long table arrangement with full table service',
+    'lounge clusters': 'arranged in intimate lounge clusters creating conversation areas'
+  };
+  var arrDescription = arrDesc[arr] || arr;
+
+  // Style descriptions  
+  var styleDesc = {
+    'modern luxury': 'contemporary luxury aesthetic with clean lines and sophisticated color palette',
+    'classic elegant': 'timeless classical elegance with ornate details and rich color tones',
+    'minimalist': 'refined minimalist design with purposeful negative space and neutral tones',
+    'arabic heritage': 'rich Arabic heritage design with geometric patterns and traditional motifs'
+  };
+  var styleDescription = styleDesc[style] || style;
+
+  // Lighting descriptions
+  var lightDesc = {
+    'warm golden lighting': 'bathed in warm golden candlelit and chandelier glow creating an intimate romantic atmosphere',
+    'bright natural lighting': 'flooded with bright natural daylight from large windows creating an airy fresh atmosphere',
+    'dramatic moody lighting': 'lit with dramatic moody directional lighting creating depth and sophistication',
+    'soft ambient lighting': 'illuminated with soft diffused ambient lighting for a comfortable welcoming feel'
+  };
+  var lightDescription = lightDesc[light] || light;
+
+  // Build the professional prompt
+  var prompt = [
+    'Ultra-realistic architectural interior photography of ' + sp.scene,
+    sp.details + '.',
+    'The space is furnished with ' + qty + ' ' + chairDescription + ',',
+    arrDescription + '.',
+    'Design style: ' + styleDescription + '.',
+    'Lighting: ' + lightDescription + '.',
+    sp.camera + '.',
+    'Shot on Phase One camera, 35mm lens, f/8 aperture.',
+    'Post-processed with professional color grading.',
+    'Resolution: 8K photorealistic render.',
+    'Award-winning interior design photography.',
+    'No people, no text overlays, no watermarks.',
+    'The chairs are the hero element — show them prominently with perfect styling.'
+  ].join(' ');
+
+  return prompt;
+}
+
+async function generateAI(){
+  // Check credits
+  if (!CREDITS.available()) {
+    openBlocked();
+    return;
+  }
+  if(!state.spaceType && !state.spaceImg){
+    alert(document.body.classList.contains('en') ? 'Please select a space first!' : 'اختار مكانك أولاً!');
+    goStep(1);
+CREDITS.init(); return;
+  }
+
+  // Show spinner
+  document.getElementById('resultEmpty').style.display = 'none';
+  document.getElementById('resultWrap').style.display = 'none';
+  document.getElementById('errorBox').style.display = 'none';
+  document.getElementById('spinnerWrap').style.display = 'block';
+  goStep(4);
+
+  // Animate spinner steps
+  var stepIdx = 0;
+  var spinInterval = setInterval(function(){
+    spinSteps.forEach(function(s){ document.getElementById(s).classList.remove('active'); });
+    if(stepIdx < spinSteps.length){
+      document.getElementById(spinSteps[stepIdx]).classList.add('active');
+      document.getElementById('spinnerTxt').textContent = spinMsgs[stepIdx];
+      stepIdx++;
+    }
+  }, 1200);
+
+  try {
+    var prompt = buildPrompt();
+    var body = { prompt: prompt };
+    if(state.spaceImg) body.imageBase64 = state.spaceImg;
+
+    var response = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'x-user-token': getUserToken()
+      },
+      body: JSON.stringify(body)
+    });
+
+    var data = await response.json();
+    clearInterval(spinInterval);
+    document.getElementById('spinnerWrap').style.display = 'none';
+
+    if(!response.ok || !data.success){
+      showError(data.error || 'حدث خطأ — حاول تاني');
+      return;
+    }
+
+    // Show result
+    document.getElementById('resultImg').src = data.imageUrl;
+    var qty = parseInt(document.getElementById('qtySelect').value);
+    document.getElementById('rsQty').textContent = qty;
+    document.getElementById('rsPrice').textContent = '$' + (qty * state.product.price).toLocaleString();
+
+    if(data.revisedPrompt){
+      document.getElementById('promptTxt').textContent = data.revisedPrompt;
+      document.getElementById('revisedPrompt').style.display = 'block';
+    }
+
+    document.getElementById('resultWrap').style.display = 'block';
+    CREDITS.use(); // deduct one credit
+
+  } catch(err) {
+    clearInterval(spinInterval);
+    document.getElementById('spinnerWrap').style.display = 'none';
+    showError('فشل الاتصال بالـ API — تأكد من الإنترنت وحاول تاني');
+  }
+}
+
+function showError(msg){
+  var box = document.getElementById('errorBox');
+  box.textContent = '❌ ' + msg;
+  box.style.display = 'block';
+  document.getElementById('resultEmpty').style.display = 'block';
+  goStep(3);
+}
+
+function resetAll(){
+  state = {spaceType:null, spaceImg:null, product:{nameAr:'كرسي رويال ذهبي',nameEn:'Royal Gold Chair',price:45}, currentStep:1};
+  document.getElementById('resultWrap').style.display = 'none';
+  document.getElementById('resultEmpty').style.display = 'block';
+  document.getElementById('errorBox').style.display = 'none';
+  document.getElementById('spacePreview').style.display = 'none';
+  document.getElementById('nextBtn1').style.display = 'none';
+  document.getElementById('fileInput').value = '';
+  document.querySelectorAll('.demo-card').forEach(function(c){ c.classList.remove('active'); });
+  document.querySelectorAll('.prod-opt').forEach(function(p,i){ p.classList.toggle('selected',i===0); });
+  goStep(1);
+CREDITS.init();
+}
+
+function shareWA(){
+  var qty = document.getElementById('rsQty').textContent;
+  var price = document.getElementById('rsPrice').textContent;
+  var msg = 'مرحباً — شفت تصميم غرفتي بكراسي مصر ستيل 🪑\nالكمية: ' + qty + ' قطعة\nالسعر التقديري: ' + price + '\nعاوز أعرف أكتر!';
+  window.open('https://wa.me/201050595250?text=' + encodeURIComponent(msg));
+}
+
+// Init
+goStep(1);
+CREDITS.init();
+</script>
+</body>
+</html>
