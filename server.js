@@ -1,5 +1,7 @@
 'use strict';
 
+const fs = require('node:fs');
+const path = require('node:path');
 const express = require('express');
 const cors = require('cors');
 const fetch = require('node-fetch');
@@ -24,10 +26,12 @@ function createConfig(env = process.env) {
     allowedOrigins,
     maxPromptLength: toPositiveInt(env.MAX_PROMPT_LENGTH, 1200),
     generateRateLimit: toPositiveInt(env.GENERATE_RATE_LIMIT, 30),
-    generateRateWindowMs: toPositiveInt(env.GENERATE_RATE_WINDOW_MS, 60 * 1000)
+    generateRateWindowMs: toPositiveInt(env.GENERATE_RATE_WINDOW_MS, 60 * 1000),
+    usersStoreFile: env.USERS_STORE_FILE || path.join(process.cwd(), 'data', 'users.json')
   };
 }
 
+const DEFAULT_USER = Object.freeze({ credits: 2, paid: 0, used: 0, plan: 'free' });
 const PLANS = Object.freeze({
   starter: { price_usd: 50, credits: 25, name_en: 'Starter' },
   business: { price_usd: 200, credits: 120, name_en: 'Business' },
@@ -35,10 +39,103 @@ const PLANS = Object.freeze({
   annual: { price_usd: 4500, credits: 99999, name_en: 'Annual' }
 });
 
+function createUserStore(filePath) {
+  const users = new Map();
+  const resolvedPath = path.resolve(filePath);
+
+  function ensureDir() {
+    fs.mkdirSync(path.dirname(resolvedPath), { recursive: true });
+  }
+
+  function serialize() {
+    const obj = Object.fromEntries(users.entries());
+    return JSON.stringify(obj, null, 2);
+  }
+
+  function persist() {
+    ensureDir();
+    const tmp = `${resolvedPath}.tmp`;
+    fs.writeFileSync(tmp, serialize(), 'utf8');
+    fs.renameSync(tmp, resolvedPath);
+  }
+
+  function load() {
+    try {
+      if (!fs.existsSync(resolvedPath)) return;
+      const raw = fs.readFileSync(resolvedPath, 'utf8');
+      if (!raw.trim()) return;
+      const parsed = JSON.parse(raw);
+      for (const [id, data] of Object.entries(parsed)) {
+        users.set(id, {
+          credits: toPositiveInt(data.credits, DEFAULT_USER.credits),
+          paid: Number.isFinite(Number(data.paid)) ? Number(data.paid) : DEFAULT_USER.paid,
+          used: Number.isFinite(Number(data.used)) ? Number(data.used) : DEFAULT_USER.used,
+          plan: typeof data.plan === 'string' ? data.plan : DEFAULT_USER.plan
+        });
+      }
+    } catch (err) {
+      console.error(`Failed to load users store at ${resolvedPath}:`, err.message);
+    }
+  }
+
+  function getOrCreate(id) {
+    if (!users.has(id)) {
+      users.set(id, { ...DEFAULT_USER });
+      persist();
+    }
+    return users.get(id);
+  }
+
+  function list() {
+    return Array.from(users.entries()).map(([id, user]) => ({ id, ...user }));
+  }
+
+  function addCredits(id, amount) {
+    const user = getOrCreate(id);
+    user.credits += amount;
+    persist();
+    return user;
+  }
+
+  function consumeCredit(id) {
+    const user = getOrCreate(id);
+    if (user.credits <= 0) return null;
+    user.credits -= 1;
+    user.used += 1;
+    persist();
+    return user;
+  }
+
+  function applyPlanCredits(id, planId) {
+    if (!PLANS[planId]) return null;
+    const user = getOrCreate(id);
+    user.credits += PLANS[planId].credits;
+    user.plan = planId;
+    persist();
+    return user;
+  }
+
+  function has(id) {
+    return users.has(id);
+  }
+
+  load();
+
+  return {
+    getOrCreate,
+    list,
+    addCredits,
+    consumeCredit,
+    applyPlanCredits,
+    has,
+    path: resolvedPath
+  };
+}
+
 function createApp(config = createConfig()) {
   const app = express();
-  const users = new Map();
   const rateBuckets = new Map();
+  const userStore = createUserStore(config.usersStoreFile);
 
   app.disable('x-powered-by');
   app.use(cors({
@@ -51,11 +148,6 @@ function createApp(config = createConfig()) {
     }
   }));
   app.use(express.json({ limit: '1mb' }));
-
-  function getUser(id) {
-    if (!users.has(id)) users.set(id, { credits: 2, paid: 0, used: 0, plan: 'free' });
-    return users.get(id);
-  }
 
   function getClientKey(req) {
     const ip = req.ip || req.socket?.remoteAddress || 'unknown';
@@ -170,7 +262,7 @@ function createApp(config = createConfig()) {
     res.json({
       status: 'ok',
       service: 'MISR STEEL API',
-      version: '2.2.1',
+      version: '2.3.0',
       env: config.nodeEnv,
       ai: config.stabilityKey ? 'stability' : config.openaiKey ? 'openai' : 'none'
     });
@@ -180,7 +272,7 @@ function createApp(config = createConfig()) {
     const token = requireUserToken(req, res);
     if (!token) return;
 
-    const user = getUser(token);
+    const user = userStore.getOrCreate(token);
     res.json({
       success: true,
       credits: user.credits,
@@ -199,7 +291,7 @@ function createApp(config = createConfig()) {
       return res.status(429).json({ error: 'Too many requests, please retry later' });
     }
 
-    const user = getUser(token);
+    const user = userStore.getOrCreate(token);
     if (user.credits <= 0) {
       return res.status(402).json({ error: 'no_credits', message: 'انتهى رصيدك', credits: 0 });
     }
@@ -247,10 +339,12 @@ function createApp(config = createConfig()) {
         return res.status(500).json({ error: 'No AI API configured' });
       }
 
-      user.credits -= 1;
-      user.used += 1;
+      const updated = userStore.consumeCredit(token);
+      if (!updated) {
+        return res.status(409).json({ error: 'Credit update failed' });
+      }
 
-      return res.json({ success: true, imageUrl, creditsLeft: user.credits });
+      return res.json({ success: true, imageUrl, creditsLeft: updated.credits });
     } catch (err) {
       return res.status(500).json({
         error: config.nodeEnv === 'production' ? 'Generation failed' : (err.message || 'Generation failed')
@@ -264,10 +358,8 @@ function createApp(config = createConfig()) {
       const merchantOrderId = data.obj?.order?.merchant_order_id || '';
       const { userToken, planId } = parseMerchantOrderId(merchantOrderId);
 
-      if (userToken && planId && users.has(userToken) && PLANS[planId]) {
-        const user = users.get(userToken);
-        user.credits += PLANS[planId].credits;
-        user.plan = planId;
+      if (userToken && planId && PLANS[planId]) {
+        userStore.applyPlanCredits(userToken, planId);
       }
     }
 
@@ -277,8 +369,8 @@ function createApp(config = createConfig()) {
   app.get('/api/admin/users', (req, res) => {
     if (!requireAdminToken(req, res)) return;
 
-    const entries = Array.from(users.entries()).map(([id, user]) => ({
-      id,
+    const entries = userStore.list().map((user) => ({
+      id: user.id,
       credits: user.credits,
       used: user.used,
       plan: user.plan
@@ -300,9 +392,7 @@ function createApp(config = createConfig()) {
       return res.status(400).json({ error: 'credits must be a positive integer' });
     }
 
-    const user = getUser(userId.trim());
-    user.credits += toAdd;
-
+    const user = userStore.addCredits(userId.trim(), toAdd);
     res.json({ success: true, newCredits: user.credits });
   });
 
@@ -316,7 +406,6 @@ function createApp(config = createConfig()) {
     });
   });
 
-  // Avoid unbounded growth in long-running processes.
   const bucketCleanup = setInterval(() => {
     const now = Date.now();
     for (const [key, bucket] of rateBuckets.entries()) {
@@ -330,11 +419,12 @@ function createApp(config = createConfig()) {
 
 function startServer(app, config) {
   const server = app.listen(config.port, () => {
-    console.log(`MISR STEEL v2.2.1 on port ${config.port}`);
+    console.log(`MISR STEEL v2.3.0 on port ${config.port}`);
     console.log(`Environment: ${config.nodeEnv}`);
     console.log(`Stability: ${config.stabilityKey ? 'YES' : 'NO'}`);
     console.log(`OpenAI: ${config.openaiKey ? 'YES' : 'NO'}`);
     console.log(`Admin API: ${config.adminToken ? 'ENABLED' : 'DISABLED (no ADMIN_TOKEN)'}`);
+    console.log(`Users store: ${config.usersStoreFile}`);
   });
 
   function shutdown(signal) {
@@ -363,3 +453,4 @@ module.exports = app;
 module.exports.createApp = createApp;
 module.exports.createConfig = createConfig;
 module.exports.startServer = startServer;
+module.exports.createUserStore = createUserStore;
