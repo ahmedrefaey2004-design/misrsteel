@@ -142,3 +142,31 @@ test('credits persist after app restart using the same store file', async () => 
     fs.rmSync(temp.dir, { recursive: true, force: true });
   }
 });
+
+test('admin can manage site config collections', async () => {
+  await withServer({ adminToken: 'admin_token_12345' }, async (baseUrl) => {
+    const addRes = await fetch(`${baseUrl}/api/admin/site-config/buttons`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-admin-token': 'admin_token_12345'
+      },
+      body: JSON.stringify({ id: 'cta-test', labelAr: 'زرار', labelEn: 'Button', link: '/x', visible: true })
+    });
+    assert.equal(addRes.status, 200);
+
+    const cfgRes = await fetch(`${baseUrl}/api/admin/site-config`, {
+      headers: { 'x-admin-token': 'admin_token_12345' }
+    });
+    assert.equal(cfgRes.status, 200);
+    const cfgJson = await cfgRes.json();
+    assert.equal(Array.isArray(cfgJson.config.buttons), true);
+    assert.equal(cfgJson.config.buttons.some((b) => b.id === 'cta-test'), true);
+
+    const delRes = await fetch(`${baseUrl}/api/admin/site-config/buttons/cta-test`, {
+      method: 'DELETE',
+      headers: { 'x-admin-token': 'admin_token_12345' }
+    });
+    assert.equal(delRes.status, 200);
+  });
+});

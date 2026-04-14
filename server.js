@@ -27,7 +27,8 @@ function createConfig(env = process.env) {
     maxPromptLength: toPositiveInt(env.MAX_PROMPT_LENGTH, 1200),
     generateRateLimit: toPositiveInt(env.GENERATE_RATE_LIMIT, 30),
     generateRateWindowMs: toPositiveInt(env.GENERATE_RATE_WINDOW_MS, 60 * 1000),
-    usersStoreFile: env.USERS_STORE_FILE || path.join(process.cwd(), 'data', 'users.json')
+    usersStoreFile: env.USERS_STORE_FILE || path.join(process.cwd(), 'data', 'users.json'),
+    siteConfigFile: env.SITE_CONFIG_FILE || path.join(process.cwd(), 'data', 'site-config.json')
   };
 }
 
@@ -37,6 +38,26 @@ const PLANS = Object.freeze({
   business: { price_usd: 200, credits: 120, name_en: 'Business' },
   pro: { price_usd: 500, credits: 350, name_en: 'Pro' },
   annual: { price_usd: 4500, credits: 99999, name_en: 'Annual' }
+});
+
+
+const DEFAULT_SITE_CONFIG = Object.freeze({
+  sections: [
+    { id: 'hero', enabled: true, titleAr: 'أثاث استانلس فاخر', titleEn: 'Premium Stainless Furniture' },
+    { id: 'products', enabled: true, titleAr: 'منتجاتنا', titleEn: 'Products' }
+  ],
+  categories: [
+    { id: 'all', labelAr: '⭐ الكل', labelEn: '⭐ All' },
+    { id: 'chairs', labelAr: '🪑 الكراسي', labelEn: '🪑 Chairs' }
+  ],
+  posters: [
+    { id: 'hero-main', titleAr: 'بوستر رئيسي', titleEn: 'Main Poster', image: '', ctaLink: 'shop.html' }
+  ],
+  buttons: [
+    { id: 'ai-nav', labelAr: '🤖 مصمم AI', labelEn: '🤖 AI Designer', link: 'ai-designer.html', visible: true },
+    { id: 'shop-main', labelAr: '🛒 تصفح المنتجات', labelEn: '🛒 Browse Products', link: '#products', visible: true }
+  ],
+  products: []
 });
 
 function createUserStore(filePath) {
@@ -132,10 +153,87 @@ function createUserStore(filePath) {
   };
 }
 
+
+function createSiteConfigStore(filePath) {
+  const resolvedPath = path.resolve(filePath);
+  let config = JSON.parse(JSON.stringify(DEFAULT_SITE_CONFIG));
+
+  function ensureDir() {
+    fs.mkdirSync(path.dirname(resolvedPath), { recursive: true });
+  }
+
+  function persist() {
+    ensureDir();
+    const tmp = `${resolvedPath}.tmp`;
+    fs.writeFileSync(tmp, JSON.stringify(config, null, 2), 'utf8');
+    fs.renameSync(tmp, resolvedPath);
+  }
+
+  function normalize(input) {
+    const merged = {
+      ...JSON.parse(JSON.stringify(DEFAULT_SITE_CONFIG)),
+      ...(input && typeof input === 'object' ? input : {})
+    };
+
+    for (const key of ['sections', 'categories', 'posters', 'buttons', 'products']) {
+      if (!Array.isArray(merged[key])) merged[key] = [];
+    }
+
+    return merged;
+  }
+
+  function load() {
+    try {
+      if (!fs.existsSync(resolvedPath)) {
+        persist();
+        return;
+      }
+      const raw = fs.readFileSync(resolvedPath, 'utf8');
+      if (!raw.trim()) {
+        persist();
+        return;
+      }
+      config = normalize(JSON.parse(raw));
+      persist();
+    } catch (err) {
+      console.error(`Failed to load site config at ${resolvedPath}:`, err.message);
+      config = JSON.parse(JSON.stringify(DEFAULT_SITE_CONFIG));
+      persist();
+    }
+  }
+
+  function get() {
+    return JSON.parse(JSON.stringify(config));
+  }
+
+  function replace(nextConfig) {
+    config = normalize(nextConfig);
+    persist();
+    return get();
+  }
+
+  function updateCollection(name, updater) {
+    if (!Array.isArray(config[name])) config[name] = [];
+    config[name] = updater(config[name]);
+    persist();
+    return get();
+  }
+
+  load();
+
+  return {
+    get,
+    replace,
+    updateCollection,
+    path: resolvedPath
+  };
+}
+
 function createApp(config = createConfig()) {
   const app = express();
   const rateBuckets = new Map();
   const userStore = createUserStore(config.usersStoreFile);
+  const siteConfigStore = createSiteConfigStore(config.siteConfigFile);
 
   app.disable('x-powered-by');
   app.use(cors({
@@ -396,6 +494,87 @@ function createApp(config = createConfig()) {
     res.json({ success: true, newCredits: user.credits });
   });
 
+
+  app.get('/api/public/site-config', (req, res) => {
+    res.json({ success: true, config: siteConfigStore.get() });
+  });
+
+  app.get('/api/admin/site-config', (req, res) => {
+    if (!requireAdminToken(req, res)) return;
+    res.json({ success: true, config: siteConfigStore.get() });
+  });
+
+  app.put('/api/admin/site-config', requireJsonBody, (req, res) => {
+    if (!requireAdminToken(req, res)) return;
+    const next = req.body;
+    if (!next || typeof next !== 'object') {
+      return res.status(400).json({ error: 'site config payload must be an object' });
+    }
+    const saved = siteConfigStore.replace(next);
+    return res.json({ success: true, config: saved });
+  });
+
+  app.post('/api/admin/site-config/:collection', requireJsonBody, (req, res) => {
+    if (!requireAdminToken(req, res)) return;
+    const { collection } = req.params;
+    if (!['products', 'categories', 'sections', 'posters', 'buttons'].includes(collection)) {
+      return res.status(404).json({ error: 'Unknown collection' });
+    }
+
+    const item = req.body;
+    if (!item || typeof item !== 'object') {
+      return res.status(400).json({ error: 'item payload must be an object' });
+    }
+
+    const id = String(item.id || Date.now());
+    let updated;
+    try {
+      updated = siteConfigStore.updateCollection(collection, (arr) => {
+        if (arr.some((entry) => String(entry.id) === id)) {
+          throw new Error('ID already exists');
+        }
+        return [...arr, { ...item, id }];
+      });
+    } catch (err) {
+      return res.status(409).json({ error: err.message || 'Unable to add item' });
+    }
+
+    return res.json({ success: true, config: updated });
+  });
+
+  app.put('/api/admin/site-config/:collection/:id', requireJsonBody, (req, res) => {
+    if (!requireAdminToken(req, res)) return;
+    const { collection, id } = req.params;
+    if (!['products', 'categories', 'sections', 'posters', 'buttons'].includes(collection)) {
+      return res.status(404).json({ error: 'Unknown collection' });
+    }
+
+    const payload = req.body;
+    if (!payload || typeof payload !== 'object') {
+      return res.status(400).json({ error: 'item payload must be an object' });
+    }
+
+    const updated = siteConfigStore.updateCollection(collection, (arr) =>
+      arr.map((entry) => (String(entry.id) === String(id) ? { ...entry, ...payload, id: entry.id } : entry))
+    );
+
+    return res.json({ success: true, config: updated });
+  });
+
+  app.delete('/api/admin/site-config/:collection/:id', (req, res) => {
+    if (!requireAdminToken(req, res)) return;
+    const { collection, id } = req.params;
+    if (!['products', 'categories', 'sections', 'posters', 'buttons'].includes(collection)) {
+      return res.status(404).json({ error: 'Unknown collection' });
+    }
+
+    const updated = siteConfigStore.updateCollection(collection, (arr) =>
+      arr.filter((entry) => String(entry.id) !== String(id))
+    );
+
+    return res.json({ success: true, config: updated });
+  });
+
   app.use((err, req, res, next) => {
     if (err?.message === 'CORS origin denied') {
       return res.status(403).json({ error: 'Origin is not allowed' });
@@ -425,6 +604,7 @@ function startServer(app, config) {
     console.log(`OpenAI: ${config.openaiKey ? 'YES' : 'NO'}`);
     console.log(`Admin API: ${config.adminToken ? 'ENABLED' : 'DISABLED (no ADMIN_TOKEN)'}`);
     console.log(`Users store: ${config.usersStoreFile}`);
+    console.log(`Site config store: ${config.siteConfigFile}`);
   });
 
   function shutdown(signal) {
@@ -454,3 +634,4 @@ module.exports.createApp = createApp;
 module.exports.createConfig = createConfig;
 module.exports.startServer = startServer;
 module.exports.createUserStore = createUserStore;
+module.exports.createSiteConfigStore = createSiteConfigStore;
