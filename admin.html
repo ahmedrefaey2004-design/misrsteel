@@ -1,0 +1,172 @@
+ (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
+diff --git a/admin.html b/admin.html
+new file mode 100644
+index 0000000000000000000000000000000000000000..bffede84dc164961917be464534d852bd515d0b0
+--- /dev/null
++++ b/admin.html
+@@ -0,0 +1,162 @@
++<!DOCTYPE html>
++<html lang="ar" dir="rtl">
++<head>
++  <meta charset="UTF-8" />
++  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
++  <title>لوحة تحكم مصر ستيل</title>
++  <style>
++    body{font-family:Arial,sans-serif;background:#f6f7fb;margin:0;color:#222}
++    .wrap{max-width:1100px;margin:24px auto;padding:0 16px}
++    .card{background:#fff;border:1px solid #e6e8ee;border-radius:10px;padding:16px;margin-bottom:14px}
++    h1{margin:0 0 8px} h2{margin:0 0 12px;font-size:18px}
++    input,textarea,select,button{font:inherit}
++    input,textarea,select{width:100%;padding:10px;border:1px solid #d7dbe6;border-radius:8px}
++    textarea{min-height:220px;direction:ltr}
++    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
++    .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
++    .btn{border:none;background:#ff6000;color:#fff;padding:10px 14px;border-radius:8px;cursor:pointer}
++    .btn.gray{background:#677084}
++    .list{border:1px solid #eceef4;border-radius:8px;padding:10px;max-height:260px;overflow:auto}
++    .item{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #f0f2f7;padding:8px 0}
++    .item:last-child{border-bottom:none}
++    .muted{color:#6a7283;font-size:13px}
++    .ok{color:#0b8f43}.err{color:#c62828}
++  </style>
++</head>
++<body>
++  <div class="wrap">
++    <div class="card">
++      <h1>⚙️ لوحة تحكم الموقع</h1>
++      <div class="muted">تحكم كامل في الأقسام - المنتجات - البوسترات - الأزرار</div>
++    </div>
++
++    <div class="card grid">
++      <div>
++        <label>API Base URL</label>
++        <input id="apiBase" value="http://localhost:3000" />
++      </div>
++      <div>
++        <label>Admin Token</label>
++        <input id="adminToken" placeholder="ADMIN_TOKEN" />
++      </div>
++    </div>
++
++    <div class="card">
++      <h2>📦 Site Config (JSON كامل)</h2>
++      <textarea id="jsonBox"></textarea>
++      <div class="row" style="margin-top:10px">
++        <button class="btn" onclick="loadConfig()">تحميل</button>
++        <button class="btn" onclick="saveConfig()">حفظ</button>
++      </div>
++      <div id="status" class="muted" style="margin-top:8px"></div>
++    </div>
++
++    <div class="card grid">
++      <div>
++        <h2>➕ إضافة عنصر</h2>
++        <label>Collection</label>
++        <select id="collection">
++          <option value="products">products</option>
++          <option value="categories">categories</option>
++          <option value="sections">sections</option>
++          <option value="posters">posters</option>
++          <option value="buttons">buttons</option>
++        </select>
++        <label style="margin-top:8px;display:block">JSON Item</label>
++        <textarea id="itemBox" style="min-height:140px">{"id":"new-item","labelAr":"عنوان","labelEn":"Title"}</textarea>
++        <div class="row" style="margin-top:10px">
++          <button class="btn" onclick="addItem()">إضافة</button>
++          <button class="btn gray" onclick="deleteItem()">حذف بالـ id</button>
++          <input id="itemId" placeholder="id للحذف" style="max-width:220px" />
++        </div>
++      </div>
++      <div>
++        <h2>📋 العناصر الحالية</h2>
++        <div id="items" class="list"></div>
++      </div>
++    </div>
++  </div>
++
++  <script>
++    function getApiBase(){ return document.getElementById('apiBase').value.replace(/\/$/, ''); }
++    function getHeaders(){
++      return {
++        'Content-Type':'application/json',
++        'x-admin-token': document.getElementById('adminToken').value.trim()
++      };
++    }
++    function setStatus(msg,ok=true){
++      const el=document.getElementById('status');
++      el.textContent=msg;
++      el.className=ok?'ok':'err';
++    }
++
++    async function loadConfig(){
++      try{
++        const res=await fetch(`${getApiBase()}/api/admin/site-config`,{headers:getHeaders()});
++        const data=await res.json();
++        if(!res.ok) throw new Error(data.error||'load failed');
++        document.getElementById('jsonBox').value=JSON.stringify(data.config,null,2);
++        renderCollection();
++        setStatus('✅ تم تحميل الإعدادات');
++      }catch(e){ setStatus('❌ '+e.message,false); }
++    }
++
++    async function saveConfig(){
++      try{
++        const payload=JSON.parse(document.getElementById('jsonBox').value);
++        const res=await fetch(`${getApiBase()}/api/admin/site-config`,{
++          method:'PUT',headers:getHeaders(),body:JSON.stringify(payload)
++        });
++        const data=await res.json();
++        if(!res.ok) throw new Error(data.error||'save failed');
++        document.getElementById('jsonBox').value=JSON.stringify(data.config,null,2);
++        renderCollection();
++        setStatus('✅ تم الحفظ');
++      }catch(e){ setStatus('❌ '+e.message,false); }
++    }
++
++    function renderCollection(){
++      const box=document.getElementById('jsonBox').value;
++      if(!box) return;
++      let cfg; try{ cfg=JSON.parse(box);}catch{return;}
++      const c=document.getElementById('collection').value;
++      const list=Array.isArray(cfg[c])?cfg[c]:[];
++      document.getElementById('items').innerHTML=list.map(it=>`<div class="item"><div><strong>${it.id||'-'}</strong><div class="muted">${JSON.stringify(it)}</div></div></div>`).join('')||'<div class="muted">لا يوجد عناصر</div>';
++    }
++
++    async function addItem(){
++      try{
++        const c=document.getElementById('collection').value;
++        const item=JSON.parse(document.getElementById('itemBox').value);
++        const res=await fetch(`${getApiBase()}/api/admin/site-config/${c}`,{
++          method:'POST',headers:getHeaders(),body:JSON.stringify(item)
++        });
++        const data=await res.json();
++        if(!res.ok) throw new Error(data.error||'add failed');
++        document.getElementById('jsonBox').value=JSON.stringify(data.config,null,2);
++        renderCollection();
++        setStatus('✅ تم إضافة العنصر');
++      }catch(e){ setStatus('❌ '+e.message,false); }
++    }
++
++    async function deleteItem(){
++      try{
++        const c=document.getElementById('collection').value;
++        const id=document.getElementById('itemId').value.trim();
++        if(!id) throw new Error('ادخل id');
++        const res=await fetch(`${getApiBase()}/api/admin/site-config/${c}/${encodeURIComponent(id)}`,{
++          method:'DELETE',headers:getHeaders()
++        });
++        const data=await res.json();
++        if(!res.ok) throw new Error(data.error||'delete failed');
++        document.getElementById('jsonBox').value=JSON.stringify(data.config,null,2);
++        renderCollection();
++        setStatus('✅ تم الحذف');
++      }catch(e){ setStatus('❌ '+e.message,false); }
++    }
++
++    document.getElementById('collection').addEventListener('change', renderCollection);
++  </script>
++</body>
++</html>
+ 
+EOF
+)
