@@ -1,6 +1,6 @@
 {
   "name": "misrsteel-backend",
-  "version": "2.0.0",
+  "version": "2.2.1",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
