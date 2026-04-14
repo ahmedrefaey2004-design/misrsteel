@@ -1,374 +1,592 @@
- (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/index.html b/index.html
-index de1519f3f2c9389191521669c4524982b7a09122..3e6a31ba280dde266e9cf9b400384aaddae58433 100644
---- a/index.html
-+++ b/index.html
-@@ -363,90 +363,94 @@ button{cursor:pointer;font-family:inherit}
- <div class="topbar">
-   <div class="topbar-rate">
-     <span class="ar">سعر الدولار اليوم:</span><span class="en-t">USD/EGP:</span>
-     <div class="rate-badge"><span id="rateVal">50.85</span> ج.م</div>
-     <span style="font-size:10px;color:rgba(255,255,255,.4)">• <span class="ar">يتحدث تلقائياً</span><span class="en-t">live</span></span>
-   </div>
-   <div class="topbar-right">
-     <a href="tel:+201050595250">📞 <span class="ar">اتصل بنا</span><span class="en-t">Call us</span></a>
-     <a href="https://wa.me/201050595250" target="_blank">💬 WhatsApp</a>
-     <a href="misrsteel_affiliate.html">🤝 <span class="ar">برنامج المسوّقين</span><span class="en-t">Affiliate</span></a>
-   </div>
- </div>
- 
- <!-- NAV -->
- <nav class="main-nav">
-   <div class="nav-inner">
-     <a class="nav-logo" href="#">
-       <div class="logo-ar ar">مصر ستيل</div>
-       <div class="logo-en">MISR STEEL</div>
-     </a>
-     <div class="nav-search">
-       <input type="text" id="searchInp" placeholder="ابحث عن منتج..." onkeydown="if(event.key==='Enter')doSearch()">
-       <button class="nav-search-btn" onclick="doSearch()">🔍</button>
-     </div>
-     <div class="nav-actions">
-+      <button class="nav-icon" data-btn-id="ai-nav" onclick="window.location='ai-designer.html'" title="AI Designer">
-+        🤖
-+      </button>
-       <button class="nav-icon" onclick="openCart()">
-         🛒<span class="badge" id="cartBadge" style="display:none">0</span>
-       </button>
-       <button class="nav-login-btn" onclick="openModal()">
-         <span class="ar">دخول</span><span class="en-t">Login</span>
-       </button>
-       <button class="lang-btn" onclick="toggleLang()">EN / ع</button>
-     </div>
-   </div>
- </nav>
- 
- <!-- CATEGORY BAR -->
- <div class="cat-bar">
--  <div class="cat-inner">
-+  <div class="cat-inner" id="catInner">
-     <button class="cat-btn active" onclick="filterCat('all',this)"><span class="ar">⭐ الكل</span><span class="en-t">⭐ All</span></button>
-+    <button class="cat-btn" onclick="window.location='ai-designer.html'"><span class="ar">🤖 مصمم AI</span><span class="en-t">🤖 AI Designer</span></button>
-     <button class="cat-btn" onclick="filterCat('chairs',this)"><span class="ar">🪑 الكراسي</span><span class="en-t">🪑 Chairs</span></button>
-     <button class="cat-btn" onclick="filterCat('tables',this)"><span class="ar">🍽 الترابيزات</span><span class="en-t">🍽 Tables</span></button>
-     <button class="cat-btn" onclick="filterCat('lounge',this)"><span class="ar">🛋 لاونج</span><span class="en-t">🛋 Lounge</span></button>
-     <button class="cat-btn" onclick="filterCat('velvet',this)"><span class="ar">✨ مخمل</span><span class="en-t">✨ Velvet</span></button>
-     <button class="cat-btn" onclick="filterCat('gold',this)"><span class="ar">🥇 ذهبي</span><span class="en-t">🥇 Gold</span></button>
-   </div>
- </div>
- 
- <!-- HERO BANNER -->
--<div class="hero-banner">
-+<div class="hero-banner" data-section-id="hero">
-   <div class="hero-circle" style="width:400px;height:400px;top:-150px;inset-inline-end:-80px"></div>
-   <div class="hero-circle" style="width:250px;height:250px;bottom:-80px;inset-inline-start:15%"></div>
-   <div class="hero-inner">
-     <div>
-       <div class="hero-tag ar">🏭 مباشرة من المصنع · تصدير عالمي</div>
-       <div class="hero-tag en-t">🏭 Factory Direct · Global Export</div>
-       <h1 class="hero-title ar">أثاث <span>استانلس فاخر</span><br>بجودة تجارية عالية</h1>
-       <h1 class="hero-title en-t">Premium <span>Stainless Furniture</span><br>Commercial Grade</h1>
-       <p class="hero-sub ar">نورّد الفنادق والمطاعم وقاعات الأفراح في مصر والشرق الأوسط. كراسي وترابيزات استانلس 304 درجة أولى — قواعد ذهبية — ضمان سنة كاملة.</p>
-       <p class="hero-sub en-t">Supplying hotels, restaurants and event halls across Egypt and the Middle East. Grade 304 stainless — gold foot caps — 1-year warranty.</p>
-       <div class="hero-btns">
--        <button class="btn-hero-main" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">
-+        <button class="btn-hero-main" data-btn-id="shop-main" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">
-           <span class="ar">🛒 تصفح المنتجات</span><span class="en-t">🛒 Browse Products</span>
-         </button>
--        <button class="btn-hero-sec" onclick="window.location='shop.html'">
-+        <button class="btn-hero-sec" data-btn-id="quote-main" onclick="window.location='shop.html'">
-           <span class="ar">طلب عرض سعر</span><span class="en-t">Request a Quote</span>
-         </button>
-       </div>
-       <div class="hero-stats">
-         <div class="hero-stat"><div class="hero-stat-n">500+</div><div class="hero-stat-l ar">كرسي / شهر</div><div class="hero-stat-l en-t">Chairs/mo</div></div>
-         <div class="hero-stat"><div class="hero-stat-n">8+</div><div class="hero-stat-l ar">دول تصدير</div><div class="hero-stat-l en-t">Countries</div></div>
-         <div class="hero-stat"><div class="hero-stat-n">$45</div><div class="hero-stat-l ar">يبدأ من</div><div class="hero-stat-l en-t">From</div></div>
-         <div class="hero-stat"><div class="hero-stat-n">21</div><div class="hero-stat-l ar">يوم تصنيع</div><div class="hero-stat-l en-t">Days lead</div></div>
-       </div>
-     </div>
-     <div class="hero-showcase">
-       <div class="hero-product-card">
-         <div class="hpc-img"><img src="images/p01-rose-gold-chair.jpg" alt="كرسي رويال ذهبي" loading="eager"></div>
-         <div class="hpc-body"><div class="hpc-name ar">كرسي رويال ذهبي</div><div class="hpc-name en-t">Royal Gold Chair</div><div class="hpc-price">$45 <small style="font-size:10px;color:var(--muted)">/قطعة</small></div></div>
-       </div>
-       <div class="hero-product-card">
-         <div class="hpc-img"><img src="images/p05-velvet-red.jpg" alt="كرسي فيلفيت" loading="eager"></div>
-         <div class="hpc-body"><div class="hpc-name ar">كرسي فيلفيت أحمر</div><div class="hpc-name en-t">Velvet Red Chair</div><div class="hpc-price">$50 <small style="font-size:10px;color:var(--muted)">/قطعة</small></div></div>
-       </div>
-       <div class="hero-product-card">
-         <div class="hpc-img"><img src="images/p04-medallion-silver.jpg" alt="كرسي ميداليون" loading="eager"></div>
-         <div class="hpc-body"><div class="hpc-name ar">كرسي ميداليون فضي</div><div class="hpc-name en-t">Medallion Silver</div><div class="hpc-price">$55 <small style="font-size:10px;color:var(--muted)">/قطعة</small></div></div>
-       </div>
-       <div class="hero-product-card">
-         <div class="hpc-img"><img src="images/p03-barrel-gold.jpg" alt="كرسي برميل" loading="eager"></div>
-@@ -455,82 +459,82 @@ button{cursor:pointer;font-family:inherit}
-     </div>
-   </div>
- </div>
- 
- <!-- TRUST STRIP -->
- <div class="trust-strip">
-   <div class="trust-inner">
-     <div class="trust-item"><span class="trust-icon">🏭</span><span class="ar">مباشرة من المصنع</span><span class="en-t">Factory Direct</span></div>
-     <div class="trust-item"><span class="trust-icon">🔒</span><span class="ar">دفع آمن عبر Paymob</span><span class="en-t">Secure Payment via Paymob</span></div>
-     <div class="trust-item"><span class="trust-icon">🚢</span><span class="ar">شحن FOB الإسكندرية</span><span class="en-t">FOB Alexandria Shipping</span></div>
-     <div class="trust-item"><span class="trust-icon">🏆</span><span class="ar">استانلس 304 درجة أولى</span><span class="en-t">Grade 304 Stainless</span></div>
-     <div class="trust-item"><span class="trust-icon">📅</span><span class="ar">21 يوم تصنيع</span><span class="en-t">21-Day Lead Time</span></div>
-     <div class="trust-item"><span class="trust-icon">⭐</span><span class="ar">ضمان سنة كاملة</span><span class="en-t">1-Year Warranty</span></div>
-   </div>
- </div>
- 
- <!-- PROMO BANNER -->
- <div class="promo-wrap">
-   <div class="promo-banner">
-     <div>
-       <div class="promo-txt ar">🔥 عرض خاص — خصم 5% على أوردرات فوق 200 قطعة</div>
-       <div class="promo-txt en-t">🔥 Special Offer — 5% off orders above 200 units</div>
-       <div class="promo-sub ar">+ شحن مجاني FOB الإسكندرية على أوردرات فوق $10,000</div>
-       <div class="promo-sub en-t">+ Free FOB Alexandria shipping on orders above $10,000</div>
-     </div>
--    <button class="promo-badge" onclick="window.location='shop.html'"><span class="ar">اطلب الآن</span><span class="en-t">Order Now</span></button>
-+    <button class="promo-badge" data-btn-id="promo-order" onclick="window.location='shop.html'"><span class="ar">اطلب الآن</span><span class="en-t">Order Now</span></button>
-   </div>
- </div>
- 
- <!-- SHOWROOM PHOTOS -->
- <div class="section">
-   <div class="sec-hd">
-     <div class="sec-title ar">📸 من معرضنا</div>
-     <div class="sec-title en-t">📸 From Our Showroom</div>
-   </div>
-   <div class="showroom-grid">
-     <div class="showroom-card" onclick="openLB('images/showroom-lounge.jpg',['images/showroom-lounge.jpg','images/showroom-cage.jpg'],0)">
-       <img src="images/showroom-lounge.jpg" alt="معرض مصر ستيل" loading="lazy">
-       <div class="showroom-overlay">
-         <div class="showroom-tag ar">صالة العرض</div><div class="showroom-tag en-t">Showroom</div>
-         <div class="showroom-title ar">لاونج فندقي فاخر</div>
-         <div class="showroom-title en-t">Luxury Hotel Lounge</div>
-       </div>
-     </div>
-     <div class="showroom-card" onclick="openLB('images/showroom-cage.jpg',['images/showroom-lounge.jpg','images/showroom-cage.jpg'],1)">
-       <img src="images/showroom-cage.jpg" alt="معرض مصر ستيل" loading="lazy">
-       <div class="showroom-overlay">
-         <div class="showroom-tag ar">صالة العرض</div><div class="showroom-tag en-t">Showroom</div>
-         <div class="showroom-title ar">كراسي VIP بإطار ذهبي</div>
-         <div class="showroom-title en-t">VIP Chairs Gold Frame</div>
-       </div>
-     </div>
-   </div>
- </div>
- 
- <!-- PRODUCTS -->
--<div class="section" id="products">
-+<div class="section" id="products" data-section-id="products">
-   <div class="sec-hd">
-     <div class="sec-title ar">🏭 جميع المنتجات</div>
-     <div class="sec-title en-t">🏭 All Products</div>
-     <a href="shop.html" class="sec-more ar">عرض الكل وإتمام الطلب ←</a>
-     <a href="shop.html" class="sec-more en-t">View all & order →</a>
-   </div>
-   <div class="prod-grid" id="prodGrid"></div>
- </div>
- 
- <!-- FEATURED BANNER -->
- <div class="section">
-   <div class="feat-banner">
-     <div>
-       <div class="feat-banner-title ar">تسجيل دخول العملاء <span>— متابعة أوردراتك</span></div>
-       <div class="feat-banner-title en-t">Client Portal <span>— Track your orders</span></div>
-       <div class="feat-banner-sub ar">سجّل دخولك لمتابعة أوردراتك وعروض الأسعار والفواتير وتاريخ الشراء كله في مكان واحد.</div>
-       <div class="feat-banner-sub en-t">Sign in to track your orders, quotes, invoices and purchase history in one place.</div>
-     </div>
-     <button class="feat-banner-btn" onclick="openModal()"><span class="ar">دخول / تسجيل</span><span class="en-t">Login / Register</span></button>
-   </div>
- </div>
- 
- <!-- WHY US -->
- <div class="section">
-   <div class="sec-hd">
-@@ -540,70 +544,71 @@ button{cursor:pointer;font-family:inherit}
-   <div class="why-grid">
-     <div class="why-card"><div class="why-icon">🏭</div><div class="why-title ar">مباشرة من المصنع</div><div class="why-title en-t">Factory Direct</div><div class="why-desc ar">بدون وسطاء — أسعار المصنع مباشرة لك</div><div class="why-desc en-t">No middlemen — direct factory prices</div></div>
-     <div class="why-card"><div class="why-icon">🏆</div><div class="why-title ar">استانلس 304</div><div class="why-title en-t">SS Grade 304</div><div class="why-desc ar">مقاوم للصدأ والرطوبة — يدوم لسنوات</div><div class="why-desc en-t">Rust resistant — lasts for years</div></div>
-     <div class="why-card"><div class="why-icon">📦</div><div class="why-title ar">21 يوم تصنيع</div><div class="why-title en-t">21-Day Production</div><div class="why-desc ar">وقت تصنيع سريع مع جودة عالية</div><div class="why-desc en-t">Fast production with high quality</div></div>
-     <div class="why-card"><div class="why-icon">🌍</div><div class="why-title ar">تصدير عالمي</div><div class="why-title en-t">Worldwide Export</div><div class="why-desc ar">FOB الإسكندرية لكل دول العالم</div><div class="why-desc en-t">FOB Alexandria to all countries</div></div>
-   </div>
- </div>
- 
- <!-- EXPORT STRIP -->
- <div class="export-strip">
-   <div style="max-width:800px;margin:0 auto">
-     <div class="export-title ar">🌍 نصدّر لـ <span>8+ دول</span></div>
-     <div class="export-title en-t">🌍 Exporting to <span>8+ Countries</span></div>
-     <p class="export-sub ar">عملاؤنا في الفنادق والمطاعم وقاعات الأفراح في الشرق الأوسط وأفريقيا</p>
-     <p class="export-sub en-t">Our clients include hotels, restaurants and event halls across the Middle East & Africa</p>
-     <div class="export-flags">
-       <div class="flag-item">🇪🇬 مصر / Egypt</div>
-       <div class="flag-item">🇮🇶 العراق / Iraq</div>
-       <div class="flag-item">🇸🇦 السعودية / KSA</div>
-       <div class="flag-item">🇦🇪 الإمارات / UAE</div>
-       <div class="flag-item">🇰🇼 الكويت / Kuwait</div>
-       <div class="flag-item">🇯🇴 الأردن / Jordan</div>
-       <div class="flag-item">🇱🇾 ليبيا / Libya</div>
-       <div class="flag-item">🇩🇿 الجزائر / Algeria</div>
-     </div>
--    <button class="btn-hero-main" onclick="window.location='shop.html'" style="margin:0 auto;display:block">
-+    <button class="btn-hero-main" data-btn-id="order-main" onclick="window.location='shop.html'" style="margin:0 auto;display:block">
-       <span class="ar">🛒 اطلب الآن</span><span class="en-t">🛒 Order Now</span>
-     </button>
-   </div>
- </div>
- 
- <!-- FOOTER -->
- <footer class="footer-main">
-   <div class="footer-grid">
-     <div class="footer-brand">
-       <div class="fb-name-ar ar">مصر ستيل</div>
-       <div class="fb-name-en">MISR STEEL</div>
-       <p class="ar">مصنع أثاث استانلس متخصص في الكراسي والترابيزات للفنادق والمطاعم وقاعات الأفراح. تصدير لجميع أنحاء العالم.</p>
-       <p class="en-t">Stainless furniture factory specializing in chairs and tables for hotels, restaurants and event halls. Worldwide export.</p>
-       <a href="https://wa.me/201050595250" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:#25D366;color:#fff;padding:9px 16px;border-radius:4px;font-size:12px;font-weight:700;margin-top:14px">💬 <span class="ar">واتساب</span><span class="en-t">WhatsApp</span></a>
-     </div>
-     <div class="footer-col">
-       <h4 class="ar">الصفحات</h4><h4 class="en-t">Pages</h4>
-       <a href="#" class="ar">الرئيسية</a><a href="#" class="en-t">Home</a>
-       <a href="shop.html" class="ar">المتجر</a><a href="shop.html" class="en-t">Shop</a>
-+      <a href="ai-designer.html" class="ar">مصمم الذكاء الاصطناعي</a><a href="ai-designer.html" class="en-t">AI Designer</a>
-       <a href="contracts.html" class="ar">العقود</a><a href="contracts.html" class="en-t">Contracts</a>
-       <a href="misrsteel_affiliate.html" class="ar">برنامج المسوّقين</a><a href="misrsteel_affiliate.html" class="en-t">Affiliate Program</a>
-     </div>
-     <div class="footer-col">
-       <h4 class="ar">معلومات</h4><h4 class="en-t">Info</h4>
-       <a href="#" class="ar">الشحن والتسليم</a><a href="#" class="en-t">Shipping & Delivery</a>
-       <a href="contracts.html" class="ar">الشروط والأحكام</a><a href="contracts.html" class="en-t">Terms</a>
-       <a href="contracts.html" class="ar">سياسة الاسترداد</a><a href="contracts.html" class="en-t">Refund Policy</a>
-     </div>
-     <div class="footer-col">
-       <h4 class="ar">تواصل معنا</h4><h4 class="en-t">Contact</h4>
-       <a href="#">📍 <span class="ar">القاهرة، مصر</span><span class="en-t">Cairo, Egypt</span></a>
-       <a href="tel:+201050595250">📞 +20 100 000 0000</a>
-       <a href="mailto:info@misrsteel.com">✉️ info@misrsteel.com</a>
-     </div>
-   </div>
-   <div class="footer-bottom">
-     <span>© 2025 MISR STEEL · مصر ستيل · <span class="ar">جميع الحقوق محفوظة</span><span class="en-t">All rights reserved</span></span>
-     <span class="ar">صُنع في مصر 🇪🇬</span><span class="en-t">Made in Egypt 🇪🇬</span>
-   </div>
- </footer>
- 
- <!-- WhatsApp FAB -->
- <a class="wa-fab" href="https://wa.me/201050595250" target="_blank">
-   <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-@@ -780,48 +785,108 @@ function showToast(msg,type){
-   clearTimeout(t._t);
-   t._t=setTimeout(()=>t.classList.remove('show'),2800);
- }
- 
- function toggleLang(){
-   document.body.classList.toggle('en');
-   document.documentElement.lang=document.body.classList.contains('en')?'en':'ar';
-   document.documentElement.dir=document.body.classList.contains('en')?'ltr':'rtl';
-   document.getElementById('searchInp').placeholder=document.body.classList.contains('en')?'Search products...':'ابحث عن منتج...';
-   renderProducts();
- }
- 
- function doSearch(){
-   var q=document.getElementById('searchInp').value.trim().toLowerCase();
-   if(!q)return;
-   var filtered=PRODUCTS.filter(p=>p.nameAr.includes(q)||p.nameEn.toLowerCase().includes(q)||p.specAr.includes(q)||p.specEn.toLowerCase().includes(q));
-   var isEn=document.body.classList.contains('en');
-   var html='';
-   filtered.forEach(function(p){
-     html+='<div class="prod-card"><div class="prod-img-wrap" onclick="openLB(\''+p.img+'\','+JSON.stringify(p.imgs)+',0)"><img src="'+p.img+'" alt="'+(isEn?p.nameEn:p.nameAr)+'" loading="lazy"></div><div class="prod-body"><div class="prod-name">'+(isEn?p.nameEn:p.nameAr)+'</div><div class="prod-spec">'+(isEn?p.specEn:p.specAr)+'</div><div class="prod-footer"><button class="btn-cart" onclick="addToCart('+p.id+')"><span class="ar">أضف للسلة</span><span class="en-t">Add to cart</span></button></div></div></div>';
-   });
-   document.getElementById('prodGrid').innerHTML=html||'<p style="grid-column:1/-1;text-align:center;padding:32px;color:var(--muted)">لا توجد نتائج</p>';
-   document.getElementById('products').scrollIntoView({behavior:'smooth'});
- }
- 
-+function applyButtonConfig(buttons){
-+  if(!Array.isArray(buttons)) return;
-+  buttons.forEach(function(btn){
-+    var nodes=document.querySelectorAll('[data-btn-id=\"'+btn.id+'\"]');
-+    nodes.forEach(function(node){
-+      if(btn.visible===false){ node.style.display='none'; return; }
-+      node.style.display='';
-+      var ar=node.querySelector('.ar');
-+      var en=node.querySelector('.en-t');
-+      if(ar && btn.labelAr) ar.textContent=btn.labelAr;
-+      if(en && btn.labelEn) en.textContent=btn.labelEn;
-+      if(btn.link){
-+        if(node.tagName==='A') node.href=btn.link;
-+        else node.onclick=function(){ window.location=btn.link; };
-+      }
-+    });
-+  });
-+}
-+
-+function applyCategoriesConfig(categories){
-+  if(!Array.isArray(categories) || !categories.length) return;
-+  var wrap=document.getElementById('catInner');
-+  if(!wrap) return;
-+  wrap.innerHTML='';
-+  categories.forEach(function(cat,idx){
-+    var b=document.createElement('button');
-+    b.className='cat-btn'+(idx===0?' active':'');
-+    b.innerHTML='<span class=\"ar\">'+(cat.labelAr||cat.id)+'</span><span class=\"en-t\">'+(cat.labelEn||cat.id)+'</span>';
-+    if(cat.type==='link' || cat.link){
-+      b.onclick=function(){window.location=cat.link||'#';};
-+    }else{
-+      b.onclick=function(){filterCat(cat.id,b);};
-+    }
-+    wrap.appendChild(b);
-+  });
-+}
-+
-+function applySectionsConfig(sections){
-+  if(!Array.isArray(sections)) return;
-+  sections.forEach(function(sec){
-+    if(!sec.id) return;
-+    var el=document.querySelector('[data-section-id=\"'+sec.id+'\"]');
-+    if(!el) return;
-+    el.style.display=sec.enabled===false?'none':'';
-+  });
-+}
-+
-+async function loadSiteConfig(){
-+  try{
-+    var res=await fetch('/api/public/site-config');
-+    if(!res.ok) return;
-+    var data=await res.json();
-+    if(!data || !data.config) return;
-+    applyButtonConfig(data.config.buttons);
-+    applyCategoriesConfig(data.config.categories);
-+    applySectionsConfig(data.config.sections);
-+  }catch(e){}
-+}
-+
- // ── Lightbox ──────────────────────────────────
- function openLB(src,imgs,idx){
-   lbImgs=imgs;lbIdx=idx;
-   document.getElementById('lbImg').src=src;
-   document.getElementById('lightbox').classList.add('open');
-   document.body.style.overflow='hidden';
- }
- function closeLB(){document.getElementById('lightbox').classList.remove('open');document.body.style.overflow='';}
- function lbNav(dir){
-   lbIdx=(lbIdx+dir+lbImgs.length)%lbImgs.length;
-   document.getElementById('lbImg').src=lbImgs[lbIdx];
- }
- 
- // ── Init ──────────────────────────────────────
- document.addEventListener('DOMContentLoaded',function(){
-+  loadSiteConfig();
-   fetchRate();
-   setInterval(fetchRate,30*60*1000);
-   renderProducts();
-   updateCartBadge();
- });
- </script>
- </body>
- </html>
- 
-EOF
-)
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مصر ستيل — MISR STEEL | كراسي وترابيزات استانلس</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+/* ── HERO ── */
+.hero{background:linear-gradient(135deg,#ff6a00 0%,#e05500 60%,#c04a00 100%);color:#fff;padding:0;overflow:hidden;position:relative}
+.hero-inner{max-width:1200px;margin:0 auto;padding:48px 20px;display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:center}
+.hero-eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.75);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.hero-eyebrow::before{content:'';width:24px;height:2px;background:rgba(255,255,255,.6);flex-shrink:0}
+body:not(.en) .hero-eyebrow::before{order:1}
+.hero h1{font-size:42px;font-weight:700;line-height:1.2;margin-bottom:14px}
+body.en .hero h1{font-family:'DM Sans',sans-serif;font-size:38px;font-weight:600}
+.hero h1 span{color:#ffe0b2}
+.hero-desc{font-size:15px;line-height:1.8;color:rgba(255,255,255,.85);margin-bottom:28px;max-width:420px}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap}
+.hero-stats{display:flex;gap:24px;margin-top:28px;flex-wrap:wrap}
+.hero-stat{text-align:center}
+.hero-stat-n{font-size:26px;font-weight:700;line-height:1}
+.hero-stat-l{font-size:11px;color:rgba(255,255,255,.7);margin-top:2px}
+.hero-visual{display:flex;align-items:center;justify-content:center;position:relative;height:380px}
+.hero-chair-main{filter:drop-shadow(0 20px 40px rgba(0,0,0,.3));animation:chairFloat 4s ease-in-out infinite}
+@keyframes chairFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+.hero-price-tag{position:absolute;bottom:40px;inset-inline-start:20px;background:#fff;padding:12px 16px;border-radius:var(--radius);box-shadow:var(--shadow-lg);border-inline-start:4px solid var(--orange)}
+.hero-price-tag .hpt-label{font-size:11px;color:var(--muted)}
+.hero-price-tag .hpt-price{font-size:22px;font-weight:700;color:var(--orange)}
+.hero-rate-tag{position:absolute;top:40px;inset-inline-end:20px;background:rgba(255,255,255,.15);backdrop-filter:blur(8px);padding:10px 14px;border-radius:var(--radius);border:1px solid rgba(255,255,255,.25);font-size:12px;color:#fff;text-align:center}
+.hero-bg-circles{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.hero-circle{position:absolute;border-radius:50%;background:rgba(255,255,255,.05)}
+
+/* ── CATEGORY STRIP ── */
+.cat-strip{background:#fff;border-bottom:2px solid var(--border);overflow-x:auto;white-space:nowrap;scrollbar-width:none}
+.cat-strip::-webkit-scrollbar{display:none}
+.cat-inner{max-width:1200px;margin:0 auto;padding:0 20px;display:flex;gap:0}
+.cat-item{display:inline-flex;align-items:center;gap:8px;padding:14px 20px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;white-space:nowrap}
+.cat-item:hover,.cat-item.active{color:var(--orange);border-bottom-color:var(--orange)}
+.cat-item-icon{font-size:18px}
+
+/* ── PROMO BANNER ── */
+.promo-banner{background:linear-gradient(90deg,#fff3ec,#fff8f0);border:1.5px solid rgba(255,106,0,.2);padding:16px 20px;margin:20px 0;display:flex;align-items:center;justify-content:space-between;border-radius:var(--radius);flex-wrap:wrap;gap:12px}
+.promo-text{font-size:14px;font-weight:600;color:var(--orange-dk)}
+.promo-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.promo-badge{background:var(--orange);color:#fff;padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap}
+
+/* ── AI VISUALIZER ── */
+.viz-section{background:#111;color:#fff;padding:64px 20px}
+.viz-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1.5fr;gap:56px;align-items:start}
+.viz-eyebrow{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--orange);font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.viz-eyebrow::before{content:'';width:24px;height:2px;background:var(--orange);flex-shrink:0}
+body:not(.en) .viz-eyebrow::before{order:1}
+.viz-title{font-size:32px;font-weight:700;line-height:1.2;margin-bottom:12px;color:#fff}
+body:not(.en) .viz-title{font-family:'Cairo',sans-serif}
+.viz-desc{font-size:14px;color:rgba(255,255,255,.5);line-height:1.8;margin-bottom:24px}
+.viz-steps{display:flex;flex-direction:column;gap:14px;margin-bottom:28px}
+.viz-step{display:flex;gap:14px;align-items:flex-start}
+.viz-step-n{width:28px;height:28px;background:var(--orange);color:#fff;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.viz-step-t{font-size:13px;color:rgba(255,255,255,.6);line-height:1.65;padding-top:4px}
+.viz-step-t strong{display:block;color:#fff;font-weight:600;margin-bottom:1px}
+.viz-tool{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:4px;overflow:hidden}
+.viz-tool-bar{background:rgba(0,0,0,.4);padding:10px 14px;display:flex;align-items:center;gap:6px;border-bottom:1px solid rgba(255,255,255,.07)}
+.vdot{width:10px;height:10px;border-radius:50%}
+.vdot.r{background:#ff5f57}.vdot.y{background:#ffbd2e}.vdot.g{background:#28c840}
+.viz-tool-title{font-size:11px;color:rgba(255,255,255,.3);margin-inline-start:8px;letter-spacing:.06em}
+.viz-tool-body{padding:14px}
+.vdz{border:1.5px dashed rgba(255,106,0,.3);padding:20px 14px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:0;border-radius:4px}
+.vdz:hover,.vdz.drag{border-color:var(--orange);background:rgba(255,106,0,.07)}
+.vdz input{display:none}
+.vdz-main{font-size:13px;color:rgba(255,255,255,.5);margin-bottom:5px}
+.vdz-or{font-size:10px;color:rgba(255,255,255,.25);margin-bottom:10px}
+.vdemo-btns{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.vdemo-btn{padding:5px 11px;background:rgba(255,106,0,.1);border:1px solid rgba(255,106,0,.25);color:var(--orange);font-size:11px;cursor:pointer;font-family:inherit;border-radius:20px;transition:all .15s;font-weight:600}
+.vdemo-btn:hover{background:rgba(255,106,0,.2)}
+.vctrl{display:none}.vctrl.show{display:block}
+.vcrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.vcbox{position:relative;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:4px;overflow:hidden}
+.vclbl{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.55);font-size:9px;color:rgba(255,255,255,.4);padding:3px 7px;letter-spacing:.06em;text-transform:uppercase}
+canvas.vc{display:block;width:100%;height:120px}
+.vselrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.vcg label{display:block;font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
+.vcg select,.vcg input[type=number]{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,106,0,.2);color:#fff;font-size:12px;padding:7px 9px;font-family:inherit;border-radius:4px}
+.vcg select option{background:#1a1a1a}
+.vqrow{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.vqrow label{font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.vqrow input[type=range]{flex:1;-webkit-appearance:none;height:3px;background:rgba(255,255,255,.15);border:none;outline:none;border-radius:2px}
+.vqrow input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--orange);cursor:pointer}
+.vqval{font-size:13px;color:var(--orange);min-width:22px;text-align:right;font-weight:700}
+.vbtn-gen{width:100%;padding:11px;background:var(--orange);color:#fff;border:none;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;font-family:inherit;border-radius:4px;transition:background .2s;margin-bottom:7px}
+.vbtn-gen:hover{background:var(--orange-dk)}
+.vspin-w{text-align:center;padding:20px;display:none}
+.vspin{width:28px;height:28px;border:2px solid rgba(255,106,0,.2);border-top-color:var(--orange);border-radius:50%;animation:vspin .9s linear infinite;margin:0 auto 8px}
+@keyframes vspin{to{transform:rotate(360deg)}}
+.vspin-t{font-size:11px;color:rgba(255,255,255,.35);letter-spacing:.06em}
+.vres{display:none}
+.vres-canv{position:relative;border:1px solid rgba(255,106,0,.2);margin-bottom:9px;border-radius:4px;overflow:hidden}
+canvas.vc-big{display:block;width:100%;height:180px}
+.vai-tag{position:absolute;top:7px;inset-inline-start:7px;background:var(--orange);color:#fff;font-size:9px;padding:3px 10px;letter-spacing:.09em;text-transform:uppercase;font-weight:700;border-radius:2px}
+.vstats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
+.vstat{background:rgba(255,255,255,.05);border:1px solid rgba(255,106,0,.15);padding:8px;text-align:center;border-radius:4px}
+.vstat-n{font-size:19px;font-weight:700;color:var(--orange)}
+.vstat-l{font-size:9px;color:rgba(255,255,255,.35);letter-spacing:.06em;text-transform:uppercase;margin-top:1px}
+.vact-row{display:flex;gap:6px}
+.vact-p{flex:1;padding:9px;background:var(--orange);color:#fff;border:none;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;font-family:inherit;border-radius:4px;transition:background .2s}
+.vact-p:hover{background:var(--orange-dk)}
+.vact-s{padding:9px 13px;background:transparent;color:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.12);font-size:11px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;font-family:inherit;border-radius:4px;transition:color .2s}
+.vact-s:hover{color:#fff}
+@media(max-width:768px){.viz-inner{grid-template-columns:1fr}}
+
+/* ── WHY US ── */
+.why-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:24px}
+.why-card{background:#fff;border-radius:var(--radius);padding:20px;text-align:center;border:1.5px solid var(--border);transition:all .2s}
+.why-card:hover{border-color:var(--orange);transform:translateY(-2px)}
+.why-icon{font-size:32px;margin-bottom:10px}
+.why-title{font-size:14px;font-weight:700;margin-bottom:4px}
+.why-desc{font-size:12px;color:var(--muted);line-height:1.6}
+
+/* ── EXPORT BANNER ── */
+.export-banner{background:var(--black);color:#fff;padding:40px 20px;text-align:center;margin-top:0}
+.export-banner h2{font-size:28px;font-weight:700;margin-bottom:8px}
+body.en .export-banner h2{font-family:'DM Sans',sans-serif}
+.export-banner p{font-size:14px;color:rgba(255,255,255,.6);margin-bottom:20px}
+.export-countries{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:24px}
+.exp-country{padding:6px 16px;border:1px solid rgba(255,255,255,.2);border-radius:20px;font-size:13px;color:rgba(255,255,255,.75);transition:all .2s;cursor:default}
+.exp-country:hover{border-color:var(--orange);color:var(--orange)}
+
+@media(max-width:768px){
+  .hero-inner{grid-template-columns:1fr;padding:32px 16px}
+  .hero h1{font-size:28px}
+  .hero-visual{height:240px}
+  .why-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<div id="navPlaceholder"></div>
+<div id="cartPlaceholder"></div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg-circles">
+    <div class="hero-circle" style="width:300px;height:300px;top:-80px;inset-inline-end:-60px"></div>
+    <div class="hero-circle" style="width:200px;height:200px;bottom:-50px;inset-inline-start:10%"></div>
+  </div>
+  <div class="hero-inner">
+    <div>
+      <div class="hero-eyebrow"><span class="ar">مصنع مصري · تصدير عالمي · جودة لا تُنافَس</span><span class="en-t">Egyptian Factory · Global Export · Unmatched Quality</span></div>
+      <h1 class="ar">كراسي وترابيزات<br><span>استانلس فاخرة</span><br>مباشرة من المصنع</h1>
+      <h1 class="en-t">Premium <span>stainless</span><br>chairs & tables<br>factory direct</h1>
+      <p class="hero-desc ar">نورّد الفنادق والمطاعم وقاعات الأفراح في مصر والشرق الأوسط وأفريقيا. خامات استانلس 304 درجة أولى — قواعد ذهبية — ضمان سنة.</p>
+      <p class="hero-desc en-t">Supplying hotels, restaurants, and event halls across Egypt, the Middle East and Africa. Grade 304 stainless steel — gold foot caps — 1-year warranty.</p>
+      <div class="hero-btns">
+        <a href="shop.html" class="btn btn-white btn-lg">🛒 <span class="ar">اطلب الآن</span><span class="en-t">Order Now</span></a>
+        <a href="#catalog" class="btn btn-lg" style="background:rgba(255,255,255,.15);color:#fff;border:2px solid rgba(255,255,255,.4)"><span class="ar">تصفح المنتجات</span><span class="en-t">Browse Products</span></a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="hero-stat-n">500+</div><div class="hero-stat-l ar">كرسي / شهر</div><div class="hero-stat-l en-t">Chairs / month</div></div>
+        <div class="hero-stat"><div class="hero-stat-n">8+</div><div class="hero-stat-l ar">دول تصدير</div><div class="hero-stat-l en-t">Export countries</div></div>
+        <div class="hero-stat"><div class="hero-stat-n">$45</div><div class="hero-stat-l ar">يبدأ السعر من</div><div class="hero-stat-l en-t">Starting price</div></div>
+        <div class="hero-stat"><div class="hero-stat-n">21</div><div class="hero-stat-l ar">يوم تصنيع</div><div class="hero-stat-l en-t">Days lead time</div></div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-rate-tag">
+        <div style="font-size:10px;opacity:.7" class="ar">سعر الدولار اليوم</div>
+        <div style="font-size:10px;opacity:.7" class="en-t">USD/EGP today</div>
+        <div style="font-size:18px;font-weight:700"><span class="rate-display">50.85</span> ج.م</div>
+      </div>
+      <div class="hero-chair-main">
+        <svg width="260" height="320" viewBox="0 0 320 400">
+          <defs>
+            <linearGradient id="hg1" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#505860"/><stop offset="35%" stop-color="#d8e4f0"/><stop offset="60%" stop-color="#f4f8fc"/><stop offset="85%" stop-color="#c0c8d4"/><stop offset="100%" stop-color="#505860"/></linearGradient>
+            <linearGradient id="hg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#dce8f0"/><stop offset="50%" stop-color="#b0bcc8"/><stop offset="100%" stop-color="#788090"/></linearGradient>
+            <linearGradient id="hgg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ffe0b2"/><stop offset="50%" stop-color="#ff6a00"/><stop offset="100%" stop-color="#e05500"/></linearGradient>
+          </defs>
+          <ellipse cx="160" cy="392" rx="110" ry="10" fill="rgba(0,0,0,.25)"/>
+          <rect x="56" y="155" width="16" height="210" rx="4" fill="url(#hg2)" stroke="#606870" stroke-width=".5"/>
+          <rect x="59" y="158" width="4" height="204" rx="2" fill="rgba(255,255,255,.28)"/>
+          <rect x="248" y="155" width="16" height="210" rx="4" fill="url(#hg2)" stroke="#606870" stroke-width=".5"/>
+          <rect x="251" y="158" width="4" height="204" rx="2" fill="rgba(255,255,255,.28)"/>
+          <rect x="70" y="238" width="16" height="124" rx="4" fill="url(#hg2)" stroke="#606870" stroke-width=".5"/>
+          <rect x="73" y="241" width="4" height="118" rx="2" fill="rgba(255,255,255,.22)"/>
+          <rect x="234" y="238" width="16" height="124" rx="4" fill="url(#hg2)" stroke="#606870" stroke-width=".5"/>
+          <rect x="237" y="241" width="4" height="118" rx="2" fill="rgba(255,255,255,.22)"/>
+          <rect x="70" y="320" width="180" height="10" rx="4" fill="url(#hg1)"/>
+          <rect x="56" y="312" width="208" height="10" rx="4" fill="url(#hg1)"/>
+          <rect x="48" y="230" width="224" height="18" rx="5" fill="url(#hg2)"/>
+          <rect x="52" y="231" width="216" height="8" rx="3" fill="rgba(255,255,255,.2)"/>
+          <rect x="52" y="232" width="216" height="30" rx="5" fill="#111"/>
+          <line x1="160" y1="234" x2="160" y2="260" stroke="rgba(255,255,255,.07)" stroke-width="1.5"/>
+          <rect x="56" y="38" width="16" height="185" rx="5" fill="url(#hg2)"/>
+          <rect x="59" y="41" width="4" height="179" rx="2" fill="rgba(255,255,255,.28)"/>
+          <rect x="248" y="38" width="16" height="185" rx="5" fill="url(#hg2)"/>
+          <rect x="251" y="41" width="4" height="179" rx="2" fill="rgba(255,255,255,.28)"/>
+          <rect x="56" y="32" width="208" height="16" rx="5" fill="url(#hg1)"/>
+          <rect x="60" y="33" width="200" height="7" rx="3" fill="rgba(255,255,255,.22)"/>
+          <rect x="74" y="52" width="172" height="170" rx="5" fill="#111"/>
+          <line x1="76" y1="96" x2="244" y2="96" stroke="rgba(255,255,255,.05)" stroke-width="1"/>
+          <line x1="76" y1="136" x2="244" y2="136" stroke="rgba(255,255,255,.05)" stroke-width="1"/>
+          <line x1="76" y1="178" x2="244" y2="178" stroke="rgba(255,255,255,.05)" stroke-width="1"/>
+          <rect x="56" y="68" width="208" height="12" rx="3" fill="url(#hg1)" opacity=".9"/>
+          <rect x="60" y="69" width="200" height="5" rx="2" fill="rgba(255,255,255,.2)"/>
+          <rect x="56" y="112" width="208" height="12" rx="3" fill="url(#hg1)" opacity=".9"/>
+          <rect x="60" y="113" width="200" height="5" rx="2" fill="rgba(255,255,255,.2)"/>
+          <rect x="56" y="156" width="208" height="12" rx="3" fill="url(#hg1)" opacity=".9"/>
+          <rect x="60" y="157" width="200" height="5" rx="2" fill="rgba(255,255,255,.2)"/>
+          <rect x="56" y="200" width="208" height="12" rx="3" fill="url(#hg1)" opacity=".9"/>
+          <rect x="60" y="201" width="200" height="5" rx="2" fill="rgba(255,255,255,.2)"/>
+          <!-- ORANGE/GOLD foot caps -->
+          <ellipse cx="64" cy="365" rx="13" ry="6" fill="url(#hgg)"/>
+          <ellipse cx="256" cy="365" rx="13" ry="6" fill="url(#hgg)"/>
+          <ellipse cx="78" cy="362" rx="13" ry="6" fill="url(#hgg)"/>
+          <ellipse cx="242" cy="362" rx="13" ry="6" fill="url(#hgg)"/>
+          <circle cx="64" cy="46" r="5" fill="url(#hgg)"/>
+          <circle cx="256" cy="46" r="5" fill="url(#hgg)"/>
+          <circle cx="64" cy="230" r="5" fill="url(#hgg)"/>
+          <circle cx="256" cy="230" r="5" fill="url(#hgg)"/>
+        </svg>
+      </div>
+      <div class="hero-price-tag">
+        <div class="hpt-label ar">يبدأ من</div>
+        <div class="hpt-label en-t">Starting from</div>
+        <div class="hpt-price">$45 <small style="font-size:13px;color:var(--muted)" class="ar">/ كرسي</small><small style="font-size:13px;color:var(--muted)" class="en-t">/ chair</small></div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px" data-usd="45">...</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CATEGORY STRIP -->
+<div class="cat-strip">
+  <div class="cat-inner">
+    <div class="cat-item active" onclick="filterCat('all')"><span class="cat-item-icon">⭐</span><span class="ar">الكل</span><span class="en-t">All</span></div>
+    <div class="cat-item" onclick="filterCat('chairs')"><span class="cat-item-icon">🪑</span><span class="ar">الكراسي</span><span class="en-t">Chairs</span></div>
+    <div class="cat-item" onclick="filterCat('tables')"><span class="cat-item-icon">🍽</span><span class="ar">الترابيزات</span><span class="en-t">Tables</span></div>
+    <div class="cat-item" onclick="filterCat('sets')"><span class="cat-item-icon">🏨</span><span class="ar">طقم كامل</span><span class="en-t">Full Sets</span></div>
+  </div>
+</div>
+
+<!-- PROMO BANNER -->
+<div class="section" style="padding-bottom:0">
+  <div class="promo-banner">
+    <div>
+      <div class="promo-text ar">🔥 عرض خاص على الطلبات الكبيرة — خصم 5% على أوردرات فوق 200 قطعة</div>
+      <div class="promo-text en-t">🔥 Special offer — 5% discount on orders above 200 units</div>
+      <div class="promo-sub ar">+ شحن مجاني FOB الإسكندرية لأوردرات فوق $10,000</div>
+      <div class="promo-sub en-t">+ Free FOB Alexandria shipping on orders above $10,000</div>
+    </div>
+    <div class="promo-badge ar">اطلب الآن</div>
+    <div class="promo-badge en-t">Order Now</div>
+  </div>
+</div>
+
+<!-- PRODUCTS CATALOG -->
+<div class="section" id="catalog">
+  <div class="section-hd">
+    <div>
+      <div class="section-title ar">🏭 منتجاتنا</div>
+      <div class="section-title en-t">🏭 Our Products</div>
+      <div class="section-sub ar">أثاث استانلس بجودة تجارية عالية — مباشرة من المصنع</div>
+      <div class="section-sub en-t">Commercial-grade stainless furniture — direct from factory</div>
+    </div>
+    <a href="shop.html" class="btn btn-orange"><span class="ar">عرض الكل</span><span class="en-t">View all</span></a>
+  </div>
+  <div class="prod-grid" id="productsGrid"></div>
+</div>
+
+<!-- AI ROOM VISUALIZER -->
+<section class="viz-section" id="visualizer">
+  <div class="viz-inner">
+    <div>
+      <div class="viz-eyebrow"><span class="ar">محاكي الغرفة بالذكاء الاصطناعي</span><span class="en-t">AI Room Visualizer</span></div>
+      <div class="viz-title ar">شوف الكراسي في مكانك<br>قبل ما تطلب</div>
+      <div class="viz-title en-t">See the chairs in<br>your space before ordering</div>
+      <p class="viz-desc ar">ارفع صورة مطعمك أو فندقك أو قاعتك — الذكاء الاصطناعي هيحط كراسي مصر ستيل فيها ويوريك إزاي هتبان قبل ما تطلب.</p>
+      <p class="viz-desc en-t">Upload a photo of your restaurant, hotel, or hall — AI places MISR STEEL chairs inside and shows you exactly how they'll look before you order.</p>
+      <div class="viz-steps">
+        <div class="viz-step"><div class="viz-step-n">1</div><div class="viz-step-t ar"><strong>ارفع صورة مكانك</strong>مطعم · فندق · قاعة أفراح · كافيه</div><div class="viz-step-t en-t"><strong>Upload your space photo</strong>Restaurant · Hotel · Hall · Cafe</div></div>
+        <div class="viz-step"><div class="viz-step-n">2</div><div class="viz-step-t ar"><strong>اختار الكرسي والكمية</strong>موديل وعدد وترتيب الكراسي</div><div class="viz-step-t en-t"><strong>Choose chair & quantity</strong>Model, count, and arrangement</div></div>
+        <div class="viz-step"><div class="viz-step-n">3</div><div class="viz-step-t ar"><strong>شوف النتيجة واطلب</strong>سعر تقديري وطلب عرض سعر بضغطة</div><div class="viz-step-t en-t"><strong>See result & order</strong>Instant price estimate and quote request</div></div>
+      </div>
+      <a href="shop.html" class="btn btn-orange btn-lg"><span class="ar">🛒 اطلب مباشرة</span><span class="en-t">🛒 Order directly</span></a>
+    </div>
+
+    <div class="viz-tool">
+      <div class="viz-tool-bar">
+        <div class="vdot r"></div><div class="vdot y"></div><div class="vdot g"></div>
+        <div class="viz-tool-title">misrsteel.com · AI room visualizer</div>
+      </div>
+      <div class="viz-tool-body">
+
+        <div id="vS1">
+          <div class="vdz" id="vDZ" onclick="document.getElementById('vF').click()" ondragover="vDE(event,1)" ondragleave="vDE(event,0)" ondrop="vDD(event)">
+            <input type="file" id="vF" accept="image/*" onchange="vFH(this.files[0])">
+            <div class="vdz-main ar">📸 ارفع صورة مكانك هنا</div>
+            <div class="vdz-main en-t">📸 Upload a photo of your space</div>
+            <div class="vdz-or ar">— أو جرب غرفة ديمو —</div>
+            <div class="vdz-or en-t">— or try a demo room —</div>
+            <div class="vdemo-btns">
+              <button class="vdemo-btn" onclick="event.stopPropagation();vDemo('restaurant')"><span class="ar">مطعم</span><span class="en-t">Restaurant</span></button>
+              <button class="vdemo-btn" onclick="event.stopPropagation();vDemo('hotel')"><span class="ar">فندق</span><span class="en-t">Hotel</span></button>
+              <button class="vdemo-btn" onclick="event.stopPropagation();vDemo('cafe')"><span class="ar">كافيه</span><span class="en-t">Cafe</span></button>
+              <button class="vdemo-btn" onclick="event.stopPropagation();vDemo('hall')"><span class="ar">قاعة</span><span class="en-t">Hall</span></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="vctrl" id="vS2">
+          <div class="vcrow">
+            <div class="vcbox"><canvas class="vc" id="vO" width="220" height="120"></canvas><div class="vclbl ar">مكانك</div><div class="vclbl en-t">Your space</div></div>
+            <div class="vcbox"><canvas class="vc" id="vP" width="220" height="120"></canvas><div class="vclbl ar">معاينة</div><div class="vclbl en-t">Preview</div></div>
+          </div>
+          <div class="vselrow">
+            <div class="vcg"><label><span class="ar">الموديل</span><span class="en-t">Model</span></label><select id="vMod" onchange="vPrev()"><option value="classic"><span class="ar">كلاسيك</span><span class="en-t">Classic</span></option><option value="highback">High-back</option><option value="armchair">Armchair</option></select></div>
+            <div class="vcg"><label><span class="ar">الترتيب</span><span class="en-t">Arrangement</span></label><select id="vArr" onchange="vPrev()"><option value="rows"><span class="ar">صفوف</span><span class="en-t">Rows</span></option><option value="circle"><span class="ar">طاولات دايرة</span><span class="en-t">Round tables</span></option><option value="banquet">Banquet</option></select></div>
+          </div>
+          <div class="vqrow"><label><span class="ar">الكمية</span><span class="en-t">Qty</span></label><input type="range" min="4" max="60" value="20" step="4" id="vQty" oninput="document.getElementById('vQV').textContent=this.value;vPrev()"><span class="vqval" id="vQV">20</span></div>
+          <div class="vselrow" style="margin-bottom:10px">
+            <div class="vcg"><label><span class="ar">العرض (م)</span><span class="en-t">Width (m)</span></label><input type="number" value="12" min="3" max="60" id="vW" oninput="vPrev()"></div>
+            <div class="vcg"><label><span class="ar">الطول (م)</span><span class="en-t">Length (m)</span></label><input type="number" value="18" min="3" max="100" id="vL" oninput="vPrev()"></div>
+          </div>
+          <button class="vbtn-gen" onclick="vGen()"><span class="ar">🤖 توليد الصورة بالذكاء الاصطناعي</span><span class="en-t">🤖 Generate AI visualization</span></button>
+        </div>
+
+        <div class="vspin-w" id="vSpin"><div class="vspin"></div><div class="vspin-t" id="vSpT">Analyzing your space...</div></div>
+
+        <div class="vres" id="vRes">
+          <div class="vres-canv"><canvas class="vc-big" id="vBig" width="480" height="180"></canvas><div class="vai-tag">AI Generated · MISR STEEL</div><div class="vclbl" id="vRL">20 chairs · rows</div></div>
+          <div class="vstats">
+            <div class="vstat"><div class="vstat-n" id="vrs1">20</div><div class="vstat-l ar">كرسي</div><div class="vstat-l en-t">Chairs</div></div>
+            <div class="vstat"><div class="vstat-n" id="vrs2">216m²</div><div class="vstat-l ar">مساحة</div><div class="vstat-l en-t">Area</div></div>
+            <div class="vstat"><div class="vstat-n" id="vrs3">$900</div><div class="vstat-l ar">تقديري</div><div class="vstat-l en-t">Est. price</div></div>
+          </div>
+          <div class="vact-row">
+            <button class="vact-p" onclick="vQuote()"><span class="ar">🛒 اطلب الآن</span><span class="en-t">🛒 Order now</span></button>
+            <button class="vact-s" onclick="vReset()"><span class="ar">جرب تاني</span><span class="en-t">Try another</span></button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY US -->
+<div class="section" style="background:#fff;max-width:100%;padding:40px 20px">
+  <div style="max-width:1200px;margin:0 auto">
+    <div class="section-title ar" style="text-align:center">⭐ ليه مصر ستيل؟</div>
+    <div class="section-title en-t" style="text-align:center">⭐ Why MISR STEEL?</div>
+    <div class="why-grid">
+      <div class="why-card"><div class="why-icon">🏭</div><div class="why-title ar">مباشر من المصنع</div><div class="why-title en-t">Factory Direct</div><div class="why-desc ar">بدون وسطاء — أسعار المصنع مباشرة</div><div class="why-desc en-t">No middlemen — direct factory prices</div></div>
+      <div class="why-card"><div class="why-icon">🏆</div><div class="why-title ar">استانلس 304 درجة أولى</div><div class="why-title en-t">Grade 304 Stainless</div><div class="why-desc ar">مقاوم للصدأ والرطوبة — يدوم لسنوات</div><div class="why-desc en-t">Rust and humidity resistant — lasts for years</div></div>
+      <div class="why-card"><div class="why-icon">📦</div><div class="why-title ar">21 يوم تصنيع</div><div class="why-title en-t">21-Day Production</div><div class="why-desc ar">وقت تصنيع سريع مع جودة عالية</div><div class="why-desc en-t">Fast production with high quality standards</div></div>
+      <div class="why-card"><div class="why-icon">🌍</div><div class="why-title ar">تصدير عالمي</div><div class="why-title en-t">Worldwide Export</div><div class="why-desc ar">FOB الإسكندرية لكل دول العالم</div><div class="why-desc en-t">FOB Alexandria to all countries</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- EXPORT SECTION -->
+<div class="export-banner">
+  <div style="max-width:800px;margin:0 auto">
+    <h2 class="ar">🌍 نصدّر لـ 8+ دول</h2>
+    <h2 class="en-t">🌍 Exporting to 8+ countries</h2>
+    <p class="ar">عملاؤنا في الفنادق والمطاعم وقاعات الأفراح في جميع أنحاء الشرق الأوسط وأفريقيا</p>
+    <p class="en-t">Our clients include hotels, restaurants and event halls across the Middle East and Africa</p>
+    <div class="export-countries">
+      <span class="exp-country">🇪🇬 مصر</span>
+      <span class="exp-country">🇮🇶 العراق</span>
+      <span class="exp-country">🇸🇦 السعودية</span>
+      <span class="exp-country">🇦🇪 الإمارات</span>
+      <span class="exp-country">🇰🇼 الكويت</span>
+      <span class="exp-country">🇯🇴 الأردن</span>
+      <span class="exp-country">🇱🇾 ليبيا</span>
+      <span class="exp-country">🇩🇿 الجزائر</span>
+    </div>
+    <a href="shop.html" class="btn btn-white btn-lg">🛒 <span class="ar">اطلب الآن</span><span class="en-t">Order Now</span></a>
+  </div>
+</div>
+
+<div id="footerPlaceholder"></div>
+
+<script src="shared.js"></script>
+<script>
+var PRODUCTS = [
+  {
+    id:1,
+    nameAr:'كرسي رويال ذهبي',
+    nameEn:'Royal Gold Chair',
+    specAr:'إطار استانلس ذهبي · تنجيد مخمل · متاح بألوان متعددة · مثالي لقاعات الأفراح والفنادق',
+    specEn:'Gold stainless frame · Velvet upholstery · Multiple colors · Perfect for wedding halls & hotels',
+    descAr:'كرسي فاخر بتصميم زهري مميز وإطار ستانلس ذهبي لامع. التنجيد مخمل ناعم متاح بألوان بيج وأبيض وأزرق وروز. الارتفاع 98 سم — مثالي لقاعات الأفراح والفنادق.',
+    descEn:'Luxury chair with distinctive floral back design and shiny gold stainless frame. Soft velvet upholstery available in beige, white, blue and rose. Height 98cm — ideal for wedding halls and hotels.',
+    prices:[{qty:50,label:'50–99',price:45},{qty:100,label:'100–499',price:40},{qty:500,label:'500+ (حاوية كاملة)',price:35}],
+    imgFile:'images/chair-rose-gold.jpg',
+    badge:'bestseller',
+    cat:'chairs',
+    minQty:50, step:50, svgKey:'chair'
+  },
+  {
+    id:2,
+    nameAr:'كرسي لاونج ذهبي',
+    nameEn:'Lounge Gold Armchair',
+    specAr:'إطار استانلس ذهبي · مسند ذراعين · تنجيد كتاني فاخر · للمطاعم والكافيهات',
+    specEn:'Gold stainless frame · Double armrests · Linen fabric · Restaurants & cafes',
+    descAr:'كرسي لاونج عصري بمسند ذراعين وإطار ذهبي. التنجيد قماش كتاني بيج ناعم مريح للجلوس الطويل. مثالي للمطاعم الراقية والكافيهات.',
+    descEn:'Modern lounge armchair with double armrests and gold frame. Comfortable linen fabric upholstery in beige. Ideal for upscale restaurants and cafes.',
+    prices:[{qty:50,label:'50–99',price:48},{qty:100,label:'100–499',price:43},{qty:500,label:'500+ (حاوية كاملة)',price:38}],
+    imgFile:'images/chair-linen-gold.jpg',
+    badge:'new',
+    cat:'chairs',
+    minQty:50, step:50, svgKey:'armchair'
+  },
+  {
+    id:3,
+    nameAr:'كرسي بوكليه أسود',
+    nameEn:'Boucle Black Chair',
+    specAr:'إطار استانلس أسود مات · تنجيد بوكليه · تصميم عصري · للمطاعم والأوفيسات',
+    specEn:'Matte black stainless · Boucle fabric · Modern design · Restaurants & offices',
+    descAr:'كرسي عصري بقماش بوكليه الفاخر وإطار أسود مات. تصميم مريح مع ظهر يحضن الجسم. مناسب للمطاعم العصرية ومناطق الانتظار.',
+    descEn:'Modern chair with premium boucle fabric and matte black frame. Comfortable design with body-hugging back. Suitable for contemporary restaurants and waiting areas.',
+    prices:[{qty:50,label:'50–99',price:42},{qty:100,label:'100–499',price:37},{qty:500,label:'500+ (حاوية كاملة)',price:32}],
+    imgFile:'images/chair-boucle-black.jpg',
+    badge:'',
+    cat:'chairs',
+    minQty:50, step:50, svgKey:'chair'
+  },
+  {
+    id:4,
+    nameAr:'كرسي فيلفيت أحمر',
+    nameEn:'Velvet Red Chair',
+    specAr:'إطار استانلس أسود · مخمل أحمر عميق · تصميم كابيتوني · فنادق وقاعات VIP',
+    specEn:'Black stainless frame · Deep red velvet · Capitone design · Hotels & VIP halls',
+    descAr:'كرسي بتنجيد مخمل أحمر كابيتوني فاخر وإطار أسود متين. تصميم ظهر ضخم مريح. متاح أيضاً بالأخضر والأزرق الداكن والرمادي.',
+    descEn:'Chair with luxurious red capitone velvet upholstery and sturdy black frame. Comfortable large back design. Also available in green, dark blue and grey.',
+    prices:[{qty:50,label:'50–99',price:50},{qty:100,label:'100–499',price:45},{qty:500,label:'500+ (حاوية كاملة)',price:40}],
+    imgFile:'images/chair-velvet-red.jpg',
+    badge:'',
+    cat:'chairs',
+    minQty:50, step:50, svgKey:'chair'
+  },
+  {
+    id:5,
+    nameAr:'كرسي ميداليون فضي',
+    nameEn:'Medallion Silver Chair',
+    specAr:'إطار استانلس فضي لامع · ظهر دائري مزدان · مخمل رمادي · قاعات الأفراح',
+    specEn:'Shiny silver stainless · Ornate round back · Grey velvet · Wedding halls',
+    descAr:'كرسي كلاسيكي بإطار استانلس فضي وظهر دائري مزدان بالتنجيد الكابيتوني. تنجيد مخمل رمادي ناعم. الأكثر طلباً لقاعات الأفراح الفاخرة.',
+    descEn:'Classic chair with silver stainless frame and ornate round capitone back. Soft grey velvet upholstery. Most popular for luxury wedding halls.',
+    prices:[{qty:50,label:'50–99',price:55},{qty:100,label:'100–499',price:49},{qty:500,label:'500+ (حاوية كاملة)',price:44}],
+    imgFile:'images/chair-medallion-silver.jpg',
+    badge:'bestseller',
+    cat:'chairs',
+    minQty:50, step:50, svgKey:'chair'
+  },
+  {
+    id:6,
+    nameAr:'كرسي برميل ذهبي',
+    nameEn:'Barrel Gold Chair',
+    specAr:'إطار استانلس ذهبي دائري · تصميم برميل فريد · مخمل · للكافيهات واللاونج',
+    specEn:'Round gold stainless frame · Unique barrel design · Velvet · Cafes & lounges',
+    descAr:'كرسي برميل فريد بإطار ذهبي دائري وتنجيد مخمل. متاح بالأزرق الداكن والأخضر. تصميم مميز يضيف طابعاً فاخراً لأي مكان.',
+    descEn:'Unique barrel chair with round gold frame and velvet upholstery. Available in dark blue and green. Distinctive design adding luxury to any space.',
+    prices:[{qty:50,label:'50–99',price:65},{qty:100,label:'100–499',price:58},{qty:500,label:'500+ (حاوية كاملة)',price:52}],
+    imgFile:'images/chair-barrel-gold.jpg',
+    badge:'new',
+    cat:'chairs',
+    minQty:50, step:50, svgKey:'armchair'
+  },
+  {
+    id:7,
+    nameAr:'كرسي كيلتد ذهبي',
+    nameEn:'Quilted Gold Armchair',
+    specAr:'إطار استانلس ذهبي · تنجيد كيلتد بيج · مسند ذراعين · مريح للجلوس الطويل',
+    specEn:'Gold stainless frame · Quilted beige fabric · Armrests · Comfortable for long sitting',
+    descAr:'كرسي بمسند ذراعين وتنجيد كيلتد أنيق بقماش بيج دافي. إطار ذهبي قوي. مثالي للمطاعم والفنادق التي تحتاج راحة عالية.',
+    descEn:'Armchair with elegant quilted beige fabric and strong gold frame. Perfect for restaurants and hotels requiring maximum comfort.',
+    prices:[{qty:50,label:'50–99',price:52},{qty:100,label:'100–499',price:46},{qty:500,label:'500+ (حاوية كاملة)',price:41}],
+    imgFile:'images/chair-quilted-gold.jpg',
+    badge:'',
+    cat:'chairs',
+    minQty:50, step:50, svgKey:'armchair'
+  },
+  {
+    id:8,
+    nameAr:'كرسي رابتشر أسود',
+    nameEn:'Rapture Black Chair',
+    specAr:'إطار استانلس أسود · قماش رمادي دافي · تصميم يلتف حول الجسم · المطاعم العصرية',
+    specEn:'Black stainless · Warm grey fabric · Body-wrap design · Modern restaurants',
+    descAr:'كرسي بتصميم يلتف حول الجسم لراحة قصوى. إطار أسود مات وقماش رمادي دافي. بسيط وأنيق — مناسب للمطاعم العصرية.',
+    descEn:'Chair with body-wrap design for maximum comfort. Matte black frame and warm grey fabric. Simple and elegant — suitable for modern restaurants.',
+    prices:[{qty:50,label:'50–99',price:40},{qty:100,label:'100–499',price:35},{qty:500,label:'500+ (حاوية كاملة)',price:30}],
+    imgFile:'images/chair-wrap-black.jpg',
+    badge:'',
+    cat:'chairs',
+    minQty:50, step:50, svgKey:'chair'
+  },
+  {
+    id:9,
+    nameAr:'كرسي آرك ذهبي',
+    nameEn:'Arc Gold Chair',
+    specAr:'إطار استانلس ذهبي قوس · تنجيد رمادي فاتح · أناقة عصرية · للكافيهات والفنادق',
+    specEn:'Arc gold stainless frame · Light grey upholstery · Modern elegance · Cafes & hotels',
+    descAr:'كرسي بإطار ذهبي بشكل قوس مميز وتنجيد رمادي فاتح. تصميم عصري أنيق يناسب الكافيهات الراقية والفنادق.',
+    descEn:'Chair with distinctive arc gold frame and light grey upholstery. Elegant modern design suitable for upscale cafes and hotels.',
+    prices:[{qty:50,label:'50–99',price:48},{qty:100,label:'100–499',price:43},{qty:500,label:'500+ (حاوية كاملة)',price:38}],
+    imgFile:'images/chair-arc-gold.jpg',
+    badge:'new',
+    cat:'chairs',
+    minQty:50, step:50, svgKey:'armchair'
+  },
+  {
+    id:10,
+    nameAr:'كرسي تافتد بيج',
+    nameEn:'Tufted Beige Armchair',
+    specAr:'إطار استانلس أسود · تنجيد كيلتد بيج · مسند ذراعين · للاستقبال والانتظار',
+    specEn:'Black stainless · Tufted beige fabric · Armrests · Reception & waiting areas',
+    descAr:'كرسي بمسند ذراعين وتنجيد كيلتد بيج مريح. إطار أسود متين. مثالي لمناطق الاستقبال والانتظار في الفنادق والمستشفيات.',
+    descEn:'Comfortable tufted beige armchair with sturdy black frame. Ideal for reception and waiting areas in hotels and hospitals.',
+    prices:[{qty:50,label:'50–99',price:44},{qty:100,label:'100–499',price:39},{qty:500,label:'500+ (حاوية كاملة)',price:34}],
+    imgFile:'images/chair-tufted-beige.jpg',
+    badge:'',
+    cat:'chairs',
+    minQty:50, step:50, svgKey:'armchair'
+  },
+];
+
+
+var currentCat = 'all';
+
+function filterCat(cat){
+  currentCat = cat;
+  document.querySelectorAll('.cat-item').forEach(function(el,i){ el.classList.toggle('active', ['all','chairs','tables','sets'][i]===cat); });
+  renderProducts();
+}
+
+function renderProducts(){
+  var filtered = currentCat==='all' ? PRODUCTS : PRODUCTS.filter(function(p){ return p.cat===currentCat; });
+  var html = '';
+  var isEn = document.body.classList.contains('en');
+  filtered.forEach(function(p){
+    var egp = Math.round(p.price * USD_EGP).toLocaleString('ar-EG');
+    var badgeHtml = p.badge==='bestseller' ? '<div class="prod-card-badge">الأكثر طلباً</div>' : p.badge==='new' ? '<div class="prod-card-badge new">جديد</div>' : '';
+    html += '<div class="prod-card">' +
+      '<div class="prod-card-img">' + badgeHtml + '<img src="'+p.imgFile+'" style="width:100%;height:100%;object-fit:cover;border-radius:4px;">' + '</div>' +
+      '<div class="prod-card-body">' +
+        '<div class="prod-card-name">' + (isEn?p.nameEn:p.nameAr) + '</div>' +
+        '<div class="prod-card-spec">' + (isEn?p.specEn:p.specAr) + '</div>' +
+        '<div class="prod-card-price"><sup>$</sup>' + p.price + '</div>' +
+        '<div class="prod-card-moq" style="font-size:11px;color:var(--muted)">' + egp + ' ج.م · <span class="ar">الحد الأدنى</span><span class="en-t">Min.</span> ' + p.minQty + '</div>' +
+      '</div>' +
+      '<div class="prod-card-actions">' +
+        '<button class="prod-add-cart" onclick="Cart.add(PRODUCTS['+(filtered.indexOf(p))+'],'+p.minQty+')"><span class="ar">أضف للسلة 🛒</span><span class="en-t">Add to cart 🛒</span></button>' +
+        '<button class="prod-wishlist">♡</button>' +
+      '</div>' +
+    '</div>';
+  });
+  document.getElementById('productsGrid').innerHTML = html || '<p style="color:var(--muted);grid-column:1/-1;text-align:center;padding:32px">لا توجد منتجات في هذه الفئة</p>';
+}
+
+
+/* ── AI VISUALIZER ENGINE ── */
+var vImg=null,vDT=null;
+var vRm={restaurant:{w:10,l:14,wall:"#1C1810",floor:"#2A2018"},hotel:{w:20,l:30,wall:"#141618",floor:"#1C2024"},cafe:{w:6,l:9,wall:"#1A1610",floor:"#241E16"},hall:{w:22,l:40,wall:"#181614",floor:"#221C18"}};
+var vMsgs=["Analyzing your space...","Detecting floor & walls...","Placing chairs with AI...","Adjusting perspective...","Rendering final result..."];
+function vDE(e,on){e.preventDefault();document.getElementById("vDZ").style.borderColor=on?"var(--orange)":"";}
+function vDD(e){e.preventDefault();var f=e.dataTransfer.files[0];if(f&&f.type.startsWith("image/"))vFH(f);}
+function vFH(f){var r=new FileReader();r.onload=function(ev){var i=new Image();i.onload=function(){vImg=i;vDT=null;vGo();};i.src=ev.target.result;};r.readAsDataURL(f);}
+function vDemo(t){vDT=t;vImg=null;var d=vRm[t];document.getElementById("vW").value=d.w;document.getElementById("vL").value=d.l;vGo();}
+function vGo(){document.getElementById("vS1").style.display="none";document.getElementById("vS2").classList.add("show");vDrawO();vPrev();}
+function vRoom(ctx,W,H,chairs){var d=vRm[vDT||"restaurant"],wH=Math.floor(H*.5);ctx.fillStyle=d.wall;ctx.fillRect(0,0,W,wH);ctx.fillStyle=d.floor;ctx.fillRect(0,wH,W,H-wH);ctx.strokeStyle="rgba(255,106,0,.06)";ctx.lineWidth=.5;for(var x=0;x<W;x+=22){ctx.beginPath();ctx.moveTo(x,wH);ctx.lineTo(x+14,H);ctx.stroke();}[{x:W*.15,w:36},{x:W*.55,w:32}].forEach(function(wn){ctx.fillStyle="rgba(255,106,0,.08)";ctx.fillRect(wn.x,4,wn.w,22);ctx.strokeStyle="rgba(255,106,0,.2)";ctx.lineWidth=.5;ctx.strokeRect(wn.x,4,wn.w,22);});if(chairs)vChairs(ctx,W,H,wH);}
+function vChairs(ctx,W,H,wH){var qty=Math.min(parseInt(document.getElementById("vQty").value)||20,80);var arr=document.getElementById("vArr").value,mod=document.getElementById("vMod").value,fH=H-wH;function ch(cx,cy,sc){sc=sc||1;var bw=12*sc,bh=14*sc,sw=15*sc,sh=5*sc,lh=8*sc;ctx.fillStyle="rgba(185,195,205,.85)";ctx.strokeStyle="rgba(100,115,125,.5)";ctx.lineWidth=.4;ctx.fillRect(cx-bw/2,cy-bh-sh,bw,bh);ctx.strokeRect(cx-bw/2,cy-bh-sh,bw,bh);ctx.fillStyle="#0a0a0a";ctx.fillRect(cx-sw/2,cy-sh,sw,sh);ctx.fillStyle="rgba(255,106,0,.85)";ctx.beginPath();ctx.ellipse(cx-sw/2+2,cy+lh,2*sc,sc,0,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.ellipse(cx+sw/2-2,cy+lh,2*sc,sc,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle="rgba(160,175,185,.7)";ctx.lineWidth=1.2*sc;[cx-sw/2+2,cx+sw/2-2].forEach(function(lx){ctx.beginPath();ctx.moveTo(lx,cy);ctx.lineTo(lx-1,cy+lh);ctx.stroke();});ctx.fillStyle="rgba(255,255,255,.2)";ctx.fillRect(cx-bw/2+1,cy-bh-sh+1,1.5,bh-2);}if(arr==="rows"){var cols=Math.ceil(Math.sqrt(qty*1.4)),rows=Math.ceil(qty/cols),gx=(W-16)/cols,gy=(fH-14)/rows,pl=0;for(var r=0;r<rows&&pl<qty;r++)for(var c=0;c<cols&&pl<qty;c++){ch(9+c*gx+gx/2,wH+9+r*gy+gy/2,.6+(r/rows)*.42);pl++;}}else if(arr==="circle"){var tb=Math.max(1,Math.floor(qty/6)),pt=Math.ceil(qty/tb);var tp=[[W/2,wH+fH*.5]];if(tb>=2)tp=[[W*.28,wH+fH*.5],[W*.72,wH+fH*.5]];if(tb>=3)tp=[[W*.25,wH+fH*.32],[W*.75,wH+fH*.32],[W*.5,wH+fH*.7]];tp.slice(0,tb).forEach(function(t){ctx.fillStyle="rgba(255,106,0,.2)";ctx.beginPath();ctx.ellipse(t[0],t[1],13,9,0,0,Math.PI*2);ctx.fill();for(var i=0;i<Math.min(pt,8);i++){var a=(i/Math.min(pt,8))*Math.PI*2-Math.PI/2;ch(t[0]+Math.cos(a)*21,t[1]+Math.sin(a)*21*.6,.55);}});}else{var pr=Math.ceil(qty/4),nr=Math.ceil(qty/pr),gx2=(W-12)/pr,gy2=(fH-12)/nr,p2=0;for(var rr=0;rr<nr&&p2<qty;rr++)for(var cc=0;cc<pr&&p2<qty;cc++){ch(8+cc*gx2+gx2/2,wH+8+rr*gy2+gy2/2,.55+(rr/nr)*.42);p2++;}}}
+function vDrawO(){var c=document.getElementById("vO"),ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);if(vImg)ctx.drawImage(vImg,0,0,c.width,c.height);else if(vDT)vRoom(ctx,c.width,c.height,false);}
+function vPrev(){var c=document.getElementById("vP"),ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);if(vImg){ctx.drawImage(vImg,0,0,c.width,c.height);vChairs(ctx,c.width,c.height,Math.floor(c.height*.5));}else if(vDT)vRoom(ctx,c.width,c.height,true);}
+function vGen(){document.getElementById("vS2").classList.remove("show");document.getElementById("vSpin").style.display="block";var i=0,iv=setInterval(function(){if(i<vMsgs.length)document.getElementById("vSpT").textContent=vMsgs[i++];},560);setTimeout(function(){clearInterval(iv);document.getElementById("vSpin").style.display="none";vShowR();},2800);}
+function vShowR(){document.getElementById("vRes").style.display="block";var c=document.getElementById("vBig"),ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);if(vImg){ctx.drawImage(vImg,0,0,c.width,c.height);vChairs(ctx,c.width,c.height,Math.floor(c.height*.48));}else if(vDT)vRoom(ctx,c.width,c.height,true);ctx.fillStyle="rgba(255,106,0,.03)";ctx.fillRect(0,0,c.width,c.height);var qty=document.getElementById("vQty").value;var arr={"rows":"rows","circle":"round tables","banquet":"banquet"}[document.getElementById("vArr").value];var w=parseInt(document.getElementById("vW").value)||12,l=parseInt(document.getElementById("vL").value)||18;document.getElementById("vrs1").textContent=qty;document.getElementById("vrs2").textContent=(w*l)+"m²";document.getElementById("vrs3").textContent="$"+Math.round(qty*45).toLocaleString();document.getElementById("vRL").textContent=qty+" chairs · "+arr;}
+function vQuote(){window.location.href="shop.html";}
+function vReset(){vImg=null;vDT=null;document.getElementById("vS1").style.display="block";document.getElementById("vS2").classList.remove("show");document.getElementById("vRes").style.display="none";document.getElementById("vSpin").style.display="none";}
+
+document.addEventListener('DOMContentLoaded', function(){
+  document.getElementById('navPlaceholder').innerHTML = buildNav('home');
+  document.getElementById('cartPlaceholder').innerHTML = buildCartDrawer();
+  document.getElementById('footerPlaceholder').innerHTML = buildFooter();
+  Cart.load();
+  Auth.updateNavState();
+  renderProducts();
+});
+</script>
+</body>
+</html>
