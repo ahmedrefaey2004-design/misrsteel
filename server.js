@@ -48,14 +48,22 @@ const DEFAULT_SITE_CONFIG = Object.freeze({
   ],
   categories: [
     { id: 'all', labelAr: '⭐ الكل', labelEn: '⭐ All' },
-    { id: 'chairs', labelAr: '🪑 الكراسي', labelEn: '🪑 Chairs' }
+    { id: 'ai-link', type: 'link', link: 'ai-designer.html', labelAr: '🤖 مصمم AI', labelEn: '🤖 AI Designer' },
+    { id: 'chairs', labelAr: '🪑 الكراسي', labelEn: '🪑 Chairs' },
+    { id: 'tables', labelAr: '🍽 الترابيزات', labelEn: '🍽 Tables' },
+    { id: 'lounge', labelAr: '🛋 لاونج', labelEn: '🛋 Lounge' },
+    { id: 'velvet', labelAr: '✨ مخمل', labelEn: '✨ Velvet' },
+    { id: 'gold', labelAr: '🥇 ذهبي', labelEn: '🥇 Gold' }
   ],
   posters: [
     { id: 'hero-main', titleAr: 'بوستر رئيسي', titleEn: 'Main Poster', image: '', ctaLink: 'shop.html' }
   ],
   buttons: [
     { id: 'ai-nav', labelAr: '🤖 مصمم AI', labelEn: '🤖 AI Designer', link: 'ai-designer.html', visible: true },
-    { id: 'shop-main', labelAr: '🛒 تصفح المنتجات', labelEn: '🛒 Browse Products', link: '#products', visible: true }
+    { id: 'shop-main', labelAr: '🛒 تصفح المنتجات', labelEn: '🛒 Browse Products', link: '#products', visible: true },
+    { id: 'quote-main', labelAr: 'طلب عرض سعر', labelEn: 'Request a Quote', link: 'shop.html', visible: true },
+    { id: 'promo-order', labelAr: 'اطلب الآن', labelEn: 'Order Now', link: 'shop.html', visible: true },
+    { id: 'order-main', labelAr: '🛒 اطلب الآن', labelEn: '🛒 Order Now', link: 'shop.html', visible: true }
   ],
   products: []
 });

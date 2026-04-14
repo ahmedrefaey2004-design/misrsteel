@@ -15,7 +15,13 @@ function createTempStorePath() {
 
 async function withServer(configOverrides, run) {
   const temp = createTempStorePath();
-  const config = { ...createConfig({}), ...configOverrides, usersStoreFile: temp.file };
+  const tempSite = createTempStorePath();
+  const config = {
+    ...createConfig({}),
+    ...configOverrides,
+    usersStoreFile: temp.file,
+    siteConfigFile: tempSite.file
+  };
   const app = createApp(config);
   const server = app.listen(0);
 
@@ -27,6 +33,7 @@ async function withServer(configOverrides, run) {
   } finally {
     await new Promise((resolve) => server.close(resolve));
     fs.rmSync(temp.dir, { recursive: true, force: true });
+    fs.rmSync(tempSite.dir, { recursive: true, force: true });
   }
 }
 
@@ -99,11 +106,17 @@ test('admin add credits works with valid token and payload', async () => {
 
 test('credits persist after app restart using the same store file', async () => {
   const temp = createTempStorePath();
+  const tempSite = createTempStorePath();
   const adminToken = 'admin_token_12345';
   const userToken = 'persist_user_123';
 
   async function runOnce(callback) {
-    const app = createApp({ ...createConfig({}), adminToken, usersStoreFile: temp.file });
+    const app = createApp({
+      ...createConfig({}),
+      adminToken,
+      usersStoreFile: temp.file,
+      siteConfigFile: tempSite.file
+    });
     const server = app.listen(0);
     await new Promise((resolve) => server.once('listening', resolve));
     const { port } = server.address();
@@ -140,6 +153,7 @@ test('credits persist after app restart using the same store file', async () => 
     });
   } finally {
     fs.rmSync(temp.dir, { recursive: true, force: true });
+    fs.rmSync(tempSite.dir, { recursive: true, force: true });
   }
 });
 

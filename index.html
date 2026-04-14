@@ -385,7 +385,7 @@ button{cursor:pointer;font-family:inherit}
       <button class="nav-search-btn" onclick="doSearch()">🔍</button>
     </div>
     <div class="nav-actions">
-      <button class="nav-icon" onclick="window.location='ai-designer.html'" title="AI Designer">
+      <button class="nav-icon" data-btn-id="ai-nav" onclick="window.location='ai-designer.html'" title="AI Designer">
         🤖
       </button>
       <button class="nav-icon" onclick="openCart()">
@@ -401,7 +401,7 @@ button{cursor:pointer;font-family:inherit}
 
 <!-- CATEGORY BAR -->
 <div class="cat-bar">
-  <div class="cat-inner">
+  <div class="cat-inner" id="catInner">
     <button class="cat-btn active" onclick="filterCat('all',this)"><span class="ar">⭐ الكل</span><span class="en-t">⭐ All</span></button>
     <button class="cat-btn" onclick="window.location='ai-designer.html'"><span class="ar">🤖 مصمم AI</span><span class="en-t">🤖 AI Designer</span></button>
     <button class="cat-btn" onclick="filterCat('chairs',this)"><span class="ar">🪑 الكراسي</span><span class="en-t">🪑 Chairs</span></button>
@@ -413,7 +413,7 @@ button{cursor:pointer;font-family:inherit}
 </div>
 
 <!-- HERO BANNER -->
-<div class="hero-banner">
+<div class="hero-banner" data-section-id="hero">
   <div class="hero-circle" style="width:400px;height:400px;top:-150px;inset-inline-end:-80px"></div>
   <div class="hero-circle" style="width:250px;height:250px;bottom:-80px;inset-inline-start:15%"></div>
   <div class="hero-inner">
@@ -425,10 +425,10 @@ button{cursor:pointer;font-family:inherit}
       <p class="hero-sub ar">نورّد الفنادق والمطاعم وقاعات الأفراح في مصر والشرق الأوسط. كراسي وترابيزات استانلس 304 درجة أولى — قواعد ذهبية — ضمان سنة كاملة.</p>
       <p class="hero-sub en-t">Supplying hotels, restaurants and event halls across Egypt and the Middle East. Grade 304 stainless — gold foot caps — 1-year warranty.</p>
       <div class="hero-btns">
-        <button class="btn-hero-main" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">
+        <button class="btn-hero-main" data-btn-id="shop-main" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">
           <span class="ar">🛒 تصفح المنتجات</span><span class="en-t">🛒 Browse Products</span>
         </button>
-        <button class="btn-hero-sec" onclick="window.location='shop.html'">
+        <button class="btn-hero-sec" data-btn-id="quote-main" onclick="window.location='shop.html'">
           <span class="ar">طلب عرض سعر</span><span class="en-t">Request a Quote</span>
         </button>
       </div>
@@ -481,7 +481,7 @@ button{cursor:pointer;font-family:inherit}
       <div class="promo-sub ar">+ شحن مجاني FOB الإسكندرية على أوردرات فوق $10,000</div>
       <div class="promo-sub en-t">+ Free FOB Alexandria shipping on orders above $10,000</div>
     </div>
-    <button class="promo-badge" onclick="window.location='shop.html'"><span class="ar">اطلب الآن</span><span class="en-t">Order Now</span></button>
+    <button class="promo-badge" data-btn-id="promo-order" onclick="window.location='shop.html'"><span class="ar">اطلب الآن</span><span class="en-t">Order Now</span></button>
   </div>
 </div>
 
@@ -512,7 +512,7 @@ button{cursor:pointer;font-family:inherit}
 </div>
 
 <!-- PRODUCTS -->
-<div class="section" id="products">
+<div class="section" id="products" data-section-id="products">
   <div class="sec-hd">
     <div class="sec-title ar">🏭 جميع المنتجات</div>
     <div class="sec-title en-t">🏭 All Products</div>
@@ -566,7 +566,7 @@ button{cursor:pointer;font-family:inherit}
       <div class="flag-item">🇱🇾 ليبيا / Libya</div>
       <div class="flag-item">🇩🇿 الجزائر / Algeria</div>
     </div>
-    <button class="btn-hero-main" onclick="window.location='shop.html'" style="margin:0 auto;display:block">
+    <button class="btn-hero-main" data-btn-id="order-main" onclick="window.location='shop.html'" style="margin:0 auto;display:block">
       <span class="ar">🛒 اطلب الآن</span><span class="en-t">🛒 Order Now</span>
     </button>
   </div>
@@ -807,6 +807,65 @@ function doSearch(){
   document.getElementById('products').scrollIntoView({behavior:'smooth'});
 }
 
+function applyButtonConfig(buttons){
+  if(!Array.isArray(buttons)) return;
+  buttons.forEach(function(btn){
+    var nodes=document.querySelectorAll('[data-btn-id=\"'+btn.id+'\"]');
+    nodes.forEach(function(node){
+      if(btn.visible===false){ node.style.display='none'; return; }
+      node.style.display='';
+      var ar=node.querySelector('.ar');
+      var en=node.querySelector('.en-t');
+      if(ar && btn.labelAr) ar.textContent=btn.labelAr;
+      if(en && btn.labelEn) en.textContent=btn.labelEn;
+      if(btn.link){
+        if(node.tagName==='A') node.href=btn.link;
+        else node.onclick=function(){ window.location=btn.link; };
+      }
+    });
+  });
+}
+
+function applyCategoriesConfig(categories){
+  if(!Array.isArray(categories) || !categories.length) return;
+  var wrap=document.getElementById('catInner');
+  if(!wrap) return;
+  wrap.innerHTML='';
+  categories.forEach(function(cat,idx){
+    var b=document.createElement('button');
+    b.className='cat-btn'+(idx===0?' active':'');
+    b.innerHTML='<span class=\"ar\">'+(cat.labelAr||cat.id)+'</span><span class=\"en-t\">'+(cat.labelEn||cat.id)+'</span>';
+    if(cat.type==='link' || cat.link){
+      b.onclick=function(){window.location=cat.link||'#';};
+    }else{
+      b.onclick=function(){filterCat(cat.id,b);};
+    }
+    wrap.appendChild(b);
+  });
+}
+
+function applySectionsConfig(sections){
+  if(!Array.isArray(sections)) return;
+  sections.forEach(function(sec){
+    if(!sec.id) return;
+    var el=document.querySelector('[data-section-id=\"'+sec.id+'\"]');
+    if(!el) return;
+    el.style.display=sec.enabled===false?'none':'';
+  });
+}
+
+async function loadSiteConfig(){
+  try{
+    var res=await fetch('/api/public/site-config');
+    if(!res.ok) return;
+    var data=await res.json();
+    if(!data || !data.config) return;
+    applyButtonConfig(data.config.buttons);
+    applyCategoriesConfig(data.config.categories);
+    applySectionsConfig(data.config.sections);
+  }catch(e){}
+}
+
 // ── Lightbox ──────────────────────────────────
 function openLB(src,imgs,idx){
   lbImgs=imgs;lbIdx=idx;
@@ -822,6 +881,7 @@ function lbNav(dir){
 
 // ── Init ──────────────────────────────────────
 document.addEventListener('DOMContentLoaded',function(){
+  loadSiteConfig();
   fetchRate();
   setInterval(fetchRate,30*60*1000);
   renderProducts();
