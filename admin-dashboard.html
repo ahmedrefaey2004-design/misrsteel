@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة الإدارة — مصر ستيل</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+.admin-header{background:#1a1a1a;color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--orange)}
+.admin-logo{font-size:16px;font-weight:800;color:var(--orange)}
+.admin-badge{background:var(--orange);color:#fff;font-size:10px;padding:3px 10px;border-radius:20px;font-weight:700}
+.admin-layout{max-width:1300px;margin:0 auto;display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 52px)}
+.admin-sidebar{background:#111;color:#fff;padding:16px 0}
+.admin-nav-item{display:flex;align-items:center;gap:10px;padding:12px 20px;font-size:13px;font-weight:600;color:rgba(255,255,255,.6);cursor:pointer;border-right:3px solid transparent;transition:all .2s}
+.admin-nav-item:hover,.admin-nav-item.active{color:#fff;background:rgba(255,96,0,.15);border-right-color:var(--orange)}
+.admin-nav-item .ni{font-size:16px;width:22px;text-align:center}
+.admin-section-label{font-size:9px;color:rgba(255,255,255,.25);letter-spacing:.12em;text-transform:uppercase;padding:14px 20px 4px;font-weight:700}
+.admin-content{background:#f5f5f5;padding:24px;overflow-y:auto}
+.admin-panel{display:none}.admin-panel.show{display:block}
+.admin-panel-title{font-size:18px;font-weight:800;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.kpi{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:18px;text-align:center;transition:all .2s}
+.kpi:hover{border-color:var(--orange)}
+.kpi-num{font-size:26px;font-weight:800;color:var(--orange)}
+.kpi-label{font-size:11px;color:var(--muted);margin-top:4px;font-weight:600}
+.kpi-change{font-size:10px;margin-top:4px}
+.kpi-up{color:var(--green)}.kpi-down{color:#cc0000}
+.admin-table{width:100%;border-collapse:collapse;background:var(--white);border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.admin-table th{background:var(--black);color:#fff;padding:11px 14px;text-align:right;font-size:12px;font-weight:700}
+.admin-table td{padding:11px 14px;border-bottom:1px solid var(--border);font-size:13px}
+.admin-table tr:hover td{background:#fafafa}
+.admin-table tr:last-child td{border-bottom:none}
+.status-b{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700}
+.sb-new{background:#e8f5ec;color:var(--green)}
+.sb-prod{background:#fff3eb;color:var(--orange-dk)}
+.sb-ship{background:#e8f0ff;color:#4466cc}
+.sb-done{background:#f0f0f0;color:var(--muted)}
+.action-btn{padding:5px 12px;border:none;border-radius:4px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;margin-inline-end:4px}
+.ab-view{background:var(--orange-lt);color:var(--orange-dk)}
+.ab-edit{background:#e8f5ec;color:var(--green)}
+.ab-del{background:#fff0f0;color:#cc0000}
+.quick-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.qa{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:16px;text-align:center;cursor:pointer;transition:all .2s}
+.qa:hover{border-color:var(--orange);background:var(--orange-lt)}
+.qa-icon{font-size:24px;margin-bottom:8px}
+.qa-label{font-size:12px;font-weight:700}
+.admin-form{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:16px}
+.rate-control{display:flex;align-items:center;gap:12px;background:var(--white);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:12px}
+.rate-num{font-size:28px;font-weight:800;color:var(--orange)}
+.rate-input{flex:1;padding:10px 14px;border:2px solid var(--orange);border-radius:6px;font-size:16px;font-weight:700;text-align:center;font-family:inherit;outline:none}
+@media(max-width:900px){.admin-layout{grid-template-columns:1fr}.admin-sidebar{display:none}.kpi-grid{grid-template-columns:repeat(2,1fr)}.quick-actions{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<div class="admin-header">
+  <div class="admin-logo">⚙️ مصر ستيل — لوحة الإدارة</div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <span class="admin-badge">Admin</span>
+    <button onclick="window.location='index.html'" style="padding:6px 14px;background:transparent;border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:4px;font-size:11px;cursor:pointer;font-family:inherit">← الموقع</button>
+  </div>
+</div>
+
+<div class="admin-layout">
+  <!-- SIDEBAR -->
+  <div class="admin-sidebar">
+    <div class="admin-section-label">الرئيسية</div>
+    <div class="admin-nav-item active" onclick="showAdmin('overview',this)"><span class="ni">📊</span> لوحة الأرقام</div>
+    <div class="admin-section-label">الإدارة</div>
+    <div class="admin-nav-item" onclick="showAdmin('orders',this)"><span class="ni">📦</span> إدارة الطلبات</div>
+    <div class="admin-nav-item" onclick="showAdmin('products',this)"><span class="ni">🪑</span> إدارة المنتجات</div>
+    <div class="admin-nav-item" onclick="showAdmin('customers',this)"><span class="ni">👥</span> إدارة العملاء</div>
+    <div class="admin-nav-item" onclick="showAdmin('affiliates',this)"><span class="ni">🤝</span> إدارة المسوّقين</div>
+    <div class="admin-section-label">الإعدادات</div>
+    <div class="admin-nav-item" onclick="showAdmin('pricing',this)"><span class="ni">💰</span> التسعير والدولار</div>
+    <div class="admin-nav-item" onclick="showAdmin('shipping_admin',this)"><span class="ni">🚢</span> الشحن</div>
+    <div class="admin-nav-item" onclick="showAdmin('reports',this)"><span class="ni">📈</span> التقارير</div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="admin-content">
+
+    <!-- OVERVIEW -->
+    <div class="admin-panel show" id="panel-overview">
+      <div class="admin-panel-title">📊 لوحة الأرقام</div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-num">$47,820</div><div class="kpi-label">إجمالي المبيعات</div><div class="kpi-change kpi-up">▲ 23% عن الشهر الماضي</div></div>
+        <div class="kpi"><div class="kpi-num">89</div><div class="kpi-label">أوردرات هذا الشهر</div><div class="kpi-change kpi-up">▲ 12 أوردر جديد</div></div>
+        <div class="kpi"><div class="kpi-num">342</div><div class="kpi-label">عملاء مسجلين</div><div class="kpi-change kpi-up">▲ 18 هذا الأسبوع</div></div>
+        <div class="kpi"><div class="kpi-num">$5,840</div><div class="kpi-label">عمولات مسوّقين</div><div class="kpi-change kpi-down">▼ 4% عن الشهر الماضي</div></div>
+      </div>
+      <div class="quick-actions">
+        <div class="qa" onclick="showAdmin('orders',document.querySelector(\'[onclick*=orders]\'))"><div class="qa-icon">📦</div><div class="qa-label">طلبات جديدة (12)</div></div>
+        <div class="qa" onclick="showAdmin('affiliates',document.querySelector(\'[onclick*=affiliates]\'))"><div class="qa-icon">🤝</div><div class="qa-label">مسوّقون جدد (5)</div></div>
+        <div class="qa" onclick="showAdmin('pricing',document.querySelector(\'[onclick*=pricing]\'))"><div class="qa-icon">💰</div><div class="qa-label">تحديث الأسعار</div></div>
+        <div class="qa" onclick="showAdmin('reports',document.querySelector(\'[onclick*=reports]\'))"><div class="qa-icon">📈</div><div class="qa-label">تقرير الشهر</div></div>
+      </div>
+      <div style="font-size:14px;font-weight:800;margin-bottom:12px">📦 آخر الطلبات</div>
+      <table class="admin-table">
+        <tr><th>رقم الأوردر</th><th>العميل</th><th>المنتج</th><th>الكمية</th><th>القيمة</th><th>الحالة</th><th>إجراء</th></tr>
+        <tr><td>MS-2025-089</td><td>فندق النيل - القاهرة</td><td>كرسي رويال ذهبي</td><td>200</td><td>$9,000</td><td><span class="status-b sb-new">جديد</span></td><td><button class="action-btn ab-view">عرض</button><button class="action-btn ab-edit">تأكيد</button></td></tr>
+        <tr><td>MS-2025-088</td><td>قاعة الأفراح - دبي</td><td>كرسي ميداليون فضي</td><td>150</td><td>$8,250</td><td><span class="status-b sb-prod">في التصنيع</span></td><td><button class="action-btn ab-view">عرض</button><button class="action-btn ab-edit">تحديث</button></td></tr>
+        <tr><td>MS-2025-087</td><td>مطعم الريف - الرياض</td><td>كرسي فيلفيت أحمر</td><td>80</td><td>$4,000</td><td><span class="status-b sb-ship">في الشحن</span></td><td><button class="action-btn ab-view">عرض</button></td></tr>
+        <tr><td>MS-2025-086</td><td>لوبي فندق هيلتون</td><td>كرسي آرك ذهبي</td><td>60</td><td>$2,880</td><td><span class="status-b sb-done">مكتمل</span></td><td><button class="action-btn ab-view">عرض</button></td></tr>
+      </table>
+    </div>
+
+    <!-- ORDERS -->
+    <div class="admin-panel" id="panel-orders">
+      <div class="admin-panel-title">📦 إدارة الطلبات</div>
+      <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+        <input type="text" placeholder="بحث برقم الأوردر أو اسم العميل..." style="flex:1;min-width:200px;padding:10px 14px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit;outline:none">
+        <select style="padding:10px 14px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit;outline:none">
+          <option>كل الحالات</option><option>جديد</option><option>في التصنيع</option><option>في الشحن</option><option>مكتمل</option>
+        </select>
+        <button style="padding:10px 18px;background:var(--orange);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">بحث</button>
+      </div>
+      <table class="admin-table">
+        <tr><th>رقم الأوردر</th><th>العميل</th><th>الدولة</th><th>القيمة</th><th>الحالة</th><th>التاريخ</th><th>إجراءات</th></tr>
+        <tr><td>MS-2025-089</td><td>فندق النيل</td><td>🇪🇬 مصر</td><td>$9,000</td><td><span class="status-b sb-new">جديد</span></td><td>20 يناير</td><td><button class="action-btn ab-view">عرض</button><button class="action-btn ab-edit">بدء التصنيع</button></td></tr>
+        <tr><td>MS-2025-088</td><td>قاعة الأفراح</td><td>🇦🇪 الإمارات</td><td>$8,250</td><td><span class="status-b sb-prod">في التصنيع</span></td><td>18 يناير</td><td><button class="action-btn ab-view">عرض</button><button class="action-btn ab-edit">تحديث</button></td></tr>
+        <tr><td>MS-2025-087</td><td>مطعم الريف</td><td>🇸🇦 السعودية</td><td>$4,000</td><td><span class="status-b sb-ship">في الشحن</span></td><td>15 يناير</td><td><button class="action-btn ab-view">عرض</button></td></tr>
+      </table>
+    </div>
+
+    <!-- PRODUCTS -->
+    <div class="admin-panel" id="panel-products">
+      <div class="admin-panel-title">🪑 إدارة المنتجات</div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:16px">
+        <input type="text" placeholder="بحث..." style="padding:10px 14px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit;outline:none;width:240px">
+        <button onclick="showToast('جاري فتح نموذج الإضافة...','');" style="padding:10px 18px;background:var(--green);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">+ إضافة منتج</button>
+      </div>
+      <table class="admin-table">
+        <tr><th>#</th><th>اسم المنتج</th><th>القسم</th><th>السعر الأساسي</th><th>المخزون</th><th>الحالة</th><th>إجراءات</th></tr>
+        <tr><td>1</td><td>كرسي رويال ذهبي</td><td>🏠 منزل</td><td>$45</td><td>500+</td><td><span class="status-b sb-new">متاح</span></td><td><button class="action-btn ab-edit">تعديل</button><button class="action-btn ab-del">إخفاء</button></td></tr>
+        <tr><td>4</td><td>كرسي ميداليون فضي</td><td>🎪 قاعة</td><td>$55</td><td>500+</td><td><span class="status-b sb-new">متاح</span></td><td><button class="action-btn ab-edit">تعديل</button><button class="action-btn ab-del">إخفاء</button></td></tr>
+        <tr><td>5</td><td>كرسي فيلفيت أحمر</td><td>🍽️ مطعم</td><td>$50</td><td>500+</td><td><span class="status-b sb-new">متاح</span></td><td><button class="action-btn ab-edit">تعديل</button><button class="action-btn ab-del">إخفاء</button></td></tr>
+        <tr><td>15</td><td>كرسي هوبي ذهبي</td><td>🎪 قاعة</td><td>$68</td><td>500+</td><td><span class="status-b sb-new">متاح</span></td><td><button class="action-btn ab-edit">تعديل</button><button class="action-btn ab-del">إخفاء</button></td></tr>
+      </table>
+    </div>
+
+    <!-- CUSTOMERS -->
+    <div class="admin-panel" id="panel-customers">
+      <div class="admin-panel-title">👥 إدارة العملاء</div>
+      <table class="admin-table">
+        <tr><th>الاسم</th><th>الدولة</th><th>واتساب</th><th>إجمالي الطلبات</th><th>آخر طلب</th><th>إجراءات</th></tr>
+        <tr><td>فندق النيل</td><td>🇪🇬 مصر</td><td>+201012345678</td><td>$18,500</td><td>20 يناير</td><td><button class="action-btn ab-view">ملف العميل</button><button class="action-btn ab-edit">واتساب</button></td></tr>
+        <tr><td>قاعة الأفراح الرائع</td><td>🇦🇪 الإمارات</td><td>+9715012345678</td><td>$12,250</td><td>18 يناير</td><td><button class="action-btn ab-view">ملف العميل</button><button class="action-btn ab-edit">واتساب</button></td></tr>
+        <tr><td>مطعم الريف</td><td>🇸🇦 السعودية</td><td>+966512345678</td><td>$8,900</td><td>15 يناير</td><td><button class="action-btn ab-view">ملف العميل</button><button class="action-btn ab-edit">واتساب</button></td></tr>
+      </table>
+    </div>
+
+    <!-- AFFILIATES -->
+    <div class="admin-panel" id="panel-affiliates">
+      <div class="admin-panel-title">🤝 إدارة المسوّقين</div>
+      <table class="admin-table">
+        <tr><th>المسوّق</th><th>الكود</th><th>المستوى</th><th>المبيعات</th><th>العمولة المستحقة</th><th>إجراءات</th></tr>
+        <tr><td>أحمد المسوّق</td><td>AHMED-PRO</td><td><span class="status-b sb-prod">Pro 5%</span></td><td>$24,800</td><td>$1,240</td><td><button class="action-btn ab-view">تفاصيل</button><button class="action-btn ab-edit">صرف</button></td></tr>
+        <tr><td>سارة التسويق</td><td>SARA-STR</td><td><span class="status-b sb-new">Starter 3%</span></td><td>$4,200</td><td>$126</td><td><button class="action-btn ab-view">تفاصيل</button><button class="action-btn ab-edit">صرف</button></td></tr>
+      </table>
+    </div>
+
+    <!-- PRICING -->
+    <div class="admin-panel" id="panel-pricing">
+      <div class="admin-panel-title">💰 التسعير وسعر الدولار</div>
+      <div class="admin-form">
+        <div style="font-size:14px;font-weight:700;margin-bottom:12px">سعر الدولار المستخدم في الموقع</div>
+        <div class="rate-control">
+          <div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:4px">السعر الحالي (من API)</div>
+            <div class="rate-num rate-display">50.85</div>
+          </div>
+          <div style="flex:1">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:4px">تحديث يدوي</div>
+            <div style="display:flex;gap:8px">
+              <input type="number" id="rateManual" placeholder="50.85" step="0.01" class="rate-input">
+              <button onclick="updateRate()" style="padding:10px 16px;background:var(--orange);color:#fff;border:none;border-radius:4px;font-size:12px;font-weight:700;cursor:pointer">تحديث</button>
+            </div>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--muted)">💡 السعر يتحدث تلقائياً كل 30 دقيقة من exchangerate-api.com — يمكن التحديث اليدوي إذا احتجت</div>
+      </div>
+      <div class="admin-form">
+        <div style="font-size:14px;font-weight:700;margin-bottom:12px">هامش الربح على المنتجات</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+          <div class="form-group"><label>هامش الربح الأساسي %</label><input type="number" value="25" min="0" max="100"></div>
+          <div class="form-group"><label>خصم الكمية (100+ قطعة) %</label><input type="number" value="10" min="0" max="50"></div>
+          <div class="form-group"><label>خصم الكمية (500+ قطعة) %</label><input type="number" value="20" min="0" max="50"></div>
+        </div>
+        <button onclick="showToast('✅ تم حفظ إعدادات التسعير','success')" style="padding:11px 24px;background:var(--orange);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">💾 حفظ الإعدادات</button>
+      </div>
+    </div>
+
+    <!-- REPORTS -->
+    <div class="admin-panel" id="panel-reports">
+      <div class="admin-panel-title">📈 التقارير</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
+        <div class="qa" onclick="showToast('جاري تحميل التقرير...','')"><div class="qa-icon">📊</div><div class="qa-label">تقرير المبيعات الشهري</div></div>
+        <div class="qa" onclick="showToast('جاري تحميل التقرير...','')"><div class="qa-icon">🤝</div><div class="qa-label">تقرير المسوّقين</div></div>
+        <div class="qa" onclick="showToast('جاري تحميل التقرير...','')"><div class="qa-icon">📦</div><div class="qa-label">تقرير المخزون</div></div>
+      </div>
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:8px;padding:20px">
+        <div style="font-size:14px;font-weight:800;margin-bottom:16px">مبيعات آخر 6 أشهر</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:center;gap:12px;font-size:12px"><span style="min-width:60px;color:var(--muted)">أغسطس</span><div style="flex:1;height:12px;background:#f0f0f0;border-radius:6px;overflow:hidden"><div style="height:100%;background:var(--orange);border-radius:6px;width:55%"></div></div><span style="min-width:60px;font-weight:700;color:var(--orange)">$26,400</span></div>
+          <div style="display:flex;align-items:center;gap:12px;font-size:12px"><span style="min-width:60px;color:var(--muted)">سبتمبر</span><div style="flex:1;height:12px;background:#f0f0f0;border-radius:6px;overflow:hidden"><div style="height:100%;background:var(--orange);border-radius:6px;width:68%"></div></div><span style="min-width:60px;font-weight:700;color:var(--orange)">$32,640</span></div>
+          <div style="display:flex;align-items:center;gap:12px;font-size:12px"><span style="min-width:60px;color:var(--muted)">أكتوبر</span><div style="flex:1;height:12px;background:#f0f0f0;border-radius:6px;overflow:hidden"><div style="height:100%;background:var(--orange);border-radius:6px;width:72%"></div></div><span style="min-width:60px;font-weight:700;color:var(--orange)">$34,560</span></div>
+          <div style="display:flex;align-items:center;gap:12px;font-size:12px"><span style="min-width:60px;color:var(--muted)">نوفمبر</span><div style="flex:1;height:12px;background:#f0f0f0;border-radius:6px;overflow:hidden"><div style="height:100%;background:var(--orange);border-radius:6px;width:85%"></div></div><span style="min-width:60px;font-weight:700;color:var(--orange)">$40,800</span></div>
+          <div style="display:flex;align-items:center;gap:12px;font-size:12px"><span style="min-width:60px;color:var(--muted)">ديسمبر</span><div style="flex:1;height:12px;background:#f0f0f0;border-radius:6px;overflow:hidden"><div style="height:100%;background:var(--orange);border-radius:6px;width:92%"></div></div><span style="min-width:60px;font-weight:700;color:var(--orange)">$44,160</span></div>
+          <div style="display:flex;align-items:center;gap:12px;font-size:12px"><span style="min-width:60px;color:var(--muted)">يناير</span><div style="flex:1;height:12px;background:#f0f0f0;border-radius:6px;overflow:hidden"><div style="height:100%;background:var(--orange);border-radius:6px;width:99%"></div></div><span style="min-width:60px;font-weight:700;color:var(--orange)">$47,820</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SHIPPING ADMIN -->
+    <div class="admin-panel" id="panel-shipping_admin">
+      <div class="admin-panel-title">🚢 إعدادات الشحن</div>
+      <div class="admin-form">
+        <div style="font-size:14px;font-weight:700;margin-bottom:12px">شركات الشحن المتعاملة</div>
+        <table class="admin-table" style="margin-bottom:14px">
+          <tr><th>الشركة</th><th>الدول</th><th>التكلفة الأساسية</th><th>مدة الشحن</th><th>الحالة</th></tr>
+          <tr><td>Maersk</td><td>كل الدول</td><td>$800–$2,000/حاوية</td><td>7–21 يوم</td><td><span class="status-b sb-new">فعال</span></td></tr>
+          <tr><td>MSC</td><td>خليج عربي</td><td>$600–$1,500/حاوية</td><td>5–14 يوم</td><td><span class="status-b sb-new">فعال</span></td></tr>
+          <tr><td>شحن بري خاص</td><td>ليبيا · الأردن</td><td>$200–$500</td><td>3–7 أيام</td><td><span class="status-b sb-new">فعال</span></td></tr>
+        </table>
+        <button onclick="showToast('✅ تم حفظ إعدادات الشحن','success')" style="padding:11px 24px;background:var(--orange);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">💾 حفظ</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+function showAdmin(key, el){
+  document.querySelectorAll('.admin-nav-item').forEach(function(n){n.classList.remove('active')});
+  document.querySelectorAll('.admin-panel').forEach(function(p){p.classList.remove('show')});
+  if(el) el.classList.add('active');
+  document.getElementById('panel-'+key).classList.add('show');
+}
+function updateRate(){
+  var r = parseFloat(document.getElementById('rateManual').value);
+  if(!r||r<1){showToast('أدخل سعر صحيح','error');return;}
+  localStorage.setItem('ms_rate',r);
+  document.querySelectorAll('.rate-display').forEach(function(el){el.textContent=r.toFixed(2);});
+  showToast('✅ تم تحديث سعر الدولار إلى '+r+' ج.م','success');
+}
+function showToast(msg,type){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast '+(type||'');t.classList.add('show');
+  clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},3000);
+}
+</script>
+</body>
+</html>
