@@ -190,3 +190,103 @@ https://amazing-name-123.netlify.app
 ---
 
 **مصر ستيل — MISR STEEL · القاهرة، مصر 🇪🇬**
+
+---
+
+## ✅ أسئلة مهمة: الداتا – الداشبورد – النشر – رفع المنتجات
+
+### 1) هل الموقع بيحتفظ بالداتا؟
+- **سلة المشتريات/اللغة/سعر الدولار**: بتتخزن على جهاز العميل في `localStorage`.
+- **بيانات مستخدمي الـ AI والرصيد**: بتتخزن على السيرفر في ملف:
+  - `data/users.json`
+- **بيانات المحتوى (منتجات/أقسام/أزرار...)**: بتتخزن على السيرفر في:
+  - `data/site-config.json`
+
+> مهم: لو السيرفر اتمسح أو اتغير بدون Backup هتفقد البيانات. لازم تعمل نسخ احتياطي دوري.
+
+### 2) أدخل الداشبورد وأعدل إزاي؟
+1. شغّل الباك‑إند:
+   ```bash
+   npm install
+   ADMIN_TOKEN=your_strong_token npm start
+   ```
+2. افتح:
+   - `http://localhost:3000/admin.html`
+3. اكتب:
+   - **API Base URL** = `http://localhost:3000`
+   - **Admin Token** = نفس قيمة `ADMIN_TOKEN`
+4. اضغط **تحميل**، وبعدها تقدر:
+   - تعدل JSON كامل وتحفظ
+   - تضيف/تحذف منتجات أو أقسام من جزء **إضافة عنصر**
+
+### 3) هل نقدر ننشره للعملاء دلوقتي؟
+- **ينفع كتجربة تشغيلية**.
+- للإطلاق التجاري الكامل، لازم قبل النشر:
+  1. تثبيت `ADMIN_TOKEN` قوي (مش القيمة الافتراضية).
+  2. إعداد HTTPS + دومين.
+  3. تفعيل Backup يومي لمجلد `data/`.
+  4. ربط الدفع الفعلي وتأكيد الدفع عبر webhook.
+
+### 4) نرفع منتجات الأقسام ووصفها إزاي؟
+- من `admin.html`:
+  - اختر `collection = products`
+  - أضف JSON للمنتج (مثال):
+    ```json
+    {
+      "id": "chair-royal-gold",
+      "nameAr": "كرسي رويال ذهبي",
+      "nameEn": "Royal Gold Chair",
+      "section": "hall",
+      "descriptionAr": "كرسي ستانلس فاخر مناسب للقاعات.",
+      "descriptionEn": "Premium stainless chair for halls.",
+      "priceUsd": 45,
+      "image": "images/p01-rose-gold-chair.jpg"
+    }
+    ```
+- لإضافة أقسام:
+  - اختر `collection = sections` وأضف عنصر فيه `id` واسم عربي/إنجليزي.
+
+---
+
+## 📌 خطة النشر خطوة بخطوة
+
+- راجع الملف: `DEPLOY_READY_AR.md`  
+  فيه Checklist عملية قبل Go-Live (الأمان، الداتا، الدفع، التحليلات، Soft Launch).
+
+---
+
+## 🧪 تم رفع بيانات فعلية (منتجات + أقسام)
+
+- تم إضافة بيانات أولية داخل: `data/site-config.json`.
+- صفحة `shop.html` أصبحت تحاول تحميل المنتجات تلقائيًا من:
+  - `GET /api/site-config`
+- في حالة عدم توفر الـ API، الصفحة ترجع تلقائيًا للمنتجات المدمجة القديمة (fallback).
+
+---
+
+## ➕ ارفع المنتجات إزاي؟ (أسهل طريقة)
+
+### 1) جهّز ملف المنتجات
+- عدّل الملف: `data/site-config.json`
+- داخل `products` ضيف/عدّل العناصر.
+
+### 2) شغّل السيرفر
+```bash
+ADMIN_TOKEN=your_strong_token npm start
+```
+
+### 3) ارفع المنتجات بالسكريبت
+**إضافة المنتجات (append):**
+```bash
+ADMIN_TOKEN=your_strong_token npm run upload:products
+```
+
+**استبدال كل المنتجات الموجودة (replace):**
+```bash
+ADMIN_TOKEN=your_strong_token npm run upload:products -- --replace
+```
+
+**مع API مختلف أو ملف مختلف:**
+```bash
+npm run upload:products -- --api https://api.yourdomain.com --file ./data/site-config.json --token your_strong_token
+```
