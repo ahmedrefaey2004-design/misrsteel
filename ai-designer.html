@@ -811,7 +811,14 @@ CREDITS.init(); return;
     var body = { prompt: prompt };
     if(state.spaceImg) body.imageBase64 = state.spaceImg;
 
-    var response = await fetch(API_URL, {
+    // Choose correct endpoint and field name
+    var endpoint = state.spaceImg ? VISUALIZE_URL : API_URL;
+    if (state.spaceImg) {
+      body.roomImageBase64 = state.spaceImg;  // field name for /api/visualize
+      delete body.imageBase64;
+    }
+
+    var response = await fetch(endpoint, {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
