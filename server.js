@@ -32,7 +32,8 @@ function createConfig(env = process.env) {
       ? env.ALLOWED_ORIGINS.split(',').map((item) => item.trim()).filter(Boolean)
       : ['*'],
     maxPromptLength: toPositiveInt(env.MAX_PROMPT_LENGTH, 1200),
-    usersStoreFile: env.USERS_STORE_FILE || path.join(process.cwd(), 'data', 'users.json')
+    usersStoreFile: env.USERS_STORE_FILE || path.join(process.cwd(), 'data', 'users.json'),
+    siteConfigFile: env.SITE_CONFIG_FILE || path.join(process.cwd(), 'data', 'site-config.json')
   };
 }
 
@@ -107,6 +108,65 @@ function createUserStore(filePath) {
   return { getOrCreate, list, addCredits, consumeCredit, applyPlan, path: resolvedPath };
 }
 
+function createSiteConfigStore(filePath) {
+  const resolvedPath = path.resolve(filePath);
+  const DEFAULT_SITE_CONFIG = Object.freeze({
+    products: [],
+    categories: [],
+    sections: [],
+    posters: [],
+    buttons: []
+  });
+  let config = { ...DEFAULT_SITE_CONFIG };
+
+  function normalizeSiteConfig(value) {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return { ...DEFAULT_SITE_CONFIG };
+    return {
+      ...value,
+      products: Array.isArray(value.products) ? value.products : [],
+      categories: Array.isArray(value.categories) ? value.categories : [],
+      sections: Array.isArray(value.sections) ? value.sections : [],
+      posters: Array.isArray(value.posters) ? value.posters : [],
+      buttons: Array.isArray(value.buttons) ? value.buttons : []
+    };
+  }
+
+  function persist() {
+    fs.mkdirSync(path.dirname(resolvedPath), { recursive: true });
+    const payload = JSON.stringify(config, null, 2);
+    const tempPath = `${resolvedPath}.tmp`;
+    fs.writeFileSync(tempPath, payload, 'utf8');
+    fs.renameSync(tempPath, resolvedPath);
+  }
+
+  function load() {
+    if (!fs.existsSync(resolvedPath)) return;
+    const raw = fs.readFileSync(resolvedPath, 'utf8');
+    if (!raw.trim()) return;
+    config = normalizeSiteConfig(JSON.parse(raw));
+  }
+
+  function get() {
+    return JSON.parse(JSON.stringify(config));
+  }
+
+  function replace(nextConfig) {
+    config = normalizeSiteConfig(nextConfig);
+    persist();
+    return get();
+  }
+
+  function addProduct(product) {
+    config.products = [...config.products, product];
+    persist();
+    return get();
+  }
+
+  load();
+
+  return { get, replace, addProduct, path: resolvedPath };
+}
+
 function isValidUserToken(token) {
   return typeof token === 'string' && /^[a-zA-Z0-9._:-]{8,200}$/.test(token.trim());
 }
@@ -140,6 +200,7 @@ async function generateWithStability(prompt, key) {
 function createApp(config = createConfig()) {
   const app = express();
   const userStore = createUserStore(config.usersStoreFile);
+  const siteConfigStore = createSiteConfigStore(config.siteConfigFile);
 
   app.disable('x-powered-by');
   app.use(cors({ origin: config.allowedOrigins.includes('*') ? '*' : config.allowedOrigins }));
@@ -208,6 +269,10 @@ function createApp(config = createConfig()) {
     res.json({ success: true, plans: PLANS });
   });
 
+  app.get('/api/site-config', (req, res) => {
+    res.json({ success: true, config: siteConfigStore.get() });
+  });
+
   app.post('/api/admin/users', (req, res) => {
     if (!requireAdmin(req, res)) return;
     res.json({ total: userStore.list().length, users: userStore.list() });
@@ -240,6 +305,30 @@ function createApp(config = createConfig()) {
     if (!user) return res.status(400).json({ error: 'Unknown plan' });
 
     return res.json({ success: true, user });
+  });
+
+  app.get('/api/admin/site-config', (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    res.json({ success: true, config: siteConfigStore.get() });
+  });
+
+  app.put('/api/admin/site-config', (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
+      return res.status(400).json({ error: 'Invalid config payload' });
+    }
+    const updated = siteConfigStore.replace(req.body);
+    return res.json({ success: true, config: updated });
+  });
+
+  app.post('/api/admin/site-config/products', (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
+      return res.status(400).json({ error: 'Invalid product payload' });
+    }
+
+    const updated = siteConfigStore.addProduct(req.body);
+    return res.json({ success: true, config: updated });
   });
 
   return app;

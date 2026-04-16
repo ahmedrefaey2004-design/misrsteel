@@ -208,3 +208,39 @@ test('site config can be edited from admin API and read publicly', async () => {
     fs.rmSync(temp.dir, { recursive: true, force: true });
   }
 });
+
+test('admin site-config endpoints support replace and validate payloads', async () => {
+  await withServer({ adminToken: 'admin_token_site_config' }, async (baseUrl) => {
+    const headers = {
+      'Content-Type': 'application/json',
+      'x-admin-token': 'admin_token_site_config'
+    };
+
+    const updateRes = await fetch(`${baseUrl}/api/admin/site-config`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({
+        categories: [{ id: 'chairs', labelAr: 'كراسي' }],
+        sections: [{ id: 'hall', labelAr: 'القاعات' }],
+        products: [{ id: 'p-1', nameAr: 'منتج 1' }]
+      })
+    });
+    assert.equal(updateRes.status, 200);
+    const updateJson = await updateRes.json();
+    assert.equal(updateJson.config.products.length, 1);
+    assert.equal(updateJson.config.categories.length, 1);
+
+    const adminGetRes = await fetch(`${baseUrl}/api/admin/site-config`, { headers });
+    assert.equal(adminGetRes.status, 200);
+    const adminGetJson = await adminGetRes.json();
+    assert.equal(adminGetJson.config.sections.length, 1);
+    assert.equal(adminGetJson.config.products[0].id, 'p-1');
+
+    const badProductRes = await fetch(`${baseUrl}/api/admin/site-config/products`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify([])
+    });
+    assert.equal(badProductRes.status, 400);
+  });
+});
