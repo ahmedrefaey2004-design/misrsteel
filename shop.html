@@ -466,14 +466,18 @@ function renderShopProducts(){
   var isEn = document.body.classList.contains('en');
   var html = '';
   filtered.forEach(function(p){
-    var egp = Math.round(p.price * USD_EGP).toLocaleString('ar-EG');
+    var basePrice = p.price || (Array.isArray(p.prices) && p.prices[0] ? p.prices[0].price : 0);
+    var egp = Math.round(basePrice * USD_EGP).toLocaleString('ar-EG');
     var badge = p.badge==='bestseller' ? '<div class="shop-prod-badge badge-bs ar">الأكثر طلباً</div><div class="shop-prod-badge badge-bs en-t">Bestseller</div>' : p.badge==='new' ? '<div class="shop-prod-badge badge-new ar">جديد</div><div class="shop-prod-badge badge-new en-t">New</div>' : '';
+    var imgHtml = p.imgFile
+      ? '<img src=\"'+p.imgFile+'\" alt=\"'+(isEn?p.nameEn:p.nameAr)+'\" style=\"width:100%;height:100%;object-fit:cover;border-radius:8px\">'
+      : '<div style=\"font-size:34px\">🪑</div>';
     html += '<div class="shop-prod" id="sp'+p.id+'">' +
-      '<div class="shop-prod-img">' + badge + getProductSVG(p.svgKey, 110, 90) + '</div>' +
+      '<div class="shop-prod-img">' + badge + imgHtml + '</div>' +
       '<div class="shop-prod-info">' +
         '<div class="shop-prod-name">' + (isEn?p.nameEn:p.nameAr) + '</div>' +
         '<div class="shop-prod-spec">' + (isEn?p.specEn:p.specAr) + '</div>' +
-        '<div class="shop-prod-prices"><span class="shop-prod-usd"><sup>$</sup>' + p.price + ' <span style="font-size:13px;color:var(--muted)">' + (isEn?'/ unit':'/ قطعة') + '</span></span><span class="shop-prod-egp">' + egp + ' ج.م</span></div>' +
+        '<div class="shop-prod-prices"><span class="shop-prod-usd"><sup>$</sup>' + basePrice + ' <span style="font-size:13px;color:var(--muted)">' + (isEn?'/ unit':'/ قطعة') + '</span></span><span class="shop-prod-egp">' + egp + ' ج.م</span></div>' +
         '<div class="shop-prod-tags"><span class="shop-prod-tag ar">الحد الأدنى ' + p.minQty + ' قطعة</span><span class="shop-prod-tag en-t">Min. ' + p.minQty + ' units</span><span class="shop-prod-tag">FOB Alex</span></div>' +
       '</div>' +
       '<div class="shop-prod-actions">' +
@@ -489,6 +493,40 @@ function renderShopProducts(){
     '</div>';
   });
   document.getElementById('shopProdList').innerHTML = html;
+}
+
+function mapApiProductToShopItem(item, idx){
+  var basePrice = Number(item.priceUsd) || 0;
+  return {
+    id: Number.isFinite(Number(item.id)) ? Number(item.id) : (1000 + idx),
+    nameAr: item.nameAr || item.labelAr || 'منتج',
+    nameEn: item.nameEn || item.labelEn || 'Product',
+    specAr: item.descriptionAr || 'منتج متاح للطلب بالجملة',
+    specEn: item.descriptionEn || 'Product available for wholesale',
+    descAr: item.descriptionAr || 'وصف غير متاح حالياً',
+    descEn: item.descriptionEn || 'Description is not available yet',
+    price: basePrice,
+    prices: item.prices || [{ qty: Number(item.minQty) || 20, label: 'Base', price: basePrice }],
+    imgFile: item.image || '',
+    badge: item.badge || '',
+    cat: item.cat || (item.section === 'restaurant' ? 'tables' : 'chairs'),
+    minQty: Number(item.minQty) || (item.cat === 'tables' ? 20 : 50),
+    step: Number(item.step) || (item.cat === 'tables' ? 10 : 50),
+    svgKey: item.cat === 'tables' ? 'table' : 'chair'
+  };
+}
+
+async function loadProductsFromApi(){
+  try{
+    var res = await fetch('/api/site-config');
+    if(!res.ok) return;
+    var data = await res.json();
+    var items = Array.isArray(data && data.config && data.config.products) ? data.config.products : [];
+    if(items.length === 0) return;
+    PRODUCTS = items.map(mapApiProductToShopItem);
+  }catch(_err){
+    // fallback to built-in catalog when API is not available
+  }
 }
 
 function changeShopQty(id, delta){
@@ -584,7 +622,7 @@ document.addEventListener('DOMContentLoaded', function(){
   document.getElementById('navPlaceholder').innerHTML = buildNav('shop');
   document.getElementById('cartPlaceholder').innerHTML = buildCartDrawer();
   document.getElementById('footerPlaceholder').innerHTML = buildFooter();
-  renderShopProducts();
+  loadProductsFromApi().then(function(){ renderShopProducts(); });
   Cart.load();
   updateCheckoutSummary();
   // Override cart render to also update checkout summary
