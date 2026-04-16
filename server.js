@@ -32,18 +32,9 @@ function createConfig(env = process.env) {
       ? env.ALLOWED_ORIGINS.split(',').map((item) => item.trim()).filter(Boolean)
       : ['*'],
     maxPromptLength: toPositiveInt(env.MAX_PROMPT_LENGTH, 1200),
-    usersStoreFile: env.USERS_STORE_FILE || path.join(process.cwd(), 'data', 'users.json'),
-    siteConfigFile: env.SITE_CONFIG_FILE || path.join(process.cwd(), 'data', 'site-config.json')
+    usersStoreFile: env.USERS_STORE_FILE || path.join(process.cwd(), 'data', 'users.json')
   };
 }
-
-const DEFAULT_SITE_CONFIG = Object.freeze({
-  products: [],
-  categories: [],
-  sections: [],
-  posters: [],
-  buttons: []
-});
 
 function createUserStore(filePath) {
   const users = new Map();
@@ -116,64 +107,6 @@ function createUserStore(filePath) {
   return { getOrCreate, list, addCredits, consumeCredit, applyPlan, path: resolvedPath };
 }
 
-function createSiteConfigStore(filePath) {
-  const resolvedPath = path.resolve(filePath);
-  let config = JSON.parse(JSON.stringify(DEFAULT_SITE_CONFIG));
-
-  function persist() {
-    fs.mkdirSync(path.dirname(resolvedPath), { recursive: true });
-    const tempPath = `${resolvedPath}.tmp`;
-    fs.writeFileSync(tempPath, JSON.stringify(config, null, 2), 'utf8');
-    fs.renameSync(tempPath, resolvedPath);
-  }
-
-  function normalize(raw) {
-    const normalized = {};
-    Object.keys(DEFAULT_SITE_CONFIG).forEach((key) => {
-      normalized[key] = Array.isArray(raw?.[key]) ? raw[key] : [];
-    });
-    return normalized;
-  }
-
-  function load() {
-    if (!fs.existsSync(resolvedPath)) {
-      return;
-    }
-    const raw = fs.readFileSync(resolvedPath, 'utf8');
-    if (!raw.trim()) {
-      return;
-    }
-    config = normalize(JSON.parse(raw));
-  }
-
-  function get() {
-    return config;
-  }
-
-  function replace(nextConfig) {
-    config = normalize(nextConfig);
-    persist();
-    return config;
-  }
-
-  function addItem(collection, item) {
-    if (!Array.isArray(config[collection])) return null;
-    config[collection].push(item);
-    persist();
-    return config;
-  }
-
-  function deleteItem(collection, id) {
-    if (!Array.isArray(config[collection])) return null;
-    config[collection] = config[collection].filter((item) => String(item.id) !== String(id));
-    persist();
-    return config;
-  }
-
-  load();
-  return { get, replace, addItem, deleteItem, path: resolvedPath };
-}
-
 function isValidUserToken(token) {
   return typeof token === 'string' && /^[a-zA-Z0-9._:-]{8,200}$/.test(token.trim());
 }
@@ -207,7 +140,6 @@ async function generateWithStability(prompt, key) {
 function createApp(config = createConfig()) {
   const app = express();
   const userStore = createUserStore(config.usersStoreFile);
-  const siteConfigStore = createSiteConfigStore(config.siteConfigFile);
 
   app.disable('x-powered-by');
   app.use(cors({ origin: config.allowedOrigins.includes('*') ? '*' : config.allowedOrigins }));
@@ -276,10 +208,6 @@ function createApp(config = createConfig()) {
     res.json({ success: true, plans: PLANS });
   });
 
-  app.get('/api/site-config', (req, res) => {
-    res.json({ success: true, config: siteConfigStore.get() });
-  });
-
   app.post('/api/admin/users', (req, res) => {
     if (!requireAdmin(req, res)) return;
     res.json({ total: userStore.list().length, users: userStore.list() });
@@ -314,40 +242,6 @@ function createApp(config = createConfig()) {
     return res.json({ success: true, user });
   });
 
-  app.get('/api/admin/site-config', (req, res) => {
-    if (!requireAdmin(req, res)) return;
-    return res.json({ success: true, config: siteConfigStore.get() });
-  });
-
-  app.put('/api/admin/site-config', (req, res) => {
-    if (!requireAdmin(req, res)) return;
-    const nextConfig = req.body;
-    if (!nextConfig || typeof nextConfig !== 'object') {
-      return res.status(400).json({ error: 'Invalid config payload' });
-    }
-    const saved = siteConfigStore.replace(nextConfig);
-    return res.json({ success: true, config: saved });
-  });
-
-  app.post('/api/admin/site-config/:collection', (req, res) => {
-    if (!requireAdmin(req, res)) return;
-    const collection = req.params.collection;
-    const item = req.body;
-    if (!item || typeof item !== 'object') return res.status(400).json({ error: 'Invalid item payload' });
-    if (!item.id) return res.status(400).json({ error: 'Item id is required' });
-    const saved = siteConfigStore.addItem(collection, item);
-    if (!saved) return res.status(400).json({ error: 'Unknown collection' });
-    return res.json({ success: true, config: saved });
-  });
-
-  app.delete('/api/admin/site-config/:collection/:id', (req, res) => {
-    if (!requireAdmin(req, res)) return;
-    const { collection, id } = req.params;
-    const saved = siteConfigStore.deleteItem(collection, id);
-    if (!saved) return res.status(400).json({ error: 'Unknown collection' });
-    return res.json({ success: true, config: saved });
-  });
-
   return app;
 }
 
@@ -379,4 +273,3 @@ module.exports.createApp = createApp;
 module.exports.createConfig = createConfig;
 module.exports.startServer = startServer;
 module.exports.createUserStore = createUserStore;
-module.exports.createSiteConfigStore = createSiteConfigStore;
