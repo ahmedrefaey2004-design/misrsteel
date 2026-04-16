@@ -5,8 +5,7 @@
   "scripts": {
     "start": "node server.js",
     "test": "node --test",
-    "upload:products": "node scripts/upload-products.js",
-    "import:section:zip": "node scripts/import-section-zip.js"
+    "upload:products": "node scripts/upload-products.js"
   },
   "dependencies": {
     "express": "^4.18.2",

@@ -37,14 +37,6 @@ function createConfig(env = process.env) {
   };
 }
 
-const DEFAULT_SITE_CONFIG = Object.freeze({
-  products: [],
-  categories: [],
-  sections: [],
-  posters: [],
-  buttons: []
-});
-
 function createUserStore(filePath) {
   const users = new Map();
   const resolvedPath = path.resolve(filePath);
@@ -118,60 +110,61 @@ function createUserStore(filePath) {
 
 function createSiteConfigStore(filePath) {
   const resolvedPath = path.resolve(filePath);
-  let config = JSON.parse(JSON.stringify(DEFAULT_SITE_CONFIG));
+  const DEFAULT_SITE_CONFIG = Object.freeze({
+    products: [],
+    categories: [],
+    sections: [],
+    posters: [],
+    buttons: []
+  });
+  let config = { ...DEFAULT_SITE_CONFIG };
+
+  function normalizeSiteConfig(value) {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return { ...DEFAULT_SITE_CONFIG };
+    return {
+      ...value,
+      products: Array.isArray(value.products) ? value.products : [],
+      categories: Array.isArray(value.categories) ? value.categories : [],
+      sections: Array.isArray(value.sections) ? value.sections : [],
+      posters: Array.isArray(value.posters) ? value.posters : [],
+      buttons: Array.isArray(value.buttons) ? value.buttons : []
+    };
+  }
 
   function persist() {
     fs.mkdirSync(path.dirname(resolvedPath), { recursive: true });
+    const payload = JSON.stringify(config, null, 2);
     const tempPath = `${resolvedPath}.tmp`;
-    fs.writeFileSync(tempPath, JSON.stringify(config, null, 2), 'utf8');
+    fs.writeFileSync(tempPath, payload, 'utf8');
     fs.renameSync(tempPath, resolvedPath);
   }
 
-  function normalize(raw) {
-    const normalized = {};
-    Object.keys(DEFAULT_SITE_CONFIG).forEach((key) => {
-      normalized[key] = Array.isArray(raw?.[key]) ? raw[key] : [];
-    });
-    return normalized;
-  }
-
   function load() {
-    if (!fs.existsSync(resolvedPath)) {
-      return;
-    }
+    if (!fs.existsSync(resolvedPath)) return;
     const raw = fs.readFileSync(resolvedPath, 'utf8');
-    if (!raw.trim()) {
-      return;
-    }
-    config = normalize(JSON.parse(raw));
+    if (!raw.trim()) return;
+    config = normalizeSiteConfig(JSON.parse(raw));
   }
 
   function get() {
-    return config;
+    return JSON.parse(JSON.stringify(config));
   }
 
   function replace(nextConfig) {
-    config = normalize(nextConfig);
+    config = normalizeSiteConfig(nextConfig);
     persist();
-    return config;
+    return get();
   }
 
-  function addItem(collection, item) {
-    if (!Array.isArray(config[collection])) return null;
-    config[collection].push(item);
+  function addProduct(product) {
+    config.products = [...config.products, product];
     persist();
-    return config;
-  }
-
-  function deleteItem(collection, id) {
-    if (!Array.isArray(config[collection])) return null;
-    config[collection] = config[collection].filter((item) => String(item.id) !== String(id));
-    persist();
-    return config;
+    return get();
   }
 
   load();
-  return { get, replace, addItem, deleteItem, path: resolvedPath };
+
+  return { get, replace, addProduct, path: resolvedPath };
 }
 
 function isValidUserToken(token) {
@@ -316,40 +309,27 @@ function createApp(config = createConfig()) {
 
   app.get('/api/admin/site-config', (req, res) => {
     if (!requireAdmin(req, res)) return;
-    return res.json({ success: true, config: siteConfigStore.get() });
+    res.json({ success: true, config: siteConfigStore.get() });
   });
 
   app.put('/api/admin/site-config', (req, res) => {
     if (!requireAdmin(req, res)) return;
-    const nextConfig = req.body;
-    if (!nextConfig || typeof nextConfig !== 'object') {
+    if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
       return res.status(400).json({ error: 'Invalid config payload' });
     }
-    const saved = siteConfigStore.replace(nextConfig);
-    return res.json({ success: true, config: saved });
+    const updated = siteConfigStore.replace(req.body);
+    return res.json({ success: true, config: updated });
   });
 
-  app.post('/api/admin/site-config/:collection', (req, res) => {
+  app.post('/api/admin/site-config/products', (req, res) => {
     if (!requireAdmin(req, res)) return;
-    const collection = req.params.collection;
-    const item = req.body;
-    if (!item || typeof item !== 'object') return res.status(400).json({ error: 'Invalid item payload' });
-    if (!item.id) return res.status(400).json({ error: 'Item id is required' });
-    const saved = siteConfigStore.addItem(collection, item);
-    if (!saved) return res.status(400).json({ error: 'Unknown collection' });
-    return res.json({ success: true, config: saved });
-  });
+    if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
+      return res.status(400).json({ error: 'Invalid product payload' });
+    }
 
-  app.delete('/api/admin/site-config/:collection/:id', (req, res) => {
-    if (!requireAdmin(req, res)) return;
-    const { collection, id } = req.params;
-    const saved = siteConfigStore.deleteItem(collection, id);
-    if (!saved) return res.status(400).json({ error: 'Unknown collection' });
-    return res.json({ success: true, config: saved });
+    const updated = siteConfigStore.addProduct(req.body);
+    return res.json({ success: true, config: updated });
   });
-
-  // Serve static website files while keeping "/" as API health endpoint.
-  app.use(express.static(process.cwd(), { index: false, extensions: ['html'] }));
 
   return app;
 }
@@ -382,4 +362,3 @@ module.exports.createApp = createApp;
 module.exports.createConfig = createConfig;
 module.exports.startServer = startServer;
 module.exports.createUserStore = createUserStore;
-module.exports.createSiteConfigStore = createSiteConfigStore;
