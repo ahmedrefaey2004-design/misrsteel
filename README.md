@@ -25,6 +25,46 @@ misrsteel_new/
 
 ---
 
+## ▶️ تشغيل الموقع على npm (محليًا)
+
+### سؤال مهم: الأوامر دي تتحط فين؟
+- الأوامر دي بتتكتب في **Terminal / CMD / PowerShell** (مش جوه ملف كود).
+- لازم تكون واقف داخل فولدر المشروع نفسه (`/workspace/misrsteel` أو أي مكان أنت منزل فيه المشروع).
+
+مثال:
+```bash
+cd /workspace/misrsteel
+npm install
+ADMIN_TOKEN=your_strong_token npm start
+```
+
+> لو على Windows PowerShell:
+```powershell
+cd C:\\path\\to\\misrsteel
+npm install
+$env:ADMIN_TOKEN=\"your_strong_token\"; npm start
+```
+
+### 1) تثبيت المتطلبات
+```bash
+npm install
+```
+
+### 2) تشغيل السيرفر
+```bash
+ADMIN_TOKEN=your_strong_token npm start
+```
+
+### 3) افتح الروابط
+- الموقع: `http://localhost:3000/index.html`
+- المتجر: `http://localhost:3000/shop.html`
+- لوحة الإدارة: `http://localhost:3000/admin.html`
+- فحص API: `http://localhost:3000/`
+
+> ملاحظة: المسار `/` بيرجع JSON للصحة (health check)، والصفحات تفتح من ملفات `.html`.
+
+---
+
 ## 🚀 الخطوة 1: رفع الملفات على GitHub
 
 ### أولاً: إنشاء Repository
