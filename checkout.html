@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الدفع — مصر ستيل</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+.pay-wrap{max-width:900px;margin:28px auto;padding:0 20px;display:grid;grid-template-columns:1fr 380px;gap:20px;align-items:start}
+.pay-card{background:#fff;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.pay-card-head{background:var(--black);padding:14px 18px;display:flex;align-items:center;gap:8px}
+.pay-card-head h3{color:#fff;font-size:14px;font-weight:700}
+.pay-card-body{padding:20px}
+.method-list{display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
+.method-opt{display:flex;align-items:center;gap:12px;padding:12px 14px;border:2px solid var(--border);border-radius:6px;cursor:pointer;transition:all .2s}
+.method-opt:hover,.method-opt.active{border-color:var(--orange);background:var(--orange-lt)}
+.method-radio{width:18px;height:18px;border:2px solid var(--muted);border-radius:50%;flex-shrink:0;position:relative;transition:all .2s}
+.method-opt.active .method-radio{border-color:var(--orange)}
+.method-opt.active .method-radio::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:8px;height:8px;background:var(--orange);border-radius:50%}
+.method-info{flex:1}
+.method-name{font-size:13px;font-weight:700}
+.method-desc{font-size:11px;color:var(--muted);margin-top:2px}
+.method-logos{margin-inline-start:auto;display:flex;gap:4px}
+.logo-chip{font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;background:#f0f0f0;color:var(--muted)}
+
+.summary-row{display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px solid var(--border)}
+.summary-row:last-child{border-bottom:none}
+.summary-row.total{font-size:16px;font-weight:800;padding-top:12px;border-top:2px solid var(--orange);border-bottom:none;margin-top:4px}
+.summary-row.total .val{color:var(--orange)}
+.deposit-note{background:var(--orange-lt);border:1px solid rgba(255,96,0,.2);border-radius:6px;padding:12px;font-size:12px;color:var(--orange-dk);line-height:1.7;margin:14px 0}
+.deposit-note strong{display:block;font-weight:800;margin-bottom:3px}
+.pay-btn{width:100%;padding:14px;background:var(--orange);color:#fff;border:none;border-radius:6px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;transition:background .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.pay-btn:hover{background:var(--orange-dk)}
+.pay-btn:disabled{opacity:.6;cursor:not-allowed}
+.sec-strip{display:flex;gap:12px;justify-content:center;padding:12px 0;flex-wrap:wrap}
+.sec-item{font-size:10px;color:var(--muted);display:flex;align-items:center;gap:4px}
+
+/* IFRAME MODAL */
+.pay-modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+.pay-modal.open{display:flex}
+.pay-modal-box{background:#fff;width:100%;max-width:500px;border-radius:8px;overflow:hidden;max-height:90vh;display:flex;flex-direction:column}
+.pay-modal-head{background:var(--black);padding:14px 18px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.pay-modal-head h3{color:#fff;font-size:14px;font-weight:700}
+.pay-modal-x{background:none;border:none;color:rgba(255,255,255,.5);font-size:22px;cursor:pointer}
+.pay-iframe{flex:1;border:none;width:100%;height:500px}
+
+/* SUCCESS */
+.success-box{display:none;text-align:center;padding:40px 20px}
+.success-icon{font-size:60px;margin-bottom:16px}
+.success-ref{background:#f9f9f9;border:1px solid var(--border);border-radius:6px;padding:12px;margin:14px 0;font-size:12px;color:var(--muted)}
+.success-ref strong{font-size:18px;color:var(--text);display:block;margin-bottom:4px}
+
+/* SPINNER */
+.pay-spinner{width:36px;height:36px;border:3px solid rgba(255,96,0,.2);border-top-color:var(--orange);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:800px){.pay-wrap{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<!-- PAYMENT IFRAME MODAL -->
+<div class="pay-modal" id="payModal">
+  <div class="pay-modal-box">
+    <div class="pay-modal-head">
+      <h3>🔒 ادفع بأمان — Paymob</h3>
+      <button class="pay-modal-x" onclick="closePayModal()">✕</button>
+    </div>
+    <iframe class="pay-iframe" id="payIframe" src="" allowpaymentrequest></iframe>
+  </div>
+</div>
+
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:8px">سعر الدولار: <div class="rate-badge"><span class="rate-display">50.85</span> ج.م</div></div>
+  <div class="topbar-links"><a href="tel:+201050595250">📞 +201050595250</a><a href="https://wa.me/201050595250">💬 واتساب</a></div>
+</div>
+<nav class="main-nav"><div class="nav-inner">
+  <a class="nav-logo" href="index.html"><div class="logo-main">مصر ستيل</div><div class="logo-sub">أثاث استانلس فاخر</div></a>
+  <div class="nav-actions">
+    <button class="nav-btn" onclick="history.back()">← رجوع</button>
+  </div>
+</div></nav>
+
+<div style="background:var(--orange);color:#fff;padding:28px 20px;text-align:center">
+  <h1 style="font-size:24px;font-weight:800;margin-bottom:6px">🔒 إتمام الدفع</h1>
+  <p style="font-size:13px;opacity:.85">دفع آمن ومشفر بـ SSL — Paymob بوابة دفع مرخصة</p>
+</div>
+
+<div class="pay-wrap">
+
+  <!-- RIGHT: SUMMARY -->
+  <div style="order:2">
+    <div class="pay-card">
+      <div class="pay-card-head"><span>🧾</span><h3>ملخص الطلب</h3></div>
+      <div class="pay-card-body">
+
+        <div id="cartSummary">
+          <div style="text-align:center;padding:20px;color:var(--muted)">جاري تحميل الطلب...</div>
+        </div>
+
+        <div class="deposit-note">
+          <strong>💡 المقدم المطلوب الآن (50%)</strong>
+          تدفع المقدم لتأكيد الطلب وبدء التصنيع. الباقي (50%) قبل الشحن.
+        </div>
+
+        <div style="margin-bottom:14px">
+          <div class="summary-row"><span>إجمالي الأوردر</span><span class="val" id="totalUSD">$0</span></div>
+          <div class="summary-row"><span>المقدم الآن (50%)</span><span class="val" id="depositUSD" style="color:var(--orange);font-weight:800">$0</span></div>
+          <div class="summary-row"><span>بالجنيه المصري</span><span class="val" id="depositEGP">0 ج.م</span></div>
+          <div class="summary-row total"><span>المبلغ المستحق الآن</span><span class="val" id="payNow">$0</span></div>
+        </div>
+
+        <div class="sec-strip">
+          <div class="sec-item">🔒 SSL 256-bit</div>
+          <div class="sec-item">✅ PCI DSS</div>
+          <div class="sec-item">🛡️ مشفر بالكامل</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEFT: PAYMENT FORM -->
+  <div style="order:1">
+
+    <!-- Success state -->
+    <div class="pay-card" id="successCard" style="display:none">
+      <div class="pay-card-body">
+        <div class="success-box" style="display:block">
+          <div class="success-icon">✅</div>
+          <h2 style="font-size:22px;font-weight:800;margin-bottom:8px">تم الدفع بنجاح!</h2>
+          <p style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:14px">تم استلام دفعتك — فريقنا سيتواصل معاك على واتساب لتأكيد المواصفات وبدء التصنيع.</p>
+          <div class="success-ref">
+            <strong id="successRef">-</strong>
+            رقم المعاملة
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-top:16px">
+            <a href="https://wa.me/201050595250" target="_blank" class="pay-btn" style="background:#25D366;text-decoration:none">💬 تابع على واتساب</a>
+            <button class="pay-btn" style="background:var(--orange)" onclick="window.location='index.html'">🏠 العودة للرئيسية</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment form -->
+    <div class="pay-card" id="payFormCard">
+      <div class="pay-card-head"><span>💳</span><h3>اختار طريقة الدفع</h3></div>
+      <div class="pay-card-body">
+
+        <!-- Customer info -->
+        <div style="margin-bottom:18px">
+          <div style="font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.06em;margin-bottom:10px">بياناتك</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+            <div class="form-group"><label>الاسم *</label><input type="text" id="custName" placeholder="Ahmed Mohamed" required></div>
+            <div class="form-group"><label>الهاتف / واتساب *</label><input type="tel" id="custPhone" placeholder="+201..."></div>
+            <div class="form-group"><label>الإيميل</label><input type="email" id="custEmail" placeholder="ahmed@email.com"></div>
+            <div class="form-group"><label>الدولة</label>
+              <select id="custCountry">
+                <option value="EG">🇪🇬 مصر</option>
+                <option value="AE">🇦🇪 الإمارات</option>
+                <option value="SA">🇸🇦 السعودية</option>
+                <option value="IQ">🇮🇶 العراق</option>
+                <option value="KW">🇰🇼 الكويت</option>
+                <option value="JO">🇯🇴 الأردن</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group"><label>ملاحظات (اختياري)</label><textarea id="custNotes" rows="2" placeholder="مواصفات خاصة، ألوان، موعد تسليم..."></textarea></div>
+        </div>
+
+        <!-- Payment methods -->
+        <div style="font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.06em;margin-bottom:10px">طريقة الدفع</div>
+        <div class="method-list">
+          <div class="method-opt active" onclick="selectMethod('card',this)">
+            <div class="method-radio"></div>
+            <div class="method-info">
+              <div class="method-name">💳 بطاقة بنكية</div>
+              <div class="method-desc">فيزا · ماستركارد · ميزة</div>
+            </div>
+            <div class="method-logos">
+              <span class="logo-chip">VISA</span>
+              <span class="logo-chip">MC</span>
+              <span class="logo-chip">MEEZA</span>
+            </div>
+          </div>
+          <div class="method-opt" onclick="selectMethod('wallet',this)">
+            <div class="method-radio"></div>
+            <div class="method-info">
+              <div class="method-name">📱 محفظة إلكترونية</div>
+              <div class="method-desc">فودافون كاش · اتصالات · وي · بنك ميزة</div>
+            </div>
+            <div class="method-logos">
+              <span class="logo-chip" style="background:#e60000;color:#fff">VF</span>
+            </div>
+          </div>
+          <div class="method-opt" onclick="selectMethod('fawry',this)">
+            <div class="method-radio"></div>
+            <div class="method-info">
+              <div class="method-name">🏪 فوري</div>
+              <div class="method-desc">ادفع في أقرب نقطة فوري</div>
+            </div>
+            <div class="method-logos">
+              <span class="logo-chip" style="background:#f5a623;color:#fff">FAWRY</span>
+            </div>
+          </div>
+          <div class="method-opt" onclick="selectMethod('bank',this)">
+            <div class="method-radio"></div>
+            <div class="method-info">
+              <div class="method-name">🏦 تحويل بنكي</div>
+              <div class="method-desc">للعملاء خارج مصر — SWIFT / IBAN</div>
+            </div>
+            <div class="method-logos">
+              <span class="logo-chip">SWIFT</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bank transfer details (shown when bank selected) -->
+        <div id="bankDetails" style="display:none;background:#f9f9f9;border:1px solid var(--border);border-radius:6px;padding:14px;margin-bottom:14px;font-size:12px">
+          <div style="font-weight:800;margin-bottom:8px;font-size:13px">بيانات التحويل البنكي:</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">البنك:</span><strong>البنك الأهلي المصري / NBE</strong></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">اسم الحساب:</span><strong>مصر ستيل</strong></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">SWIFT:</span><strong>NBEGEGCX</strong></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">رقم الحساب:</span><strong>1234567890123456</strong></div>
+          </div>
+          <div style="margin-top:10px;padding:8px;background:var(--orange-lt);border-radius:4px;font-size:11px;color:var(--orange-dk)">
+            ⚠️ بعد التحويل — ابعت صورة الإيصال على واتساب لتأكيد الطلب فوراً
+          </div>
+        </div>
+
+        <div id="payError" style="display:none;background:#fff0f0;border:1px solid #ffcccc;border-radius:6px;padding:12px;font-size:12px;color:var(--red);margin-bottom:12px"></div>
+
+        <button class="pay-btn" id="payBtn" onclick="initiatePayment()">
+          🔒 ادفع الآن
+        </button>
+
+        <div class="sec-strip" style="margin-top:10px">
+          <div class="sec-item">🔒 SSL آمن</div>
+          <div class="sec-item">✅ Paymob مرخص</div>
+          <div class="sec-item">↩ استرداد 14 يوم</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer-main"><div class="footer-grid">
+  <div><div class="footer-brand-name">مصر ستيل</div><p class="footer-desc">أثاث استانلس فاخر.</p></div>
+  <div class="footer-col"><h4>تواصل</h4><a href="tel:+201050595250">📞 +201050595250</a><a href="https://wa.me/201050595250">💬 واتساب</a></div>
+</div><div class="footer-bottom"><span>© 2025 مصر ستيل</span></div></footer>
+
+<script src="shared.js"></script>
+<script>
+var BACKEND = 'https://misrsteel-backend.vercel.app';
+var USD_EGP = parseFloat(localStorage.getItem('ms_rate') || '50.85');
+var cart    = JSON.parse(localStorage.getItem('ms_cart') || '[]');
+var selectedMethod = 'card';
+var currentOrderId = null;
+
+// ── Load cart summary ─────────────────────────────
+function loadSummary() {
+  if (!cart.length) {
+    document.getElementById('cartSummary').innerHTML = '<div style="color:var(--muted);text-align:center;padding:14px">السلة فاضية — <a href="marketplace.html" style="color:var(--orange)">تسوق الآن</a></div>';
+    return;
+  }
+  var total   = cart.reduce(function(s,i){ return s + (i.price||0)*(i.qty||1); }, 0);
+  var deposit = Math.round(total * 0.5 * 100) / 100;
+  var egp     = Math.round(deposit * USD_EGP).toLocaleString();
+
+  document.getElementById('cartSummary').innerHTML =
+    cart.map(function(i){
+      return '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">' +
+        '<span>' + (i.name||i.nameAr||'منتج') + ' × ' + (i.qty||1) + '</span>' +
+        '<strong style="color:var(--orange)">$' + ((i.price||0)*(i.qty||1)).toLocaleString() + '</strong></div>';
+    }).join('');
+
+  document.getElementById('totalUSD').textContent   = '$' + total.toLocaleString();
+  document.getElementById('depositUSD').textContent = '$' + deposit.toLocaleString();
+  document.getElementById('depositEGP').textContent = egp + ' ج.م';
+  document.getElementById('payNow').textContent     = '$' + deposit.toLocaleString();
+}
+
+// ── Method selection ──────────────────────────────
+function selectMethod(method, el) {
+  selectedMethod = method;
+  document.querySelectorAll('.method-opt').forEach(function(m){ m.classList.remove('active'); });
+  el.classList.add('active');
+  document.getElementById('bankDetails').style.display = method === 'bank' ? 'block' : 'none';
+}
+
+// ── Initiate payment ──────────────────────────────
+async function initiatePayment() {
+  var name  = document.getElementById('custName').value.trim();
+  var phone = document.getElementById('custPhone').value.trim();
+  if (!name || !phone) { showError('أدخل اسمك وهاتفك أولاً'); return; }
+  if (!cart.length) { showError('السلة فاضية'); return; }
+
+  var total   = cart.reduce(function(s,i){ return s + (i.price||0)*(i.qty||1); }, 0);
+  var deposit = Math.round(total * 0.5 * 100) / 100;
+
+  // Bank transfer — no API needed
+  if (selectedMethod === 'bank') {
+    showSuccess('BANK-' + Date.now());
+    sendWAConfirm(name, phone, total, deposit);
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    // 1. Create order in backend
+    var orderRes = await fetch(BACKEND + '/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        customerName:    name,
+        customerEmail:   document.getElementById('custEmail').value.trim(),
+        customerPhone:   phone,
+        customerCountry: document.getElementById('custCountry').value,
+        notes:           document.getElementById('custNotes').value.trim(),
+        items:           cart,
+        totalUSD:        total,
+        depositUSD:      deposit,
+        affiliateCode:   new URLSearchParams(location.search).get('ref') || ''
+      })
+    });
+    var orderData = await orderRes.json();
+    currentOrderId = orderData.orderId;
+
+    // 2. Initiate Paymob payment
+    var payRes = await fetch(BACKEND + '/api/pay/initiate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        orderId:   currentOrderId,
+        amountUSD: deposit,
+        method:    selectedMethod,
+        customer: {
+          name:    name,
+          firstName: name.split(' ')[0],
+          lastName:  name.split(' ').slice(1).join(' ') || 'Client',
+          phone:   phone,
+          email:   document.getElementById('custEmail').value.trim() || 'client@misrsteel.com',
+          country: document.getElementById('custCountry').value,
+          city:    'Cairo'
+        },
+        items: cart
+      })
+    });
+
+    var payData = await payRes.json();
+    setLoading(false);
+
+    if (!payData.success) throw new Error(payData.error || 'فشل بدء الدفع');
+
+    // Open iframe
+    var url = payData.iframeUrl || payData.redirectUrl;
+    document.getElementById('payIframe').src = url;
+    document.getElementById('payModal').classList.add('open');
+
+    // Poll for payment status
+    pollPayment(currentOrderId);
+
+  } catch(err) {
+    setLoading(false);
+    showError(err.message || 'حدث خطأ — حاول تاني');
+  }
+}
+
+// ── Poll payment status ───────────────────────────
+function pollPayment(orderId) {
+  var attempts = 0;
+  var interval = setInterval(async function() {
+    attempts++;
+    if (attempts > 60) { clearInterval(interval); return; } // 5 min timeout
+    try {
+      var r = await fetch(BACKEND + '/api/pay/status/' + orderId);
+      var d = await r.json();
+      if (d.paid) {
+        clearInterval(interval);
+        closePayModal();
+        showSuccess(d.transactionId || orderId);
+        localStorage.removeItem('ms_cart');
+      }
+    } catch(e) {}
+  }, 5000); // check every 5s
+}
+
+function closePayModal() {
+  document.getElementById('payModal').classList.remove('open');
+  document.getElementById('payIframe').src = '';
+}
+
+// ── UI Helpers ────────────────────────────────────
+function showSuccess(ref) {
+  document.getElementById('payFormCard').style.display = 'none';
+  document.getElementById('successCard').style.display = 'block';
+  document.getElementById('successRef').textContent = ref;
+  window.scrollTo(0, 0);
+}
+
+function sendWAConfirm(name, phone, total, deposit) {
+  var msg = 'مرحباً مصر ستيل 🎉\n\nتم إرسال التحويل البنكي\nالاسم: ' + name + '\nإجمالي الأوردر: $' + total + '\nالمقدم: $' + deposit + '\nأرجو تأكيد الطلب.';
+  window.open('https://wa.me/201050595250?text=' + encodeURIComponent(msg), '_blank');
+}
+
+function showError(msg) {
+  var box = document.getElementById('payError');
+  box.textContent = '❌ ' + msg;
+  box.style.display = 'block';
+}
+
+function setLoading(on) {
+  var btn = document.getElementById('payBtn');
+  btn.disabled = on;
+  btn.innerHTML = on ? '<div class="pay-spinner"></div>' : '🔒 ادفع الآن';
+}
+
+// ── Init ──────────────────────────────────────────
+loadSummary();
+</script>
+</body>
+</html>
