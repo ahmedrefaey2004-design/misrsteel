@@ -15,7 +15,12 @@ function createTempStorePath() {
 
 async function withServer(configOverrides, run) {
   const temp = createTempStorePath();
-  const config = { ...createConfig({}), ...configOverrides, usersStoreFile: temp.file };
+  const config = {
+    ...createConfig({}),
+    ...configOverrides,
+    usersStoreFile: temp.file,
+    siteConfigFile: path.join(temp.dir, 'site-config.json')
+  };
   const app = createApp(config);
   const server = app.listen(0);
 
@@ -103,7 +108,12 @@ test('credits persist after app restart using the same store file', async () => 
   const userToken = 'persist_user_123';
 
   async function runOnce(callback) {
-    const app = createApp({ ...createConfig({}), adminToken, usersStoreFile: temp.file });
+    const app = createApp({
+      ...createConfig({}),
+      adminToken,
+      usersStoreFile: temp.file,
+      siteConfigFile: path.join(temp.dir, 'site-config.json')
+    });
     const server = app.listen(0);
     await new Promise((resolve) => server.once('listening', resolve));
     const { port } = server.address();
@@ -137,6 +147,62 @@ test('credits persist after app restart using the same store file', async () => 
       const listJson = await listRes.json();
       assert.equal(listJson.users[0].id, userToken);
       assert.equal(listJson.users[0].credits, 5);
+    });
+  } finally {
+    fs.rmSync(temp.dir, { recursive: true, force: true });
+  }
+});
+
+test('site config can be edited from admin API and read publicly', async () => {
+  const temp = createTempStorePath();
+  const configFile = path.join(temp.dir, 'site-config.json');
+  const adminToken = 'admin_token_site_config';
+
+  async function runOnce(callback) {
+    const app = createApp({
+      ...createConfig({}),
+      adminToken,
+      usersStoreFile: temp.file,
+      siteConfigFile: configFile
+    });
+    const server = app.listen(0);
+    await new Promise((resolve) => server.once('listening', resolve));
+    const { port } = server.address();
+
+    try {
+      await callback(`http://127.0.0.1:${port}`);
+    } finally {
+      await new Promise((resolve) => server.close(resolve));
+    }
+  }
+
+  try {
+    await runOnce(async (baseUrl) => {
+      const addRes = await fetch(`${baseUrl}/api/admin/site-config/products`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-token': adminToken
+        },
+        body: JSON.stringify({
+          id: 'chair-1',
+          nameAr: 'كرسي ذهبي',
+          section: 'hall'
+        })
+      });
+
+      assert.equal(addRes.status, 200);
+      const addJson = await addRes.json();
+      assert.equal(addJson.config.products.length, 1);
+      assert.equal(addJson.config.products[0].id, 'chair-1');
+    });
+
+    await runOnce(async (baseUrl) => {
+      const publicRes = await fetch(`${baseUrl}/api/site-config`);
+      assert.equal(publicRes.status, 200);
+      const publicJson = await publicRes.json();
+      assert.equal(publicJson.config.products.length, 1);
+      assert.equal(publicJson.config.products[0].id, 'chair-1');
     });
   } finally {
     fs.rmSync(temp.dir, { recursive: true, force: true });
