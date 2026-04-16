@@ -32,6 +32,7 @@ async function withServer(configOverrides, run) {
   } finally {
     await new Promise((resolve) => server.close(resolve));
     fs.rmSync(temp.dir, { recursive: true, force: true });
+    fs.rmSync(tempSite.dir, { recursive: true, force: true });
   }
 }
 
@@ -104,6 +105,7 @@ test('admin add credits works with valid token and payload', async () => {
 
 test('credits persist after app restart using the same store file', async () => {
   const temp = createTempStorePath();
+  const tempSite = createTempStorePath();
   const adminToken = 'admin_token_12345';
   const userToken = 'persist_user_123';
 
@@ -150,6 +152,7 @@ test('credits persist after app restart using the same store file', async () => 
     });
   } finally {
     fs.rmSync(temp.dir, { recursive: true, force: true });
+    fs.rmSync(tempSite.dir, { recursive: true, force: true });
   }
 });
 
