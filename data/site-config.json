@@ -1,0 +1,58 @@
+{
+  "products": [
+    {
+      "id": "chair-royal-gold",
+      "nameAr": "كرسي رويال ذهبي",
+      "nameEn": "Royal Gold Chair",
+      "section": "hall",
+      "cat": "chairs",
+      "descriptionAr": "كرسي ستانلس فاخر للقاعات والفنادق.",
+      "descriptionEn": "Premium stainless chair for halls and hotels.",
+      "priceUsd": 45,
+      "image": "images/chair-rose-gold.jpg",
+      "badge": "bestseller",
+      "minQty": 50,
+      "step": 50
+    },
+    {
+      "id": "chair-lounge-gold",
+      "nameAr": "كرسي لاونج ذهبي",
+      "nameEn": "Lounge Gold Armchair",
+      "section": "restaurant",
+      "cat": "chairs",
+      "descriptionAr": "كرسي لاونج مريح للمطاعم والكافيهات.",
+      "descriptionEn": "Comfortable lounge chair for restaurants and cafes.",
+      "priceUsd": 48,
+      "image": "images/chair-linen-gold.jpg",
+      "badge": "new",
+      "minQty": 50,
+      "step": 50
+    },
+    {
+      "id": "table-bistro-black",
+      "nameAr": "ترابيزة بيسترو سوداء",
+      "nameEn": "Bistro Black Table",
+      "section": "restaurant",
+      "cat": "tables",
+      "descriptionAr": "ترابيزة ستانلس بسطح مقاوم للخدش للمطاعم.",
+      "descriptionEn": "Stainless bistro table with scratch-resistant top.",
+      "priceUsd": 95,
+      "image": "images/table-bistro-black.jpg",
+      "badge": "",
+      "minQty": 20,
+      "step": 10
+    }
+  ],
+  "categories": [
+    { "id": "chairs", "labelAr": "🪑 الكراسي", "labelEn": "🪑 Chairs" },
+    { "id": "tables", "labelAr": "🍽 الترابيزات", "labelEn": "🍽 Tables" }
+  ],
+  "sections": [
+    { "id": "home", "labelAr": "المنزل", "labelEn": "Home" },
+    { "id": "hall", "labelAr": "القاعات", "labelEn": "Halls" },
+    { "id": "museum", "labelAr": "لوبي / متحف", "labelEn": "Lobby / Museum" },
+    { "id": "restaurant", "labelAr": "المطاعم", "labelEn": "Restaurants" }
+  ],
+  "posters": [],
+  "buttons": []
+}
