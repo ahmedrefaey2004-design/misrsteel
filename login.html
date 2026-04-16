@@ -1,195 +1,100 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>تسجيل الدخول — MISR STEEL</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تسجيل الدخول — مصر ستيل</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="shared.css">
 <style>
-body{background:var(--bg);min-height:100vh;display:flex;flex-direction:column}
-.login-page{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px}
-.login-wrap{display:grid;grid-template-columns:1fr 1fr;max-width:900px;width:100%;background:#fff;border-radius:8px;box-shadow:var(--shadow-lg);overflow:hidden}
-.login-left{background:linear-gradient(145deg,#ff6a00,#e05500);color:#fff;padding:48px 40px;display:flex;flex-direction:column;justify-content:space-between}
-.ll-logo{font-size:22px;font-weight:700;margin-bottom:32px}
-.ll-logo span{font-family:'DM Sans',sans-serif;font-size:14px;opacity:.75;display:block;margin-top:2px;letter-spacing:.1em;text-transform:uppercase;font-weight:400}
-.ll-title{font-size:28px;font-weight:700;line-height:1.3;margin-bottom:12px}
-body.en .ll-title{font-family:'DM Sans',sans-serif;font-size:26px}
-.ll-sub{font-size:14px;opacity:.8;line-height:1.7;margin-bottom:28px}
-.ll-features{display:flex;flex-direction:column;gap:10px}
-.ll-feat{display:flex;align-items:center;gap:10px;font-size:13px;opacity:.9}
-.ll-feat-icon{width:28px;height:28px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
-.ll-bottom{margin-top:32px;padding-top:20px;border-top:1px solid rgba(255,255,255,.2)}
-.ll-affiliate-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:rgba(255,255,255,.85);background:rgba(255,255,255,.1);padding:8px 14px;border-radius:4px;border:1px solid rgba(255,255,255,.25);transition:all .2s}
-.ll-affiliate-link:hover{background:rgba(255,255,255,.2);color:#fff}
-
-.login-right{padding:40px}
-.tabs{display:flex;gap:0;margin-bottom:28px;border-bottom:2px solid var(--border)}
-.tab-btn{flex:1;padding:10px;background:none;border:none;font-size:14px;font-weight:600;cursor:pointer;color:var(--muted);font-family:inherit;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s}
-.tab-btn.active{color:var(--orange);border-bottom-color:var(--orange)}
-.tab-pane{display:none}.tab-pane.active{display:block}
-
-.login-form{display:flex;flex-direction:column;gap:0}
-.form-group{margin-bottom:14px}
-.input-wrap{position:relative}
-.input-icon{position:absolute;top:50%;transform:translateY(-50%);inset-inline-start:12px;font-size:16px;color:var(--muted)}
-.input-wrap input{padding-inline-start:38px}
-.remember-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-.remember-row label{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);cursor:pointer}
-.forgot-link{font-size:12px;color:var(--orange);text-decoration:none}
-.forgot-link:hover{text-decoration:underline}
-.divider{display:flex;align-items:center;gap:12px;margin:16px 0;font-size:12px;color:var(--muted)}
-.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
-.social-btns{display:flex;gap:10px;margin-bottom:16px}
-.social-btn{flex:1;padding:10px;border:1.5px solid var(--border);background:#fff;border-radius:4px;font-size:13px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .2s;font-weight:600}
-.social-btn:hover{border-color:var(--orange);color:var(--orange)}
-.login-note{font-size:12px;color:var(--muted);text-align:center;margin-top:12px;line-height:1.6}
+.login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#1a0800,#2d1200,#111)}
+.login-box{background:var(--white);width:100%;max-width:440px;border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.login-head{background:var(--black);padding:28px 28px 24px;text-align:center}
+.login-logo{font-size:22px;font-weight:800;color:var(--orange);margin-bottom:4px}
+.login-logo-sub{font-size:11px;color:rgba(255,255,255,.4)}
+.login-tabs{display:flex;border-bottom:1px solid var(--border)}
+.ltab{flex:1;padding:14px;background:none;border:none;border-bottom:3px solid transparent;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;font-family:inherit;transition:all .2s;margin-bottom:-1px}
+.ltab.active{color:var(--orange);border-bottom-color:var(--orange)}
+.login-body{padding:28px}
+.login-panel{display:none}.login-panel.show{display:block}
+.lf{display:flex;flex-direction:column;gap:4px;margin-bottom:14px}
+.lf label{font-size:11px;font-weight:700;color:var(--muted)}
+.lf input,.lf select{padding:11px 13px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit;outline:none;transition:border-color .2s}
+.lf input:focus,.lf select:focus{border-color:var(--orange)}
+.lf-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.login-btn{width:100%;padding:13px;background:var(--orange);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:800;margin-top:4px;transition:background .2s;font-family:inherit;cursor:pointer}
+.login-btn:hover{background:var(--orange-dk)}
+.login-note{font-size:11px;color:var(--muted);text-align:center;margin-top:10px;line-height:1.6}
 .login-note a{color:var(--orange)}
-.success-box{display:none;text-align:center;padding:28px 0}
-.success-box .s-icon{font-size:48px;margin-bottom:12px}
-.success-box h3{font-size:20px;font-weight:700;margin-bottom:6px}
-.success-box p{font-size:13px;color:var(--muted);line-height:1.7}
-
-@media(max-width:640px){
-  .login-wrap{grid-template-columns:1fr}
-  .login-left{display:none}
-  .login-right{padding:28px 20px}
-}
+.login-success{display:none;text-align:center;padding:20px 0}
+.ls-icon{font-size:48px;margin-bottom:10px}
+.ls-title{font-size:18px;font-weight:800;margin-bottom:6px}
+.ls-sub{font-size:12px;color:var(--muted);line-height:1.7}
+.divider{display:flex;align-items:center;gap:10px;margin:14px 0;color:var(--muted);font-size:12px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.btn-wa-login{width:100%;padding:12px;background:#25D366;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .2s}
+.btn-wa-login:hover{background:#128c7e}
 </style>
 </head>
 <body>
-
-<div id="navPlaceholder"></div>
-<div id="cartPlaceholder"></div>
-
 <div class="login-page">
-  <div class="login-wrap">
-
-    <!-- LEFT PANEL -->
-    <div class="login-left">
-      <div>
-        <div class="ll-logo">
-          <span class="ar">مصر ستيل</span>
-          <span class="en-t">MISR STEEL</span>
-          <span>MISR STEEL · مصر ستيل</span>
-        </div>
-        <div class="ll-title ar">أهلاً بك في<br>بوابة العملاء</div>
-        <div class="ll-title en-t">Welcome to<br>the client portal</div>
-        <p class="ll-sub ar">سجّل دخولك لمتابعة أوردراتك وعروض الأسعار والفواتير وتاريخ الشراء كله في مكان واحد.</p>
-        <p class="ll-sub en-t">Sign in to track your orders, quotes, invoices and full purchase history in one place.</p>
-        <div class="ll-features">
-          <div class="ll-feat"><div class="ll-feat-icon">📦</div><span class="ar">متابعة الأوردرات والشحن</span><span class="en-t">Track orders & shipping</span></div>
-          <div class="ll-feat"><div class="ll-feat-icon">💰</div><span class="ar">عروض الأسعار والفواتير</span><span class="en-t">Quotes and invoices</span></div>
-          <div class="ll-feat"><div class="ll-feat-icon">🔄</div><span class="ar">سهولة إعادة الطلب</span><span class="en-t">Easy reordering</span></div>
-          <div class="ll-feat"><div class="ll-feat-icon">💬</div><span class="ar">تواصل مباشر مع الفريق</span><span class="en-t">Direct team communication</span></div>
-        </div>
-      </div>
-      <div class="ll-bottom">
-        <p style="font-size:12px;opacity:.7;margin-bottom:10px" class="ar">أنت مسوّق وليس عميل؟</p>
-        <p style="font-size:12px;opacity:.7;margin-bottom:10px" class="en-t">Are you an affiliate, not a client?</p>
-        <a href="affiliate-login.html" class="ll-affiliate-link">🤝 <span class="ar">بوابة المسوّقين</span><span class="en-t">Affiliate Portal</span></a>
-      </div>
+  <div class="login-box">
+    <div class="login-head">
+      <div class="login-logo">مصر ستيل</div>
+      <div class="login-logo-sub">بوابة العملاء</div>
     </div>
+    <div class="login-tabs">
+      <button class="ltab active" onclick="switchTab('login',this)">تسجيل الدخول</button>
+      <button class="ltab" onclick="switchTab('register',this)">حساب جديد</button>
+    </div>
+    <div class="login-body">
 
-    <!-- RIGHT PANEL: FORM -->
-    <div class="login-right">
-      <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('login')"><span class="ar">تسجيل الدخول</span><span class="en-t">Sign In</span></button>
-        <button class="tab-btn" onclick="switchTab('register')"><span class="ar">حساب جديد</span><span class="en-t">New Account</span></button>
-      </div>
-
-      <!-- LOGIN TAB -->
-      <div class="tab-pane active" id="tab-login">
-        <form class="login-form" onsubmit="doLogin(event)">
-          <div class="form-group">
-            <label><span class="ar">الإيميل أو الواتساب</span><span class="en-t">Email or WhatsApp</span></label>
-            <div class="input-wrap">
-              <span class="input-icon">✉️</span>
-              <input type="text" id="li_email" placeholder="ahmed@company.com" required>
-            </div>
-          </div>
-          <div class="form-group">
-            <label><span class="ar">كلمة المرور</span><span class="en-t">Password</span></label>
-            <div class="input-wrap">
-              <span class="input-icon">🔒</span>
-              <input type="password" id="li_pass" placeholder="••••••••" required>
-            </div>
-          </div>
-          <div class="remember-row">
-            <label><input type="checkbox"> <span class="ar">تذكرني</span><span class="en-t">Remember me</span></label>
-            <a href="#" class="forgot-link"><span class="ar">نسيت كلمة المرور؟</span><span class="en-t">Forgot password?</span></a>
-          </div>
-          <button type="submit" class="btn btn-orange btn-full btn-lg" id="loginBtn">
-            <span class="ar">دخول ←</span><span class="en-t">Sign In →</span>
-          </button>
+      <!-- LOGIN -->
+      <div class="login-panel show" id="panelLogin">
+        <form onsubmit="doLogin(event)">
+          <div class="lf"><label>الإيميل أو رقم الواتساب</label><input type="text" placeholder="ahmed@company.com" required></div>
+          <div class="lf"><label>كلمة المرور</label><input type="password" placeholder="••••••••" required></div>
+          <button type="submit" class="login-btn">دخول</button>
         </form>
-        <div class="divider"><span class="ar">أو</span><span class="en-t">or</span></div>
-        <div class="social-btns">
-          <button class="social-btn" onclick="showToast('قريباً!','')">🌐 Google</button>
-          <button class="social-btn" onclick="guestLogin()">👤 <span class="ar">دخول كضيف</span><span class="en-t">Guest</span></button>
-        </div>
-        <div class="login-note ar">ليس لديك حساب؟ <a href="#" onclick="switchTab('register')">سجّل الآن مجاناً</a></div>
-        <div class="login-note en-t">No account? <a href="#" onclick="switchTab('register')">Register for free</a></div>
-        <div class="success-box" id="loginSuccess">
-          <div class="s-icon">✅</div>
-          <h3><span class="ar">مرحباً بك!</span><span class="en-t">Welcome back!</span></h3>
-          <p><span class="ar">تم تسجيل دخولك بنجاح. جاري تحويلك...</span><span class="en-t">Logged in successfully. Redirecting...</span></p>
+        <div class="divider">أو</div>
+        <button class="btn-wa-login" onclick="loginWA()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          دخول عبر واتساب
+        </button>
+        <p class="login-note">ليس لديك حساب؟ <a href="#" onclick="switchTab('register')">سجّل الآن</a></p>
+        <div class="login-success" id="loginOk">
+          <div class="ls-icon">✅</div>
+          <div class="ls-title">مرحباً بك!</div>
+          <div class="ls-sub">جاري تحويلك...</div>
         </div>
       </div>
 
-      <!-- REGISTER TAB -->
-      <div class="tab-pane" id="tab-register">
-        <form class="login-form" onsubmit="doRegister(event)">
-          <div class="form-row-2">
-            <div class="form-group">
-              <label><span class="ar">الاسم الكامل</span><span class="en-t">Full name</span></label>
-              <div class="input-wrap"><span class="input-icon">👤</span><input type="text" id="rg_name" required placeholder="أحمد محمد"></div>
+      <!-- REGISTER -->
+      <div class="login-panel" id="panelRegister">
+        <form onsubmit="doRegister(event)">
+          <div class="lf-row">
+            <div class="lf"><label>الاسم</label><input type="text" placeholder="أحمد" required></div>
+            <div class="lf"><label>اسم الشركة</label><input type="text" placeholder="اختياري"></div>
+          </div>
+          <div class="lf"><label>الإيميل</label><input type="email" placeholder="ahmed@company.com" required></div>
+          <div class="lf-row">
+            <div class="lf"><label>واتساب</label><input type="tel" placeholder="+201..."></div>
+            <div class="lf"><label>الدولة</label>
+              <select>
+                <option>🇪🇬 مصر</option><option>🇮🇶 العراق</option>
+                <option>🇸🇦 السعودية</option><option>🇦🇪 الإمارات</option>
+                <option>🇰🇼 الكويت</option><option>🇯🇴 الأردن</option>
+                <option>🌍 أخرى</option>
+              </select>
             </div>
-            <div class="form-group">
-              <label><span class="ar">الشركة</span><span class="en-t">Company</span></label>
-              <input type="text" id="rg_company" placeholder="اختياري">
-            </div>
           </div>
-          <div class="form-group">
-            <label><span class="ar">الإيميل</span><span class="en-t">Email</span></label>
-            <div class="input-wrap"><span class="input-icon">✉️</span><input type="email" id="rg_email" required placeholder="ahmed@company.com"></div>
-          </div>
-          <div class="form-group">
-            <label>WhatsApp</label>
-            <div class="input-wrap"><span class="input-icon">📱</span><input type="tel" id="rg_wa" placeholder="+20 / +964 ..."></div>
-          </div>
-          <div class="form-group">
-            <label><span class="ar">الدولة</span><span class="en-t">Country</span></label>
-            <select id="rg_country">
-              <option value="EG">🇪🇬 مصر / Egypt</option>
-              <option value="IQ">🇮🇶 العراق / Iraq</option>
-              <option value="SA">🇸🇦 السعودية / Saudi Arabia</option>
-              <option value="AE">🇦🇪 الإمارات / UAE</option>
-              <option value="KW">🇰🇼 الكويت / Kuwait</option>
-              <option value="QA">🇶🇦 قطر / Qatar</option>
-              <option value="JO">🇯🇴 الأردن / Jordan</option>
-              <option value="LY">🇱🇾 ليبيا / Libya</option>
-              <option value="DZ">🇩🇿 الجزائر / Algeria</option>
-              <option value="OTHER">🌍 Other</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label><span class="ar">كلمة مرور</span><span class="en-t">Password</span></label>
-            <div class="input-wrap"><span class="input-icon">🔒</span><input type="password" id="rg_pass" required placeholder="8 أحرف على الأقل / 8+ characters"></div>
-          </div>
-          <button type="submit" class="btn btn-orange btn-full btn-lg">
-            <span class="ar">إنشاء حساب مجاني ←</span><span class="en-t">Create free account →</span>
-          </button>
+          <div class="lf"><label>كلمة المرور</label><input type="password" placeholder="8 أحرف على الأقل" required></div>
+          <button type="submit" class="login-btn">إنشاء الحساب</button>
         </form>
-        <div class="login-note ar">لديك حساب؟ <a href="#" onclick="switchTab('login')">سجّل دخولك</a></div>
-        <div class="login-note en-t">Already have an account? <a href="#" onclick="switchTab('login')">Sign in</a></div>
-        <div class="login-note ar" style="margin-top:8px">بالتسجيل أنت توافق على <a href="contracts.html">شروط الاستخدام</a></div>
-        <div class="login-note en-t" style="margin-top:8px">By registering you agree to our <a href="contracts.html">Terms of Use</a></div>
-        <div class="success-box" id="registerSuccess">
-          <div class="s-icon">🎉</div>
-          <h3><span class="ar">تم التسجيل!</span><span class="en-t">Registered!</span></h3>
-          <p><span class="ar">تم إنشاء حسابك. سنتواصل معاك على واتساب لتفعيل الحساب.</span><span class="en-t">Account created. We'll contact you on WhatsApp to activate it.</span></p>
-          <a href="index.html" class="btn btn-orange" style="margin-top:16px;display:inline-flex"><span class="ar">العودة للرئيسية</span><span class="en-t">Back to home</span></a>
+        <p class="login-note">لديك حساب؟ <a href="#" onclick="switchTab('login')">سجّل دخولك</a></p>
+        <div class="login-success" id="regOk">
+          <div class="ls-icon">🎉</div>
+          <div class="ls-title">تم التسجيل!</div>
+          <div class="ls-sub">سنتواصل معك على واتساب لتفعيل الحساب خلال 24 ساعة</div>
         </div>
       </div>
 
@@ -197,55 +102,32 @@ body.en .ll-title{font-family:'DM Sans',sans-serif;font-size:26px}
   </div>
 </div>
 
-<div id="footerPlaceholder"></div>
-
-<script src="shared.js"></script>
 <script>
-function switchTab(t){
-  document.querySelectorAll('.tab-btn').forEach(function(b,i){ b.classList.toggle('active', i===(t==='login'?0:1)); });
-  document.getElementById('tab-login').classList.toggle('active', t==='login');
-  document.getElementById('tab-register').classList.toggle('active', t==='register');
+function switchTab(tab, btn){
+  document.querySelectorAll('.ltab').forEach(function(b){b.classList.remove('active')});
+  document.querySelectorAll('.login-panel').forEach(function(p){p.classList.remove('show')});
+  if(btn) btn.classList.add('active');
+  else document.querySelectorAll('.ltab')[tab==='login'?0:1].classList.add('active');
+  document.getElementById('panel'+(tab.charAt(0).toUpperCase()+tab.slice(1))).classList.add('show');
 }
-
 function doLogin(e){
   e.preventDefault();
-  var btn = document.getElementById('loginBtn');
-  btn.textContent='...'; btn.disabled=true;
-  setTimeout(function(){
-    var email = document.getElementById('li_email').value;
-    var name = email.split('@')[0];
-    Auth.loginUser({name:name, email:email});
-    document.querySelector('#tab-login form').style.display='none';
-    document.querySelector('.remember-row').style.display='none';
-    document.querySelectorAll('#tab-login .divider, #tab-login .social-btns, #tab-login .login-note').forEach(function(el){ el.style.display='none'; });
-    document.getElementById('loginSuccess').style.display='block';
-    setTimeout(function(){ window.location.href='index.html'; }, 1500);
-  }, 1000);
+  document.querySelector('#panelLogin form').style.display='none';
+  document.querySelector('#panelLogin .divider').style.display='none';
+  document.querySelector('#panelLogin .btn-wa-login').style.display='none';
+  document.querySelector('#panelLogin .login-note').style.display='none';
+  document.getElementById('loginOk').style.display='block';
+  setTimeout(function(){window.location='index.html'},1500);
 }
-
 function doRegister(e){
   e.preventDefault();
-  var name = document.getElementById('rg_name').value;
-  Auth.loginUser({name:name, email:document.getElementById('rg_email').value, wa:document.getElementById('rg_wa').value});
-  document.querySelector('#tab-register form').style.display='none';
-  document.querySelectorAll('#tab-register .login-note').forEach(function(el){ el.style.display='none'; });
-  document.getElementById('registerSuccess').style.display='block';
+  document.querySelector('#panelRegister form').style.display='none';
+  document.querySelector('#panelRegister .login-note').style.display='none';
+  document.getElementById('regOk').style.display='block';
 }
-
-function guestLogin(){
-  Auth.loginUser({name:'ضيف / Guest', email:'guest', guest:true});
-  window.location.href='index.html';
+function loginWA(){
+  window.open('https://wa.me/201050595250?text=أريد تسجيل الدخول لحساب مصر ستيل','_blank');
 }
-
-document.addEventListener('DOMContentLoaded', function(){
-  document.getElementById('navPlaceholder').innerHTML = buildNav('');
-  document.getElementById('cartPlaceholder').innerHTML = buildCartDrawer();
-  document.getElementById('footerPlaceholder').innerHTML = buildFooter();
-  // If already logged in, redirect
-  if(Auth.getUser()) window.location.href='index.html';
-  // Check URL for tab
-  if(window.location.search.indexOf('tab=register')>-1) switchTab('register');
-});
 </script>
 </body>
 </html>

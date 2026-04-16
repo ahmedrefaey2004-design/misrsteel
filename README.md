@@ -25,6 +25,46 @@ misrsteel_new/
 
 ---
 
+## ▶️ تشغيل الموقع على npm (محليًا)
+
+### سؤال مهم: الأوامر دي تتحط فين؟
+- الأوامر دي بتتكتب في **Terminal / CMD / PowerShell** (مش جوه ملف كود).
+- لازم تكون واقف داخل فولدر المشروع نفسه (`/workspace/misrsteel` أو أي مكان أنت منزل فيه المشروع).
+
+مثال:
+```bash
+cd /workspace/misrsteel
+npm install
+ADMIN_TOKEN=your_strong_token npm start
+```
+
+> لو على Windows PowerShell:
+```powershell
+cd C:\\path\\to\\misrsteel
+npm install
+$env:ADMIN_TOKEN=\"your_strong_token\"; npm start
+```
+
+### 1) تثبيت المتطلبات
+```bash
+npm install
+```
+
+### 2) تشغيل السيرفر
+```bash
+ADMIN_TOKEN=your_strong_token npm start
+```
+
+### 3) افتح الروابط
+- الموقع: `http://localhost:3000/index.html`
+- المتجر: `http://localhost:3000/shop.html`
+- لوحة الإدارة: `http://localhost:3000/admin.html`
+- فحص API: `http://localhost:3000/`
+
+> ملاحظة: المسار `/` بيرجع JSON للصحة (health check)، والصفحات تفتح من ملفات `.html`.
+
+---
+
 ## 🚀 الخطوة 1: رفع الملفات على GitHub
 
 ### أولاً: إنشاء Repository
@@ -190,3 +230,58 @@ https://amazing-name-123.netlify.app
 ---
 
 **مصر ستيل — MISR STEEL · القاهرة، مصر 🇪🇬**
+
+---
+
+## ✅ أسئلة مهمة: الداتا – الداشبورد – النشر – رفع المنتجات
+
+### 1) هل الموقع بيحتفظ بالداتا؟
+- **سلة المشتريات/اللغة/سعر الدولار**: بتتخزن على جهاز العميل في `localStorage`.
+- **بيانات مستخدمي الـ AI والرصيد**: بتتخزن على السيرفر في ملف:
+  - `data/users.json`
+- **بيانات المحتوى (منتجات/أقسام/أزرار...)**: بتتخزن على السيرفر في:
+  - `data/site-config.json`
+
+> مهم: لو السيرفر اتمسح أو اتغير بدون Backup هتفقد البيانات. لازم تعمل نسخ احتياطي دوري.
+
+### 2) أدخل الداشبورد وأعدل إزاي؟
+1. شغّل الباك‑إند:
+   ```bash
+   npm install
+   ADMIN_TOKEN=your_strong_token npm start
+   ```
+2. افتح:
+   - `http://localhost:3000/admin.html`
+3. اكتب:
+   - **API Base URL** = `http://localhost:3000`
+   - **Admin Token** = نفس قيمة `ADMIN_TOKEN`
+4. اضغط **تحميل**، وبعدها تقدر:
+   - تعدل JSON كامل وتحفظ
+   - تضيف/تحذف منتجات أو أقسام من جزء **إضافة عنصر**
+
+### 3) هل نقدر ننشره للعملاء دلوقتي؟
+- **ينفع كتجربة تشغيلية**.
+- للإطلاق التجاري الكامل، لازم قبل النشر:
+  1. تثبيت `ADMIN_TOKEN` قوي (مش القيمة الافتراضية).
+  2. إعداد HTTPS + دومين.
+  3. تفعيل Backup يومي لمجلد `data/`.
+  4. ربط الدفع الفعلي وتأكيد الدفع عبر webhook.
+
+### 4) نرفع منتجات الأقسام ووصفها إزاي؟
+- من `admin.html`:
+  - اختر `collection = products`
+  - أضف JSON للمنتج (مثال):
+    ```json
+    {
+      "id": "chair-royal-gold",
+      "nameAr": "كرسي رويال ذهبي",
+      "nameEn": "Royal Gold Chair",
+      "section": "hall",
+      "descriptionAr": "كرسي ستانلس فاخر مناسب للقاعات.",
+      "descriptionEn": "Premium stainless chair for halls.",
+      "priceUsd": 45,
+      "image": "images/p01-rose-gold-chair.jpg"
+    }
+    ```
+- لإضافة أقسام:
+  - اختر `collection = sections` وأضف عنصر فيه `id` واسم عربي/إنجليزي.

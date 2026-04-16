@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الشحن والتوصيل — مصر ستيل</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+.ship-hero{background:linear-gradient(135deg,#0a1628,#1a2d50,#2d4a8a);color:#fff;padding:36px 20px;text-align:center}
+.ship-hero h1{font-size:clamp(22px,4vw,38px);font-weight:800;margin-bottom:8px}
+.ship-hero p{font-size:13px;color:rgba(255,255,255,.7);max-width:560px;margin:0 auto}
+.ship-wrap{max-width:1100px;margin:28px auto;padding:0 20px}
+.ship-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px}
+.ship-card{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:22px;text-align:center;transition:all .2s}
+.ship-card:hover{border-color:var(--orange);box-shadow:0 4px 16px rgba(255,96,0,.1)}
+.ship-icon{font-size:36px;margin-bottom:12px}
+.ship-name{font-size:15px;font-weight:800;margin-bottom:6px}
+.ship-desc{font-size:12px;color:var(--muted);line-height:1.65}
+.ship-price{font-size:18px;font-weight:800;color:var(--orange);margin-top:10px}
+.track-box{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:24px;margin-bottom:32px}
+.track-title{font-size:16px;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.track-form{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.track-form input{flex:1;min-width:200px;padding:11px 16px;border:2px solid var(--border);border-radius:6px;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s}
+.track-form input:focus{border-color:var(--orange)}
+.track-form button{padding:11px 24px;background:var(--orange);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .2s}
+.track-form button:hover{background:var(--orange-dk)}
+.track-result{display:none;background:#f9f9f9;border:1px solid var(--border);border-radius:8px;padding:20px}
+.track-steps{display:flex;flex-direction:column;gap:0}
+.ts{display:flex;gap:14px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--border)}
+.ts:last-child{border-bottom:none}
+.ts-dot{width:14px;height:14px;border-radius:50%;background:var(--border);flex-shrink:0;margin-top:3px;transition:background .3s}
+.ts-dot.done{background:var(--green)}
+.ts-dot.current{background:var(--orange);box-shadow:0 0 0 4px rgba(255,96,0,.2)}
+.ts-info{}
+.ts-label{font-size:13px;font-weight:700}
+.ts-date{font-size:11px;color:var(--muted);margin-top:2px}
+.countries-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:32px}
+.country-card{background:var(--white);border:1px solid var(--border);border-radius:6px;padding:14px;text-align:center;transition:all .2s}
+.country-card:hover{border-color:var(--orange)}
+.country-flag{font-size:28px;margin-bottom:6px}
+.country-name{font-size:12px;font-weight:700;margin-bottom:4px}
+.country-time{font-size:10px;color:var(--muted)}
+.fob-banner{background:var(--black);color:#fff;border-radius:8px;padding:24px;display:flex;align-items:center;gap:20px;margin-bottom:32px}
+.fob-icon{font-size:48px;flex-shrink:0}
+.fob-title{font-size:18px;font-weight:800;margin-bottom:6px}
+.fob-title span{color:var(--orange)}
+.fob-desc{font-size:13px;color:rgba(255,255,255,.6);line-height:1.7}
+@media(max-width:900px){.ship-grid{grid-template-columns:1fr 1fr}.countries-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.ship-grid{grid-template-columns:1fr}.countries-grid{grid-template-columns:repeat(2,1fr)}.fob-banner{flex-direction:column;text-align:center}}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:8px">سعر الدولار: <div class="rate-badge"><span class="rate-display">50.85</span> ج.م</div></div>
+  <div class="topbar-links"><a href="tel:+201050595250">📞 +201050595250</a><a href="https://wa.me/201050595250" target="_blank">💬 واتساب</a></div>
+</div>
+<nav class="main-nav"><div class="nav-inner">
+  <a class="nav-logo" href="index.html"><div class="logo-main">مصر ستيل</div><div class="logo-sub">أثاث استانلس فاخر</div></a>
+  <div class="nav-actions">
+    <button class="nav-btn" onclick="window.location='index.html'">← الرئيسية</button>
+    <button class="nav-btn primary" onclick="window.location='marketplace.html'">🛒 المتجر</button>
+  </div>
+</div></nav>
+
+<div class="ship-hero">
+  <h1>🚢 الشحن والتوصيل</h1>
+  <p>نشحن لكل دول العالم — FOB ميناء الإسكندرية — شركات شحن موثوقة — تتبع فوري</p>
+</div>
+
+<div class="ship-wrap">
+
+  <!-- SHIPPING OPTIONS -->
+  <div class="sec-hd"><div class="sec-title">🚢 خيارات الشحن</div></div>
+  <div class="ship-grid">
+    <div class="ship-card">
+      <div class="ship-icon">🏭</div>
+      <div class="ship-name">FOB الإسكندرية</div>
+      <div class="ship-desc">التسليم على متن السفينة في ميناء الإسكندرية — العميل يتولى الشحن الدولي والجمارك</div>
+      <div class="ship-price">مجاناً</div>
+    </div>
+    <div class="ship-card" style="border-color:var(--orange);background:var(--orange-lt)">
+      <div class="ship-icon">🌍</div>
+      <div class="ship-name">CIF — شحن كامل</div>
+      <div class="ship-desc">نتولى الشحن الكامل حتى ميناءك — شامل التأمين والنقل البحري</div>
+      <div class="ship-price">حسب الوجهة</div>
+    </div>
+    <div class="ship-card">
+      <div class="ship-icon">🚚</div>
+      <div class="ship-name">شحن بري — دول عربية</div>
+      <div class="ship-desc">شحن بري مباشر للأردن والسعودية والإمارات والكويت وليبيا</div>
+      <div class="ship-price">$200–$800</div>
+    </div>
+  </div>
+
+  <!-- TRACK -->
+  <div class="track-box">
+    <div class="track-title">📦 تتبع شحنتك</div>
+    <div class="track-form">
+      <input type="text" id="trackInp" placeholder="أدخل رقم الأوردر أو الشحنة... مثال: MS-2025-1234">
+      <button onclick="trackOrder()">🔍 تتبع</button>
+    </div>
+    <div class="track-result" id="trackResult">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+        <div><div style="font-size:14px;font-weight:800">طلب #<span id="trackRef">MS-2025-1234</span></div><div style="font-size:12px;color:var(--muted);margin-top:3px" id="trackDest">وجهة: القاهرة ← دبي</div></div>
+        <div style="background:var(--orange);color:#fff;font-size:12px;font-weight:700;padding:6px 16px;border-radius:20px" id="trackStatus">في الطريق</div>
+      </div>
+      <div class="track-steps">
+        <div class="ts"><div class="ts-dot done"></div><div class="ts-info"><div class="ts-label">✅ تأكيد الطلب والدفع</div><div class="ts-date">1 يناير 2025 — 10:30 ص</div></div></div>
+        <div class="ts"><div class="ts-dot done"></div><div class="ts-info"><div class="ts-label">✅ بدء التصنيع</div><div class="ts-date">3 يناير 2025 — 9:00 ص</div></div></div>
+        <div class="ts"><div class="ts-dot done"></div><div class="ts-info"><div class="ts-label">✅ اكتمال التصنيع والتغليف</div><div class="ts-date">18 يناير 2025 — 4:00 م</div></div></div>
+        <div class="ts"><div class="ts-dot current"></div><div class="ts-info"><div class="ts-label">🚢 في الطريق — ميناء الإسكندرية ← دبي</div><div class="ts-date">20 يناير 2025 — متوقع وصول 28 يناير</div></div></div>
+        <div class="ts"><div class="ts-dot"></div><div class="ts-info"><div class="ts-label">📦 التسليم النهائي</div><div class="ts-date">متوقع 30 يناير 2025</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOB BANNER -->
+  <div class="fob-banner">
+    <div class="fob-icon">⚓</div>
+    <div>
+      <div class="fob-title">ميناء الإسكندرية — <span>FOB Port</span></div>
+      <div class="fob-desc">جميع صادراتنا تتم من ميناء الإسكندرية — نوفر كل وثائق التصدير: فاتورة جمركية · شهادة منشأ · بوليصة شحن · certificate of conformity</div>
+    </div>
+  </div>
+
+  <!-- COUNTRIES -->
+  <div class="sec-hd"><div class="sec-title">🌍 دول التصدير</div></div>
+  <div class="countries-grid">
+    <div class="country-card"><div class="country-flag">🇪🇬</div><div class="country-name">مصر — محلي</div><div class="country-time">2–5 أيام عمل</div></div>
+    <div class="country-card"><div class="country-flag">🇦🇪</div><div class="country-name">الإمارات</div><div class="country-time">7–12 يوم</div></div>
+    <div class="country-card"><div class="country-flag">🇸🇦</div><div class="country-name">السعودية</div><div class="country-time">7–14 يوم</div></div>
+    <div class="country-card"><div class="country-flag">🇰🇼</div><div class="country-name">الكويت</div><div class="country-time">8–14 يوم</div></div>
+    <div class="country-card"><div class="country-flag">🇮🇶</div><div class="country-name">العراق</div><div class="country-time">10–18 يوم</div></div>
+    <div class="country-card"><div class="country-flag">🇯🇴</div><div class="country-name">الأردن</div><div class="country-time">5–10 أيام</div></div>
+    <div class="country-card"><div class="country-flag">🇱🇾</div><div class="country-name">ليبيا</div><div class="country-time">7–14 يوم</div></div>
+    <div class="country-card"><div class="country-flag">🇩🇿</div><div class="country-name">الجزائر</div><div class="country-time">10–18 يوم</div></div>
+  </div>
+
+</div>
+
+<footer class="footer-main"><div class="footer-grid">
+  <div><div class="footer-brand-name">مصر ستيل</div><p class="footer-desc">أثاث استانلس فاخر. تصدير عالمي.</p></div>
+  <div class="footer-col"><h4>الأقسام</h4><a href="section-home.html">🏠 المنزل</a><a href="section-hall.html">🎪 قاعة</a><a href="marketplace.html">🛒 المتجر</a></div>
+  <div class="footer-col"><h4>روابط</h4><a href="contracts.html">📄 العقود</a><a href="affiliate-login.html">🤝 المسوّقين</a></div>
+  <div class="footer-col"><h4>تواصل</h4><a href="tel:+201050595250">📞 +201050595250</a><a href="https://wa.me/201050595250">💬 واتساب</a></div>
+</div><div class="footer-bottom"><span>© 2025 مصر ستيل</span><span>🇪🇬 صُنع في مصر</span></div></footer>
+<a class="wa-fab" href="https://wa.me/201050595250" target="_blank">💬 واتساب</a>
+<script src="shared.js"></script>
+<script>
+function trackOrder(){
+  var ref = document.getElementById('trackInp').value.trim();
+  if(!ref){alert('أدخل رقم الأوردر أولاً');return;}
+  document.getElementById('trackRef').textContent = ref;
+  document.getElementById('trackResult').style.display = 'block';
+  document.getElementById('trackResult').scrollIntoView({behavior:'smooth'});
+}
+</script>
+</body>
+</html>

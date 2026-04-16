@@ -15,12 +15,11 @@ function createTempStorePath() {
 
 async function withServer(configOverrides, run) {
   const temp = createTempStorePath();
-  const tempSite = createTempStorePath();
   const config = {
     ...createConfig({}),
     ...configOverrides,
     usersStoreFile: temp.file,
-    siteConfigFile: tempSite.file
+    siteConfigFile: path.join(temp.dir, 'site-config.json')
   };
   const app = createApp(config);
   const server = app.listen(0);
@@ -115,7 +114,7 @@ test('credits persist after app restart using the same store file', async () => 
       ...createConfig({}),
       adminToken,
       usersStoreFile: temp.file,
-      siteConfigFile: tempSite.file
+      siteConfigFile: path.join(temp.dir, 'site-config.json')
     });
     const server = app.listen(0);
     await new Promise((resolve) => server.once('listening', resolve));
@@ -157,30 +156,94 @@ test('credits persist after app restart using the same store file', async () => 
   }
 });
 
-test('admin can manage site config collections', async () => {
-  await withServer({ adminToken: 'admin_token_12345' }, async (baseUrl) => {
-    const addRes = await fetch(`${baseUrl}/api/admin/site-config/buttons`, {
+test('site config can be edited from admin API and read publicly', async () => {
+  const temp = createTempStorePath();
+  const configFile = path.join(temp.dir, 'site-config.json');
+  const adminToken = 'admin_token_site_config';
+
+  async function runOnce(callback) {
+    const app = createApp({
+      ...createConfig({}),
+      adminToken,
+      usersStoreFile: temp.file,
+      siteConfigFile: configFile
+    });
+    const server = app.listen(0);
+    await new Promise((resolve) => server.once('listening', resolve));
+    const { port } = server.address();
+
+    try {
+      await callback(`http://127.0.0.1:${port}`);
+    } finally {
+      await new Promise((resolve) => server.close(resolve));
+    }
+  }
+
+  try {
+    await runOnce(async (baseUrl) => {
+      const addRes = await fetch(`${baseUrl}/api/admin/site-config/products`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-token': adminToken
+        },
+        body: JSON.stringify({
+          id: 'chair-1',
+          nameAr: 'كرسي ذهبي',
+          section: 'hall'
+        })
+      });
+
+      assert.equal(addRes.status, 200);
+      const addJson = await addRes.json();
+      assert.equal(addJson.config.products.length, 1);
+      assert.equal(addJson.config.products[0].id, 'chair-1');
+    });
+
+    await runOnce(async (baseUrl) => {
+      const publicRes = await fetch(`${baseUrl}/api/site-config`);
+      assert.equal(publicRes.status, 200);
+      const publicJson = await publicRes.json();
+      assert.equal(publicJson.config.products.length, 1);
+      assert.equal(publicJson.config.products[0].id, 'chair-1');
+    });
+  } finally {
+    fs.rmSync(temp.dir, { recursive: true, force: true });
+  }
+});
+
+test('admin site-config endpoints support replace and validate payloads', async () => {
+  await withServer({ adminToken: 'admin_token_site_config' }, async (baseUrl) => {
+    const headers = {
+      'Content-Type': 'application/json',
+      'x-admin-token': 'admin_token_site_config'
+    };
+
+    const updateRes = await fetch(`${baseUrl}/api/admin/site-config`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({
+        categories: [{ id: 'chairs', labelAr: 'كراسي' }],
+        sections: [{ id: 'hall', labelAr: 'القاعات' }],
+        products: [{ id: 'p-1', nameAr: 'منتج 1' }]
+      })
+    });
+    assert.equal(updateRes.status, 200);
+    const updateJson = await updateRes.json();
+    assert.equal(updateJson.config.products.length, 1);
+    assert.equal(updateJson.config.categories.length, 1);
+
+    const adminGetRes = await fetch(`${baseUrl}/api/admin/site-config`, { headers });
+    assert.equal(adminGetRes.status, 200);
+    const adminGetJson = await adminGetRes.json();
+    assert.equal(adminGetJson.config.sections.length, 1);
+    assert.equal(adminGetJson.config.products[0].id, 'p-1');
+
+    const badProductRes = await fetch(`${baseUrl}/api/admin/site-config/products`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-admin-token': 'admin_token_12345'
-      },
-      body: JSON.stringify({ id: 'cta-test', labelAr: 'زرار', labelEn: 'Button', link: '/x', visible: true })
+      headers,
+      body: JSON.stringify([])
     });
-    assert.equal(addRes.status, 200);
-
-    const cfgRes = await fetch(`${baseUrl}/api/admin/site-config`, {
-      headers: { 'x-admin-token': 'admin_token_12345' }
-    });
-    assert.equal(cfgRes.status, 200);
-    const cfgJson = await cfgRes.json();
-    assert.equal(Array.isArray(cfgJson.config.buttons), true);
-    assert.equal(cfgJson.config.buttons.some((b) => b.id === 'cta-test'), true);
-
-    const delRes = await fetch(`${baseUrl}/api/admin/site-config/buttons/cta-test`, {
-      method: 'DELETE',
-      headers: { 'x-admin-token': 'admin_token_12345' }
-    });
-    assert.equal(delRes.status, 200);
+    assert.equal(badProductRes.status, 400);
   });
 });

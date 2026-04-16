@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة تحكم المسوّق — مصر ستيل</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+.aff-header{background:var(--black);color:#fff;padding:16px 20px;display:flex;align-items:center;justify-content:space-between}
+.aff-header .logo{font-size:16px;font-weight:800;color:var(--orange)}
+.aff-user{display:flex;align-items:center;gap:10px;font-size:13px}
+.aff-layout{max-width:1200px;margin:20px auto;padding:0 20px;display:grid;grid-template-columns:220px 1fr;gap:20px}
+.aff-sidebar{background:var(--white);border:1px solid var(--border);border-radius:8px;overflow:hidden;position:sticky;top:20px}
+.aff-nav-item{display:flex;align-items:center;gap:10px;padding:13px 16px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;border-right:3px solid transparent;transition:all .2s}
+.aff-nav-item:hover,.aff-nav-item.active{color:var(--orange);background:var(--orange-lt);border-right-color:var(--orange)}
+.aff-nav-item .ni{font-size:18px;width:24px;text-align:center}
+.aff-main{}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:18px;text-align:center;transition:all .2s}
+.stat-card:hover{border-color:var(--orange)}
+.stat-num{font-size:28px;font-weight:800;color:var(--orange);margin-bottom:4px}
+.stat-label{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.aff-panel{display:none;background:var(--white);border:1px solid var(--border);border-radius:8px;padding:20px}
+.aff-panel.show{display:block}
+.aff-panel h3{font-size:15px;font-weight:800;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid var(--orange);display:flex;align-items:center;gap:8px}
+.link-box{background:#f0f8ff;border:2px solid #b3d9ff;border-radius:8px;padding:16px;margin-bottom:16px}
+.link-url{font-size:12px;color:#0066cc;font-family:monospace;word-break:break-all;margin:8px 0}
+.link-copy{padding:8px 16px;background:var(--orange);color:#fff;border:none;border-radius:4px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.comm-tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.ct{background:#fafafa;border:1px solid var(--border);border-radius:6px;padding:14px;text-align:center;transition:all .2s}
+.ct.current{border-color:var(--orange);background:var(--orange-lt)}
+.ct-pct{font-size:28px;font-weight:800;color:var(--orange)}
+.ct-name{font-size:12px;font-weight:700;margin:4px 0}
+.ct-range{font-size:10px;color:var(--muted)}
+.orders-table{width:100%;border-collapse:collapse;font-size:12px}
+.orders-table th{background:var(--black);color:#fff;padding:9px 12px;text-align:right;font-weight:700}
+.orders-table td{padding:9px 12px;border-bottom:1px solid var(--border)}
+.orders-table tr:hover td{background:#fafafa}
+.status-b{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700}
+.sb-pending{background:#fff3eb;color:var(--orange-dk)}
+.sb-paid{background:#e8f5ec;color:var(--green)}
+.withdraw-box{background:#f9f9f9;border:1px solid var(--border);border-radius:8px;padding:18px;margin-bottom:16px}
+.w-balance{font-size:32px;font-weight:800;color:var(--orange);margin-bottom:4px}
+.w-label{font-size:12px;color:var(--muted);margin-bottom:16px}
+.chart-bar-wrap{display:flex;flex-direction:column;gap:8px}
+.chart-bar-row{display:flex;align-items:center;gap:10px;font-size:11px}
+.chart-bar-label{min-width:50px;color:var(--muted)}
+.chart-bar-bg{flex:1;height:10px;background:#f0f0f0;border-radius:5px;overflow:hidden}
+.chart-bar-fill{height:100%;background:var(--orange);border-radius:5px;transition:width .6s}
+.chart-bar-val{min-width:40px;text-align:left;font-weight:700;font-size:11px;color:var(--orange)}
+@media(max-width:900px){.aff-layout{grid-template-columns:1fr}.aff-sidebar{position:static}.stats-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.stats-grid{grid-template-columns:repeat(2,1fr)}.comm-tiers{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="aff-header">
+  <div class="logo">مصر ستيل — لوحة المسوّق</div>
+  <div class="aff-user">
+    <span>👤 أحمد المسوّق</span>
+    <span style="background:var(--orange);color:#fff;font-size:10px;padding:3px 10px;border-radius:20px;font-weight:700">Pro 5%</span>
+    <button onclick="window.location='index.html'" style="padding:6px 14px;background:transparent;border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:4px;font-size:11px;cursor:pointer;font-family:inherit">خروج</button>
+  </div>
+</div>
+
+<div class="aff-layout">
+  <!-- SIDEBAR -->
+  <div class="aff-sidebar">
+    <div class="aff-nav-item active" onclick="showPanel('overview',this)"><span class="ni">📊</span> الملخص</div>
+    <div class="aff-nav-item" onclick="showPanel('links',this)"><span class="ni">🔗</span> روابط الإحالة</div>
+    <div class="aff-nav-item" onclick="showPanel('commissions',this)"><span class="ni">💰</span> العمولات</div>
+    <div class="aff-nav-item" onclick="showPanel('orders',this)"><span class="ni">📦</span> الأوردرات</div>
+    <div class="aff-nav-item" onclick="showPanel('withdraw',this)"><span class="ni">💳</span> سحب الأرباح</div>
+    <div class="aff-nav-item" onclick="showPanel('materials',this)"><span class="ni">🖼️</span> مواد التسويق</div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="aff-main">
+    <!-- STATS -->
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-num">$1,240</div><div class="stat-label">عمولات هذا الشهر</div></div>
+      <div class="stat-card"><div class="stat-num">23</div><div class="stat-label">أوردر مُحال</div></div>
+      <div class="stat-card"><div class="stat-num">847</div><div class="stat-label">نقرة على رابطك</div></div>
+      <div class="stat-card"><div class="stat-num">2.7%</div><div class="stat-label">نسبة التحويل</div></div>
+    </div>
+
+    <!-- OVERVIEW -->
+    <div class="aff-panel show" id="panel-overview">
+      <h3>📊 ملخص الأداء</h3>
+      <div style="margin-bottom:16px;font-size:13px;color:var(--muted);line-height:1.7">
+        مستواك الحالي: <strong style="color:var(--orange)">Pro — 5%</strong> · الشهر القادم ستصل لـ <strong>Premium 7%</strong> إذا وصلت $20,000 في المبيعات
+      </div>
+      <div class="chart-bar-wrap" style="margin-bottom:20px">
+        <div style="font-size:12px;font-weight:700;margin-bottom:8px;color:var(--muted)">أداء آخر 6 أشهر</div>
+        <div class="chart-bar-row"><span class="chart-bar-label">أغسطس</span><div class="chart-bar-bg"><div class="chart-bar-fill" style="width:45%"></div></div><span class="chart-bar-val">$560</span></div>
+        <div class="chart-bar-row"><span class="chart-bar-label">سبتمبر</span><div class="chart-bar-bg"><div class="chart-bar-fill" style="width:62%"></div></div><span class="chart-bar-val">$780</span></div>
+        <div class="chart-bar-row"><span class="chart-bar-label">أكتوبر</span><div class="chart-bar-bg"><div class="chart-bar-fill" style="width:55%"></div></div><span class="chart-bar-val">$690</span></div>
+        <div class="chart-bar-row"><span class="chart-bar-label">نوفمبر</span><div class="chart-bar-bg"><div class="chart-bar-fill" style="width:80%"></div></div><span class="chart-bar-val">$1,010</span></div>
+        <div class="chart-bar-row"><span class="chart-bar-label">ديسمبر</span><div class="chart-bar-bg"><div class="chart-bar-fill" style="width:90%"></div></div><span class="chart-bar-val">$1,130</span></div>
+        <div class="chart-bar-row"><span class="chart-bar-label">يناير</span><div class="chart-bar-bg"><div class="chart-bar-fill" style="width:99%"></div></div><span class="chart-bar-val">$1,240</span></div>
+      </div>
+    </div>
+
+    <!-- LINKS -->
+    <div class="aff-panel" id="panel-links">
+      <h3>🔗 روابط الإحالة الخاصة بك</h3>
+      <div class="link-box">
+        <div style="font-size:12px;font-weight:700;margin-bottom:4px">رابط الصفحة الرئيسية</div>
+        <div class="link-url" id="link1">https://misrsteel.vercel.app/?ref=AHMED-PRO</div>
+        <button class="link-copy" onclick="copyLink('link1')">📋 نسخ الرابط</button>
+      </div>
+      <div class="link-box">
+        <div style="font-size:12px;font-weight:700;margin-bottom:4px">رابط صفحة قاعات الأفراح</div>
+        <div class="link-url" id="link2">https://misrsteel.vercel.app/section-hall.html?ref=AHMED-PRO</div>
+        <button class="link-copy" onclick="copyLink('link2')">📋 نسخ الرابط</button>
+      </div>
+      <div class="link-box">
+        <div style="font-size:12px;font-weight:700;margin-bottom:4px">رابط المتجر المباشر</div>
+        <div class="link-url" id="link3">https://misrsteel.vercel.app/marketplace.html?ref=AHMED-PRO</div>
+        <button class="link-copy" onclick="copyLink('link3')">📋 نسخ الرابط</button>
+      </div>
+      <div style="background:#f9f9f9;border:1px solid var(--border);border-radius:6px;padding:14px;font-size:12px;color:var(--muted);line-height:1.7">
+        💡 <strong>كيف يشتغل؟</strong> لما حد يضغط على رابطك ويطلب — بتاخد عمولة 5% من قيمة الأوردر. العمولة بتتسجل تلقائياً وبتتصرف خلال 7 أيام عمل.
+      </div>
+    </div>
+
+    <!-- COMMISSIONS -->
+    <div class="aff-panel" id="panel-commissions">
+      <h3>💰 هيكل العمولات</h3>
+      <div class="comm-tiers">
+        <div class="ct"><div class="ct-pct">3%</div><div class="ct-name">Starter</div><div class="ct-range">أقل من $5,000 / شهر</div></div>
+        <div class="ct current"><div class="ct-pct">5%</div><div class="ct-name">Pro ← أنت هنا</div><div class="ct-range">$5,000–$20,000 / شهر</div></div>
+        <div class="ct"><div class="ct-pct">7%</div><div class="ct-name">Premium</div><div class="ct-range">أكثر من $20,000 / شهر</div></div>
+      </div>
+      <div style="background:var(--orange-lt);border:1px solid rgba(255,96,0,.2);border-radius:6px;padding:14px;font-size:13px;color:var(--orange-dk)">
+        🎯 متبقي $8,760 لتصل للـ Premium 7% هذا الشهر!
+      </div>
+    </div>
+
+    <!-- ORDERS -->
+    <div class="aff-panel" id="panel-orders">
+      <h3>📦 أوردرات المُحالة</h3>
+      <table class="orders-table">
+        <tr><th>الأوردر</th><th>العميل</th><th>المنتج</th><th>القيمة</th><th>عمولتك</th><th>الحالة</th></tr>
+        <tr><td>MS-001</td><td>أحمد - دبي</td><td>كرسي رويال × 100</td><td>$4,500</td><td style="color:var(--orange);font-weight:700">$225</td><td><span class="status-b sb-paid">مدفوع ✅</span></td></tr>
+        <tr><td>MS-002</td><td>فندق النيل</td><td>كرسي ميداليون × 50</td><td>$2,750</td><td style="color:var(--orange);font-weight:700">$137</td><td><span class="status-b sb-pending">في الانتظار</span></td></tr>
+        <tr><td>MS-003</td><td>قاعة الأفراح</td><td>كرسي هوبي × 200</td><td>$13,600</td><td style="color:var(--orange);font-weight:700">$680</td><td><span class="status-b sb-pending">في الانتظار</span></td></tr>
+      </table>
+    </div>
+
+    <!-- WITHDRAW -->
+    <div class="aff-panel" id="panel-withdraw">
+      <h3>💳 سحب الأرباح</h3>
+      <div class="withdraw-box">
+        <div class="w-balance">$1,240</div>
+        <div class="w-label">الرصيد المتاح للسحب</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button onclick="requestWithdraw('bank')" style="flex:1;padding:11px;background:var(--orange);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">🏦 تحويل بنكي</button>
+          <button onclick="requestWithdraw('wallet')" style="flex:1;padding:11px;background:#25D366;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">📱 محفظة إلكترونية</button>
+          <button onclick="requestWithdraw('instapay')" style="flex:1;padding:11px;background:#7c3aed;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">💜 انستاباي</button>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.7;background:#fafafa;border:1px solid var(--border);border-radius:6px;padding:12px">
+        📅 موعد الصرف: الأحد والأربعاء من كل أسبوع<br>
+        💰 الحد الأدنى للسحب: $50<br>
+        ⏱️ مدة التحويل: 1–3 أيام عمل
+      </div>
+    </div>
+
+    <!-- MATERIALS -->
+    <div class="aff-panel" id="panel-materials">
+      <h3>🖼️ مواد التسويق</h3>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px">
+        <div style="background:#fafafa;border:1px solid var(--border);border-radius:8px;padding:16px;text-align:center">
+          <div style="font-size:32px;margin-bottom:8px">🖼️</div>
+          <div style="font-size:13px;font-weight:700;margin-bottom:4px">بوستر منتجاتنا</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:10px">صور جاهزة للنشر على الشبكات</div>
+          <button style="padding:8px 16px;background:var(--orange);color:#fff;border:none;border-radius:4px;font-size:12px;font-weight:700;cursor:pointer" onclick="showToast('جاري التحميل...','')">⬇️ تحميل</button>
+        </div>
+        <div style="background:#fafafa;border:1px solid var(--border);border-radius:8px;padding:16px;text-align:center">
+          <div style="font-size:32px;margin-bottom:8px">📝</div>
+          <div style="font-size:13px;font-weight:700;margin-bottom:4px">نصوص جاهزة للواتساب</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:10px">كاتالوج + عروض جاهزة للإرسال</div>
+          <button style="padding:8px 16px;background:var(--orange);color:#fff;border:none;border-radius:4px;font-size:12px;font-weight:700;cursor:pointer" onclick="copyScript()">📋 نسخ النص</button>
+        </div>
+      </div>
+      <div id="scriptBox" style="display:none;margin-top:12px;background:#f0f8ff;border:1px solid #b3d9ff;border-radius:6px;padding:14px;font-size:12px;line-height:1.8;color:#333">
+        مرحباً 🌟<br><br>
+        عندي عرض مميز من <strong>مصر ستيل</strong> — أثاث استانلس فاخر مباشرة من المصنع 🏭<br><br>
+        ✅ كراسي وترابيزات للمطاعم والفنادق والقاعات<br>
+        💰 أسعار المصنع بدون وسطاء<br>
+        🚢 تصدير لكل الدول<br>
+        ⭐ ضمان سنة كاملة<br><br>
+        📱 تواصل معي أو زور الرابط:<br>
+        <span style="color:#0066cc">https://misrsteel.vercel.app/?ref=AHMED-PRO</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+function showPanel(key, el){
+  document.querySelectorAll('.aff-nav-item').forEach(function(n){n.classList.remove('active')});
+  document.querySelectorAll('.aff-panel').forEach(function(p){p.classList.remove('show')});
+  el.classList.add('active');
+  document.getElementById('panel-'+key).classList.add('show');
+}
+function copyLink(id){
+  var url = document.getElementById(id).textContent.trim();
+  navigator.clipboard.writeText(url).then(function(){showToast('✅ تم نسخ الرابط','success');}).catch(function(){showToast('انسخ الرابط يدوياً');});
+}
+function requestWithdraw(method){
+  var labels={bank:'تحويل بنكي',wallet:'محفظة إلكترونية',instapay:'انستاباي'};
+  showToast('✅ تم إرسال طلب السحب عبر '+labels[method],'success');
+}
+function copyScript(){
+  document.getElementById('scriptBox').style.display='block';
+  showToast('✅ النص جاهز للنسخ','success');
+}
+function showToast(msg,type){
+  var t=document.getElementById('toast')||document.body.appendChild(Object.assign(document.createElement('div'),{id:'toast',className:'toast'}));
+  t.textContent=msg;t.className='toast '+(type||'');t.classList.add('show');
+  clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},3000);
+}
+</script>
+</body>
+</html>

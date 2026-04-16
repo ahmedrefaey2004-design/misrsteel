@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مطعم — مصر ستيل</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+.sec-hero{background:linear-gradient(135deg,#1a0800,#2d1200,#8b3d00);color:#fff;padding:36px 20px}
+.sec-hero-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;gap:20px}
+.sec-hero-icon{font-size:72px;flex-shrink:0}
+.sec-hero-title{font-size:clamp(28px,4vw,48px);font-weight:800}
+.sec-hero-sub{font-size:13px;color:rgba(255,255,255,.65);margin-top:6px;line-height:1.7}
+.subsec-tabs{background:var(--white);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
+.subsec-tabs::-webkit-scrollbar{display:none}
+.subsec-inner{max-width:1280px;margin:0 auto;padding:0 20px;display:flex}
+.subsec-btn{padding:13px 22px;background:none;border:none;border-bottom:3px solid transparent;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap}
+.subsec-btn:hover,.subsec-btn.active{color:var(--orange);border-bottom-color:var(--orange)}
+.subsec-section{display:none}.subsec-section.show{display:block}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:8px"><span>سعر الدولار:</span><div class="rate-badge"><span id="rateVal">50.85</span> ج.م</div></div>
+  <div class="topbar-links"><a href="tel:+201050595250">📞 +201050595250</a><a href="https://wa.me/201050595250" target="_blank">💬 واتساب</a></div>
+</div>
+<nav class="main-nav"><div class="nav-inner">
+  <a class="nav-logo" href="index.html"><div class="logo-main">مصر ستيل</div><div class="logo-sub">أثاث استانلس فاخر</div></a>
+  <div class="nav-search"><input type="text" placeholder="ابحث..."><button class="nav-search-btn">🔍</button></div>
+  <div class="nav-actions">
+    <button class="nav-btn" onclick="window.location='ai-designer.html'">🤖 AI</button>
+    <button class="nav-btn primary" onclick="window.location='shop.html'">🛒 اطلب</button>
+  </div>
+</div></nav>
+<div class="cat-nav"><div class="cat-nav-inner">
+  <a class="cat-link" href="index.html"><div class="cat-icon">⭐</div><div class="cat-name">الكل</div></a>
+  <a class="cat-link" href="section-home.html"><div class="cat-icon">🏠</div><div class="cat-name">المنزل</div></a>
+  <a class="cat-link" href="section-hall.html"><div class="cat-icon">🎪</div><div class="cat-name">قاعة</div></a>
+  <a class="cat-link" href="section-museum.html"><div class="cat-icon">🏛️</div><div class="cat-name">لوبي</div></a>
+  <a class="cat-link  active" href="section-restaurant.html"><div class="cat-icon">🍽️</div><div class="cat-name">مطعم</div></a>
+</div></div>
+
+<div class="sec-hero"><div class="sec-hero-inner">
+  <div class="sec-hero-icon">🍽️</div>
+  <div>
+    <div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:6px">مصر ستيل ← مطعم</div>
+    <div class="sec-hero-title">أثاث مطعم</div>
+    <div class="sec-hero-sub">كراسي وترابيزات استانلس للمطاعم الداخلية والخارجية وأقسام VIP</div>
+  </div>
+</div></div>
+
+<div class="subsec-tabs"><div class="subsec-inner"><button class="subsec-btn active" onclick="showSub('indoor',this)">🏠 داخلي Indoor</button><button class="subsec-btn" onclick="showSub('outdoor',this)">🌿 خارجي Outdoor</button><button class="subsec-btn" onclick="showSub('vip',this)">👑 VIP Section</button></div></div>
+
+<div class="sec-wrap"><div class="subsec-section show" id="sub-indoor"><div class="sec-hd" style="margin-top:20px"><div class="sec-title">🏠 داخلي Indoor</div></div><div class="prod-grid" id="grid-indoor"></div></div><div class="subsec-section" id="sub-outdoor"><div class="sec-hd" style="margin-top:20px"><div class="sec-title">🌿 خارجي Outdoor</div></div><div class="prod-grid" id="grid-outdoor"></div></div><div class="subsec-section" id="sub-vip"><div class="sec-hd" style="margin-top:20px"><div class="sec-title">👑 VIP Section</div></div><div class="prod-grid" id="grid-vip"></div></div></div>
+
+<footer class="footer-main"><div class="footer-grid">
+  <div><div class="footer-brand-name">مصر ستيل</div><p class="footer-desc">أثاث استانلس فاخر. بدون حد أدنى للطلب.</p></div>
+  <div class="footer-col"><h4>الأقسام</h4><a href="section-home.html">🏠 المنزل</a><a href="section-hall.html">🎪 قاعة</a><a href="section-museum.html">🏛️ لوبي</a><a href="section-restaurant.html">🍽️ مطعم</a></div>
+  <div class="footer-col"><h4>روابط</h4><a href="shop.html">🛒 اطلب الآن</a><a href="ai-designer.html">🤖 AI مصمم</a><a href="contracts.html">📄 العقود</a></div>
+  <div class="footer-col"><h4>تواصل</h4><a href="tel:+201050595250">📞 +201050595250</a><a href="https://wa.me/201050595250">💬 واتساب</a></div>
+</div><div class="footer-bottom"><span>© 2025 مصر ستيل</span><span>🇪🇬 صُنع في مصر</span></div></footer>
+<a class="wa-fab" href="https://wa.me/201050595250" target="_blank">💬 واتساب</a>
+
+<script>
+var USD_EGP = parseFloat(localStorage.getItem('ms_rate')||'50.85');
+var PRODUCTS = {"indoor":[{id:5,name:"كرسي فيلفيت أحمر",desc:"إطار أسود · مخمل أحمر كابيتوني",price:50,img:"images/p05-velvet-red.jpg"},{id:16,name:"كرسي كابوتشينو",desc:"إطار ذهبي · جلد صناعي سهل التنظيف",price:46,img:"images/p16-new-f.jpg"},{id:4,name:"كرسي ميداليون فضي",desc:"إطار فضي · مخمل رمادي",price:55,img:"images/p04-medallion-silver.jpg"},{id:8,name:"كرسي رابتشر أسود",desc:"إطار أسود · قماش رمادي مريح",price:40,img:"images/p08-wrap-black.jpg"},{id:9,name:"كرسي آرك ذهبي",desc:"إطار ذهبي قوس · كافيه ومطعم",price:48,img:"images/p09-arc-gold.jpg"},{id:1,name:"كرسي رويال ذهبي",desc:"إطار ذهبي · مخمل بيج",price:45,img:"images/p01-rose-gold-chair.jpg"},],"outdoor":[{id:8,name:"كرسي رابتشر أسود",desc:"إطار أسود · قماش · مناسب للخارج",price:40,img:"images/p08-wrap-black.jpg"},{id:14,name:"كرسي مينيمال أسود",desc:"إطار أسود · خفيف · خارجي",price:42,img:"images/p14-new-d.jpg"},{id:6,name:"كرسي بوكليه أسود",desc:"إطار أسود مات · بوكليه",price:42,img:"images/p06-boucle-black.jpg"},{id:16,name:"كرسي كابوتشينو",desc:"إطار ذهبي · جلد مقاوم للرطوبة",price:46,img:"images/p16-new-f.jpg"},],"vip":[{id:3,name:"كرسي برميل ذهبي",desc:"ذهبي دائري · مخمل · VIP مطعم",price:65,img:"images/p03-barrel-gold.jpg"},{id:13,name:"كرسي ذهبي بوسادة",desc:"إطار ذهبي · مخمل مع وسادة",price:62,img:"images/p13-new-c.jpg"},{id:15,name:"كرسي هوبي ذهبي",desc:"إطار ذهبي حلقي · فاخر",price:68,img:"images/p15-new-e.jpg"},{id:2,name:"كرسي لاونج ذهبي",desc:"إطار ذهبي · تنجيد كتاني · راقي",price:48,img:"images/p02-linen-armchair.jpg"},],};
+function renderGrid(key){
+  var egpR=USD_EGP;
+  return PRODUCTS[key].map(function(p){
+    var egp=Math.round(p.price*egpR).toLocaleString();
+    return '<a class="prod-card" href="product-'+p.id+'.html">'
+      +'<div class="prod-img"><img src="'+p.img+'" alt="'+p.name+'" loading="lazy" onerror="this.style.display=\'none\'"></div>'
+      +'<div class="prod-body">'
+      +'<div class="prod-name">'+p.name+'</div>'
+      +'<div class="prod-desc">'+p.desc+'</div>'
+      +'<div class="prod-price">$'+p.price+' <small>≈ '+egp+' ج.م</small></div>'
+      +'<button class="prod-cta">اطلب الآن</button>'
+      +'</div></a>';
+  }).join('');
+}
+["indoor","outdoor","vip"].forEach(function(k){document.getElementById('grid-'+k).innerHTML=renderGrid(k);});
+function showSub(key,btn){
+  document.querySelectorAll('.subsec-section').forEach(function(el){el.classList.remove('show')});
+  document.querySelectorAll('.subsec-btn').forEach(function(b){b.classList.remove('active')});
+  document.getElementById('sub-'+key).classList.add('show');
+  btn.classList.add('active');
+}
+fetch('https://api.exchangerate-api.com/v4/latest/USD').then(r=>r.json()).then(d=>{if(d.rates&&d.rates.EGP){USD_EGP=parseFloat(d.rates.EGP.toFixed(2));document.getElementById('rateVal').textContent=USD_EGP.toFixed(2);localStorage.setItem('ms_rate',USD_EGP);["indoor","outdoor","vip"].forEach(function(k){document.getElementById('grid-'+k).innerHTML=renderGrid(k);});}}).catch(()=>{});
+</script>
+</body>
+</html>

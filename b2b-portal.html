@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>بوابة التخادمات B2B — مصر ستيل</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+.b2b-hero{background:linear-gradient(135deg,#0a1a28,#1a2d3a,#00a650);color:#fff;padding:36px 20px;text-align:center}
+.b2b-hero h1{font-size:clamp(22px,4vw,38px);font-weight:800;margin-bottom:8px}
+.b2b-hero p{font-size:13px;color:rgba(255,255,255,.7);max-width:560px;margin:0 auto}
+.b2b-wrap{max-width:1100px;margin:28px auto;padding:0 20px}
+.b2b-tabs{display:flex;gap:0;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:24px}
+.b2b-tab{flex:1;padding:13px;background:#fafafa;border:none;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;font-family:inherit;border-right:1px solid var(--border);transition:all .2s}
+.b2b-tab:last-child{border-right:none}
+.b2b-tab.active{background:var(--orange);color:#fff}
+.b2b-panel{display:none}.b2b-panel.show{display:block}
+.b2b-card{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:24px;margin-bottom:16px}
+.b2b-card h3{font-size:15px;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.type-card{border:2px solid var(--border);border-radius:8px;padding:16px;text-align:center;cursor:pointer;transition:all .2s}
+.type-card:hover,.type-card.selected{border-color:var(--orange);background:var(--orange-lt)}
+.type-icon{font-size:28px;margin-bottom:8px}
+.type-name{font-size:13px;font-weight:700;margin-bottom:4px}
+.type-desc{font-size:10px;color:var(--muted);line-height:1.5}
+.inquiry-table{width:100%;border-collapse:collapse;font-size:13px}
+.inquiry-table th{background:var(--black);color:#fff;padding:10px 14px;text-align:right;font-weight:700;font-size:12px}
+.inquiry-table td{padding:10px 14px;border-bottom:1px solid var(--border)}
+.inquiry-table tr:hover td{background:#fafafa}
+.status-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700}
+.sb-pending{background:#fff3eb;color:var(--orange-dk)}
+.sb-active{background:#e8f5ec;color:var(--green)}
+.sb-done{background:#f0f0f0;color:var(--muted)}
+.contract-list{display:flex;flex-direction:column;gap:12px}
+.contract-item{display:flex;align-items:center;gap:14px;padding:16px;background:var(--white);border:1px solid var(--border);border-radius:8px;transition:all .2s}
+.contract-item:hover{border-color:var(--orange)}
+.ci-icon{font-size:28px;flex-shrink:0}
+.ci-info{flex:1}
+.ci-name{font-size:14px;font-weight:700;margin-bottom:3px}
+.ci-desc{font-size:11px;color:var(--muted);line-height:1.5}
+.ci-actions{display:flex;gap:8px}
+.btn-ci{padding:8px 16px;border:none;border-radius:4px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .2s}
+.btn-ci.dl{background:var(--orange);color:#fff}
+.btn-ci.dl:hover{background:var(--orange-dk)}
+.btn-ci.sign{background:var(--green);color:#fff}
+.btn-ci.sign:hover{background:#007a30}
+.sign-modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+.sign-modal.open{display:flex}
+.sign-box{background:var(--white);width:100%;max-width:480px;border-radius:8px;overflow:hidden}
+.sign-head{background:var(--black);padding:16px 20px;display:flex;justify-content:space-between;align-items:center}
+.sign-head h3{color:#fff;font-size:14px;font-weight:700}
+.sign-x{background:none;border:none;color:rgba(255,255,255,.5);font-size:22px;cursor:pointer}
+.sign-body{padding:20px}
+.sign-canvas-wrap{border:2px dashed var(--border);border-radius:6px;height:120px;margin-bottom:14px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px;cursor:crosshair;background:#fafafa}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:8px">سعر الدولار: <div class="rate-badge"><span class="rate-display">50.85</span> ج.م</div></div>
+  <div class="topbar-links"><a href="tel:+201050595250">📞 +201050595250</a><a href="https://wa.me/201050595250" target="_blank">💬 واتساب</a></div>
+</div>
+<nav class="main-nav"><div class="nav-inner">
+  <a class="nav-logo" href="index.html"><div class="logo-main">مصر ستيل</div><div class="logo-sub">أثاث استانلس فاخر</div></a>
+  <div class="nav-actions">
+    <button class="nav-btn" onclick="window.location='index.html'">← الرئيسية</button>
+    <button class="nav-btn primary" onclick="window.location='marketplace.html'">🛒 المتجر</button>
+  </div>
+</div></nav>
+
+<div class="b2b-hero">
+  <h1>🤝 بوابة التخادمات B2B</h1>
+  <p>منصة خاصة للموردين والمستوردين والشركاء — إدارة العقود والطلبات والتوريد</p>
+</div>
+
+<div class="b2b-wrap">
+  <div class="b2b-tabs">
+    <button class="b2b-tab active" onclick="switchB2B('inquiry',this)">📋 طلب عرض سعر</button>
+    <button class="b2b-tab" onclick="switchB2B('contracts',this)">📄 العقود</button>
+    <button class="b2b-tab" onclick="switchB2B('orders',this)">📦 متابعة الطلبات</button>
+    <button class="b2b-tab" onclick="switchB2B('register',this)">✅ تسجيل شريك</button>
+  </div>
+
+  <!-- INQUIRY -->
+  <div class="b2b-panel show" id="panel-inquiry">
+    <div class="b2b-card">
+      <h3>📋 طلب عرض سعر جديد</h3>
+      <div class="type-grid">
+        <div class="type-card selected" onclick="selectType(this,'importer')">
+          <div class="type-icon">🌍</div><div class="type-name">مستورد</div>
+          <div class="type-desc">تستورد أثاثنا لتوزيعه في دولتك</div>
+        </div>
+        <div class="type-card" onclick="selectType(this,'hotel')">
+          <div class="type-icon">🏨</div><div class="type-name">فندق / مطعم</div>
+          <div class="type-desc">تحتاج أثاثاً لمشروعك</div>
+        </div>
+        <div class="type-card" onclick="selectType(this,'contractor')">
+          <div class="type-icon">🏗️</div><div class="type-name">مقاول / ديكور</div>
+          <div class="type-desc">تنفذ مشاريع لعملاء</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+        <div class="form-group"><label>اسمك / الشركة</label><input type="text" placeholder="Ahmed / Company Ltd"></div>
+        <div class="form-group"><label>الدولة</label>
+          <select><option>🇪🇬 مصر</option><option>🇦🇪 الإمارات</option><option>🇸🇦 السعودية</option><option>🇮🇶 العراق</option><option>🌍 أخرى</option></select>
+        </div>
+        <div class="form-group"><label>واتساب</label><input type="tel" placeholder="+20 ..."></div>
+        <div class="form-group"><label>الكمية المطلوبة</label><input type="number" placeholder="50 قطعة فأكثر"></div>
+      </div>
+      <div class="form-group"><label>المنتجات المطلوبة</label>
+        <textarea rows="3" placeholder="مثال: 100 كرسي رويال ذهبي + 50 كرسي ميداليون فضي + 20 ترابيزة..."></textarea>
+      </div>
+      <div class="form-group"><label>ملاحظات خاصة</label>
+        <textarea rows="2" placeholder="ألوان مخصوصة؟ مواصفات خاصة؟ موعد التسليم المطلوب؟"></textarea>
+      </div>
+      <button onclick="submitInquiry()" style="width:100%;padding:13px;background:var(--orange);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:800;cursor:pointer">📋 إرسال طلب عرض السعر</button>
+    </div>
+  </div>
+
+  <!-- CONTRACTS -->
+  <div class="b2b-panel" id="panel-contracts">
+    <div class="b2b-card">
+      <h3>📄 العقود الجاهزة للتحميل والتوقيع</h3>
+      <div class="contract-list">
+        <div class="contract-item">
+          <div class="ci-icon">🤝</div>
+          <div class="ci-info">
+            <div class="ci-name">عقد بيع المنتجات</div>
+            <div class="ci-desc">عقد شامل بين مصر ستيل والعميل — شروط الدفع والتسليم والضمان</div>
+          </div>
+          <div class="ci-actions">
+            <button class="btn-ci dl" onclick="downloadContract('sales')">⬇️ تحميل</button>
+            <button class="btn-ci sign" onclick="openSign('sales')">✍️ توقيع</button>
+          </div>
+        </div>
+        <div class="contract-item">
+          <div class="ci-icon">🌍</div>
+          <div class="ci-info">
+            <div class="ci-name">عقد توزيع حصري</div>
+            <div class="ci-desc">لمن يريد التوزيع الحصري في دولته — الحقوق والالتزامات</div>
+          </div>
+          <div class="ci-actions">
+            <button class="btn-ci dl" onclick="downloadContract('dist')">⬇️ تحميل</button>
+            <button class="btn-ci sign" onclick="openSign('dist')">✍️ توقيع</button>
+          </div>
+        </div>
+        <div class="contract-item">
+          <div class="ci-icon">🤝</div>
+          <div class="ci-info">
+            <div class="ci-name">عقد شراكة مسوّق</div>
+            <div class="ci-desc">لمن يريد التسويق بالعمولة — نسب العمولة وشروط الصرف</div>
+          </div>
+          <div class="ci-actions">
+            <button class="btn-ci dl" onclick="downloadContract('affiliate')">⬇️ تحميل</button>
+            <button class="btn-ci sign" onclick="openSign('affiliate')">✍️ توقيع</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ORDERS -->
+  <div class="b2b-panel" id="panel-orders">
+    <div class="b2b-card">
+      <h3>📦 متابعة طلباتي</h3>
+      <div style="margin-bottom:14px;display:flex;gap:10px">
+        <input type="text" placeholder="ابحث برقم الأوردر..." style="flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit;outline:none">
+        <button style="padding:10px 18px;background:var(--orange);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">بحث</button>
+      </div>
+      <table class="inquiry-table">
+        <tr><th>رقم الأوردر</th><th>المنتجات</th><th>الكمية</th><th>الإجمالي</th><th>الحالة</th><th>التاريخ</th></tr>
+        <tr><td>MS-2025-001</td><td>كرسي رويال ذهبي</td><td>100 قطعة</td><td>$4,500</td><td><span class="status-badge sb-active">في التصنيع</span></td><td>15 يناير 2025</td></tr>
+        <tr><td>MS-2025-002</td><td>كرسي ميداليون فضي</td><td>50 قطعة</td><td>$2,750</td><td><span class="status-badge sb-pending">مراجعة</span></td><td>18 يناير 2025</td></tr>
+        <tr><td>MS-2024-089</td><td>كرسي فيلفيت أحمر</td><td>200 قطعة</td><td>$9,000</td><td><span class="status-badge sb-done">مكتمل ✅</span></td><td>5 ديسمبر 2024</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- REGISTER -->
+  <div class="b2b-panel" id="panel-register">
+    <div class="b2b-card">
+      <h3>✅ تسجيل شريك B2B</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label>اسم الشركة</label><input type="text" placeholder="Company Ltd"></div>
+        <div class="form-group"><label>نوع النشاط</label>
+          <select><option>مستورد</option><option>موزع</option><option>فندق/مطعم</option><option>مقاول ديكور</option><option>وسيط</option></select>
+        </div>
+        <div class="form-group"><label>الدولة</label>
+          <select><option>🇪🇬 مصر</option><option>🇦🇪 الإمارات</option><option>🇸🇦 السعودية</option><option>🇮🇶 العراق</option><option>🌍 أخرى</option></select>
+        </div>
+        <div class="form-group"><label>السجل التجاري / رقم الضريبة</label><input type="text" placeholder="اختياري"></div>
+        <div class="form-group"><label>واتساب</label><input type="tel" placeholder="+20 ..."></div>
+        <div class="form-group"><label>الإيميل</label><input type="email" placeholder="info@company.com"></div>
+        <div class="form-group"><label>حجم الطلبات المتوقعة شهرياً</label>
+          <select><option>أقل من $5,000</option><option>$5,000–$20,000</option><option>$20,000–$50,000</option><option>أكثر من $50,000</option></select>
+        </div>
+        <div class="form-group"><label>الموقع الإلكتروني</label><input type="url" placeholder="https://company.com (اختياري)"></div>
+      </div>
+      <button onclick="submitB2B()" style="width:100%;padding:13px;background:var(--green);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:800;cursor:pointer;margin-top:8px">✅ إرسال طلب الشراكة</button>
+    </div>
+  </div>
+</div>
+
+<!-- SIGN MODAL -->
+<div class="sign-modal" id="signModal">
+  <div class="sign-box">
+    <div class="sign-head"><h3>✍️ توقيع العقد الإلكتروني</h3><button class="sign-x" onclick="closeSign()">✕</button></div>
+    <div class="sign-body">
+      <div class="form-group"><label>اسمك الكامل</label><input type="text" placeholder="Ahmed Mohamed" id="signerName"></div>
+      <div class="form-group"><label>وظيفتك / صفتك</label><input type="text" placeholder="مدير التوريد / Procurement Manager"></div>
+      <div style="margin-bottom:14px">
+        <label style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.06em;display:block;margin-bottom:6px">التوقيع الإلكتروني</label>
+        <div class="sign-canvas-wrap" id="signCanvas">✍️ انقر وارسم توقيعك هنا</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button onclick="closeSign()" style="flex:1;padding:11px;background:#f5f5f5;border:1.5px solid var(--border);border-radius:4px;font-size:13px;font-weight:700;cursor:pointer">إلغاء</button>
+        <button onclick="submitSign()" style="flex:2;padding:11px;background:var(--green);color:#fff;border:none;border-radius:4px;font-size:13px;font-weight:800;cursor:pointer">✅ تأكيد التوقيع وإرسال</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer-main"><div class="footer-grid">
+  <div><div class="footer-brand-name">مصر ستيل</div><p class="footer-desc">منصة التخادمات B2B.</p></div>
+  <div class="footer-col"><h4>الروابط</h4><a href="marketplace.html">🛒 المتجر</a><a href="contracts.html">📄 العقود</a><a href="shipping.html">🚢 الشحن</a></div>
+  <div class="footer-col"><h4>تواصل</h4><a href="tel:+201050595250">📞 +201050595250</a><a href="https://wa.me/201050595250">💬 واتساب</a></div>
+</div><div class="footer-bottom"><span>© 2025 مصر ستيل</span></div></footer>
+<a class="wa-fab" href="https://wa.me/201050595250" target="_blank">💬 واتساب</a>
+<script src="shared.js"></script>
+<script>
+function switchB2B(key, btn){
+  document.querySelectorAll('.b2b-tab').forEach(function(b){b.classList.remove('active')});
+  document.querySelectorAll('.b2b-panel').forEach(function(p){p.classList.remove('show')});
+  btn.classList.add('active');
+  document.getElementById('panel-'+key).classList.add('show');
+}
+function selectType(el, type){
+  document.querySelectorAll('.type-card').forEach(function(c){c.classList.remove('selected')});
+  el.classList.add('selected');
+}
+function submitInquiry(){
+  showToast('✅ تم إرسال طلبك — سنتواصل معاك خلال 24 ساعة','success');
+}
+function submitB2B(){
+  showToast('✅ تم إرسال طلب الشراكة — سنراجعه ونتواصل معاك','success');
+}
+function downloadContract(type){
+  var files = {sales:'misrsteel_sales_contract.docx',affiliate:'misrsteel_affiliate_contract.docx',dist:'misrsteel_sales_contract.docx'};
+  var a = document.createElement('a');a.href=files[type];a.download=files[type];a.click();
+}
+function openSign(type){document.getElementById('signModal').classList.add('open');}
+function closeSign(){document.getElementById('signModal').classList.remove('open');}
+function submitSign(){
+  var name=document.getElementById('signerName').value.trim();
+  if(!name){alert('أدخل اسمك أولاً');return;}
+  closeSign();
+  showToast('✅ تم التوقيع بنجاح — ستصلك نسخة على إيميلك','success');
+}
+function showToast(msg,type){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast '+(type||'');t.classList.add('show');
+  clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},3000);
+}
+</script>
+</body>
+</html>
