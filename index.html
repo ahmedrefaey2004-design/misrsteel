@@ -244,7 +244,7 @@ button{cursor:pointer;font-family:inherit}
 
 <script>
 // ══ CONFIG ══
-var BACKEND = 'https://misrsteel-backend.vercel.app';
+var BACKEND = (localStorage.getItem('ms_api_base') || 'https://misrsteel-backend.vercel.app').replace(/\/$/, '');
 var USD_EGP = parseFloat(localStorage.getItem('ms_rate') || '50.85');
 var slideIdx = 0, slideCount = 4, slideAuto;
 var sectionLabels = {home:'🏠 منزل', hall:'🎪 قاعة', museum:'🏛️ لوبي', restaurant:'🍽️ مطعم'};
@@ -265,9 +265,7 @@ document.querySelector('.hero-slider').addEventListener('mouseleave',function(){
 // ══ LOAD PRODUCTS FROM MONGODB ══
 async function loadProducts() {
   try {
-    var r = await fetch(BACKEND + '/api/products');
-    var d = await r.json();
-    var prods = d.products || [];
+    var prods = await fetchPublicProducts();
 
     // Get live rate
     try {
@@ -283,11 +281,23 @@ async function loadProducts() {
   }
 }
 
+async function fetchPublicProducts() {
+  try {
+    var r = await fetch(BACKEND + '/api/products');
+    var d = await r.json();
+    if (Array.isArray(d.products) && d.products.length) return d.products;
+  } catch(e) {}
+
+  var s = await fetch(BACKEND + '/api/site-config');
+  var sd = await s.json();
+  return sd && sd.config && Array.isArray(sd.config.products) ? sd.config.products : [];
+}
+
 function renderProducts(prods) {
   if (!prods.length) { document.getElementById('bestGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:32px;color:#888">لا توجد منتجات بعد</div>'; return; }
 
-  // Show top 10
-  var top = prods.slice(0, 10);
+  // Show latest 10 (newly added products first)
+  var top = prods.slice().reverse().slice(0, 10);
   var html = top.map(function(p) {
     var badge = p.badge && badgeClass[p.badge] ? '<div class="prod-card-badge '+badgeClass[p.badge]+'">'+(p.badge==='hot'?'الأكثر طلباً':'جديد')+'</div>' : '';
     var img = p.imgs && p.imgs[0] ? p.imgs[0] : 'images/p01-rose-gold-chair.jpg';
