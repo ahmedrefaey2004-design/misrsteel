@@ -51,8 +51,9 @@
       <!-- LOGIN -->
       <div class="login-panel show" id="panelLogin">
         <form onsubmit="doLogin(event)">
-          <div class="lf"><label>الإيميل أو رقم الواتساب</label><input type="text" placeholder="ahmed@company.com" required></div>
-          <div class="lf"><label>كلمة المرور</label><input type="password" placeholder="••••••••" required></div>
+          <div class="lf"><label>الإيميل أو رقم الواتساب</label><input type="text" id="loginId" placeholder="ahmed@company.com" required></div>
+          <div class="lf"><label>كلمة المرور</label><input type="password" id="loginPass" placeholder="••••••••" required></div>
+          <div class="lf"><label>نوع الحساب</label><select id="loginRole"><option value="user">👤 مستخدم</option><option value="affiliate">🤝 مسوّق</option><option value="admin">🛠️ أدمن</option></select></div>
           <button type="submit" class="login-btn">دخول</button>
         </form>
         <div class="divider">أو</div>
@@ -103,6 +104,14 @@
 </div>
 
 <script>
+var BACKEND = (localStorage.getItem('ms_api_base') || 'https://misrsteel-backend.vercel.app').replace(/\/$/, '');
+try{
+  var hasNext = new URLSearchParams(location.search).has('next');
+  if(!hasNext && !localStorage.getItem('ms_after_login') && document.referrer){
+    var u = new URL(document.referrer);
+    if (u.origin === location.origin) localStorage.setItem('ms_after_login', u.pathname.split('/').pop() || 'index.html');
+  }
+}catch(e){}
 function switchTab(tab, btn){
   document.querySelectorAll('.ltab').forEach(function(b){b.classList.remove('active')});
   document.querySelectorAll('.login-panel').forEach(function(p){p.classList.remove('show')});
@@ -112,12 +121,42 @@ function switchTab(tab, btn){
 }
 function doLogin(e){
   e.preventDefault();
-  document.querySelector('#panelLogin form').style.display='none';
-  document.querySelector('#panelLogin .divider').style.display='none';
-  document.querySelector('#panelLogin .btn-wa-login').style.display='none';
-  document.querySelector('#panelLogin .login-note').style.display='none';
-  document.getElementById('loginOk').style.display='block';
-  setTimeout(function(){window.location='index.html'},1500);
+  var loginId = (document.getElementById('loginId').value||'').trim();
+  var pass = (document.getElementById('loginPass').value||'').trim();
+  var role = document.getElementById('loginRole').value;
+  if (!loginId || !pass) return;
+
+  var finishLogin = function(sessionRole){
+    var session = {
+      role: sessionRole,
+      id: loginId,
+      loginAt: new Date().toISOString()
+    };
+    localStorage.setItem('ms_session', JSON.stringify(session));
+    if (sessionRole === 'admin') localStorage.setItem('ms_admin_token', pass);
+    document.querySelector('#panelLogin form').style.display='none';
+    document.querySelector('#panelLogin .divider').style.display='none';
+    document.querySelector('#panelLogin .btn-wa-login').style.display='none';
+    document.querySelector('#panelLogin .login-note').style.display='none';
+    document.getElementById('loginOk').style.display='block';
+    var next = new URLSearchParams(location.search).get('next') || localStorage.getItem('ms_after_login') || 'index.html';
+    localStorage.removeItem('ms_after_login');
+    var target = sessionRole === 'admin' ? 'admin-dashboard.html' : (sessionRole === 'affiliate' ? 'affiliate-dashboard.html' : next);
+    setTimeout(function(){window.location = target;},1200);
+  };
+
+  if (role === 'user') return finishLogin('user');
+  if (role === 'affiliate') return finishLogin('affiliate');
+
+  fetch(BACKEND + '/api/admin/users', { headers: { 'x-admin-token': pass } })
+    .then(function(res){
+      if (!res.ok) throw new Error('bad_admin_token');
+      return res.json();
+    })
+    .then(function(){ finishLogin('admin'); })
+    .catch(function(){
+      alert('بيانات الأدمن غير صحيحة');
+    });
 }
 function doRegister(e){
   e.preventDefault();

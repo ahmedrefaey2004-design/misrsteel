@@ -78,7 +78,15 @@
   </div>
 
   <script>
-    function getApiBase(){ return document.getElementById('apiBase').value.replace(/\/$/, ''); }
+    (function initApiBase(){
+      var saved = localStorage.getItem('ms_api_base');
+      if (saved) document.getElementById('apiBase').value = saved;
+    })();
+    function getApiBase(){
+      var base = document.getElementById('apiBase').value.replace(/\/$/, '');
+      localStorage.setItem('ms_api_base', base);
+      return base;
+    }
     function getHeaders(){
       return {
         'Content-Type':'application/json',
