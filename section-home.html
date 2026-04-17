@@ -172,24 +172,16 @@ async function syncDynamicProducts(){
     var remote = await fetchPublicProducts();
     remote = remote.filter(function(p){ return p && p.section === 'home'; });
     if (!remote.length) return;
-    var buckets = {};
-    SECTION_KEYS.forEach(function(k){ buckets[k] = []; });
-    var chooseKey = function(p){
-      var raw = (p.subsection || p.subSection || p.category || p.group || '').toString().trim().toLowerCase();
-      if (raw && SECTION_KEYS.indexOf(raw) !== -1) return raw;
-      return SECTION_KEYS[0];
-    };
-    remote.forEach(function(p){
-      var key = chooseKey(p);
-      buckets[key].push({
+    var mapped = remote.map(function(p){
+      return {
         id: p.id || '',
         name: p.nameAr || p.nameEn || 'منتج',
         desc: p.desc || p.description || '',
         price: Number(p.price) || 0,
         img: resolveProductImage(firstProductImage(p))
-      });
+      };
     });
-    SECTION_KEYS.forEach(function(k){ if (buckets[k].length) PRODUCTS[k] = buckets[k]; });
+    SECTION_KEYS.forEach(function(k){ PRODUCTS[k] = mapped.slice(); });
     SECTION_KEYS.forEach(function(k){ document.getElementById('grid-'+k).innerHTML = renderGrid(k); });
   }catch(e){}
 }
