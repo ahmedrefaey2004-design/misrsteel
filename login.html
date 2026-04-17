@@ -51,8 +51,8 @@
       <!-- LOGIN -->
       <div class="login-panel show" id="panelLogin">
         <form onsubmit="doLogin(event)">
-          <div class="lf"><label>الإيميل أو رقم الواتساب</label><input type="text" placeholder="ahmed@company.com" required></div>
-          <div class="lf"><label>كلمة المرور</label><input type="password" placeholder="••••••••" required></div>
+          <div class="lf"><label>الإيميل أو رقم الواتساب</label><input type="text" id="loginId" placeholder="ahmed@company.com" required></div>
+          <div class="lf"><label>كلمة المرور</label><input type="password" id="loginPass" placeholder="••••••••" required></div>
           <button type="submit" class="login-btn">دخول</button>
         </form>
         <div class="divider">أو</div>
@@ -103,6 +103,13 @@
 </div>
 
 <script>
+try{
+  var hasNext = new URLSearchParams(location.search).has('next');
+  if(!hasNext && !localStorage.getItem('ms_after_login') && document.referrer){
+    var u = new URL(document.referrer);
+    if (u.origin === location.origin) localStorage.setItem('ms_after_login', u.pathname.split('/').pop() || 'index.html');
+  }
+}catch(e){}
 function switchTab(tab, btn){
   document.querySelectorAll('.ltab').forEach(function(b){b.classList.remove('active')});
   document.querySelectorAll('.login-panel').forEach(function(p){p.classList.remove('show')});
@@ -112,12 +119,25 @@ function switchTab(tab, btn){
 }
 function doLogin(e){
   e.preventDefault();
+  var loginId = (document.getElementById('loginId').value||'').trim();
+  var pass = (document.getElementById('loginPass').value||'').trim();
+  var adminToken = localStorage.getItem('ms_admin_token') || 'misrsteel_admin_2025';
+  var isAdmin = /admin/i.test(loginId) || pass === adminToken;
+  var session = {
+    role: isAdmin ? 'admin' : 'user',
+    id: loginId || (isAdmin ? 'admin' : 'user'),
+    loginAt: new Date().toISOString()
+  };
+  localStorage.setItem('ms_session', JSON.stringify(session));
+
   document.querySelector('#panelLogin form').style.display='none';
   document.querySelector('#panelLogin .divider').style.display='none';
   document.querySelector('#panelLogin .btn-wa-login').style.display='none';
   document.querySelector('#panelLogin .login-note').style.display='none';
   document.getElementById('loginOk').style.display='block';
-  setTimeout(function(){window.location='index.html'},1500);
+  var next = new URLSearchParams(location.search).get('next') || localStorage.getItem('ms_after_login') || 'index.html';
+  localStorage.removeItem('ms_after_login');
+  setTimeout(function(){window.location = isAdmin ? 'index.html' : next;},1200);
 }
 function doRegister(e){
   e.preventDefault();

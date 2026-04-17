@@ -63,7 +63,13 @@
 
 <script>
 var USD_EGP = parseFloat(localStorage.getItem('ms_rate')||'50.85');
+var BACKEND = (localStorage.getItem('ms_api_base') || 'https://misrsteel-backend.vercel.app').replace(/\/$/, '');
+var SECTION_KEYS = ["indoor","outdoor","vip"];
 var PRODUCTS = {"indoor":[{id:5,name:"كرسي فيلفيت أحمر",desc:"إطار أسود · مخمل أحمر كابيتوني",price:50,img:"images/p05-velvet-red.jpg"},{id:16,name:"كرسي كابوتشينو",desc:"إطار ذهبي · جلد صناعي سهل التنظيف",price:46,img:"images/p16-new-f.jpg"},{id:4,name:"كرسي ميداليون فضي",desc:"إطار فضي · مخمل رمادي",price:55,img:"images/p04-medallion-silver.jpg"},{id:8,name:"كرسي رابتشر أسود",desc:"إطار أسود · قماش رمادي مريح",price:40,img:"images/p08-wrap-black.jpg"},{id:9,name:"كرسي آرك ذهبي",desc:"إطار ذهبي قوس · كافيه ومطعم",price:48,img:"images/p09-arc-gold.jpg"},{id:1,name:"كرسي رويال ذهبي",desc:"إطار ذهبي · مخمل بيج",price:45,img:"images/p01-rose-gold-chair.jpg"},],"outdoor":[{id:8,name:"كرسي رابتشر أسود",desc:"إطار أسود · قماش · مناسب للخارج",price:40,img:"images/p08-wrap-black.jpg"},{id:14,name:"كرسي مينيمال أسود",desc:"إطار أسود · خفيف · خارجي",price:42,img:"images/p14-new-d.jpg"},{id:6,name:"كرسي بوكليه أسود",desc:"إطار أسود مات · بوكليه",price:42,img:"images/p06-boucle-black.jpg"},{id:16,name:"كرسي كابوتشينو",desc:"إطار ذهبي · جلد مقاوم للرطوبة",price:46,img:"images/p16-new-f.jpg"},],"vip":[{id:3,name:"كرسي برميل ذهبي",desc:"ذهبي دائري · مخمل · VIP مطعم",price:65,img:"images/p03-barrel-gold.jpg"},{id:13,name:"كرسي ذهبي بوسادة",desc:"إطار ذهبي · مخمل مع وسادة",price:62,img:"images/p13-new-c.jpg"},{id:15,name:"كرسي هوبي ذهبي",desc:"إطار ذهبي حلقي · فاخر",price:68,img:"images/p15-new-e.jpg"},{id:2,name:"كرسي لاونج ذهبي",desc:"إطار ذهبي · تنجيد كتاني · راقي",price:48,img:"images/p02-linen-armchair.jpg"},],};
+function resolveProductImage(img){if(!img)return'images/p01-rose-gold-chair.jpg';if(img.startsWith('http')||img.startsWith('data:')||img.startsWith('blob:'))return img;var clean=img.replace(/^\.?\//,'');if(clean.startsWith('images/'))return 'https://misrsteel.vercel.app/'+clean;return BACKEND+'/'+clean;}
+function firstProductImage(p){if(p&&Array.isArray(p.imgs)&&p.imgs[0])return p.imgs[0];if(p&&typeof p.img==='string'&&p.img.trim())return p.img;if(p&&typeof p.image==='string'&&p.image.trim())return p.image;return 'images/p01-rose-gold-chair.jpg';}
+async function fetchPublicProducts(){try{var r=await fetch(BACKEND+'/api/products');var d=await r.json();if(Array.isArray(d.products)&&d.products.length)return d.products;}catch(e){}try{var s=await fetch(BACKEND+'/api/site-config');var sd=await s.json();return sd&&sd.config&&Array.isArray(sd.config.products)?sd.config.products:[];}catch(e){return [];}}
+async function syncDynamicProducts(){try{var remote=await fetchPublicProducts();remote=remote.filter(function(p){return p&&p.section==='restaurant';});if(!remote.length)return;var mapped=remote.map(function(p){return{id:p.id||'',name:p.nameAr||p.nameEn||'منتج',desc:p.desc||p.description||'',price:Number(p.price)||0,img:resolveProductImage(firstProductImage(p))};});SECTION_KEYS.forEach(function(k){PRODUCTS[k]=mapped.slice();});SECTION_KEYS.forEach(function(k){document.getElementById('grid-'+k).innerHTML=renderGrid(k);});}catch(e){}}
 function renderGrid(key){
   var egpR=USD_EGP;
   return PRODUCTS[key].map(function(p){
@@ -78,14 +84,15 @@ function renderGrid(key){
       +'</div></a>';
   }).join('');
 }
-["indoor","outdoor","vip"].forEach(function(k){document.getElementById('grid-'+k).innerHTML=renderGrid(k);});
+SECTION_KEYS.forEach(function(k){document.getElementById('grid-'+k).innerHTML=renderGrid(k);});
 function showSub(key,btn){
   document.querySelectorAll('.subsec-section').forEach(function(el){el.classList.remove('show')});
   document.querySelectorAll('.subsec-btn').forEach(function(b){b.classList.remove('active')});
   document.getElementById('sub-'+key).classList.add('show');
   btn.classList.add('active');
 }
-fetch('https://api.exchangerate-api.com/v4/latest/USD').then(r=>r.json()).then(d=>{if(d.rates&&d.rates.EGP){USD_EGP=parseFloat(d.rates.EGP.toFixed(2));document.getElementById('rateVal').textContent=USD_EGP.toFixed(2);localStorage.setItem('ms_rate',USD_EGP);["indoor","outdoor","vip"].forEach(function(k){document.getElementById('grid-'+k).innerHTML=renderGrid(k);});}}).catch(()=>{});
+fetch('https://api.exchangerate-api.com/v4/latest/USD').then(r=>r.json()).then(d=>{if(d.rates&&d.rates.EGP){USD_EGP=parseFloat(d.rates.EGP.toFixed(2));document.getElementById('rateVal').textContent=USD_EGP.toFixed(2);localStorage.setItem('ms_rate',USD_EGP);SECTION_KEYS.forEach(function(k){document.getElementById('grid-'+k).innerHTML=renderGrid(k);});}}).catch(()=>{});
+syncDynamicProducts();
 </script>
 </body>
 </html>
