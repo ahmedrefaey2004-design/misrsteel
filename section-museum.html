@@ -63,12 +63,18 @@
 
 <script>
 var USD_EGP = parseFloat(localStorage.getItem('ms_rate')||'50.85');
+var BACKEND = (localStorage.getItem('ms_api_base') || 'https://misrsteel-backend.vercel.app').replace(/\/$/, '');
+var SECTION_KEYS = ["reception","exhibition","cafe"];
 var PRODUCTS = {"reception":[{id:9,name:"كرسي آرك ذهبي",desc:"إطار ذهبي قوس · رمادي · استقبال",price:48,img:"images/p09-arc-gold.jpg"},{id:2,name:"كرسي لاونج ذهبي",desc:"إطار ذهبي · تنجيد كتاني · انتظار",price:48,img:"images/p02-linen-armchair.jpg"},{id:10,name:"كرسي تافتد بيج",desc:"إطار أسود · كيلتد بيج · استقبال",price:44,img:"images/p10-tufted-beige.jpg"},{id:11,name:"كرسي لاونج دائري",desc:"استانلس دائري · مخمل · لوبي",price:55,img:"images/p11-new-a.jpg"},],"exhibition":[{id:8,name:"كرسي رابتشر أسود",desc:"إطار أسود · قماش · مريح للجلوس الطويل",price:40,img:"images/p08-wrap-black.jpg"},{id:14,name:"كرسي مينيمال أسود",desc:"إطار أسود نحيف · عصري · خفيف",price:42,img:"images/p14-new-d.jpg"},{id:6,name:"كرسي بوكليه أسود",desc:"إطار أسود · بوكليه · صالات عرض",price:42,img:"images/p06-boucle-black.jpg"},],"cafe":[{id:16,name:"كرسي كابوتشينو",desc:"إطار ذهبي · جلد صناعي سهل التنظيف",price:46,img:"images/p16-new-f.jpg"},{id:9,name:"كرسي آرك ذهبي",desc:"إطار ذهبي قوس · رمادي · كافيه",price:48,img:"images/p09-arc-gold.jpg"},{id:6,name:"كرسي بوكليه أسود",desc:"إطار أسود · بوكليه · كافيه عصري",price:42,img:"images/p06-boucle-black.jpg"},{id:1,name:"كرسي رويال ذهبي",desc:"إطار ذهبي · مخمل · كافيه فاخر",price:45,img:"images/p01-rose-gold-chair.jpg"},],};
+function resolveProductImage(img){if(!img)return'images/p01-rose-gold-chair.jpg';if(img.startsWith('http')||img.startsWith('data:')||img.startsWith('blob:'))return img;var clean=img.replace(/^\.?\//,'');if(clean.startsWith('images/'))return 'https://misrsteel.vercel.app/'+clean;return BACKEND+'/'+clean;}
+function firstProductImage(p){if(p&&Array.isArray(p.imgs)&&p.imgs[0])return p.imgs[0];if(p&&typeof p.img==='string'&&p.img.trim())return p.img;if(p&&typeof p.image==='string'&&p.image.trim())return p.image;return 'images/p01-rose-gold-chair.jpg';}
+async function fetchPublicProducts(){try{var r=await fetch(BACKEND+'/api/products');var d=await r.json();if(Array.isArray(d.products)&&d.products.length)return d.products;}catch(e){}try{var s=await fetch(BACKEND+'/api/site-config');var sd=await s.json();return sd&&sd.config&&Array.isArray(sd.config.products)?sd.config.products:[];}catch(e){return [];}}
+async function syncDynamicProducts(){try{var remote=await fetchPublicProducts();remote=remote.filter(function(p){return p&&p.section==='museum';});if(!remote.length)return;var buckets={};SECTION_KEYS.forEach(function(k){buckets[k]=[]});var chooseKey=function(p){var raw=(p.subsection||p.subSection||p.category||p.group||'').toString().trim().toLowerCase();if(raw&&SECTION_KEYS.indexOf(raw)!==-1)return raw;return SECTION_KEYS[0];};remote.forEach(function(p){var key=chooseKey(p);buckets[key].push({id:p.id||'',name:p.nameAr||p.nameEn||'منتج',desc:p.desc||p.description||'',price:Number(p.price)||0,img:resolveProductImage(firstProductImage(p))});});SECTION_KEYS.forEach(function(k){if(buckets[k].length)PRODUCTS[k]=buckets[k];});SECTION_KEYS.forEach(function(k){document.getElementById('grid-'+k).innerHTML=renderGrid(k);});}catch(e){}}
 function renderGrid(key){
   var egpR=USD_EGP;
   return PRODUCTS[key].map(function(p){
     var egp=Math.round(p.price*egpR).toLocaleString();
-    return '<a class="prod-card" href="product-'+p.id+'.html">'
+    return '<a class="prod-card" href="marketplace.html?id='+encodeURIComponent(p.id)+'">'
       +'<div class="prod-img"><img src="'+p.img+'" alt="'+p.name+'" loading="lazy" onerror="this.style.display=\'none\'"></div>'
       +'<div class="prod-body">'
       +'<div class="prod-name">'+p.name+'</div>'
@@ -78,14 +84,15 @@ function renderGrid(key){
       +'</div></a>';
   }).join('');
 }
-["reception","exhibition","cafe"].forEach(function(k){document.getElementById('grid-'+k).innerHTML=renderGrid(k);});
+SECTION_KEYS.forEach(function(k){document.getElementById('grid-'+k).innerHTML=renderGrid(k);});
 function showSub(key,btn){
   document.querySelectorAll('.subsec-section').forEach(function(el){el.classList.remove('show')});
   document.querySelectorAll('.subsec-btn').forEach(function(b){b.classList.remove('active')});
   document.getElementById('sub-'+key).classList.add('show');
   btn.classList.add('active');
 }
-fetch('https://api.exchangerate-api.com/v4/latest/USD').then(r=>r.json()).then(d=>{if(d.rates&&d.rates.EGP){USD_EGP=parseFloat(d.rates.EGP.toFixed(2));document.getElementById('rateVal').textContent=USD_EGP.toFixed(2);localStorage.setItem('ms_rate',USD_EGP);["reception","exhibition","cafe"].forEach(function(k){document.getElementById('grid-'+k).innerHTML=renderGrid(k);});}}).catch(()=>{});
+fetch('https://api.exchangerate-api.com/v4/latest/USD').then(r=>r.json()).then(d=>{if(d.rates&&d.rates.EGP){USD_EGP=parseFloat(d.rates.EGP.toFixed(2));document.getElementById('rateVal').textContent=USD_EGP.toFixed(2);localStorage.setItem('ms_rate',USD_EGP);SECTION_KEYS.forEach(function(k){document.getElementById('grid-'+k).innerHTML=renderGrid(k);});}}).catch(()=>{});
+syncDynamicProducts();
 </script>
 </body>
 </html>
