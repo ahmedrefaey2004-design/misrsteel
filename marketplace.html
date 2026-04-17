@@ -168,21 +168,6 @@ async function fetchPublicProducts() {
   return sd && sd.config && Array.isArray(sd.config.products) ? sd.config.products : [];
 }
 
-function resolveProductImage(img) {
-  if (!img) return 'images/p01-rose-gold-chair.jpg';
-  if (img.startsWith('http') || img.startsWith('data:') || img.startsWith('blob:')) return img;
-  var clean = img.replace(/^\.?\//, '');
-  if (clean.startsWith('images/')) return 'https://misrsteel.vercel.app/' + clean;
-  return BACKEND + '/' + clean;
-}
-
-function firstProductImage(p) {
-  if (p && Array.isArray(p.imgs) && p.imgs[0]) return p.imgs[0];
-  if (p && typeof p.img === 'string' && p.img.trim()) return p.img;
-  if (p && typeof p.image === 'string' && p.image.trim()) return p.image;
-  return 'images/p01-rose-gold-chair.jpg';
-}
-
 function renderGrid(prods) {
   document.getElementById('mpCount').textContent = prods.length + ' منتج';
   if (!prods.length) { document.getElementById('mpGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#888">لا توجد منتجات</div>'; return; }
