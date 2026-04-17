@@ -468,8 +468,8 @@ tr:hover td{background:#fafafa}
 </div>
 
 <script>
-var API = 'https://misrsteel-backend.vercel.app';
-var ADMIN_TOKEN = localStorage.getItem('ms_admin_token') || 'misrsteel_admin_2025';
+var API = (localStorage.getItem('ms_api_base') || 'https://misrsteel-backend.vercel.app').replace(/\/$/, '');
+var ADMIN_TOKEN = localStorage.getItem('ms_admin_token') || '';
 var allOrders=[], allProducts=[], allAffiliates=[];
 var currentOrderId=null, editProdId=null, editSecId=null, editBannerId=null;
 var prodImgs=[], secImg=null, bannerImg=null;
@@ -905,9 +905,21 @@ async function loadReports() {
 function toast(msg,type){ var t=document.getElementById('toast'); t.textContent=msg; t.className='toast '+(type||''); t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),3200); }
 
 // ── INIT ──────────────────────────────────────────────
-checkAPI();
-loadOverview();
-setInterval(checkAPI,30000);
+async function ensureAdminAccess() {
+  try {
+    var s = JSON.parse(localStorage.getItem('ms_session') || '{}');
+    if (s.role !== 'admin' || !ADMIN_TOKEN) throw new Error('unauthorized');
+    var r = await fetch(API + '/api/admin/users', { headers: { 'x-admin-token': ADMIN_TOKEN } });
+    if (!r.ok) throw new Error('unauthorized');
+    checkAPI();
+    loadOverview();
+    setInterval(checkAPI,30000);
+  } catch(e) {
+    localStorage.removeItem('ms_session');
+    window.location = 'login.html?next=admin-dashboard.html';
+  }
+}
+ensureAdminAccess();
 </script>
 </body>
 </html>
