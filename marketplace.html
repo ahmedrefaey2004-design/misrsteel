@@ -79,7 +79,7 @@ a{text-decoration:none;color:inherit}button{cursor:pointer;font-family:inherit}
 <nav class="main-nav"><div class="nav-top">
   <a class="nav-logo" href="index.html"><div class="logo-ar">مصر ستيل</div><div class="logo-en">MISR STEEL</div></a>
   <div class="nav-search"><input type="text" id="searchInp" placeholder="ابحث..."><button class="nav-search-btn" onclick="doSearch()">🔍</button></div>
-  <div class="nav-actions"><button class="nav-btn" onclick="window.location='index.html'">← الرئيسية</button></div>
+  <div class="nav-actions"><button class="nav-btn outline" id="adminDashBtn" style="display:none" onclick="window.location='admin-dashboard.html'">🛠️ الداشبورد</button><button class="nav-btn" onclick="window.location='index.html'">← الرئيسية</button></div>
 </div></nav>
 
 <div class="mp-hero"><h1>🏭 متجر مصر ستيل</h1><p>أثاث استانلس فاخر مباشرة من المصنع — بدون حد أدنى للطلب</p></div>
@@ -240,6 +240,14 @@ function waProduct(p) {
 }
 
 document.getElementById('searchInp').addEventListener('keydown',function(e){if(e.key==='Enter')doSearch()});
+function syncAdminButton(){
+  try{
+    var s = JSON.parse(localStorage.getItem('ms_session') || '{}');
+    var btn = document.getElementById('adminDashBtn');
+    if(btn) btn.style.display = s.role === 'admin' ? 'inline-block' : 'none';
+  }catch(e){}
+}
+syncAdminButton();
 loadProducts();
 </script>
 </body>
