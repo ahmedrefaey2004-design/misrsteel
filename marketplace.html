@@ -4,52 +4,68 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>المتجر — مصر ستيل</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared.css">
 <style>
-.mp-hero{background:linear-gradient(135deg,#1a0800,#2d1200,#ff6000);color:#fff;padding:32px 20px;text-align:center}
-.mp-hero h1{font-size:clamp(22px,4vw,38px);font-weight:800;margin-bottom:8px}
-.mp-hero p{font-size:13px;color:rgba(255,255,255,.7);max-width:560px;margin:0 auto}
-.mp-layout{max-width:1280px;margin:24px auto;padding:0 20px;display:grid;grid-template-columns:260px 1fr;gap:20px;align-items:start}
+:root{--orange:#ff6000;--orange-dk:#d94f00;--orange-lt:#fff3eb;--black:#111;--white:#fff;--bg:#fafafa;--text:#1a1a1a;--muted:#777;--border:#ebebeb;--green:#00a650}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);direction:rtl}
+a{text-decoration:none;color:inherit}button{cursor:pointer;font-family:inherit}
+.topbar{background:#1a1a1a;color:#fff;height:36px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-size:11px}
+.rate-badge{background:var(--orange);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:2px}
+.topbar-right{display:flex;gap:16px}.topbar-right a{color:rgba(255,255,255,.65)}
+.main-nav{background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:300;box-shadow:0 1px 8px rgba(0,0,0,.06)}
+.nav-top{max-width:1280px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:16px;height:68px}
+.nav-logo{flex-shrink:0;margin-inline-end:20px;text-decoration:none}
+.logo-ar{font-size:20px;font-weight:800;color:var(--orange)}
+.logo-en{font-size:10px;color:var(--muted)}
+.nav-search{flex:1;max-width:460px;display:flex;border:2px solid var(--orange);border-radius:6px;overflow:hidden}
+.nav-search input{flex:1;padding:9px 14px;border:none;outline:none;font-size:14px;font-family:inherit}
+.nav-search-btn{padding:0 18px;background:var(--orange);color:#fff;border:none;font-size:18px}
+.nav-actions{display:flex;gap:8px;margin-inline-start:auto}
+.nav-btn{padding:8px 16px;background:var(--orange);color:#fff;border:none;border-radius:4px;font-size:12px;font-weight:700}
+.mp-hero{background:linear-gradient(135deg,#1a0800,#2d1200,#ff6000);color:#fff;padding:28px 20px;text-align:center}
+.mp-hero h1{font-size:clamp(20px,4vw,36px);font-weight:800;margin-bottom:6px}
+.mp-hero p{font-size:13px;color:rgba(255,255,255,.7)}
+.mp-layout{max-width:1280px;margin:20px auto;padding:0 20px;display:grid;grid-template-columns:240px 1fr;gap:20px;align-items:start}
 .mp-sidebar{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:18px;position:sticky;top:80px}
-.mp-sidebar h3{font-size:14px;font-weight:800;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--orange)}
-.filter-group{margin-bottom:16px}
-.filter-group label{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:8px}
+.mp-sidebar h3{font-size:14px;font-weight:800;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--orange)}
+.filter-group{margin-bottom:18px}
+.filter-group label:first-child{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:8px}
 .filter-check{display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:6px;cursor:pointer}
-.filter-check input{accent-color:var(--orange);width:15px;height:15px}
+.filter-check input{accent-color:var(--orange)}
 .price-range{display:flex;gap:8px;align-items:center}
 .price-range input{flex:1;padding:7px;border:1.5px solid var(--border);border-radius:4px;font-size:12px;text-align:center;font-family:inherit;outline:none}
 .price-range input:focus{border-color:var(--orange)}
-.mp-main{}
+.apply-btn{width:100%;padding:8px;background:var(--orange);color:#fff;border:none;border-radius:4px;font-size:12px;font-weight:700;margin-top:8px;cursor:pointer}
+.reset-btn{width:100%;padding:8px;background:#f5f5f5;color:var(--muted);border:1px solid var(--border);border-radius:4px;font-size:12px;font-weight:700;margin-top:6px;cursor:pointer}
 .mp-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
-.mp-count{font-size:13px;color:var(--muted)}
-.mp-sort{display:flex;align-items:center;gap:8px;font-size:13px}
-.mp-sort select{padding:7px 12px;border:1.5px solid var(--border);border-radius:4px;font-family:inherit;font-size:12px;outline:none}
-.mp-sort select:focus{border-color:var(--orange)}
+.mp-count{font-size:13px;color:var(--muted);font-weight:600}
+.mp-sort select{padding:8px 12px;border:1.5px solid var(--border);border-radius:4px;font-size:12px;font-family:inherit;outline:none}
 .mp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
-.mp-card{background:var(--white);border:1px solid var(--border);border-radius:8px;overflow:hidden;transition:all .25s;text-decoration:none;display:block;position:relative}
+.mp-card{background:var(--white);border:1px solid var(--border);border-radius:8px;overflow:hidden;transition:all .25s;position:relative;display:block;text-decoration:none}
 .mp-card:hover{border-color:var(--orange);box-shadow:0 6px 20px rgba(255,96,0,.12);transform:translateY(-3px)}
-.mp-badge{position:absolute;top:10px;right:10px;font-size:9px;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase;z-index:2}
-.mp-badge.hot{background:#e02020;color:#fff}
-.mp-badge.new{background:var(--green);color:#fff}
-.mp-badge.sale{background:var(--orange);color:#fff}
+.mp-badge{position:absolute;top:10px;right:10px;font-size:9px;font-weight:700;padding:3px 9px;border-radius:20px;z-index:2}
+.badge-hot{background:#e02020;color:#fff}.badge-new{background:var(--green);color:#fff}
 .mp-img{height:200px;overflow:hidden;background:#f8f8f8}
 .mp-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
 .mp-card:hover .mp-img img{transform:scale(1.06)}
 .mp-body{padding:14px}
 .mp-section-tag{font-size:9px;color:var(--orange);font-weight:700;letter-spacing:.06em;margin-bottom:4px}
-.mp-name{font-size:13px;font-weight:700;margin-bottom:4px;line-height:1.4}
-.mp-spec{font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.5}
+.mp-name{font-size:13px;font-weight:700;margin-bottom:8px;line-height:1.4}
 .price-tiers{display:flex;flex-direction:column;gap:3px;margin-bottom:10px}
-.pt-row{display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:#fafafa;border-radius:4px;font-size:11px}
-.pt-qty{color:var(--muted)}
-.pt-price{font-weight:800;color:var(--orange)}
+.pt-row{display:flex;justify-content:space-between;padding:4px 8px;background:#fafafa;border-radius:4px;font-size:11px}
 .pt-row.best{background:var(--orange-lt);border:1px solid rgba(255,96,0,.2)}
-.pt-row.best .pt-price{font-size:13px}
+.pt-qty{color:var(--muted)}.pt-price{font-weight:800;color:var(--orange)}
 .mp-actions{display:flex;gap:6px}
-.btn-mp{flex:1;padding:9px;background:var(--orange);color:#fff;border:none;border-radius:4px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .2s}
+.btn-mp{flex:1;padding:9px;background:var(--orange);color:#fff;border:none;border-radius:4px;font-size:12px;font-weight:700;cursor:pointer}
 .btn-mp:hover{background:var(--orange-dk)}
 .btn-mp-wa{padding:9px 12px;background:#25D366;color:#fff;border:none;border-radius:4px;font-size:13px;cursor:pointer}
-.mp-egp{font-size:10px;color:var(--muted);margin-top:4px;margin-bottom:8px}
+.mp-egp{font-size:10px;color:var(--muted);margin:4px 0 8px}
+.skeleton{background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:8px;height:280px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.wa-fab{position:fixed;bottom:24px;inset-inline-end:24px;z-index:400;background:#25D366;color:#fff;padding:13px 20px;border-radius:50px;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;text-decoration:none}
+.toast{position:fixed;bottom:80px;inset-inline-end:20px;z-index:500;background:var(--black);color:#fff;padding:11px 18px;border-radius:8px;font-size:13px;font-weight:600;transform:translateY(20px);opacity:0;transition:all .3s;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{background:var(--green)}
 @media(max-width:900px){.mp-layout{grid-template-columns:1fr}.mp-sidebar{position:static}}
 @media(max-width:600px){.mp-grid{grid-template-columns:repeat(2,1fr);gap:10px}}
 </style>
@@ -57,203 +73,163 @@
 <body>
 <div class="toast" id="toast"></div>
 <div class="topbar">
-  <div style="display:flex;align-items:center;gap:8px">سعر الدولار: <div class="rate-badge"><span class="rate-display">50.85</span> ج.م</div></div>
-  <div class="topbar-links"><a href="tel:+201050595250">📞 +201050595250</a><a href="https://wa.me/201050595250" target="_blank">💬 واتساب</a></div>
+  <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,.7)">سعر الدولار: <div class="rate-badge"><span class="rate-display">50.85</span> ج.م</div></div>
+  <div class="topbar-right"><a href="tel:+201050595250">📞 +201050595250</a><a href="https://wa.me/201050595250">💬 واتساب</a></div>
 </div>
-<nav class="main-nav"><div class="nav-inner">
-  <a class="nav-logo" href="index.html"><div class="logo-main">مصر ستيل</div><div class="logo-sub">أثاث استانلس فاخر</div></a>
+<nav class="main-nav"><div class="nav-top">
+  <a class="nav-logo" href="index.html"><div class="logo-ar">مصر ستيل</div><div class="logo-en">MISR STEEL</div></a>
   <div class="nav-search"><input type="text" id="searchInp" placeholder="ابحث..."><button class="nav-search-btn" onclick="doSearch()">🔍</button></div>
-  <div class="nav-actions">
-    <button class="nav-btn" onclick="window.location='ai-designer.html'">🤖 AI</button>
-    <button class="nav-btn primary" onclick="window.location='marketplace.html'">🛒 المتجر</button>
-  </div>
+  <div class="nav-actions"><button class="nav-btn" onclick="window.location='index.html'">← الرئيسية</button></div>
 </div></nav>
 
-<div class="mp-hero">
-  <h1>🏭 متجر مصر ستيل</h1>
-  <p>أثاث استانلس فاخر مباشرة من المصنع — بدون حد أدنى للطلب — تسعير حسب الكمية</p>
-</div>
+<div class="mp-hero"><h1>🏭 متجر مصر ستيل</h1><p>أثاث استانلس فاخر مباشرة من المصنع — بدون حد أدنى للطلب</p></div>
 
 <div class="mp-layout">
   <!-- SIDEBAR -->
   <div class="mp-sidebar">
-    <h3>🔍 تصفية المنتجات</h3>
-
+    <h3>🔍 فلترة</h3>
     <div class="filter-group">
       <label>القسم</label>
-      <label class="filter-check"><input type="checkbox" checked onchange="applyFilters()"> 🏠 المنزل</label>
-      <label class="filter-check"><input type="checkbox" checked onchange="applyFilters()"> 🎪 قاعة</label>
-      <label class="filter-check"><input type="checkbox" checked onchange="applyFilters()"> 🏛️ لوبي</label>
-      <label class="filter-check"><input type="checkbox" checked onchange="applyFilters()"> 🍽️ مطعم</label>
+      <label class="filter-check"><input type="checkbox" value="home" checked onchange="applyFilters()"> 🏠 المنزل</label>
+      <label class="filter-check"><input type="checkbox" value="hall" checked onchange="applyFilters()"> 🎪 قاعة</label>
+      <label class="filter-check"><input type="checkbox" value="museum" checked onchange="applyFilters()"> 🏛️ لوبي</label>
+      <label class="filter-check"><input type="checkbox" value="restaurant" checked onchange="applyFilters()"> 🍽️ مطعم</label>
     </div>
-
     <div class="filter-group">
-      <label>السعر (دولار)</label>
+      <label>السعر ($)</label>
       <div class="price-range">
         <input type="number" id="priceMin" value="0" placeholder="من">
         <span>—</span>
-        <input type="number" id="priceMax" value="200" placeholder="إلى">
+        <input type="number" id="priceMax" value="500" placeholder="إلى">
       </div>
-      <button onclick="applyFilters()" style="width:100%;margin-top:8px;padding:8px;background:var(--orange);color:#fff;border:none;border-radius:4px;font-size:12px;font-weight:700;cursor:pointer">تطبيق</button>
+      <button class="apply-btn" onclick="applyFilters()">تطبيق</button>
     </div>
-
     <div class="filter-group">
-      <label>اللون / التشطيب</label>
-      <label class="filter-check"><input type="checkbox" checked onchange="applyFilters()"> 🥇 ذهبي</label>
-      <label class="filter-check"><input type="checkbox" checked onchange="applyFilters()"> 🥈 فضي</label>
-      <label class="filter-check"><input type="checkbox" checked onchange="applyFilters()"> ⬛ أسود</label>
+      <label>التشطيب</label>
+      <label class="filter-check"><input type="checkbox" value="gold" checked onchange="applyFilters()"> 🥇 ذهبي</label>
+      <label class="filter-check"><input type="checkbox" value="silver" checked onchange="applyFilters()"> 🥈 فضي</label>
+      <label class="filter-check"><input type="checkbox" value="black" checked onchange="applyFilters()"> ⬛ أسود</label>
     </div>
-
-    <div class="filter-group">
-      <label>التقييم</label>
-      <label class="filter-check"><input type="radio" name="rating" checked onchange="applyFilters()"> الكل</label>
-      <label class="filter-check"><input type="radio" name="rating" onchange="applyFilters()"> ⭐⭐⭐⭐⭐ فأكثر</label>
-      <label class="filter-check"><input type="radio" name="rating" onchange="applyFilters()"> ⭐⭐⭐⭐ فأكثر</label>
-    </div>
-
-    <button onclick="resetFilters()" style="width:100%;padding:8px;background:#f5f5f5;color:var(--muted);border:1.5px solid var(--border);border-radius:4px;font-size:12px;font-weight:700;cursor:pointer">إعادة ضبط</button>
+    <button class="reset-btn" onclick="resetFilters()">إعادة الضبط</button>
   </div>
 
   <!-- MAIN -->
-  <div class="mp-main">
+  <div>
     <div class="mp-toolbar">
-      <div class="mp-count" id="mpCount">16 منتج</div>
-      <div class="mp-sort">
-        <span>ترتيب حسب:</span>
-        <select onchange="sortProducts(this.value)">
-          <option value="default">الافتراضي</option>
-          <option value="price_asc">السعر — الأقل أولاً</option>
-          <option value="price_desc">السعر — الأعلى أولاً</option>
-          <option value="name">الاسم أبجدياً</option>
-        </select>
-      </div>
+      <div class="mp-count" id="mpCount">جاري التحميل...</div>
+      <div class="mp-sort"><select onchange="sortProducts(this.value)"><option value="">ترتيب</option><option value="price_asc">السعر — الأقل</option><option value="price_desc">السعر — الأعلى</option><option value="name">الاسم</option></select></div>
     </div>
-    <div class="mp-grid" id="mpGrid"></div>
+    <div class="mp-grid" id="mpGrid">
+      <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+    </div>
   </div>
 </div>
 
-<footer class="footer-main"><div class="footer-grid">
-  <div><div class="footer-brand-name">مصر ستيل</div><p class="footer-desc">أثاث استانلس فاخر. بدون حد أدنى للطلب.</p></div>
-  <div class="footer-col"><h4>الأقسام</h4><a href="section-home.html">🏠 المنزل</a><a href="section-hall.html">🎪 قاعة</a><a href="section-museum.html">🏛️ لوبي</a><a href="section-restaurant.html">🍽️ مطعم</a></div>
-  <div class="footer-col"><h4>روابط</h4><a href="marketplace.html">🛒 المتجر</a><a href="ai-designer.html">🤖 AI مصمم</a><a href="contracts.html">📄 العقود</a></div>
-  <div class="footer-col"><h4>تواصل</h4><a href="tel:+201050595250">📞 +201050595250</a><a href="https://wa.me/201050595250">💬 واتساب</a></div>
-</div><div class="footer-bottom"><span>© 2025 مصر ستيل</span><span>🇪🇬 صُنع في مصر</span></div></footer>
 <a class="wa-fab" href="https://wa.me/201050595250" target="_blank">💬 واتساب</a>
 
-<script src="shared.js"></script>
 <script>
-var USD_EGP = parseFloat(localStorage.getItem('ms_rate')||'50.85');
+var BACKEND = 'https://misrsteel-backend.vercel.app';
+var USD_EGP = parseFloat(localStorage.getItem('ms_rate') || '50.85');
+var allProducts = [], filtered = [];
+var sectionLabels = {home:'🏠 منزل', hall:'🎪 قاعة', museum:'🏛️ لوبي', restaurant:'🍽️ مطعم'};
 
-var PRODUCTS = [
-  {id:1,  name:'كرسي رويال ذهبي',   spec:'إطار ذهبي · مخمل بيج فاخر',        section:'home',   img:'images/p01-rose-gold-chair.jpg',  badge:'hot', finish:'gold',
-   prices:[{qty:'1–49',price:50},{qty:'50–99',price:45},{qty:'100–499',price:40},{qty:'500+',price:35}]},
-  {id:2,  name:'كرسي لاونج ذهبي',   spec:'إطار ذهبي · تنجيد كتاني · مسند',  section:'home',   img:'images/p02-linen-armchair.jpg',   badge:'',    finish:'gold',
-   prices:[{qty:'1–49',price:52},{qty:'50–99',price:48},{qty:'100–499',price:43},{qty:'500+',price:38}]},
-  {id:3,  name:'كرسي برميل ذهبي',   spec:'ذهبي دائري · مخمل · تصميم فريد',  section:'hall',   img:'images/p03-barrel-gold.jpg',      badge:'new', finish:'gold',
-   prices:[{qty:'1–49',price:70},{qty:'50–99',price:65},{qty:'100–499',price:58},{qty:'500+',price:52}]},
-  {id:4,  name:'كرسي ميداليون فضي', spec:'إطار فضي · مخمل رمادي · أفراح',   section:'hall',   img:'images/p04-medallion-silver.jpg', badge:'hot', finish:'silver',
-   prices:[{qty:'1–49',price:60},{qty:'50–99',price:55},{qty:'100–499',price:49},{qty:'500+',price:44}]},
-  {id:5,  name:'كرسي فيلفيت أحمر',  spec:'إطار أسود · مخمل أحمر كابيتوني',  section:'restaurant',img:'images/p05-velvet-red.jpg',     badge:'',    finish:'black',
-   prices:[{qty:'1–49',price:54},{qty:'50–99',price:50},{qty:'100–499',price:45},{qty:'500+',price:40}]},
-  {id:6,  name:'كرسي بوكليه أسود',  spec:'إطار أسود مات · بوكليه عصري',     section:'home',   img:'images/p06-boucle-black.jpg',     badge:'',    finish:'black',
-   prices:[{qty:'1–49',price:46},{qty:'50–99',price:42},{qty:'100–499',price:37},{qty:'500+',price:32}]},
-  {id:7,  name:'كرسي كيلتد ذهبي',   spec:'إطار ذهبي · تنجيد كيلتد بيج',    section:'hall',   img:'images/p07-quilted-gold.jpg',     badge:'',    finish:'gold',
-   prices:[{qty:'1–49',price:57},{qty:'50–99',price:52},{qty:'100–499',price:46},{qty:'500+',price:41}]},
-  {id:8,  name:'كرسي رابتشر أسود',  spec:'إطار أسود · قماش رمادي مريح',     section:'restaurant',img:'images/p08-wrap-black.jpg',   badge:'',    finish:'black',
-   prices:[{qty:'1–49',price:44},{qty:'50–99',price:40},{qty:'100–499',price:35},{qty:'500+',price:30}]},
-  {id:9,  name:'كرسي آرك ذهبي',     spec:'إطار ذهبي قوس · رمادي فاتح',     section:'museum', img:'images/p09-arc-gold.jpg',         badge:'new', finish:'gold',
-   prices:[{qty:'1–49',price:52},{qty:'50–99',price:48},{qty:'100–499',price:43},{qty:'500+',price:38}]},
-  {id:10, name:'كرسي تافتد بيج',    spec:'إطار أسود · كيلتد بيج · مسند',   section:'home',   img:'images/p10-tufted-beige.jpg',     badge:'',    finish:'black',
-   prices:[{qty:'1–49',price:48},{qty:'50–99',price:44},{qty:'100–499',price:39},{qty:'500+',price:34}]},
-  {id:11, name:'كرسي لاونج دائري',  spec:'استانلس دائري · مخمل فاخر',       section:'museum', img:'images/p11-new-a.jpg',            badge:'new', finish:'silver',
-   prices:[{qty:'1–49',price:60},{qty:'50–99',price:55},{qty:'100–499',price:49},{qty:'500+',price:44}]},
-  {id:12, name:'كرسي كلاسيك راقي',  spec:'قماش فاخر · كلاسيك أنيق',         section:'home',   img:'images/p12-new-b.jpg',            badge:'new', finish:'gold',
-   prices:[{qty:'1–49',price:63},{qty:'50–99',price:58},{qty:'100–499',price:52},{qty:'500+',price:46}]},
-  {id:13, name:'كرسي ذهبي بوسادة',  spec:'إطار ذهبي · مخمل مع وسادة VIP',  section:'museum', img:'images/p13-new-c.jpg',            badge:'new', finish:'gold',
-   prices:[{qty:'1–49',price:68},{qty:'50–99',price:62},{qty:'100–499',price:56},{qty:'500+',price:50}]},
-  {id:14, name:'كرسي مينيمال أسود', spec:'إطار أسود · بيج مينيمال عصري',   section:'home',   img:'images/p14-new-d.jpg',            badge:'',    finish:'black',
-   prices:[{qty:'1–49',price:46},{qty:'50–99',price:42},{qty:'100–499',price:37},{qty:'500+',price:32}]},
-  {id:15, name:'كرسي هوبي ذهبي',    spec:'إطار ذهبي حلقي · مخمل VIP',      section:'hall',   img:'images/p15-new-e.jpg',            badge:'new', finish:'gold',
-   prices:[{qty:'1–49',price:74},{qty:'50–99',price:68},{qty:'100–499',price:61},{qty:'500+',price:55}]},
-  {id:16, name:'كرسي كابوتشينو',    spec:'إطار ذهبي · جلد صناعي سهل التنظيف',section:'restaurant',img:'images/p16-new-f.jpg',     badge:'',    finish:'gold',
-   prices:[{qty:'1–49',price:50},{qty:'50–99',price:46},{qty:'100–499',price:41},{qty:'500+',price:36}]},
-];
+// ══ LOAD FROM MONGODB ══
+async function loadProducts() {
+  try {
+    // Get live rate
+    var sr = await fetch(BACKEND + '/api/settings/public');
+    var sd = await sr.json();
+    if (sd.usdRate) { USD_EGP = sd.usdRate; localStorage.setItem('ms_rate', USD_EGP); document.querySelectorAll('.rate-display').forEach(function(el){el.textContent=USD_EGP.toFixed(2)}); }
 
-var filtered = PRODUCTS.slice();
+    // Get products
+    var r = await fetch(BACKEND + '/api/products');
+    var d = await r.json();
+    allProducts = d.products || [];
+    filtered = allProducts.slice();
 
-var sectionMap = {home:'🏠 منزل',hall:'🎪 قاعة',museum:'🏛️ لوبي',restaurant:'🍽️ مطعم'};
+    // Check URL params
+    var params = new URLSearchParams(location.search);
+    var q = params.get('q');
+    if (q) { document.getElementById('searchInp').value = q; doSearch(); return; }
 
-function renderGrid(prods){
+    renderGrid(filtered);
+  } catch(e) {
+    document.getElementById('mpGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#888">❌ تعذر تحميل المنتجات — <button onclick="loadProducts()" style="color:var(--orange);background:none;border:none;cursor:pointer;font-family:inherit;font-size:13px">أعد المحاولة</button></div>';
+  }
+}
+
+function renderGrid(prods) {
   document.getElementById('mpCount').textContent = prods.length + ' منتج';
-  var html = prods.map(function(p){
-    var badge = p.badge==='hot'?'<div class="mp-badge hot">الأكثر طلباً</div>':p.badge==='new'?'<div class="mp-badge new">جديد</div>':'';
-    var tiers = p.prices.map(function(t,i){
-      return '<div class="pt-row'+(i===1?' best':'')+'"><span class="pt-qty">'+t.qty+' قطعة</span><span class="pt-price">$'+t.price+'</span></div>';
-    }).join('');
-    var basePrice = p.prices[0].price;
-    var egp = Math.round(basePrice * USD_EGP).toLocaleString();
+  if (!prods.length) { document.getElementById('mpGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#888">لا توجد منتجات</div>'; return; }
+  var html = prods.map(function(p) {
+    var badge = p.badge === 'hot' ? '<div class="mp-badge badge-hot">الأكثر طلباً</div>' : p.badge === 'new' ? '<div class="mp-badge badge-new">جديد</div>' : '';
+    var img = p.imgs && p.imgs[0] ? p.imgs[0] : 'images/p01-rose-gold-chair.jpg';
+    var imgSrc = img.startsWith('http') ? img : 'https://misrsteel.vercel.app/' + img;
+    var egp = Math.round(p.price * USD_EGP).toLocaleString();
     return '<div class="mp-card">'
-      +badge
-      +'<div class="mp-img"><img src="'+p.img+'" alt="'+p.name+'" loading="lazy" onerror="this.style.display=\'none\'"></div>'
-      +'<div class="mp-body">'
-      +'<div class="mp-section-tag">'+sectionMap[p.section]+'</div>'
-      +'<div class="mp-name">'+p.name+'</div>'
-      +'<div class="mp-spec">'+p.spec+'</div>'
-      +'<div class="price-tiers">'+tiers+'</div>'
-      +'<div class="mp-egp">≈ '+egp+' ج.م للقطعة</div>'
-      +'<div class="mp-actions">'
-      +'<button class="btn-mp" onclick="orderProduct('+p.id+')">اطلب الآن</button>'
-      +'<button class="btn-mp-wa" onclick="waProduct('+p.id+')" title="واتساب">💬</button>'
-      +'</div></div></div>';
+      + badge
+      + '<div class="mp-img"><img src="'+imgSrc+'" alt="'+p.nameAr+'" loading="lazy" onerror="this.src=\'images/p01-rose-gold-chair.jpg\'"></div>'
+      + '<div class="mp-body">'
+      + '<div class="mp-section-tag">'+(sectionLabels[p.section]||p.section)+'</div>'
+      + '<div class="mp-name">'+p.nameAr+'</div>'
+      + '<div class="price-tiers">'
+      + '<div class="pt-row"><span class="pt-qty">1–49 قطعة</span><span class="pt-price">$'+Math.round(p.price*1.1)+'</span></div>'
+      + '<div class="pt-row best"><span class="pt-qty">50–99 قطعة</span><span class="pt-price">$'+p.price+'</span></div>'
+      + '<div class="pt-row"><span class="pt-qty">100+ قطعة</span><span class="pt-price">$'+Math.round(p.price*0.9)+'</span></div>'
+      + '</div>'
+      + '<div class="mp-egp">≈ '+egp+' ج.م للقطعة</div>'
+      + '<div class="mp-actions">'
+      + '<button class="btn-mp" onclick="waOrder('+JSON.stringify(p).replace(/'/g,"&#39;")+')">اطلب الآن</button>'
+      + '<button class="btn-mp-wa" onclick="waProduct('+JSON.stringify(p).replace(/'/g,"&#39;")+')">💬</button>'
+      + '</div></div></div>';
   }).join('');
   document.getElementById('mpGrid').innerHTML = html;
 }
 
-function applyFilters(){
-  var minP = parseFloat(document.getElementById('priceMin').value)||0;
-  var maxP = parseFloat(document.getElementById('priceMax').value)||9999;
-  filtered = PRODUCTS.filter(function(p){
-    var basePrice = p.prices[0].price;
-    return basePrice >= minP && basePrice <= maxP;
-  });
+function applyFilters() {
+  var sections = Array.from(document.querySelectorAll('.filter-check input[value="home"],[value="hall"],[value="museum"],[value="restaurant"]')).filter(function(c){return c.checked}).map(function(c){return c.value});
+  var finishes = Array.from(document.querySelectorAll('.filter-check input[value="gold"],[value="silver"],[value="black"]')).filter(function(c){return c.checked}).map(function(c){return c.value});
+  var minP = parseFloat(document.getElementById('priceMin').value) || 0;
+  var maxP = parseFloat(document.getElementById('priceMax').value) || 9999;
+  filtered = allProducts.filter(function(p){ return sections.includes(p.section) && finishes.includes(p.finish) && p.price >= minP && p.price <= maxP; });
   renderGrid(filtered);
 }
 
-function sortProducts(by){
+function sortProducts(by) {
   var arr = filtered.slice();
-  if(by==='price_asc') arr.sort(function(a,b){return a.prices[0].price - b.prices[0].price;});
-  else if(by==='price_desc') arr.sort(function(a,b){return b.prices[0].price - a.prices[0].price;});
-  else if(by==='name') arr.sort(function(a,b){return a.name.localeCompare(b.name,'ar');});
+  if (by==='price_asc') arr.sort(function(a,b){return a.price-b.price});
+  else if (by==='price_desc') arr.sort(function(a,b){return b.price-a.price});
+  else if (by==='name') arr.sort(function(a,b){return a.nameAr.localeCompare(b.nameAr,'ar')});
   renderGrid(arr);
 }
 
-function resetFilters(){
+function resetFilters() {
+  document.querySelectorAll('.filter-check input').forEach(function(c){c.checked=true});
   document.getElementById('priceMin').value=0;
-  document.getElementById('priceMax').value=200;
-  filtered = PRODUCTS.slice();
+  document.getElementById('priceMax').value=500;
+  filtered = allProducts.slice();
   renderGrid(filtered);
 }
 
-function orderProduct(id){
-  var p = PRODUCTS.find(function(x){return x.id===id;});
-  window.location = 'product-'+id+'.html';
+function doSearch() {
+  var q = document.getElementById('searchInp').value.trim().toLowerCase();
+  if (!q) { filtered=allProducts.slice(); renderGrid(filtered); return; }
+  filtered = allProducts.filter(function(p){ return (p.nameAr||'').includes(q)||(p.nameEn||'').toLowerCase().includes(q)||(p.desc||'').includes(q); });
+  renderGrid(filtered);
 }
 
-function waProduct(id){
-  var p = PRODUCTS.find(function(x){return x.id===id;});
-  var msg = 'مرحباً، عاوز أعرف أكتر عن: '+p.name+'\nأبدأ سعر: $'+p.prices[0].price;
+function waOrder(p) {
+  var msg='مرحباً مصر ستيل 🎉\n\nأريد الطلب:\n\nالمنتج: '+p.nameAr+'\nالسعر: $'+p.price+' للقطعة\n\nأرجو التواصل لتأكيد الطلب.';
   window.open('https://wa.me/201050595250?text='+encodeURIComponent(msg),'_blank');
 }
 
-function doSearch(){
-  var q = document.getElementById('searchInp').value.trim().toLowerCase();
-  if(!q){filtered=PRODUCTS.slice();renderGrid(filtered);return;}
-  filtered = PRODUCTS.filter(function(p){return p.name.includes(q)||p.spec.includes(q);});
-  renderGrid(filtered);
+function waProduct(p) {
+  var msg='مرحباً، عاوز أعرف أكتر عن: '+p.nameAr+'\nالسعر: $'+p.price;
+  window.open('https://wa.me/201050595250?text='+encodeURIComponent(msg),'_blank');
 }
-document.getElementById('searchInp').addEventListener('keydown',function(e){if(e.key==='Enter')doSearch();});
 
-renderGrid(PRODUCTS);
+document.getElementById('searchInp').addEventListener('keydown',function(e){if(e.key==='Enter')doSearch()});
+loadProducts();
 </script>
 </body>
 </html>
