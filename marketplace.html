@@ -137,9 +137,11 @@ var sectionLabels = {home:'🏠 منزل', hall:'🎪 قاعة', museum:'🏛️
 async function loadProducts() {
   try {
     // Get live rate
-    var sr = await fetch(BACKEND + '/api/settings/public');
-    var sd = await sr.json();
-    if (sd.usdRate) { USD_EGP = sd.usdRate; localStorage.setItem('ms_rate', USD_EGP); document.querySelectorAll('.rate-display').forEach(function(el){el.textContent=USD_EGP.toFixed(2)}); }
+    try {
+      var sr = await fetch(BACKEND + '/api/settings/public');
+      var sd = await sr.json();
+      if (sd.usdRate) { USD_EGP = sd.usdRate; localStorage.setItem('ms_rate', USD_EGP); document.querySelectorAll('.rate-display').forEach(function(el){el.textContent=USD_EGP.toFixed(2)}); }
+    } catch(e) {}
 
     // Get products
     allProducts = await fetchPublicProducts();
