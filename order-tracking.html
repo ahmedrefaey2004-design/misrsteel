@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>متابعة الأوردر — مصر ستيل</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<meta property="og:title" content="متابعة أوردرك — مصر ستيل">
+<meta property="og:description" content="تابع مراحل تصنيع أوردرك من المصنع">
+<style>
+:root{--orange:#ff6000;--orange-dk:#d94f00;--orange-lt:#fff3eb;--black:#111;--white:#fff;--bg:#f5f5f5;--muted:#888;--border:#e5e5e5;--green:#00a650;--red:#cc0000;--blue:#0066cc}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Cairo',sans-serif;background:var(--bg);color:#1a1a1a;direction:rtl;min-height:100vh}
+
+/* HEADER */
+.header{background:var(--black);color:#fff;padding:16px;display:flex;align-items:center;gap:12px;border-bottom:3px solid var(--orange)}
+.header-logo{font-size:18px;font-weight:800;color:var(--orange)}
+.header-sub{font-size:11px;color:rgba(255,255,255,.45);margin-top:2px}
+
+/* CONTENT */
+.page{max-width:640px;margin:0 auto;padding:16px}
+
+/* NOT FOUND */
+.not-found{text-align:center;padding:60px 20px}
+.not-found-icon{font-size:64px;margin-bottom:16px;opacity:.4}
+.not-found-title{font-size:20px;font-weight:800;margin-bottom:8px}
+.not-found-sub{font-size:13px;color:var(--muted);line-height:1.7}
+
+/* ORDER HEADER CARD */
+.order-header{background:var(--black);color:#fff;border-radius:12px;padding:20px;margin-bottom:16px;position:relative;overflow:hidden}
+.order-header::before{content:'🏭';position:absolute;left:-10px;top:-10px;font-size:80px;opacity:.08}
+.oh-tag{display:inline-block;background:var(--orange);color:#fff;font-size:10px;font-weight:700;padding:3px 12px;border-radius:20px;margin-bottom:10px}
+.oh-product{font-size:20px;font-weight:800;margin-bottom:4px}
+.oh-id{font-size:11px;color:rgba(255,255,255,.4)}
+.oh-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.oh-meta-item{background:rgba(255,255,255,.08);border-radius:8px;padding:10px;text-align:center}
+.oh-meta-val{font-size:18px;font-weight:800;color:var(--orange)}
+.oh-meta-label{font-size:10px;color:rgba(255,255,255,.4);margin-top:2px}
+
+/* PROGRESS */
+.progress-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px}
+.progress-card h3{font-size:13px;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.prog-bar{height:10px;background:#f0f0f0;border-radius:5px;overflow:hidden;margin-bottom:6px}
+.prog-fill{height:100%;border-radius:5px;background:linear-gradient(to left,var(--orange-dk),var(--orange));transition:width .8s ease}
+.prog-pct{font-size:12px;font-weight:700;color:var(--orange);text-align:left}
+
+/* TIMELINE */
+.timeline-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px}
+.timeline-card h3{font-size:13px;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:6px}
+.tl{display:flex;flex-direction:column}
+.tl-item{display:flex;gap:14px;padding:10px 0;position:relative}
+.tl-item::before{content:'';position:absolute;right:21px;top:46px;bottom:-10px;width:2px;background:var(--border)}
+.tl-item:last-child::before{display:none}
+.tl-dot{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;border:2px solid var(--border);background:#f8f8f8;position:relative;z-index:1}
+.tl-dot.done{background:var(--green);border-color:var(--green);color:#fff;font-size:16px}
+.tl-dot.current{background:var(--orange);border-color:var(--orange);animation:pulse 1.5s infinite;color:#fff}
+.tl-dot.pending{background:#f8f8f8;color:#ccc}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,96,0,.4)}50%{box-shadow:0 0 0 10px rgba(255,96,0,0)}}
+.tl-content{flex:1;padding-top:8px}
+.tl-title{font-size:13px;font-weight:800;margin-bottom:3px}
+.tl-date{font-size:11px;color:var(--muted)}
+.tl-worker{font-size:11px;color:var(--muted)}
+.tl-note{font-size:12px;color:#444;margin-top:4px;background:#fafafa;padding:6px 10px;border-radius:6px;border-right:3px solid var(--orange)}
+.tl-cost{font-size:11px;font-weight:700;color:var(--orange);margin-top:3px}
+
+/* PHOTOS */
+.photos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
+.photo-item{aspect-ratio:1;border-radius:8px;overflow:hidden;cursor:pointer;background:#f0f0f0;border:1px solid var(--border)}
+.photo-item img{width:100%;height:100%;object-fit:cover;transition:transform .3s}
+.photo-item:hover img{transform:scale(1.05)}
+.photo-stage-label{font-size:10px;font-weight:700;color:var(--muted);margin-bottom:4px;margin-top:10px}
+
+/* LIGHTBOX */
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:500;display:none;align-items:center;justify-content:center;flex-direction:column}
+.lightbox.open{display:flex}
+.lb-img{max-width:95vw;max-height:80vh;border-radius:8px;object-fit:contain}
+.lb-close{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:50%;width:40px;height:40px;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.lb-caption{color:rgba(255,255,255,.6);font-size:12px;margin-top:12px}
+.lb-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.15);color:#fff;border:none;width:44px;height:44px;border-radius:50%;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.lb-prev{left:12px}.lb-next{right:12px}
+
+/* STATUS BADGE */
+.status-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;margin-top:8px}
+.sb-active{background:var(--orange-lt);color:var(--orange-dk)}
+.sb-done{background:#e8f5ec;color:var(--green)}
+
+/* DAYS REMAINING */
+.days-box{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;display:flex;align-items:center;gap:14px}
+.days-icon{font-size:36px;flex-shrink:0}
+.days-num{font-size:28px;font-weight:800;line-height:1}
+.days-label{font-size:11px;color:var(--muted);margin-top:3px}
+
+/* FOOTER */
+.footer{text-align:center;padding:24px 16px;color:var(--muted);font-size:12px}
+.wa-btn{display:inline-flex;align-items:center;gap:8px;background:#25D366;color:#fff;padding:12px 24px;border-radius:8px;font-size:14px;font-weight:700;text-decoration:none;margin-top:16px}
+
+/* LOADING */
+.loading{text-align:center;padding:60px 20px}
+.sp{width:40px;height:40px;border:3px solid rgba(255,96,0,.2);border-top-color:var(--orange);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLB()">
+  <button class="lb-close" onclick="closeLB()">✕</button>
+  <button class="lb-prev" onclick="event.stopPropagation();navLB(-1)">‹</button>
+  <img class="lb-img" id="lb-img" src="" alt="">
+  <div class="lb-caption" id="lb-caption"></div>
+  <button class="lb-next" onclick="event.stopPropagation();navLB(1)">›</button>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div>
+    <div class="header-logo">مصر ستيل</div>
+    <div class="header-sub">🏭 بوابة متابعة الإنتاج</div>
+  </div>
+</div>
+
+<div class="page" id="page">
+  <div class="loading"><div class="sp"></div><div style="color:var(--muted);font-size:13px">جاري تحميل بيانات الأوردر...</div></div>
+</div>
+
+<div class="footer">
+  <div>© 2025 مصر ستيل — MISR STEEL</div>
+  <a class="wa-btn" href="https://wa.me/201050595250" target="_blank">💬 تواصل مع المصنع</a>
+</div>
+
+<script>
+var STAGES = {
+  raw:     {label:'شراء الخامات ودخول المصنع',    icon:'🏭', pct:10,  client:'استلام الخامات وبدء التحضير'},
+  cut:     {label:'تقطيع القطع',                   icon:'✂️', pct:22,  client:'قطع الأنابيب وتحضير كل قطعة'},
+  weld1:   {label:'لحام وتجميع',                  icon:'🔧', pct:35,  client:'تجميع القطع بالتجميع واللحام'},
+  finish1: {label:'تشطيب أول',                    icon:'✨', pct:48,  client:'تشطيب وصقل كل قطعة بالتفصيل'},
+  weld2:   {label:'لحام التجميع النهائي',          icon:'🔧', pct:60,  client:'اللحام النهائي وتجميع الكرسي كامل'},
+  finish2: {label:'تشطيب نهائي',                  icon:'✨', pct:72,  client:'تشطيب أماكن اللحام النهائية'},
+  paint:   {label:'الطلاء الذهبي / الفضي',        icon:'🎨', pct:84,  client:'طلاء بالكهرباء بألوان ذهبية أو فضية'},
+  uphol:   {label:'التنجيد',                      icon:'🪑', pct:92,  client:'تركيب القعدة والتنجيد بالقماش والسفنج'},
+  pack:    {label:'التغليف والتحميل',              icon:'📦', pct:97,  client:'تغليف احترافي وتحضير للشحن'},
+  done:    {label:'تم التسليم',                   icon:'✅', pct:100, client:'تم تسليم الأوردر بنجاح 🎉'},
+};
+var STAGE_KEYS = Object.keys(STAGES);
+var allPhotos = [];
+var lbIdx = 0;
+
+// ══ INIT ══
+window.addEventListener('load', function() {
+  var params  = new URLSearchParams(location.search);
+  var orderId = params.get('id');
+
+  if (!orderId) { showNotFound('لم يتم تحديد رقم الأوردر'); return; }
+
+  // Load from localStorage (factory system)
+  var orders = JSON.parse(localStorage.getItem('f_orders') || '[]');
+  var order  = orders.find(function(o) { return o.id === orderId; });
+
+  if (!order) { showNotFound('الأوردر رقم "' + orderId + '" غير موجود'); return; }
+
+  renderOrder(order);
+});
+
+function renderOrder(o) {
+  var stg      = STAGES[o.stage] || STAGES.raw;
+  var stgIdx   = STAGE_KEYS.indexOf(o.stage);
+  var pct      = stg.pct;
+  var isDone   = o.stage === 'done';
+  var daysLeft = o.delivery ? Math.ceil((new Date(o.delivery) - new Date()) / 864e5) : null;
+  var daysColor = daysLeft === null ? 'var(--muted)' : daysLeft < 3 ? 'var(--red)' : daysLeft < 10 ? 'var(--orange)' : 'var(--green)';
+
+  // Collect all photos
+  allPhotos = [];
+  (o.history||[]).forEach(function(h) {
+    if (h.imgs && h.imgs.length) {
+      h.imgs.forEach(function(img) {
+        allPhotos.push({ src: img, stage: STAGES[h.stage] ? STAGES[h.stage].label : h.stage, date: h.date });
+      });
+    }
+  });
+
+  var html = '';
+
+  // ORDER HEADER
+  html += '<div class="order-header">' +
+    '<div class="oh-tag">' + (isDone ? '✅ مكتمل' : '🔄 قيد الإنتاج') + '</div>' +
+    '<div class="oh-product">' + o.product + '</div>' +
+    '<div class="oh-id">' + o.id + (o.client ? ' · ' + o.client : '') + '</div>' +
+    '<span class="status-badge ' + (isDone ? 'sb-done' : 'sb-active') + '">' + stg.icon + ' ' + stg.label + '</span>' +
+    '<div class="oh-meta">' +
+      '<div class="oh-meta-item"><div class="oh-meta-val">' + o.qty + '</div><div class="oh-meta-label">قطعة</div></div>' +
+      '<div class="oh-meta-item"><div class="oh-meta-val">' + pct + '%</div><div class="oh-meta-label">مكتمل</div></div>' +
+      (daysLeft !== null ? '<div class="oh-meta-item"><div class="oh-meta-val" style="color:' + daysColor + '">' + (daysLeft > 0 ? daysLeft : '!') + '</div><div class="oh-meta-label">' + (daysLeft > 0 ? 'يوم متبقي' : 'موعد التسليم اليوم') + '</div></div>' : '<div></div>') +
+    '</div>' +
+  '</div>';
+
+  // PROGRESS BAR
+  html += '<div class="progress-card">' +
+    '<h3>📊 تقدم الإنتاج</h3>' +
+    '<div class="prog-bar"><div class="prog-fill" style="width:' + pct + '%"></div></div>' +
+    '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:4px"><span>البداية</span><span class="prog-pct">' + pct + '%</span><span>التسليم</span></div>' +
+  '</div>';
+
+  // TIMELINE
+  html += '<div class="timeline-card"><h3>🔄 مراحل التصنيع</h3><div class="tl">';
+  STAGE_KEYS.forEach(function(s) {
+    var si     = STAGE_KEYS.indexOf(s);
+    var isDone = si < stgIdx;
+    var isCur  = s === o.stage;
+    var stgInfo = STAGES[s];
+    var hist   = (o.history||[]).find(function(h) { return h.stage === s; });
+    var dotClass = isDone ? 'done' : isCur ? 'current' : 'pending';
+    var dotContent = isDone ? '✓' : stgInfo.icon;
+    var titleColor = isCur ? 'var(--orange)' : isDone ? 'var(--green)' : 'var(--muted)';
+
+    html += '<div class="tl-item">' +
+      '<div class="tl-dot ' + dotClass + '">' + dotContent + '</div>' +
+      '<div class="tl-content">' +
+        '<div class="tl-title" style="color:' + titleColor + '">' + stgInfo.icon + ' ' + stgInfo.label + '</div>' +
+        '<div class="tl-date" style="font-size:10px;color:var(--muted)">' + stgInfo.client + '</div>';
+
+    if (hist) {
+      if (hist.date) html += '<div class="tl-date">📅 ' + new Date(hist.date).toLocaleDateString('ar-EG', {weekday:'long', year:'numeric', month:'long', day:'numeric'}) + '</div>';
+      if (hist.worker) html += '<div class="tl-worker">👷 المسؤول: ' + hist.worker + '</div>';
+      if (hist.note) html += '<div class="tl-note">💬 ' + hist.note + '</div>';
+      if (hist.cost) html += '<div class="tl-cost">💰 تكلفة المرحلة: ' + hist.cost.toLocaleString() + ' ج.م</div>';
+
+      // Stage photos
+      if (hist.imgs && hist.imgs.length) {
+        var stagePhotoIdx = allPhotos.findIndex(function(p) { return p.src === hist.imgs[0]; });
+        html += '<div class="photo-stage-label">📷 صور هذه المرحلة (' + hist.imgs.length + '):</div>';
+        html += '<div class="photos-grid">';
+        hist.imgs.forEach(function(img, i) {
+          var globalIdx = allPhotos.findIndex(function(p) { return p.src === img; });
+          html += '<div class="photo-item" onclick="openLB(' + globalIdx + ')"><img src="' + img + '" alt="صورة المرحلة" loading="lazy"></div>';
+        });
+        html += '</div>';
+      }
+    }
+
+    html += '</div></div>';
+  });
+  html += '</div></div>';
+
+  // ALL PHOTOS GALLERY
+  if (allPhotos.length) {
+    html += '<div class="timeline-card"><h3>🖼️ معرض صور الإنتاج</h3>' +
+      '<div class="photos-grid">';
+    allPhotos.forEach(function(p, i) {
+      html += '<div class="photo-item" onclick="openLB(' + i + ')"><img src="' + p.src + '" alt="' + p.stage + '" loading="lazy"></div>';
+    });
+    html += '</div></div>';
+  }
+
+  document.getElementById('page').innerHTML = html;
+}
+
+// ══ LIGHTBOX ══
+function openLB(idx) {
+  lbIdx = idx;
+  var p = allPhotos[idx];
+  document.getElementById('lb-img').src = p.src;
+  document.getElementById('lb-caption').textContent = p.stage + ' · ' + new Date(p.date).toLocaleDateString('ar-EG');
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLB() { document.getElementById('lightbox').classList.remove('open'); }
+function navLB(dir) {
+  lbIdx = (lbIdx + dir + allPhotos.length) % allPhotos.length;
+  openLB(lbIdx);
+}
+document.addEventListener('keydown', function(e) {
+  if (!document.getElementById('lightbox').classList.contains('open')) return;
+  if (e.key === 'ArrowRight') navLB(1);
+  if (e.key === 'ArrowLeft')  navLB(-1);
+  if (e.key === 'Escape')     closeLB();
+});
+
+// ══ NOT FOUND ══
+function showNotFound(msg) {
+  document.getElementById('page').innerHTML =
+    '<div class="not-found">' +
+    '<div class="not-found-icon">🔍</div>' +
+    '<div class="not-found-title">أوردر غير موجود</div>' +
+    '<div class="not-found-sub">' + msg + '<br><br>تأكد من صحة الرابط أو تواصل مع المصنع</div>' +
+    '<a href="https://wa.me/201050595250" style="display:inline-flex;align-items:center;gap:8px;background:#25D366;color:#fff;padding:12px 24px;border-radius:8px;font-size:14px;font-weight:700;text-decoration:none;margin-top:20px">💬 تواصل معنا</a>' +
+    '</div>';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>نظام إدارة المصنع — مصر ستيل</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--orange:#ff6000;--orange-dk:#d94f00;--orange-lt:#fff3eb;--black:#111;--white:#fff;--bg:#f0f2f5;--text:#1a1a1a;--muted:#888;--border:#e5e5e5;--green:#00a650;--red:#cc0000;--blue:#0066cc;--purple:#7c3aed;--yellow:#f5a623}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);direction:rtl;font-size:14px}
+button{cursor:pointer;font-family:inherit}
+input,select,textarea{font-family:inherit}
+
+/* HEADER */
+.header{background:var(--black);color:#fff;padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--orange);position:sticky;top:0;z-index:200}
+.header-logo{font-size:14px;font-weight:800;color:var(--orange)}
+.header-date{font-size:10px;color:rgba(255,255,255,.4)}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--black);border-top:1px solid #222;display:flex;z-index:200;padding-bottom:env(safe-area-inset-bottom)}
+.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;color:rgba(255,255,255,.4);font-size:9px;font-weight:700;cursor:pointer;border:none;background:none;font-family:inherit}
+.bn-item.active{color:var(--orange)}
+.bn-icon{font-size:19px}
+
+/* CONTENT */
+.content{padding:12px;padding-bottom:76px;max-width:960px;margin:0 auto}
+.panel{display:none}.panel.show{display:block}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
+.kpi{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:12px 14px;border-right:4px solid var(--orange);display:flex;flex-direction:column;gap:2px}
+.kpi.blue{border-right-color:var(--blue)}
+.kpi.green{border-right-color:var(--green)}
+.kpi.red{border-right-color:var(--red)}
+.kpi.purple{border-right-color:var(--purple)}
+.kpi.yellow{border-right-color:var(--yellow)}
+.kpi-num{font-size:20px;font-weight:800;color:var(--orange);line-height:1.1}
+.kpi.blue .kpi-num{color:var(--blue)}.kpi.green .kpi-num{color:var(--green)}.kpi.red .kpi-num{color:var(--red)}.kpi.purple .kpi-num{color:var(--purple)}.kpi.yellow .kpi-num{color:var(--yellow)}
+.kpi-label{font-size:10px;color:var(--muted);font-weight:600}
+
+/* CARD */
+.card{background:var(--white);border:1px solid var(--border);border-radius:10px;margin-bottom:12px;overflow:hidden}
+.card-head{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card-head h3{font-size:13px;font-weight:800;display:flex;align-items:center;gap:6px;flex:1}
+.card-body{padding:14px}
+
+/* BTN */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-orange{background:var(--orange);color:#fff}.btn-orange:hover{background:var(--orange-dk)}
+.btn-green{background:var(--green);color:#fff}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-red{background:#fff0f0;color:var(--red);border:1px solid #ffcccc}
+.btn-gray{background:#f5f5f5;color:var(--muted);border:1px solid var(--border)}
+.btn-sm{padding:6px 10px;font-size:11px}
+.btn-full{width:100%;justify-content:center}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{background:#f8f8f8;padding:8px 10px;text-align:right;font-weight:700;color:var(--muted);border-bottom:2px solid var(--border);font-size:11px;white-space:nowrap}
+.tbl td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:#fafafa}
+
+/* BADGE */
+.badge{display:inline-block;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700}
+.badge-green{background:#e8f5ec;color:var(--green)}
+.badge-orange{background:var(--orange-lt);color:var(--orange-dk)}
+.badge-red{background:#fff0f0;color:var(--red)}
+.badge-blue{background:#e8f0ff;color:var(--blue)}
+.badge-gray{background:#f5f5f5;color:var(--muted)}
+
+/* STAGES BAR */
+.stages-scroll{overflow-x:auto;scrollbar-width:none;margin-bottom:12px}
+.stages-scroll::-webkit-scrollbar{display:none}
+.stages-bar{display:flex;gap:0;border:1px solid var(--border);border-radius:8px;overflow:hidden;width:max-content;min-width:100%}
+.s-btn{flex:0 0 auto;padding:8px 12px;background:#fafafa;border:none;border-left:1px solid var(--border);font-size:10px;font-weight:700;color:var(--muted);cursor:pointer;font-family:inherit;white-space:nowrap;display:flex;flex-direction:column;align-items:center;gap:2px}
+.s-btn:first-child{border-left:none}
+.s-btn.active{background:var(--orange);color:#fff}
+.s-btn-icon{font-size:14px}
+.s-btn-cnt{font-size:9px;background:rgba(0,0,0,.1);padding:1px 5px;border-radius:10px}
+.s-btn.active .s-btn-cnt{background:rgba(255,255,255,.25)}
+
+/* ORDER CARD */
+.ocard{background:var(--white);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden}
+.ocard-head{padding:10px 13px;background:#fafafa;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.ocard-name{font-size:13px;font-weight:800}
+.ocard-sub{font-size:10px;color:var(--muted);margin-top:1px}
+.ocard-body{padding:13px}
+.prog-bar{height:7px;background:#f0f0f0;border-radius:4px;overflow:hidden;margin:8px 0}
+.prog-fill{height:100%;border-radius:4px;transition:width .5s;background:var(--orange)}
+.ocard-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+.ocard-meta-i{font-size:11px}
+.ocard-meta-l{color:var(--muted);margin-bottom:1px;font-size:10px}
+.ocard-meta-v{font-weight:700}
+
+/* COST BOX */
+.cost-box{background:var(--orange-lt);border:1px solid rgba(255,96,0,.2);border-radius:6px;padding:10px;margin-bottom:10px}
+.cost-row{display:flex;justify-content:space-between;font-size:12px;padding:3px 0}
+.cost-row.total{border-top:1px solid rgba(255,96,0,.2);margin-top:4px;padding-top:6px;font-weight:800;font-size:13px;color:var(--orange-dk)}
+.cost-row.profit{color:var(--green);font-weight:800}
+.cost-row.loss{color:var(--red);font-weight:800}
+
+/* TIMELINE */
+.tl{display:flex;flex-direction:column}
+.tl-item{display:flex;gap:10px;padding:7px 0;position:relative}
+.tl-item::before{content:'';position:absolute;right:17px;top:34px;bottom:-7px;width:2px;background:var(--border)}
+.tl-item:last-child::before{display:none}
+.tl-dot{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;border:2px solid var(--border);background:#f8f8f8}
+.tl-dot.done{background:var(--green);border-color:var(--green);color:#fff;font-size:12px}
+.tl-dot.current{background:var(--orange);border-color:var(--orange);animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,96,0,.4)}50%{box-shadow:0 0 0 8px rgba(255,96,0,0)}}
+.tl-info{flex:1;padding-top:6px}
+.tl-title{font-size:12px;font-weight:700}
+.tl-sub{font-size:10px;color:var(--muted);margin-top:2px;line-height:1.4}
+
+/* MODAL */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:300;display:none;align-items:flex-end;justify-content:center}
+.modal.open{display:flex}
+.modal-box{background:var(--white);width:100%;max-width:640px;border-radius:14px 14px 0 0;max-height:92vh;display:flex;flex-direction:column}
+.modal-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.modal-head h3{font-size:14px;font-weight:800}
+.modal-x{background:none;border:none;font-size:22px;color:var(--muted);cursor:pointer;line-height:1}
+.modal-scroll{flex:1;overflow-y:auto;padding:16px}
+.modal-foot{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0}
+
+/* FORM */
+.fg{margin-bottom:12px}
+.fg label{display:block;font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.06em;margin-bottom:4px;text-transform:uppercase}
+.fg input,.fg select,.fg textarea{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;outline:none;transition:border-color .2s;background:#fff}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--orange)}
+.fg-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fg-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+
+/* PROFIT BOX */
+.profit-box{background:#111;color:#fff;border-radius:8px;padding:14px;margin-bottom:12px}
+.pb-title{font-size:11px;color:rgba(255,255,255,.4);margin-bottom:10px;font-weight:700;letter-spacing:.06em}
+.pb-row{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.pb-row:last-child{border-bottom:none;padding-top:8px;font-size:15px;font-weight:800}
+.pb-green{color:#4ade80}.pb-red{color:#f87171}.pb-orange{color:var(--orange)}
+
+/* SLIDER */
+.slider-wrap{margin-bottom:12px}
+.slider-wrap label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:700}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:#e0e0e0;border-radius:2px;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--orange);cursor:pointer;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+
+/* TOAST */
+.toast{position:fixed;top:60px;left:50%;transform:translateX(-50%) translateY(-20px);background:var(--black);color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.success{background:var(--green)}.toast.error{background:var(--red)}
+
+/* EMPTY */
+.empty{text-align:center;padding:32px 16px;color:var(--muted)}
+.empty-icon{font-size:40px;margin-bottom:10px;opacity:.4}
+
+/* DAILY LOG */
+.daily-log{display:flex;flex-direction:column;gap:6px}
+.dl-item{display:flex;align-items:center;gap:10px;padding:8px 10px;background:#fafafa;border:1px solid var(--border);border-radius:6px}
+.dl-icon{font-size:20px;width:32px;text-align:center;flex-shrink:0}
+.dl-info{flex:1}
+.dl-title{font-size:12px;font-weight:700}
+.dl-sub{font-size:10px;color:var(--muted)}
+.dl-val{font-size:13px;font-weight:800;color:var(--orange);white-space:nowrap}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<!-- ══ MODALS ══ -->
+
+<!-- NEW ORDER -->
+<div class="modal" id="m-order">
+<div class="modal-box">
+<div class="modal-head"><h3>📦 أوردر إنتاج جديد</h3><button class="modal-x" onclick="cm('m-order')">✕</button></div>
+<div class="modal-scroll">
+  <div class="fg"><label>المنتج</label>
+    <select id="o-prod">
+      <option>كرسي رويال ذهبي</option><option>كرسي ميداليون فضي</option><option>كرسي فيلفيت أحمر</option>
+      <option>كرسي برميل ذهبي</option><option>كرسي هوبي ذهبي</option><option>كرسي لاونج ذهبي</option>
+      <option>كرسي بوكليه أسود</option><option>كرسي آرك ذهبي</option><option>كرسي كابوتشينو</option>
+      <option>منتج مخصص...</option>
+    </select>
+  </div>
+  <div class="fg" id="o-custom-wrap" style="display:none"><label>اسم المنتج</label><input type="text" id="o-custom" placeholder="اكتب الاسم"></div>
+  <div class="fg-2">
+    <div class="fg"><label>الكمية المطلوبة</label><input type="number" id="o-qty" placeholder="50" min="1" oninput="calcOrder()"></div>
+    <div class="fg"><label>موعد التسليم</label><input type="date" id="o-delivery"></div>
+  </div>
+  <div class="fg"><label>العميل / رقم الأوردر</label><input type="text" id="o-client" placeholder="فندق النيل — MS-2025-001"></div>
+  <div class="fg"><label>سعر البيع للقطعة ($)</label><input type="number" id="o-sellprice" placeholder="45" min="0" step="0.5" oninput="calcOrder()"></div>
+
+  <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:10px;letter-spacing:.06em;text-transform:uppercase">خطة الإنتاج اليومية</div>
+  <div class="fg-3">
+    <div class="fg"><label>قطعة / يوم (مخطط)</label><input type="number" id="o-plan-daily" placeholder="10" min="1" oninput="calcOrder()"></div>
+    <div class="fg"><label>أيام عمل / أسبوع</label><input type="number" id="o-plan-days" placeholder="6" min="1" max="7" oninput="calcOrder()"></div>
+    <div class="fg"><label>عدد العمال المطلوب</label><input type="number" id="o-plan-workers" placeholder="5" min="1" oninput="calcOrder()"></div>
+  </div>
+
+  <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:10px;letter-spacing:.06em;text-transform:uppercase">تكلفة الخامات للقطعة الواحدة (ج.م)</div>
+  <div class="fg-2">
+    <div class="fg"><label>وزن الاستانلس (كجم)</label><input type="number" id="o-steel-kg" placeholder="5.5" step="0.1" oninput="calcOrder()"></div>
+    <div class="fg"><label>سعر الكجم (ج.م)</label><input type="number" id="o-steel-price" placeholder="85" oninput="calcOrder()"></div>
+  </div>
+  <div class="fg-2">
+    <div class="fg"><label>لحام وغاز</label><input type="number" id="o-weld" placeholder="0" oninput="calcOrder()"></div>
+    <div class="fg"><label>تشطيب (عجينة+ورق)</label><input type="number" id="o-finish" placeholder="0" oninput="calcOrder()"></div>
+  </div>
+  <div class="fg-2">
+    <div class="fg"><label>طلاء ذهبي/فضي</label><input type="number" id="o-paint" placeholder="0" oninput="calcOrder()"></div>
+    <div class="fg"><label>تنجيد (قماش+سفنج+خشب)</label><input type="number" id="o-uphol" placeholder="0" oninput="calcOrder()"></div>
+  </div>
+  <div class="fg-2">
+    <div class="fg"><label>تغليف وكرتون</label><input type="number" id="o-pack" placeholder="0" oninput="calcOrder()"></div>
+    <div class="fg"><label>نقل وشحن / قطعة</label><input type="number" id="o-transport" placeholder="0" oninput="calcOrder()"></div>
+  </div>
+
+  <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:10px;letter-spacing:.06em;text-transform:uppercase">تكلفة العمالة والمصاريف الثابتة</div>
+  <div class="fg-2">
+    <div class="fg"><label>أجر العمالة المباشرة / قطعة</label><input type="number" id="o-labor" placeholder="0" oninput="calcOrder()"></div>
+    <div class="fg"><label>إهلاك الماكينات / قطعة</label><input type="number" id="o-deprec" placeholder="0" oninput="calcOrder()"></div>
+  </div>
+  <div class="fg-2">
+    <div class="fg"><label>كهرباء وغاز / قطعة</label><input type="number" id="o-util" placeholder="0" oninput="calcOrder()"></div>
+    <div class="fg"><label>مصاريف إدارية / قطعة</label><input type="number" id="o-admin" placeholder="0" oninput="calcOrder()"></div>
+  </div>
+
+  <!-- PROFIT PREVIEW -->
+  <div class="profit-box" id="profitPreview">
+    <div class="pb-title">📊 تحليل الربحية — للقطعة الواحدة</div>
+    <div class="pb-row"><span>تكلفة الخامات</span><span id="pp-mat" class="pb-orange">0 ج.م</span></div>
+    <div class="pb-row"><span>تكلفة العمالة والثابت</span><span id="pp-labor" class="pb-orange">0 ج.م</span></div>
+    <div class="pb-row"><span>إجمالي التكلفة</span><span id="pp-total" class="pb-orange">0 ج.م</span></div>
+    <div class="pb-row"><span>سعر البيع ($)</span><span id="pp-sell" style="color:#fff">0 ج.م</span></div>
+    <div class="pb-row"><span>صافي الربح</span><span id="pp-profit">-- ج.م</span></div>
+    <div class="pb-row"><span>هامش الربح %</span><span id="pp-margin">-- %</span></div>
+    <div class="pb-row"><span>أيام الإنتاج المخططة</span><span id="pp-days" class="pb-orange">-- يوم</span></div>
+    <div class="pb-row"><span>معدل الإنتاج / يوم</span><span id="pp-rate" class="pb-orange">-- قطعة</span></div>
+  </div>
+
+  <div class="fg"><label>ملاحظات</label><textarea id="o-notes" rows="2" placeholder="أي تفاصيل..."></textarea></div>
+</div>
+<div class="modal-foot">
+  <button class="btn btn-gray" onclick="cm('m-order')">إلغاء</button>
+  <button class="btn btn-orange btn-full" onclick="addOrder()">➕ إضافة الأوردر</button>
+</div>
+</div></div>
+
+<!-- STAGE UPDATE -->
+<div class="modal" id="m-stage">
+<div class="modal-box">
+<div class="modal-head"><h3 id="m-stage-title">تحديث المرحلة</h3><button class="modal-x" onclick="cm('m-stage')">✕</button></div>
+<div class="modal-scroll">
+  <div class="fg"><label>المرحلة الجديدة</label>
+    <select id="s-stage">
+      <option value="raw">🏭 شراء الخامات ودخول المصنع</option>
+      <option value="cut">✂️ قطع الأنابيب (أرجل أمامية + خلفية + ظهر + مقعد)</option>
+      <option value="weld1">🔧 لحام تجميع القطع لأول مرة</option>
+      <option value="finish1">✨ تشطيب القطع الفردية (أول مرة)</option>
+      <option value="weld2">🔧 لحام التجميع النهائي للكرسي</option>
+      <option value="finish2">✨ تشطيب أماكن اللحام النهائية</option>
+      <option value="paint">🎨 نقل لمصنع الطلاء الذهبي/الفضي</option>
+      <option value="uphol">🪑 التنجيد (قطع خشب + سفنج + قماش + تركيب)</option>
+      <option value="pack">📦 تغليف وتحميل</option>
+      <option value="done">✅ تسليم للعميل</option>
+    </select>
+  </div>
+  <div class="fg-2">
+    <div class="fg"><label>الكمية المنجزة اليوم</label><input type="number" id="s-qty" placeholder="0" min="0"></div>
+    <div class="fg"><label>تكلفة إضافية لهذه المرحلة (ج.م)</label><input type="number" id="s-cost" placeholder="0" min="0"></div>
+  </div>
+  <div class="fg"><label>المسؤول / الفني</label><input type="text" id="s-worker" placeholder="أحمد محمد"></div>
+  <div class="fg"><label>وقت المرحلة (ساعات)</label><input type="number" id="s-hours" placeholder="8" min="0" step="0.5"></div>
+  <div class="fg"><label>ملاحظات</label><textarea id="s-note" rows="2" placeholder="ملاحظات على هذه المرحلة..."></textarea></div>
+  <div class="fg" style="margin-top:4px">
+    <label>📷 صور هذه المرحلة (للعميل)</label>
+    <div id="s-img-zone" style="border:2px dashed #e5e5e5;border-radius:8px;padding:16px;text-align:center;cursor:pointer;position:relative;background:#fafafa">
+      <input type="file" id="s-imgs" accept="image/*" multiple style="position:absolute;inset:0;opacity:0;cursor:pointer" onchange="previewStageImgs(this.files)">
+      <div style="font-size:24px;margin-bottom:4px">📷</div>
+      <div style="font-size:12px;font-weight:700">اضغط لرفع صور</div>
+      <div style="font-size:10px;color:#888">يمكن رفع أكثر من صورة</div>
+    </div>
+    <div id="s-img-previews" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"></div>
+  </div>
+</div>
+<div class="modal-foot">
+  <button class="btn btn-gray" onclick="cm('m-stage')">إلغاء</button>
+  <button class="btn btn-green btn-full" onclick="updateStage()">✅ تأكيد المرحلة</button>
+</div>
+</div></div>
+
+<!-- ADD WORKER -->
+<div class="modal" id="m-worker">
+<div class="modal-box">
+<div class="modal-head"><h3>👷 إضافة عامل</h3><button class="modal-x" onclick="cm('m-worker')">✕</button></div>
+<div class="modal-scroll">
+  <div class="fg"><label>اسم العامل</label><input type="text" id="w-name" placeholder="أحمد محمد علي"></div>
+  <div class="fg-2">
+    <div class="fg"><label>القسم</label>
+      <select id="w-dept">
+        <option>لحام</option><option>تشطيب</option><option>طلاء</option><option>تنجيد</option><option>تغليف</option><option>نقل</option><option>إدارة</option>
+      </select>
+    </div>
+    <div class="fg"><label>نوع الراتب</label>
+      <select id="w-type" onchange="toggleWType()">
+        <option value="monthly">شهري ثابت</option>
+        <option value="daily">يومي</option>
+        <option value="piece">بالقطعة</option>
+      </select>
+    </div>
+  </div>
+  <div class="fg"><label id="w-salary-label">الراتب (ج.م / شهر)</label><input type="number" id="w-salary" placeholder="3500" min="0" oninput="calcWorkerCost()"></div>
+  <div class="fg" id="w-days-wrap"><label>أيام العمل / شهر</label><input type="number" id="w-days" placeholder="26" min="1" max="31" oninput="calcWorkerCost()"></div>
+  <div class="fg"><label>رقم الهاتف</label><input type="tel" id="w-phone" placeholder="+201..."></div>
+  <div id="w-cost-preview" style="background:var(--orange-lt);border:1px solid rgba(255,96,0,.2);border-radius:6px;padding:10px;font-size:12px;display:none">
+    <div style="display:flex;justify-content:space-between"><span>تكلفة اليوم:</span><strong id="wcp-day">0 ج.م</strong></div>
+    <div style="display:flex;justify-content:space-between;margin-top:4px"><span>تكلفة الشهر:</span><strong id="wcp-month">0 ج.م</strong></div>
+  </div>
+</div>
+<div class="modal-foot">
+  <button class="btn btn-gray" onclick="cm('m-worker')">إلغاء</button>
+  <button class="btn btn-orange btn-full" onclick="addWorker()">💾 حفظ العامل</button>
+</div>
+</div></div>
+
+<!-- ADD MACHINE -->
+<div class="modal" id="m-machine">
+<div class="modal-box">
+<div class="modal-head"><h3>⚙️ إضافة ماكينة</h3><button class="modal-x" onclick="cm('m-machine')">✕</button></div>
+<div class="modal-scroll">
+  <div class="fg"><label>اسم الماكينة</label><input type="text" id="mac-name" placeholder="ماكينة لحام CO2"></div>
+  <div class="fg-2">
+    <div class="fg"><label>القسم</label>
+      <select id="mac-dept">
+        <option>لحام</option><option>قطع</option><option>تشطيب</option><option>طلاء</option><option>تنجيد</option>
+      </select>
+    </div>
+    <div class="fg"><label>سنة الشراء</label><input type="number" id="mac-year" placeholder="2022" min="1990" max="2030"></div>
+  </div>
+  <div class="fg-2">
+    <div class="fg"><label>قيمة الشراء (ج.م)</label><input type="number" id="mac-value" placeholder="50000" oninput="calcDepreciation()"></div>
+    <div class="fg"><label>العمر الافتراضي (سنوات)</label><input type="number" id="mac-life" placeholder="10" min="1" oninput="calcDepreciation()"></div>
+  </div>
+  <div class="fg-2">
+    <div class="fg"><label>الإنتاج اليومي (قطعة)</label><input type="number" id="mac-daily" placeholder="20" min="1" oninput="calcDepreciation()"></div>
+    <div class="fg"><label>أيام العمل / شهر</label><input type="number" id="mac-workdays" placeholder="26" oninput="calcDepreciation()"></div>
+  </div>
+  <div id="mac-preview" style="background:#f0f0f0;border-radius:6px;padding:10px;font-size:12px;display:none">
+    <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>إهلاك شهري:</span><strong id="mac-dep-month">0 ج.م</strong></div>
+    <div style="display:flex;justify-content:space-between"><span>إهلاك / قطعة:</span><strong id="mac-dep-unit" style="color:var(--orange)">0 ج.م</strong></div>
+  </div>
+</div>
+<div class="modal-foot">
+  <button class="btn btn-gray" onclick="cm('m-machine')">إلغاء</button>
+  <button class="btn btn-orange btn-full" onclick="addMachine()">💾 حفظ الماكينة</button>
+</div>
+</div></div>
+
+<!-- DAILY LOG -->
+<div class="modal" id="m-daily">
+<div class="modal-box">
+<div class="modal-head"><h3>📅 تسجيل إنتاج يومي</h3><button class="modal-x" onclick="cm('m-daily')">✕</button></div>
+<div class="modal-scroll">
+  <div class="fg"><label>الأوردر</label>
+    <select id="dl-order" id="dl-order"></select>
+  </div>
+  <div class="fg-2">
+    <div class="fg"><label>التاريخ</label><input type="date" id="dl-date"></div>
+    <div class="fg"><label>الكمية المنتجة</label><input type="number" id="dl-qty" placeholder="0" min="0" oninput="calcDailyRate()"></div>
+  </div>
+  <div class="fg-2">
+    <div class="fg"><label>ساعات العمل الفعلية</label><input type="number" id="dl-hours" placeholder="8" step="0.5" oninput="calcDailyRate()"></div>
+    <div class="fg"><label>عدد العمال اليوم</label><input type="number" id="dl-workers" placeholder="5" oninput="calcDailyRate()"></div>
+  </div>
+  <div id="dl-preview" style="background:var(--orange-lt);border:1px solid rgba(255,96,0,.2);border-radius:6px;padding:10px;font-size:12px;margin-bottom:12px;display:none">
+    <div style="display:flex;justify-content:space-between;margin-bottom:3px"><span>معدل الإنتاج / عامل / يوم:</span><strong id="dlp-rate">0 قطعة</strong></div>
+    <div style="display:flex;justify-content:space-between"><span>الوقت للقطعة الواحدة:</span><strong id="dlp-time">0 دقيقة</strong></div>
+  </div>
+  <div class="fg"><label>تكلفة فعلية اليوم (ج.م) — اختياري</label><input type="number" id="dl-cost" placeholder="0" min="0"></div>
+  <div class="fg"><label>ملاحظات اليوم</label><textarea id="dl-note" rows="2" placeholder="توقف ماكينة، غياب عمال، أعطال..."></textarea></div>
+  <div id="dl-compare" style="display:none;background:#111;color:#fff;border-radius:8px;padding:12px;margin-top:8px;font-size:12px">
+    <div style="font-size:10px;color:rgba(255,255,255,.4);font-weight:700;margin-bottom:8px;letter-spacing:.06em">المقارنة مع الخطة</div>
+    <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.1)"><span>مخطط اليوم</span><span id="dlc-plan" style="color:#fbbf24">-- قطعة</span></div>
+    <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.1)"><span>فعلي اليوم</span><span id="dlc-actual" style="color:#fff">-- قطعة</span></div>
+    <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.1)"><span>الفرق</span><span id="dlc-diff">--</span></div>
+    <div style="display:flex;justify-content:space-between;padding:4px 0"><span>تكلفة فعلية / قطعة</span><span id="dlc-unitcost" style="color:#f87171">--</span></div>
+  </div>
+</div>
+<div class="modal-foot">
+  <button class="btn btn-gray" onclick="cm('m-daily')">إلغاء</button>
+  <button class="btn btn-green btn-full" onclick="addDailyLog()">✅ حفظ سجل اليوم</button>
+</div>
+</div></div>
+
+<!-- PROFIT CALC -->
+<div class="modal" id="m-profit">
+<div class="modal-box">
+<div class="modal-head"><h3>💰 حاسبة هامش الربح</h3><button class="modal-x" onclick="cm('m-profit')">✕</button></div>
+<div class="modal-scroll">
+  <div class="fg"><label>تكلفة الإنتاج الكاملة / قطعة (ج.م)</label><input type="number" id="pc-cost" placeholder="1200" oninput="calcProfit()"></div>
+
+  <div class="slider-wrap">
+    <label><span>هامش الربح المطلوب</span><span id="pc-margin-val" style="color:var(--orange);font-weight:800">30%</span></label>
+    <input type="range" id="pc-margin" min="5" max="200" value="30" oninput="document.getElementById('pc-margin-val').textContent=this.value+'%';calcProfit()">
+  </div>
+
+  <div class="fg"><label>سعر الدولار (ج.م)</label><input type="number" id="pc-rate" placeholder="50.85" step="0.01" oninput="calcProfit()"></div>
+
+  <div class="profit-box" id="pc-result" style="margin-top:0">
+    <div class="pb-title">النتيجة</div>
+    <div class="pb-row"><span>تكلفة الإنتاج</span><span id="pc-r-cost" class="pb-orange">-- ج.م</span></div>
+    <div class="pb-row"><span>الربح المضاف</span><span id="pc-r-profit" class="pb-green">-- ج.م</span></div>
+    <div class="pb-row"><span>سعر البيع بالجنيه</span><span id="pc-r-egp" style="color:#fff">-- ج.م</span></div>
+    <div class="pb-row"><span>سعر البيع بالدولار</span><span id="pc-r-usd" class="pb-orange">-- $</span></div>
+  </div>
+
+  <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px">جدول المقارنة بهوامش مختلفة:</div>
+  <table class="tbl" id="pc-table">
+    <tr><th>الهامش</th><th>سعر البيع (ج.م)</th><th>سعر البيع ($)</th></tr>
+  </table>
+</div>
+<div class="modal-foot"><button class="btn btn-gray btn-full" onclick="cm('m-profit')">إغلاق</button></div>
+</div></div>
+
+<!-- ══ HEADER ══ -->
+<div class="header">
+  <div class="header-logo">🏭 مصنع مصر ستيل</div>
+  <div class="header-date" id="h-date"></div>
+</div>
+
+<div class="content">
+
+<!-- ══ DASHBOARD ══ -->
+<div class="panel show" id="panel-dash">
+  <div class="kpi-grid">
+    <div class="kpi"><div class="kpi-num" id="k-orders">0</div><div class="kpi-label">أوردرات نشطة</div></div>
+    <div class="kpi blue"><div class="kpi-num" id="k-units">0</div><div class="kpi-label">قطعة في الإنتاج</div></div>
+    <div class="kpi green"><div class="kpi-num" id="k-workers">0</div><div class="kpi-label">عمال مسجلين</div></div>
+    <div class="kpi yellow"><div class="kpi-num" id="k-cost">0</div><div class="kpi-label">تكلفة إجمالية (ج.م)</div></div>
+  </div>
+
+  <!-- QUICK ACTIONS -->
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px">
+    <button class="btn btn-orange btn-full btn-sm" onclick="om('m-order')" style="flex-direction:column;gap:3px;padding:10px 6px">
+      <span style="font-size:20px">📦</span><span>أوردر جديد</span>
+    </button>
+    <button class="btn btn-blue btn-full btn-sm" onclick="openDailyLog()" style="flex-direction:column;gap:3px;padding:10px 6px">
+      <span style="font-size:20px">📅</span><span>إنتاج اليوم</span>
+    </button>
+    <button class="btn btn-gray btn-full btn-sm" onclick="om('m-profit')" style="flex-direction:column;gap:3px;padding:10px 6px;color:var(--purple);border-color:var(--purple)">
+      <span style="font-size:20px">💰</span><span>حاسبة الربح</span>
+    </button>
+  </div>
+
+  <!-- ORDERS -->
+  <div class="card">
+    <div class="card-head">
+      <h3>📦 أوردرات الإنتاج</h3>
+    </div>
+    <div class="stages-scroll"><div class="stages-bar" id="stage-bar">
+      <button class="s-btn active" onclick="filterStage('all',this)"><span class="s-btn-icon">📋</span>الكل<span class="s-btn-cnt" id="sc-all">0</span></button>
+      <button class="s-btn" onclick="filterStage('raw',this)"><span class="s-btn-icon">🏭</span>خامات<span class="s-btn-cnt" id="sc-raw">0</span></button>
+      <button class="s-btn" onclick="filterStage('cut',this)"><span class="s-btn-icon">✂️</span>قطع<span class="s-btn-cnt" id="sc-cut">0</span></button>
+      <button class="s-btn" onclick="filterStage('weld1',this)"><span class="s-btn-icon">🔧</span>لحام1<span class="s-btn-cnt" id="sc-weld1">0</span></button>
+      <button class="s-btn" onclick="filterStage('finish1',this)"><span class="s-btn-icon">✨</span>تشطيب1<span class="s-btn-cnt" id="sc-finish1">0</span></button>
+      <button class="s-btn" onclick="filterStage('weld2',this)"><span class="s-btn-icon">🔧</span>لحام2<span class="s-btn-cnt" id="sc-weld2">0</span></button>
+      <button class="s-btn" onclick="filterStage('finish2',this)"><span class="s-btn-icon">✨</span>تشطيب2<span class="s-btn-cnt" id="sc-finish2">0</span></button>
+      <button class="s-btn" onclick="filterStage('paint',this)"><span class="s-btn-icon">🎨</span>طلاء<span class="s-btn-cnt" id="sc-paint">0</span></button>
+      <button class="s-btn" onclick="filterStage('uphol',this)"><span class="s-btn-icon">🪑</span>تنجيد<span class="s-btn-cnt" id="sc-uphol">0</span></button>
+      <button class="s-btn" onclick="filterStage('pack',this)"><span class="s-btn-icon">📦</span>تغليف<span class="s-btn-cnt" id="sc-pack">0</span></button>
+      <button class="s-btn" onclick="filterStage('done',this)"><span class="s-btn-icon">✅</span>تسليم<span class="s-btn-cnt" id="sc-done">0</span></button>
+    </div></div>
+    <div style="padding:10px" id="orders-list">
+      <div class="empty"><div class="empty-icon">📦</div><p>لا يوجد أوردرات بعد</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ WORKERS ══ -->
+<div class="panel" id="panel-workers">
+  <div class="card">
+    <div class="card-head">
+      <h3>👷 العمال والرواتب</h3>
+      <button class="btn btn-orange btn-sm" onclick="om('m-worker')">➕ عامل جديد</button>
+    </div>
+    <div class="card-body">
+      <div class="kpi-grid" style="margin-bottom:14px">
+        <div class="kpi"><div class="kpi-num" id="w-total">0</div><div class="kpi-label">إجمالي العمال</div></div>
+        <div class="kpi red"><div class="kpi-num" id="w-monthly">0</div><div class="kpi-label">رواتب شهرية (ج.م)</div></div>
+      </div>
+      <div id="workers-list">
+        <div class="empty"><div class="empty-icon">👷</div><p>لا يوجد عمال مسجلين</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MACHINES ══ -->
+<div class="panel" id="panel-machines">
+  <div class="card">
+    <div class="card-head">
+      <h3>⚙️ الماكينات والإهلاك</h3>
+      <button class="btn btn-orange btn-sm" onclick="om('m-machine')">➕ ماكينة</button>
+    </div>
+    <div class="card-body">
+      <div class="kpi-grid" style="margin-bottom:14px">
+        <div class="kpi"><div class="kpi-num" id="mac-total">0</div><div class="kpi-label">إجمالي الماكينات</div></div>
+        <div class="kpi red"><div class="kpi-num" id="mac-dep">0</div><div class="kpi-label">إهلاك شهري (ج.م)</div></div>
+      </div>
+      <div id="machines-list">
+        <div class="empty"><div class="empty-icon">⚙️</div><p>لا يوجد ماكينات مسجلة</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ REPORTS ══ -->
+<div class="panel" id="panel-reports">
+  <div class="card">
+    <div class="card-head"><h3>📊 تقارير الإنتاج والتكاليف</h3></div>
+    <div class="card-body" id="reports-body">
+      <div class="empty"><div class="empty-icon">📊</div><p>أضف أوردرات لتظهر التقارير</p></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /content -->
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <button class="bn-item active" onclick="sp('dash',this)"><span class="bn-icon">📦</span>الأوردرات</button>
+  <button class="bn-item" onclick="sp('workers',this)"><span class="bn-icon">👷</span>العمال</button>
+  <button class="bn-item" onclick="sp('machines',this)"><span class="bn-icon">⚙️</span>الماكينات</button>
+  <button class="bn-item" onclick="sp('reports',this)"><span class="bn-icon">📊</span>التقارير</button>
+</div>
+
+<script>
+// ══ DATA ══
+var DB = {
+  orders:   JSON.parse(localStorage.getItem('f_orders')   || '[]'),
+  workers:  JSON.parse(localStorage.getItem('f_workers')  || '[]'),
+  machines: JSON.parse(localStorage.getItem('f_machines') || '[]'),
+  daily:    JSON.parse(localStorage.getItem('f_daily')    || '[]'),
+};
+var RATE = parseFloat(localStorage.getItem('ms_rate') || '50.85');
+var activeOrderId = null;
+
+var STAGES = {
+  raw:     {label:'شراء الخامات',         icon:'🏭', pct:10},
+  cut:     {label:'قطع القطع',             icon:'✂️', pct:22},
+  weld1:   {label:'لحام التجميع الأول',   icon:'🔧', pct:35},
+  finish1: {label:'تشطيب القطع',          icon:'✨', pct:48},
+  weld2:   {label:'لحام التجميع النهائي', icon:'🔧', pct:60},
+  finish2: {label:'تشطيب اللحام',         icon:'✨', pct:72},
+  paint:   {label:'طلاء ذهبي/فضي',        icon:'🎨', pct:82},
+  uphol:   {label:'التنجيد',              icon:'🪑', pct:92},
+  pack:    {label:'تغليف وتحميل',         icon:'📦', pct:97},
+  done:    {label:'تسليم للعميل',         icon:'✅', pct:100},
+};
+var STAGE_KEYS = Object.keys(STAGES);
+
+// ══ SAVE ══
+function save(key) { localStorage.setItem('f_'+key, JSON.stringify(DB[key])); }
+
+// ══ NAV ══
+function sp(key, el) {
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('show')});
+  document.querySelectorAll('.bn-item').forEach(function(b){b.classList.remove('active')});
+  document.getElementById('panel-'+key).classList.add('show');
+  el.classList.add('active');
+  if (key==='workers')  renderWorkers();
+  if (key==='machines') renderMachines();
+  if (key==='reports')  renderReports();
+}
+function om(id){ document.getElementById(id).classList.add('open'); }
+function cm(id){ document.getElementById(id).classList.remove('open'); }
+
+// ══ ORDER CALC ══
+function calcOrder() {
+  var steelKg    = parseFloat(document.getElementById('o-steel-kg').value)||0;
+  var steelPrice = parseFloat(document.getElementById('o-steel-price').value)||0;
+  var weld       = parseFloat(document.getElementById('o-weld').value)||0;
+  var finish     = parseFloat(document.getElementById('o-finish').value)||0;
+  var paint      = parseFloat(document.getElementById('o-paint').value)||0;
+  var uphol      = parseFloat(document.getElementById('o-uphol').value)||0;
+  var pack       = parseFloat(document.getElementById('o-pack').value)||0;
+  var transport  = parseFloat(document.getElementById('o-transport').value)||0;
+  var labor      = parseFloat(document.getElementById('o-labor').value)||0;
+  var deprec     = parseFloat(document.getElementById('o-deprec').value)||0;
+  var util       = parseFloat(document.getElementById('o-util').value)||0;
+  var admin      = parseFloat(document.getElementById('o-admin').value)||0;
+  var sellUSD    = parseFloat(document.getElementById('o-sellprice').value)||0;
+  var qty        = parseInt(document.getElementById('o-qty').value)||1;
+
+  var matCost   = (steelKg*steelPrice) + weld + finish + paint + uphol + pack + transport;
+  var laborCost = labor + deprec + util + admin;
+  var unitTotal = matCost + laborCost;
+  var sellEGP   = sellUSD * RATE;
+  var profit    = sellEGP - unitTotal;
+  var margin    = sellEGP > 0 ? (profit/sellEGP*100) : 0;
+
+  document.getElementById('pp-mat').textContent   = Math.round(matCost).toLocaleString() + ' ج.م';
+  document.getElementById('pp-labor').textContent = Math.round(laborCost).toLocaleString() + ' ج.م';
+  document.getElementById('pp-total').textContent = Math.round(unitTotal).toLocaleString() + ' ج.م';
+  document.getElementById('pp-sell').textContent  = sellUSD>0 ? Math.round(sellEGP).toLocaleString()+' ج.م ($'+sellUSD+')' : 'لم يحدد';
+  var profitEl = document.getElementById('pp-profit');
+  profitEl.textContent = Math.round(profit).toLocaleString() + ' ج.م (' + Math.round(margin) + '%)';
+  profitEl.className   = profit>=0 ? 'pb-green' : 'pb-red';
+  document.getElementById('pp-margin').textContent = Math.round(margin) + '%';
+  document.getElementById('pp-margin').className   = margin>=20?'pb-green':margin>=10?'pb-orange':'pb-red';
+
+  // Planned production
+  var planDaily   = parseInt(document.getElementById('o-plan-daily').value)||0;
+  var planDays    = parseInt(document.getElementById('o-plan-days').value)||6;
+  var planWorkers = parseInt(document.getElementById('o-plan-workers').value)||1;
+  if (planDaily && qty) {
+    var totalDays = Math.ceil(qty / planDaily);
+    var totalWeeks = Math.ceil(totalDays / planDays);
+    document.getElementById('pp-days').textContent  = totalDays + ' يوم (' + totalWeeks + ' أسبوع)';
+    document.getElementById('pp-rate').textContent  = planDaily + ' قطعة / يوم · ' + planWorkers + ' عمال';
+  }
+}
+
+// ══ ADD ORDER ══
+function addOrder() {
+  var prod = document.getElementById('o-prod').value;
+  if (prod === 'منتج مخصص...') prod = document.getElementById('o-custom').value.trim();
+  var qty = parseInt(document.getElementById('o-qty').value)||0;
+  if (!prod || !qty) { toast('أدخل المنتج والكمية','error'); return; }
+
+  var steelKg    = parseFloat(document.getElementById('o-steel-kg').value)||0;
+  var steelPrice = parseFloat(document.getElementById('o-steel-price').value)||0;
+  var matCost    = (steelKg*steelPrice) + (parseFloat(document.getElementById('o-weld').value)||0) +
+                   (parseFloat(document.getElementById('o-finish').value)||0) + (parseFloat(document.getElementById('o-paint').value)||0) +
+                   (parseFloat(document.getElementById('o-uphol').value)||0) + (parseFloat(document.getElementById('o-pack').value)||0) +
+                   (parseFloat(document.getElementById('o-transport').value)||0);
+  var laborCost  = (parseFloat(document.getElementById('o-labor').value)||0) + (parseFloat(document.getElementById('o-deprec').value)||0) +
+                   (parseFloat(document.getElementById('o-util').value)||0) + (parseFloat(document.getElementById('o-admin').value)||0);
+  var unitTotal  = matCost + laborCost;
+  var sellUSD    = parseFloat(document.getElementById('o-sellprice').value)||0;
+
+  DB.orders.unshift({
+    id: 'PROD-'+Date.now(), product:prod, qty, client:document.getElementById('o-client').value.trim(),
+    delivery:document.getElementById('o-delivery').value, notes:document.getElementById('o-notes').value.trim(),
+    plan:{ daily:parseInt(document.getElementById('o-plan-daily').value)||0, daysPerWeek:parseInt(document.getElementById('o-plan-days').value)||6, workers:parseInt(document.getElementById('o-plan-workers').value)||1 },
+    stage:'raw', sellUSD,
+    costs:{ steel:steelKg*steelPrice, weld:parseFloat(document.getElementById('o-weld').value)||0,
+      finish:parseFloat(document.getElementById('o-finish').value)||0, paint:parseFloat(document.getElementById('o-paint').value)||0,
+      uphol:parseFloat(document.getElementById('o-uphol').value)||0, pack:parseFloat(document.getElementById('o-pack').value)||0,
+      transport:parseFloat(document.getElementById('o-transport').value)||0, labor:parseFloat(document.getElementById('o-labor').value)||0,
+      deprec:parseFloat(document.getElementById('o-deprec').value)||0, util:parseFloat(document.getElementById('o-util').value)||0,
+      admin:parseFloat(document.getElementById('o-admin').value)||0, unitMat:matCost, unitLabor:laborCost, unitTotal, grandTotal:unitTotal*qty },
+    history:[{stage:'raw',date:new Date().toISOString(),note:'بدء الأوردر',cost:0,worker:'',qty:0}],
+    extraCosts:0, createdAt:new Date().toISOString(),
+  });
+  save('orders');
+  cm('m-order');
+  renderOrders(DB.orders);
+  updateKPIs();
+  toast('✅ تم إضافة الأوردر','success');
+}
+
+// ══ DAILY IN ORDER ══
+function renderDailyInOrder(o) {
+  var logs=DB.daily.filter(function(d){return d.orderId===o.id});
+  if (!logs.length) return '';
+  var totalActual=logs.reduce(function(s,d){return s+d.qty},0);
+  var totalCost=logs.reduce(function(s,d){return s+(d.cost||0)},0);
+  var planned=o.plan&&o.plan.daily?o.plan.daily:0;
+  var lastLogs=logs.slice(-5).reverse();
+  var html='<div style="margin-bottom:10px">'+
+    '<div style="font-size:10px;font-weight:700;color:var(--muted);margin-bottom:6px;letter-spacing:.04em">📅 سجل الإنتاج اليومي</div>'+
+    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px">'+
+      '<div style="background:#f8f8f8;border-radius:6px;padding:8px;text-align:center"><div style="font-size:16px;font-weight:800;color:var(--orange)">'+totalActual+'</div><div style="font-size:9px;color:var(--muted)">إجمالي فعلي</div></div>'+
+      (planned?'<div style="background:#f8f8f8;border-radius:6px;padding:8px;text-align:center"><div style="font-size:16px;font-weight:800;color:var(--blue)">'+planned+'</div><div style="font-size:9px;color:var(--muted)">مخطط / يوم</div></div>':'<div></div>')+
+      (totalCost?'<div style="background:#f8f8f8;border-radius:6px;padding:8px;text-align:center"><div style="font-size:13px;font-weight:800;color:var(--red)">'+Math.round(totalCost/1000)+'k</div><div style="font-size:9px;color:var(--muted)">تكاليف فعلية</div></div>':'<div></div>')+
+    '</div>'+
+    '<div style="display:flex;flex-direction:column;gap:4px">';
+  lastLogs.forEach(function(d){
+    var diff=planned?d.qty-planned:null;
+    var diffColor=diff===null?'#888':diff>=0?'var(--green)':'var(--red)';
+    var diffText=diff===null?'':' ('+(diff>=0?'+':'')+diff+')';
+    html+='<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 8px;background:#fafafa;border-radius:4px;font-size:11px">'+
+      '<span style="color:var(--muted)">'+new Date(d.date).toLocaleDateString('ar-EG',{weekday:'short',month:'short',day:'numeric'})+'</span>'+
+      '<span style="font-weight:700">'+d.qty+' قطعة<span style="color:'+diffColor+'">'+diffText+'</span></span>'+
+      (d.cost?'<span style="color:var(--red)">'+d.cost.toLocaleString()+' ج.م</span>':'<span></span>')+
+      (d.note?'<span style="color:var(--muted);font-size:9px">'+d.note.substring(0,15)+'</span>':'<span></span>')+
+    '</div>';
+  });
+  html+='</div></div>';
+  return html;
+}
+
+// ══ STAGE UPDATE ══
+var stageImgs = [];
+
+function previewStageImgs(files) {
+  Array.from(files).forEach(function(file) {
+    if (!file.type.startsWith('image/')) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      stageImgs.push(e.target.result);
+      renderStageImgPreviews();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderStageImgPreviews() {
+  document.getElementById('s-img-previews').innerHTML = stageImgs.map(function(img, i) {
+    return '<div style="position:relative;width:72px;height:72px;border-radius:6px;overflow:hidden;border:1px solid #e5e5e5">'+
+      '<img src="'+img+'" style="width:100%;height:100%;object-fit:cover">'+
+      '<button onclick="stageImgs.splice('+i+',1);renderStageImgPreviews()" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>'+
+    '</div>';
+  }).join('');
+}
+
+function openStageModal(id) {
+  activeOrderId = id;
+  var o = DB.orders.find(function(x){return x.id===id});
+  document.getElementById('m-stage-title').textContent = o.product + ' — تحديث المرحلة';
+  document.getElementById('s-stage').value = o.stage;
+  ['s-qty','s-cost','s-worker','s-hours','s-note'].forEach(function(i){document.getElementById(i).value='';});
+  stageImgs = [];
+  document.getElementById('s-img-previews').innerHTML = '';
+  om('m-stage');
+}
+
+function updateStage() {
+  var o = DB.orders.find(function(x){return x.id===activeOrderId});
+  if (!o) return;
+  var stage  = document.getElementById('s-stage').value;
+  var cost   = parseFloat(document.getElementById('s-cost').value)||0;
+  var qty    = parseInt(document.getElementById('s-qty').value)||0;
+  var worker = document.getElementById('s-worker').value.trim();
+  var hours  = parseFloat(document.getElementById('s-hours').value)||0;
+  var note   = document.getElementById('s-note').value.trim();
+
+  o.stage = stage;
+  o.extraCosts = (o.extraCosts||0) + cost;
+  o.costs.grandTotal = (o.costs.unitTotal * o.qty) + o.extraCosts;
+  o.history.push({stage, date:new Date().toISOString(), cost, qty, worker, hours, note, imgs: stageImgs.slice()});
+  if (stage==='done') o.doneAt = new Date().toISOString();
+
+  save('orders');
+  cm('m-stage');
+  renderOrders(DB.orders);
+  updateKPIs();
+  toast('✅ '+STAGES[stage].label,'success');
+}
+
+// ══ FILTER ══
+var curFilter = 'all';
+function filterStage(s, btn) {
+  curFilter = s;
+  document.querySelectorAll('.s-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+  var list = s==='all' ? DB.orders : DB.orders.filter(function(o){return o.stage===s});
+  renderOrders(list);
+}
+
+// ══ RENDER ORDERS ══
+function renderOrders(list) {
+  var el = document.getElementById('orders-list');
+  if (!list||!list.length){ el.innerHTML='<div class="empty"><div class="empty-icon">📦</div><p>لا يوجد أوردرات</p></div>'; return; }
+  el.innerHTML = list.map(function(o){
+    var stg  = STAGES[o.stage]||STAGES.raw;
+    var pct  = stg.pct;
+    var sellEGP = (o.sellUSD||0)*RATE;
+    var profit  = sellEGP - (o.costs.unitTotal||0);
+    var margin  = sellEGP>0 ? Math.round(profit/sellEGP*100) : 0;
+    var daysLeft = o.delivery ? Math.ceil((new Date(o.delivery)-new Date())/(864e5)) : null;
+    var daysColor = daysLeft===null?'var(--muted)':daysLeft<5?'var(--red)':daysLeft<14?'var(--orange)':'var(--green)';
+    var tlHtml = '<div style="margin-top:10px"><div style="font-size:10px;font-weight:700;color:var(--muted);margin-bottom:6px">مراحل الإنتاج:</div><div class="tl">';
+    STAGE_KEYS.forEach(function(s){
+      var done = STAGE_KEYS.indexOf(s)<STAGE_KEYS.indexOf(o.stage);
+      var cur  = s===o.stage;
+      var h    = o.history&&o.history.find(function(x){return x.stage===s});
+      tlHtml += '<div class="tl-item"><div class="tl-dot '+(done?'done':cur?'current':'')+'">'+( done?'✓':STAGES[s].icon)+'</div>'+
+        '<div class="tl-info"><div class="tl-title" style="color:'+(cur?'var(--orange)':done?'var(--green)':'var(--muted)')+'">'+STAGES[s].label+'</div>'+
+        (h?'<div class="tl-sub">'+(h.date?new Date(h.date).toLocaleDateString('ar-EG'):'')+
+          (h.worker?' · '+h.worker:'')+(h.hours?' · '+h.hours+'س':'')+
+          (h.cost?' · '+h.cost.toLocaleString()+' ج.م':'')+(h.note?'<br>'+h.note:'')+'</div>':'')+'</div></div>';
+    });
+    tlHtml += '</div></div>';
+    return '<div class="ocard">'+
+      '<div class="ocard-head">'+
+        '<div><div class="ocard-name">'+o.product+'</div><div class="ocard-sub">'+o.id+(o.client?' · '+o.client:'')+'</div></div>'+
+        '<span class="badge '+(o.stage==='done'?'badge-green':pct<50?'badge-orange':'badge-blue')+'">'+stg.icon+' '+stg.label+'</span>'+
+      '</div>'+
+      '<div class="ocard-body">'+
+        '<div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted)"><span>التقدم</span><span>'+pct+'%</span></div>'+
+        '<div class="prog-bar"><div class="prog-fill" style="width:'+pct+'%"></div></div>'+
+        '<div class="ocard-meta">'+
+          '<div class="ocard-meta-i"><div class="ocard-meta-l">الكمية</div><div class="ocard-meta-v">'+o.qty+' قطعة</div></div>'+
+          (o.delivery?'<div class="ocard-meta-i"><div class="ocard-meta-l">التسليم</div><div class="ocard-meta-v" style="color:'+daysColor+'">'+
+            (daysLeft!==null?daysLeft+' يوم':new Date(o.delivery).toLocaleDateString('ar-EG'))+'</div></div>':'<div></div>')+
+          '<div class="ocard-meta-i"><div class="ocard-meta-l">هامش الربح</div><div class="ocard-meta-v" style="color:'+(margin>=20?'var(--green)':margin>=10?'var(--orange)':'var(--red)')+'">'+margin+'%</div></div>'+
+        '</div>'+
+        '<div class="cost-box">'+
+          '<div class="cost-row"><span>تكلفة الخامات / قطعة</span><span>'+Math.round(o.costs.unitMat||0).toLocaleString()+' ج.م</span></div>'+
+          '<div class="cost-row"><span>تكلفة العمالة والثابت / قطعة</span><span>'+Math.round(o.costs.unitLabor||0).toLocaleString()+' ج.م</span></div>'+
+          (o.extraCosts?'<div class="cost-row"><span>تكاليف إضافية</span><span>'+Math.round(o.extraCosts).toLocaleString()+' ج.م</span></div>':'')+
+          '<div class="cost-row total"><span>إجمالي تكلفة الأوردر</span><span>'+Math.round(o.costs.grandTotal||0).toLocaleString()+' ج.م</span></div>'+
+          (o.sellUSD?'<div class="cost-row '+(profit>=0?'profit':'loss')+'"><span>صافي الربح ('+margin+'%)</span><span>'+(profit>=0?'+':'')+Math.round(profit*o.qty).toLocaleString()+' ج.م</span></div>':'')+
+        '</div>'+
+        renderDailyInOrder(o)+
+        '<div style="display:flex;gap:6px;margin-top:10px">'+
+          '<button class="btn btn-orange btn-sm" onclick="openStageModal(\''+o.id+'\')">📍 تحديث المرحلة</button>'+
+          '<button class="btn btn-gray btn-sm" onclick="delOrder(\''+o.id+'\')">🗑️</button>'+
+          '<button class="btn btn-blue btn-sm" onclick="copyTrackingLink(\''+o.id+'\')">🔗 رابط العميل</button>'+
+        '</div>'+
+      '</div></div>';
+  }).join('');
+}
+
+// ══ WORKERS ══
+function toggleWType() {
+  var t=document.getElementById('w-type').value;
+  document.getElementById('w-salary-label').textContent = t==='monthly'?'الراتب (ج.م / شهر)':t==='daily'?'الأجر (ج.م / يوم)':'الأجر (ج.م / قطعة)';
+  document.getElementById('w-days-wrap').style.display = t==='monthly'?'block':'none';
+  calcWorkerCost();
+}
+function calcWorkerCost() {
+  var t=document.getElementById('w-type').value;
+  var s=parseFloat(document.getElementById('w-salary').value)||0;
+  var d=parseFloat(document.getElementById('w-days').value)||26;
+  var dayRate = t==='monthly'?s/d:t==='daily'?s:0;
+  var monthly = t==='monthly'?s:t==='daily'?s*d:0;
+  if (dayRate>0||monthly>0) {
+    document.getElementById('w-cost-preview').style.display='block';
+    document.getElementById('wcp-day').textContent   = Math.round(dayRate).toLocaleString()+' ج.م';
+    document.getElementById('wcp-month').textContent = Math.round(monthly).toLocaleString()+' ج.م';
+  }
+}
+function addWorker() {
+  var name=document.getElementById('w-name').value.trim();
+  if (!name){toast('أدخل اسم العامل','error');return;}
+  var t=document.getElementById('w-type').value;
+  var s=parseFloat(document.getElementById('w-salary').value)||0;
+  var d=parseFloat(document.getElementById('w-days').value)||26;
+  var monthly = t==='monthly'?s:t==='daily'?s*d:0;
+  DB.workers.push({id:'W-'+Date.now(),name,dept:document.getElementById('w-dept').value,type:t,salary:s,days:d,monthly,phone:document.getElementById('w-phone').value.trim(),active:true});
+  save('workers'); cm('m-worker'); renderWorkers(); updateKPIs();
+  toast('✅ تم إضافة '+name,'success');
+}
+function renderWorkers() {
+  var el=document.getElementById('workers-list');
+  var totalMonthly=DB.workers.reduce(function(s,w){return s+(w.monthly||0)},0);
+  document.getElementById('w-total').textContent   = DB.workers.length;
+  document.getElementById('w-monthly').textContent = Math.round(totalMonthly/1000)+'k';
+  if (!DB.workers.length){el.innerHTML='<div class="empty"><div class="empty-icon">👷</div><p>لا يوجد عمال</p></div>';return;}
+  el.innerHTML='<table class="tbl"><tr><th>العامل</th><th>القسم</th><th>نوع الراتب</th><th>الراتب الشهري</th><th></th></tr>'+
+    DB.workers.map(function(w){
+      var typeLabel={monthly:'شهري',daily:'يومي',piece:'بالقطعة'}[w.type]||w.type;
+      return '<tr><td><div style="font-weight:700">'+w.name+'</div><div style="font-size:10px;color:var(--muted)">'+(w.phone||'')+'</div></td>'+
+        '<td>'+w.dept+'</td><td>'+typeLabel+'</td>'+
+        '<td><strong style="color:var(--orange)">'+Math.round(w.monthly).toLocaleString()+' ج.م</strong></td>'+
+        '<td><button class="btn btn-red btn-sm" onclick="delWorker(\''+w.id+'\')">🗑️</button></td></tr>';
+    }).join('')+'</table>';
+}
+function delWorker(id){if(!confirm('حذف هذا العامل؟'))return;DB.workers=DB.workers.filter(function(w){return w.id!==id});save('workers');renderWorkers();updateKPIs();}
+
+// ══ MACHINES ══
+function calcDepreciation() {
+  var val=parseFloat(document.getElementById('mac-value').value)||0;
+  var life=parseFloat(document.getElementById('mac-life').value)||10;
+  var daily=parseFloat(document.getElementById('mac-daily').value)||20;
+  var workdays=parseFloat(document.getElementById('mac-workdays').value)||26;
+  if (val&&life) {
+    var monthly=val/(life*12);
+    var perUnit=workdays>0&&daily>0?monthly/(daily*workdays):0;
+    document.getElementById('mac-preview').style.display='block';
+    document.getElementById('mac-dep-month').textContent=Math.round(monthly).toLocaleString()+' ج.م';
+    document.getElementById('mac-dep-unit').textContent=perUnit.toFixed(2)+' ج.م';
+  }
+}
+function addMachine() {
+  var name=document.getElementById('mac-name').value.trim();
+  if (!name){toast('أدخل اسم الماكينة','error');return;}
+  var val=parseFloat(document.getElementById('mac-value').value)||0;
+  var life=parseFloat(document.getElementById('mac-life').value)||10;
+  var daily=parseFloat(document.getElementById('mac-daily').value)||20;
+  var workdays=parseFloat(document.getElementById('mac-workdays').value)||26;
+  var monthly=val/(life*12);
+  var perUnit=workdays>0&&daily>0?monthly/(daily*workdays):0;
+  DB.machines.push({id:'M-'+Date.now(),name,dept:document.getElementById('mac-dept').value,year:document.getElementById('mac-year').value,value:val,life,daily,workdays,monthly,perUnit});
+  save('machines');cm('m-machine');renderMachines();updateKPIs();
+  toast('✅ تم إضافة '+name,'success');
+}
+function renderMachines() {
+  var el=document.getElementById('machines-list');
+  var totalDep=DB.machines.reduce(function(s,m){return s+(m.monthly||0)},0);
+  document.getElementById('mac-total').textContent=DB.machines.length;
+  document.getElementById('mac-dep').textContent=Math.round(totalDep/1000)+'k';
+  if (!DB.machines.length){el.innerHTML='<div class="empty"><div class="empty-icon">⚙️</div><p>لا يوجد ماكينات</p></div>';return;}
+  el.innerHTML='<table class="tbl"><tr><th>الماكينة</th><th>القسم</th><th>القيمة</th><th>إهلاك شهري</th><th>إهلاك/قطعة</th><th></th></tr>'+
+    DB.machines.map(function(m){
+      return '<tr><td><div style="font-weight:700">'+m.name+'</div><div style="font-size:10px;color:var(--muted)">'+(m.year||'')+'</div></td>'+
+        '<td>'+m.dept+'</td><td>'+Math.round(m.value).toLocaleString()+'</td>'+
+        '<td><strong style="color:var(--red)">'+Math.round(m.monthly).toLocaleString()+' ج.م</strong></td>'+
+        '<td><strong style="color:var(--orange)">'+m.perUnit.toFixed(2)+' ج.م</strong></td>'+
+        '<td><button class="btn btn-red btn-sm" onclick="delMachine(\''+m.id+'\')">🗑️</button></td></tr>';
+    }).join('')+'</table>';
+}
+function delMachine(id){if(!confirm('حذف هذه الماكينة؟'))return;DB.machines=DB.machines.filter(function(m){return m.id!==id});save('machines');renderMachines();updateKPIs();}
+
+// ══ DAILY LOG ══
+function openDailyLog() {
+  var sel=document.getElementById('dl-order');
+  sel.innerHTML=DB.orders.filter(function(o){return o.stage!=='done'}).map(function(o){return '<option value="'+o.id+'">'+o.product+' ('+o.qty+' قطعة)</option>'}).join('');
+  document.getElementById('dl-date').value=new Date().toISOString().split('T')[0];
+  ['dl-qty','dl-hours','dl-workers','dl-note'].forEach(function(i){document.getElementById(i).value='';});
+  om('m-daily');
+}
+function calcDailyRate() {
+  var qty=parseInt(document.getElementById('dl-qty').value)||0;
+  var hrs=parseFloat(document.getElementById('dl-hours').value)||8;
+  var workers=parseInt(document.getElementById('dl-workers').value)||1;
+  var dayCost=parseFloat(document.getElementById('dl-cost').value)||0;
+  if (qty>0) {
+    var ratePerWorker=qty/workers;
+    var minPerUnit=workers*hrs*60/qty;
+    document.getElementById('dl-preview').style.display='block';
+    document.getElementById('dlp-rate').textContent=ratePerWorker.toFixed(1)+' قطعة';
+    document.getElementById('dlp-time').textContent=Math.round(minPerUnit)+' دقيقة';
+  }
+  // Compare with plan
+  var orderId=document.getElementById('dl-order').value;
+  var order=DB.orders.find(function(o){return o.id===orderId});
+  if (order&&order.plan&&order.plan.daily) {
+    var planned=order.plan.daily;
+    var diff=qty-planned;
+    var diffColor=diff>=0?'#4ade80':'#f87171';
+    var diffText=(diff>=0?'+':'')+diff+' قطعة';
+    document.getElementById('dl-compare').style.display='block';
+    document.getElementById('dlc-plan').textContent=planned+' قطعة';
+    document.getElementById('dlc-actual').textContent=(qty||0)+' قطعة';
+    document.getElementById('dlc-diff').textContent=qty?diffText:'--';
+    document.getElementById('dlc-diff').style.color=qty?diffColor:'#888';
+    if (qty&&dayCost) {
+      var unitActual=dayCost/qty;
+      var unitPlanned=order.costs.unitTotal||0;
+      var costDiff=unitActual-unitPlanned;
+      document.getElementById('dlc-unitcost').textContent=Math.round(unitActual).toLocaleString()+' ج.م (مخطط: '+Math.round(unitPlanned).toLocaleString()+')';
+      document.getElementById('dlc-unitcost').style.color=costDiff<=0?'#4ade80':'#f87171';
+    }
+  }
+}
+function addDailyLog() {
+  var orderId=document.getElementById('dl-order').value;
+  var qty=parseInt(document.getElementById('dl-qty').value)||0;
+  if (!orderId||!qty){toast('أدخل الأوردر والكمية','error');return;}
+  var order=DB.orders.find(function(o){return o.id===orderId});
+  var planned=order&&order.plan?order.plan.daily:0;
+  var dayCost=parseFloat(document.getElementById('dl-cost').value)||0;
+  DB.daily.push({id:'DL-'+Date.now(),orderId,date:document.getElementById('dl-date').value,qty,hours:parseFloat(document.getElementById('dl-hours').value)||8,workers:parseInt(document.getElementById('dl-workers').value)||1,cost:dayCost,planned,note:document.getElementById('dl-note').value.trim()});
+  // Update order extra costs if cost provided
+  if (dayCost&&order) { order.extraCosts=(order.extraCosts||0)+dayCost; order.costs.grandTotal=(order.costs.unitTotal*order.qty)+order.extraCosts; save('orders'); }
+  save('daily');cm('m-daily');
+  toast('✅ تم حفظ سجل الإنتاج','success');
+}
+
+// ══ PROFIT CALC ══
+function calcProfit() {
+  var cost=parseFloat(document.getElementById('pc-cost').value)||0;
+  var margin=parseFloat(document.getElementById('pc-margin').value)||30;
+  var rate=parseFloat(document.getElementById('pc-rate').value)||RATE;
+  if (!cost) return;
+  var profit=cost*(margin/100);
+  var sellEGP=cost+profit;
+  var sellUSD=sellEGP/rate;
+  document.getElementById('pc-r-cost').textContent=cost.toLocaleString()+' ج.م';
+  document.getElementById('pc-r-profit').textContent='+'+Math.round(profit).toLocaleString()+' ج.م';
+  document.getElementById('pc-r-egp').textContent=Math.round(sellEGP).toLocaleString()+' ج.م';
+  document.getElementById('pc-r-usd').textContent='$'+sellUSD.toFixed(2);
+  var rows='<tr><th>الهامش</th><th>سعر البيع (ج.م)</th><th>سعر البيع ($)</th></tr>';
+  [10,15,20,25,30,35,40,50].forEach(function(m){
+    var sp=cost*(1+m/100);
+    var usd=sp/rate;
+    var cls=m===Math.round(margin)?'style="background:var(--orange-lt);font-weight:700"':'';
+    rows+='<tr '+cls+'><td>'+m+'%</td><td>'+Math.round(sp).toLocaleString()+' ج.م</td><td>$'+usd.toFixed(2)+'</td></tr>';
+  });
+  document.getElementById('pc-table').innerHTML=rows;
+}
+
+// ══ DELETE ORDER ══
+function delOrder(id){
+  if (!confirm('حذف هذا الأوردر؟'))return;
+  DB.orders=DB.orders.filter(function(o){return o.id!==id});
+  save('orders');renderOrders(DB.orders);updateKPIs();toast('تم الحذف','');
+}
+
+// ══ REPORTS ══
+function renderReports() {
+  var el=document.getElementById('reports-body');
+  if (!DB.orders.length){el.innerHTML='<div class="empty"><div class="empty-icon">📊</div><p>أضف أوردرات لتظهر التقارير</p></div>';return;}
+  var totalCost=DB.orders.reduce(function(s,o){return s+(o.costs.grandTotal||0)},0);
+  var totalUnits=DB.orders.reduce(function(s,o){return s+o.qty},0);
+  var totalProfit=DB.orders.filter(function(o){return o.sellUSD}).reduce(function(s,o){return s+(o.sellUSD*RATE-o.costs.unitTotal)*o.qty},0);
+  var workerCost=DB.workers.reduce(function(s,w){return s+(w.monthly||0)},0);
+  var macDep=DB.machines.reduce(function(s,m){return s+(m.monthly||0)},0);
+  var avgUnit=totalUnits?totalCost/totalUnits:0;
+
+  el.innerHTML=
+    '<div class="kpi-grid" style="margin-bottom:16px">'+
+      '<div class="kpi"><div class="kpi-num">'+totalUnits+'</div><div class="kpi-label">إجمالي القطع</div></div>'+
+      '<div class="kpi red"><div class="kpi-num">'+Math.round(totalCost/1000)+'k</div><div class="kpi-label">تكلفة الإنتاج (ج.م)</div></div>'+
+      '<div class="kpi green"><div class="kpi-num">'+Math.round(totalProfit/1000)+'k</div><div class="kpi-label">إجمالي الأرباح (ج.م)</div></div>'+
+      '<div class="kpi blue"><div class="kpi-num">'+Math.round(avgUnit)+'</div><div class="kpi-label">تكلفة القطعة الواحدة</div></div>'+
+    '</div>'+
+    '<div class="profit-box" style="margin-bottom:14px">'+
+      '<div class="pb-title">المصاريف الثابتة الشهرية</div>'+
+      '<div class="pb-row"><span>رواتب العمال ('+DB.workers.length+' عامل)</span><span class="pb-orange">'+Math.round(workerCost).toLocaleString()+' ج.م</span></div>'+
+      '<div class="pb-row"><span>إهلاك الماكينات ('+DB.machines.length+' ماكينة)</span><span class="pb-orange">'+Math.round(macDep).toLocaleString()+' ج.م</span></div>'+
+      '<div class="pb-row"><span>إجمالي الثابت الشهري</span><span style="color:#fff">'+Math.round(workerCost+macDep).toLocaleString()+' ج.م</span></div>'+
+      (totalUnits?'<div class="pb-row"><span>تكلفة الثابت / قطعة (بالشهر)</span><span class="pb-green">'+Math.round((workerCost+macDep)/totalUnits).toLocaleString()+' ج.م</span></div>':'')+
+    '</div>'+
+    '<div style="font-size:12px;font-weight:700;margin-bottom:8px">تفاصيل الأوردرات:</div>'+
+    '<div style="overflow-x:auto"><table class="tbl">'+
+      '<tr><th>المنتج</th><th>الكمية</th><th>تكلفة/قطعة</th><th>سعر البيع</th><th>هامش الربح</th></tr>'+
+      DB.orders.map(function(o){
+        var sellEGP=(o.sellUSD||0)*RATE;
+        var margin=sellEGP>0?Math.round((sellEGP-(o.costs.unitTotal||0))/sellEGP*100):0;
+        var mc=margin>=20?'var(--green)':margin>=10?'var(--orange)':'var(--red)';
+        return '<tr><td><strong>'+o.product+'</strong></td><td>'+o.qty+'</td>'+
+          '<td>'+Math.round(o.costs.unitTotal||0).toLocaleString()+' ج.م</td>'+
+          '<td>'+(o.sellUSD?'$'+o.sellUSD:'-')+'</td>'+
+          '<td style="color:'+mc+';font-weight:700">'+margin+'%</td></tr>';
+      }).join('')+
+    '</table></div>';
+}
+
+// ══ KPIs ══
+function updateKPIs() {
+  var active=DB.orders.filter(function(o){return o.stage!=='done'}).length;
+  var units=DB.orders.filter(function(o){return o.stage!=='done'}).reduce(function(s,o){return s+o.qty},0);
+  var cost=DB.orders.reduce(function(s,o){return s+(o.costs.grandTotal||0)},0);
+  document.getElementById('k-orders').textContent=active;
+  document.getElementById('k-units').textContent=units;
+  document.getElementById('k-workers').textContent=DB.workers.length;
+  document.getElementById('k-cost').textContent=Math.round(cost/1000)+'k';
+  Object.keys(STAGES).concat(['all']).forEach(function(s){
+    var el=document.getElementById('sc-'+s);
+    if (el) el.textContent=s==='all'?DB.orders.length:DB.orders.filter(function(o){return o.stage===s}).length;
+  });
+}
+
+// ══ INIT ══
+document.getElementById('o-prod').addEventListener('change',function(){
+  document.getElementById('o-custom-wrap').style.display=this.value==='منتج مخصص...'?'block':'none';
+});
+document.getElementById('pc-rate').value=RATE;
+document.getElementById('h-date').textContent=new Date().toLocaleDateString('ar-EG',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+renderOrders(DB.orders);
+updateKPIs();
+
+function copyTrackingLink(orderId) {
+  var link = window.location.origin + '/order-tracking.html?id=' + orderId;
+  // Try clipboard
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(link).then(function(){ toast('✅ تم نسخ الرابط — ابعته للعميل','success'); });
+  } else {
+    // Fallback
+    var ta = document.createElement('textarea');
+    ta.value = link;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    toast('✅ تم نسخ الرابط','success');
+  }
+}
+
+function toast(msg,type){var t=document.getElementById('toast');t.textContent=msg;t.className='toast '+(type||'');t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show')},3000);}
+</script>
+</body>
+</html>
