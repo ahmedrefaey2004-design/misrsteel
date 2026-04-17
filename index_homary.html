@@ -255,11 +255,15 @@ button{cursor:pointer;font-family:inherit}
       <button class="nav-search-btn" onclick="doSearch()">🔍</button>
     </div>
     <div class="nav-actions">
+      <button class="nav-icon-btn" id="adminDashBtn" style="display:none" onclick="window.location='admin-dashboard.html'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l9 4.5v9L12 21 3 16.5v-9L12 3z"/><path d="M12 12l9-4.5M12 12L3 7.5M12 12v9"/></svg>
+        الداش بورد
+      </button>
       <button class="nav-icon-btn" onclick="window.location='ai-designer.html'">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
         AI مصمم
       </button>
-      <button class="nav-icon-btn" onclick="window.location='login.html'">
+      <button class="nav-icon-btn" onclick="window.location='login.html?next='+encodeURIComponent(location.pathname.split('/').pop()||'index_homary.html')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         دخول
       </button>
@@ -690,6 +694,13 @@ function doSearch(){
   if(q)window.location='shop.html?q='+encodeURIComponent(q);
 }
 document.getElementById('searchInp').addEventListener('keydown',function(e){if(e.key==='Enter')doSearch();});
+function syncAdminButton(){
+  try{
+    var s = JSON.parse(localStorage.getItem('ms_session') || '{}');
+    var btn = document.getElementById('adminDashBtn');
+    if(btn) btn.style.display = s.role === 'admin' ? 'flex' : 'none';
+  }catch(e){}
+}
 
 // ── Init ──────────────────────────────────
 initSlider();
@@ -697,6 +708,7 @@ fetchRate();
 setInterval(fetchRate,30*60*1000);
 renderGrid();
 updateCartBadge();
+syncAdminButton();
 </script>
 </body>
 </html>
