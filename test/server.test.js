@@ -32,7 +32,6 @@ async function withServer(configOverrides, run) {
   } finally {
     await new Promise((resolve) => server.close(resolve));
     fs.rmSync(temp.dir, { recursive: true, force: true });
-    fs.rmSync(tempSite.dir, { recursive: true, force: true });
   }
 }
 
