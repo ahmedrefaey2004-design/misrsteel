@@ -265,9 +265,7 @@ document.querySelector('.hero-slider').addEventListener('mouseleave',function(){
 // ══ LOAD PRODUCTS FROM MONGODB ══
 async function loadProducts() {
   try {
-    var r = await fetch(BACKEND + '/api/products');
-    var d = await r.json();
-    var prods = d.products || [];
+    var prods = await fetchPublicProducts();
 
     // Get live rate
     try {
@@ -281,6 +279,18 @@ async function loadProducts() {
     // Fallback to static data
     document.getElementById('bestGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:32px;color:#888">تعذر تحميل المنتجات — <a href="marketplace.html" style="color:var(--orange)">تصفح المتجر</a></div>';
   }
+}
+
+async function fetchPublicProducts() {
+  try {
+    var r = await fetch(BACKEND + '/api/products');
+    var d = await r.json();
+    if (Array.isArray(d.products) && d.products.length) return d.products;
+  } catch(e) {}
+
+  var s = await fetch(BACKEND + '/api/site-config');
+  var sd = await s.json();
+  return sd && sd.config && Array.isArray(sd.config.products) ? sd.config.products : [];
 }
 
 function renderProducts(prods) {

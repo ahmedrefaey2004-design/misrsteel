@@ -142,9 +142,7 @@ async function loadProducts() {
     if (sd.usdRate) { USD_EGP = sd.usdRate; localStorage.setItem('ms_rate', USD_EGP); document.querySelectorAll('.rate-display').forEach(function(el){el.textContent=USD_EGP.toFixed(2)}); }
 
     // Get products
-    var r = await fetch(BACKEND + '/api/products');
-    var d = await r.json();
-    allProducts = d.products || [];
+    allProducts = await fetchPublicProducts();
     filtered = allProducts.slice();
 
     // Check URL params
@@ -156,6 +154,18 @@ async function loadProducts() {
   } catch(e) {
     document.getElementById('mpGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#888">❌ تعذر تحميل المنتجات — <button onclick="loadProducts()" style="color:var(--orange);background:none;border:none;cursor:pointer;font-family:inherit;font-size:13px">أعد المحاولة</button></div>';
   }
+}
+
+async function fetchPublicProducts() {
+  try {
+    var r = await fetch(BACKEND + '/api/products');
+    var d = await r.json();
+    if (Array.isArray(d.products) && d.products.length) return d.products;
+  } catch(e) {}
+
+  var s = await fetch(BACKEND + '/api/site-config');
+  var sd = await s.json();
+  return sd && sd.config && Array.isArray(sd.config.products) ? sd.config.products : [];
 }
 
 function renderGrid(prods) {
