@@ -128,7 +128,7 @@ a{text-decoration:none;color:inherit}button{cursor:pointer;font-family:inherit}
 <a class="wa-fab" href="https://wa.me/201050595250" target="_blank">💬 واتساب</a>
 
 <script>
-var BACKEND = 'https://misrsteel-backend.vercel.app';
+var BACKEND = (localStorage.getItem('ms_api_base') || 'https://misrsteel-backend.vercel.app').replace(/\/$/, '');
 var USD_EGP = parseFloat(localStorage.getItem('ms_rate') || '50.85');
 var allProducts = [], filtered = [];
 var sectionLabels = {home:'🏠 منزل', hall:'🎪 قاعة', museum:'🏛️ لوبي', restaurant:'🍽️ مطعم'};
