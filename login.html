@@ -4,166 +4,268 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>تسجيل الدخول — مصر ستيل</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared.css">
 <style>
-.login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#1a0800,#2d1200,#111)}
-.login-box{background:var(--white);width:100%;max-width:440px;border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)}
-.login-head{background:var(--black);padding:28px 28px 24px;text-align:center}
-.login-logo{font-size:22px;font-weight:800;color:var(--orange);margin-bottom:4px}
-.login-logo-sub{font-size:11px;color:rgba(255,255,255,.4)}
-.login-tabs{display:flex;border-bottom:1px solid var(--border)}
-.ltab{flex:1;padding:14px;background:none;border:none;border-bottom:3px solid transparent;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;font-family:inherit;transition:all .2s;margin-bottom:-1px}
-.ltab.active{color:var(--orange);border-bottom-color:var(--orange)}
-.login-body{padding:28px}
-.login-panel{display:none}.login-panel.show{display:block}
-.lf{display:flex;flex-direction:column;gap:4px;margin-bottom:14px}
-.lf label{font-size:11px;font-weight:700;color:var(--muted)}
-.lf input,.lf select{padding:11px 13px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit;outline:none;transition:border-color .2s}
-.lf input:focus,.lf select:focus{border-color:var(--orange)}
-.lf-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.login-btn{width:100%;padding:13px;background:var(--orange);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:800;margin-top:4px;transition:background .2s;font-family:inherit;cursor:pointer}
-.login-btn:hover{background:var(--orange-dk)}
-.login-note{font-size:11px;color:var(--muted);text-align:center;margin-top:10px;line-height:1.6}
-.login-note a{color:var(--orange)}
-.login-success{display:none;text-align:center;padding:20px 0}
-.ls-icon{font-size:48px;margin-bottom:10px}
-.ls-title{font-size:18px;font-weight:800;margin-bottom:6px}
-.ls-sub{font-size:12px;color:var(--muted);line-height:1.7}
-.divider{display:flex;align-items:center;gap:10px;margin:14px 0;color:var(--muted);font-size:12px}
+:root{--orange:#ff6000;--orange-dk:#d94f00;--orange-lt:#fff3eb;--black:#111;--white:#fff;--muted:#888;--border:#e5e5e5;--green:#00a650;--red:#cc0000}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Cairo',sans-serif;background:linear-gradient(135deg,#1a0800,#2d1200,#111);min-height:100vh;display:flex;flex-direction:column;direction:rtl}
+.nav{background:rgba(0,0,0,.4);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(8px)}
+.nav-logo{font-size:20px;font-weight:800;color:var(--orange);text-decoration:none}
+.nav-back{color:rgba(255,255,255,.6);font-size:12px;text-decoration:none;padding:7px 16px;border:1px solid rgba(255,255,255,.2);border-radius:4px}
+.page{flex:1;display:flex;align-items:center;justify-content:center;padding:32px 20px}
+.card{background:#fff;width:100%;max-width:420px;border-radius:12px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.4)}
+.card-head{background:var(--black);padding:28px 28px 24px}
+.card-head-logo{font-size:28px;font-weight:800;color:var(--orange);margin-bottom:4px}
+.card-head-sub{font-size:12px;color:rgba(255,255,255,.4);letter-spacing:.06em}
+.card-head-title{font-size:18px;font-weight:700;color:#fff;margin-top:16px}
+.tabs{display:flex;border-bottom:2px solid var(--border)}
+.tab{flex:1;padding:12px;background:none;border:none;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;font-family:inherit;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s}
+.tab.active{color:var(--orange);border-bottom-color:var(--orange)}
+.tab-pane{display:none;padding:24px}.tab-pane.show{display:block}
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.06em;margin-bottom:5px}
+.fg input,.fg select{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:6px;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s}
+.fg input:focus,.fg select:focus{border-color:var(--orange)}
+.fg input.err{border-color:var(--red)}
+.inp-wrap{position:relative}
+.inp-icon{position:absolute;top:50%;transform:translateY(-50%);inset-inline-start:12px;font-size:16px;color:var(--muted)}
+.inp-wrap input{padding-inline-start:38px}
+.inp-eye{position:absolute;top:50%;transform:translateY(-50%);inset-inline-end:12px;background:none;border:none;cursor:pointer;font-size:16px;color:var(--muted)}
+.btn{width:100%;padding:13px;background:var(--orange);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;transition:background .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn:hover{background:var(--orange-dk)}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+.btn-wa{background:#25D366;margin-top:8px}
+.btn-wa:hover{background:#1da851}
+.divider{display:flex;align-items:center;gap:12px;margin:16px 0;font-size:12px;color:var(--muted)}
 .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
-.btn-wa-login{width:100%;padding:12px;background:#25D366;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .2s}
-.btn-wa-login:hover{background:#128c7e}
+.err-box{background:#fff0f0;border:1px solid #ffcccc;border-radius:6px;padding:10px 14px;font-size:12px;color:var(--red);margin-bottom:14px;display:none}
+.success-box{display:none;text-align:center;padding:20px 0}
+.success-icon{font-size:52px;margin-bottom:12px}
+.success-name{font-size:18px;font-weight:800;margin-bottom:6px}
+.success-email{font-size:12px;color:var(--muted);margin-bottom:16px}
+.user-info{background:#fafafa;border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:16px;text-align:right}
+.ui-row{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--border)}
+.ui-row:last-child{border-bottom:none}
+.ui-label{color:var(--muted)}
+.ui-val{font-weight:700}
+.sp{width:20px;height:20px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.note{font-size:11px;color:var(--muted);text-align:center;margin-top:12px;line-height:1.6}
+.note a{color:var(--orange)}
 </style>
 </head>
 <body>
-<div class="login-page">
-  <div class="login-box">
-    <div class="login-head">
-      <div class="login-logo">مصر ستيل</div>
-      <div class="login-logo-sub">بوابة العملاء</div>
-    </div>
-    <div class="login-tabs">
-      <button class="ltab active" onclick="switchTab('login',this)">تسجيل الدخول</button>
-      <button class="ltab" onclick="switchTab('register',this)">حساب جديد</button>
-    </div>
-    <div class="login-body">
 
-      <!-- LOGIN -->
-      <div class="login-panel show" id="panelLogin">
-        <form onsubmit="doLogin(event)">
-          <div class="lf"><label>الإيميل أو رقم الواتساب</label><input type="text" id="loginId" placeholder="ahmed@company.com" required></div>
-          <div class="lf"><label>كلمة المرور</label><input type="password" id="loginPass" placeholder="••••••••" required></div>
-          <button type="submit" class="login-btn">دخول</button>
-        </form>
-        <div class="divider">أو</div>
-        <button class="btn-wa-login" onclick="loginWA()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-          دخول عبر واتساب
-        </button>
-        <p class="login-note">ليس لديك حساب؟ <a href="#" onclick="switchTab('register')">سجّل الآن</a></p>
-        <div class="login-success" id="loginOk">
-          <div class="ls-icon">✅</div>
-          <div class="ls-title">مرحباً بك!</div>
-          <div class="ls-sub">جاري تحويلك...</div>
+<nav class="nav">
+  <a class="nav-logo" href="index.html">مصر ستيل</a>
+  <a class="nav-back" href="index.html">← الرئيسية</a>
+</nav>
+
+<div class="page">
+  <div class="card">
+    <div class="card-head">
+      <div class="card-head-logo">مصر ستيل</div>
+      <div class="card-head-sub">MISR STEEL · بوابة العملاء</div>
+      <div class="card-head-title">أهلاً بك — سجّل دخولك</div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('login',this)">تسجيل الدخول</button>
+      <button class="tab" onclick="switchTab('register',this)">حساب جديد</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div class="tab-pane show" id="tab-login">
+      <div class="err-box" id="loginErr"></div>
+      <div class="fg">
+        <label>البريد الإلكتروني</label>
+        <div class="inp-wrap"><span class="inp-icon">✉️</span><input type="email" id="li_email" placeholder="ahmed@email.com" autocomplete="email"></div>
+      </div>
+      <div class="fg">
+        <label>كلمة المرور</label>
+        <div class="inp-wrap">
+          <span class="inp-icon">🔒</span>
+          <input type="password" id="li_pass" placeholder="••••••••" autocomplete="current-password">
+          <button class="inp-eye" onclick="togglePass('li_pass')">👁️</button>
         </div>
       </div>
-
-      <!-- REGISTER -->
-      <div class="login-panel" id="panelRegister">
-        <form onsubmit="doRegister(event)">
-          <div class="lf-row">
-            <div class="lf"><label>الاسم</label><input type="text" placeholder="أحمد" required></div>
-            <div class="lf"><label>اسم الشركة</label><input type="text" placeholder="اختياري"></div>
-          </div>
-          <div class="lf"><label>الإيميل</label><input type="email" placeholder="ahmed@company.com" required></div>
-          <div class="lf-row">
-            <div class="lf"><label>واتساب</label><input type="tel" placeholder="+201..."></div>
-            <div class="lf"><label>الدولة</label>
-              <select>
-                <option>🇪🇬 مصر</option><option>🇮🇶 العراق</option>
-                <option>🇸🇦 السعودية</option><option>🇦🇪 الإمارات</option>
-                <option>🇰🇼 الكويت</option><option>🇯🇴 الأردن</option>
-                <option>🌍 أخرى</option>
-              </select>
-            </div>
-          </div>
-          <div class="lf"><label>كلمة المرور</label><input type="password" placeholder="8 أحرف على الأقل" required></div>
-          <button type="submit" class="login-btn">إنشاء الحساب</button>
-        </form>
-        <p class="login-note">لديك حساب؟ <a href="#" onclick="switchTab('login')">سجّل دخولك</a></p>
-        <div class="login-success" id="regOk">
-          <div class="ls-icon">🎉</div>
-          <div class="ls-title">تم التسجيل!</div>
-          <div class="ls-sub">سنتواصل معك على واتساب لتفعيل الحساب خلال 24 ساعة</div>
-        </div>
+      <button class="btn" id="loginBtn" onclick="doLogin()">دخول ←</button>
+      <div class="divider">أو</div>
+      <button class="btn btn-wa" onclick="waLogin()">💬 دخول عبر واتساب</button>
+      <div class="note">ليس لديك حساب؟ <a href="#" onclick="switchTab('register',document.querySelectorAll('.tab')[1])">سجّل الآن</a></div>
+      <!-- Success after login -->
+      <div class="success-box" id="loginSuccess">
+        <div class="success-icon">✅</div>
+        <div class="success-name" id="successName">مرحباً!</div>
+        <div class="success-email" id="successEmail"></div>
+        <div class="user-info" id="userInfo"></div>
+        <button class="btn" onclick="window.location='index.html'">🏠 الرئيسية</button>
+        <button class="btn" style="background:#f5f5f5;color:#333;margin-top:8px" onclick="doLogout()">🚪 تسجيل خروج</button>
       </div>
+    </div>
 
+    <!-- REGISTER -->
+    <div class="tab-pane" id="tab-register">
+      <div class="err-box" id="regErr"></div>
+      <div class="fg"><label>الاسم الكامل *</label><div class="inp-wrap"><span class="inp-icon">👤</span><input type="text" id="rg_name" placeholder="Ahmed Mohamed"></div></div>
+      <div class="fg"><label>البريد الإلكتروني *</label><div class="inp-wrap"><span class="inp-icon">✉️</span><input type="email" id="rg_email" placeholder="ahmed@email.com" autocomplete="email"></div></div>
+      <div class="fg"><label>واتساب</label><div class="inp-wrap"><span class="inp-icon">📱</span><input type="tel" id="rg_phone" placeholder="+201..."></div></div>
+      <div class="fg"><label>الدولة</label>
+        <select id="rg_country">
+          <option value="EG">🇪🇬 مصر</option><option value="AE">🇦🇪 الإمارات</option><option value="SA">🇸🇦 السعودية</option>
+          <option value="IQ">🇮🇶 العراق</option><option value="KW">🇰🇼 الكويت</option><option value="JO">🇯🇴 الأردن</option>
+          <option value="OTHER">🌍 أخرى</option>
+        </select>
+      </div>
+      <div class="fg"><label>كلمة المرور *</label><div class="inp-wrap"><span class="inp-icon">🔒</span><input type="password" id="rg_pass" placeholder="8 أحرف على الأقل"><button class="inp-eye" onclick="togglePass('rg_pass')">👁️</button></div></div>
+      <div class="fg"><label>تأكيد كلمة المرور *</label><div class="inp-wrap"><span class="inp-icon">🔒</span><input type="password" id="rg_pass2" placeholder="أعد كتابة كلمة المرور"></div></div>
+      <button class="btn" id="regBtn" onclick="doRegister()">إنشاء حساب مجاني ←</button>
+      <div class="note">لديك حساب؟ <a href="#" onclick="switchTab('login',document.querySelectorAll('.tab')[0])">سجّل دخولك</a></div>
     </div>
   </div>
 </div>
 
 <script>
-var BACKEND = (localStorage.getItem('ms_api_base') || 'https://misrsteel-backend.vercel.app').replace(/\/$/, '');
-try{
-  var hasNext = new URLSearchParams(location.search).has('next');
-  if(!hasNext && !localStorage.getItem('ms_after_login') && document.referrer){
-    var u = new URL(document.referrer);
-    if (u.origin === location.origin) localStorage.setItem('ms_after_login', u.pathname.split('/').pop() || 'index.html');
-  }
-}catch(e){}
-function switchTab(tab, btn){
-  document.querySelectorAll('.ltab').forEach(function(b){b.classList.remove('active')});
-  document.querySelectorAll('.login-panel').forEach(function(p){p.classList.remove('show')});
-  if(btn) btn.classList.add('active');
-  else document.querySelectorAll('.ltab')[tab==='login'?0:1].classList.add('active');
-  document.getElementById('panel'+(tab.charAt(0).toUpperCase()+tab.slice(1))).classList.add('show');
+var BACKEND = 'https://misrsteel-backend.vercel.app';
+
+// ── CHECK IF ALREADY LOGGED IN ──
+function checkLoggedIn() {
+  var token = localStorage.getItem('ms_client_token');
+  var user  = JSON.parse(localStorage.getItem('ms_client_user') || 'null');
+  if (token && user) showLoggedIn(user);
 }
-function doLogin(e){
-  e.preventDefault();
-  var loginId = (document.getElementById('loginId').value||'').trim();
-  var pass = (document.getElementById('loginPass').value||'').trim();
-  if (!loginId || !pass) return;
 
-  var finishLogin = function(isAdmin){
-    var session = {
-      role: isAdmin ? 'admin' : 'user',
-      id: loginId,
-      loginAt: new Date().toISOString()
-    };
-    localStorage.setItem('ms_session', JSON.stringify(session));
-    if (isAdmin) localStorage.setItem('ms_admin_token', pass);
-    document.querySelector('#panelLogin form').style.display='none';
-    document.querySelector('#panelLogin .divider').style.display='none';
-    document.querySelector('#panelLogin .btn-wa-login').style.display='none';
-    document.querySelector('#panelLogin .login-note').style.display='none';
-    document.getElementById('loginOk').style.display='block';
-    var next = new URLSearchParams(location.search).get('next') || localStorage.getItem('ms_after_login') || 'index.html';
-    localStorage.removeItem('ms_after_login');
-    setTimeout(function(){window.location = isAdmin ? 'index.html' : next;},1200);
-  };
+function showLoggedIn(user) {
+  document.querySelector('.tabs').style.display = 'none';
+  document.querySelectorAll('.tab-pane').forEach(function(p){ p.classList.remove('show'); });
+  document.getElementById('tab-login').classList.add('show');
+  document.getElementById('loginErr').style.display = 'none';
+  document.querySelector('#tab-login form, #tab-login .fg, #tab-login .btn, #tab-login .divider, #tab-login .note, #tab-login .btn-wa');
 
-  var wantsAdmin = loginId.toLowerCase() === 'admin' || /@admin/i.test(loginId);
-  if (!wantsAdmin) return finishLogin(false);
+  // Hide form elements
+  document.querySelectorAll('#tab-login .fg, #tab-login .divider, #tab-login .note').forEach(function(el){ el.style.display='none'; });
+  document.getElementById('loginBtn').style.display = 'none';
+  document.getElementById('loginBtn').nextElementSibling && (document.getElementById('loginBtn').nextElementSibling.style.display = 'none');
 
-  fetch(BACKEND + '/api/admin/users', { headers: { 'x-admin-token': pass } })
-    .then(function(res){
-      if (!res.ok) throw new Error('bad_admin_token');
-      return res.json();
-    })
-    .then(function(){ finishLogin(true); })
-    .catch(function(){
-      alert('بيانات الأدمن غير صحيحة');
+  document.getElementById('successName').textContent = 'مرحباً، ' + (user.name || 'عميل');
+  document.getElementById('successEmail').textContent = user.email;
+  document.getElementById('userInfo').innerHTML =
+    '<div class="ui-row"><span class="ui-label">الاسم</span><span class="ui-val">' + (user.name||'-') + '</span></div>' +
+    '<div class="ui-row"><span class="ui-label">الإيميل</span><span class="ui-val">' + (user.email||'-') + '</span></div>' +
+    (user.phone ? '<div class="ui-row"><span class="ui-label">واتساب</span><span class="ui-val">' + user.phone + '</span></div>' : '') +
+    (user.country ? '<div class="ui-row"><span class="ui-label">الدولة</span><span class="ui-val">' + user.country + '</span></div>' : '');
+  document.getElementById('loginSuccess').style.display = 'block';
+}
+
+// ── TABS ──
+function switchTab(key, el) {
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  document.querySelectorAll('.tab-pane').forEach(function(p){ p.classList.remove('show'); });
+  if (el) el.classList.add('active');
+  document.getElementById('tab-' + key).classList.add('show');
+}
+
+// ── LOGIN ──
+async function doLogin() {
+  var email = document.getElementById('li_email').value.trim();
+  var pass  = document.getElementById('li_pass').value;
+  if (!email || !pass) { showErr('loginErr', 'أدخل البريد الإلكتروني وكلمة المرور'); return; }
+
+  setLoading('loginBtn', true);
+  hideErr('loginErr');
+
+  try {
+    var r = await fetch(BACKEND + '/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: pass })
     });
+    var d = await r.json();
+    if (!r.ok) { showErr('loginErr', d.error || 'خطأ في تسجيل الدخول'); setLoading('loginBtn', false); return; }
+
+    // Save to localStorage
+    localStorage.setItem('ms_client_token', d.token);
+    localStorage.setItem('ms_client_user', JSON.stringify(d.user));
+
+    setLoading('loginBtn', false);
+    showLoggedIn(d.user);
+  } catch(e) {
+    showErr('loginErr', 'فشل الاتصال — حاول تاني');
+    setLoading('loginBtn', false);
+  }
 }
-function doRegister(e){
-  e.preventDefault();
-  document.querySelector('#panelRegister form').style.display='none';
-  document.querySelector('#panelRegister .login-note').style.display='none';
-  document.getElementById('regOk').style.display='block';
+
+// ── REGISTER ──
+async function doRegister() {
+  var name  = document.getElementById('rg_name').value.trim();
+  var email = document.getElementById('rg_email').value.trim();
+  var phone = document.getElementById('rg_phone').value.trim();
+  var pass  = document.getElementById('rg_pass').value;
+  var pass2 = document.getElementById('rg_pass2').value;
+
+  if (!name || !email || !pass) { showErr('regErr', 'أدخل الاسم والإيميل وكلمة المرور'); return; }
+  if (pass.length < 6) { showErr('regErr', 'كلمة المرور أقل من 6 أحرف'); return; }
+  if (pass !== pass2) { showErr('regErr', 'كلمتا المرور غير متطابقتين'); return; }
+
+  setLoading('regBtn', true);
+  hideErr('regErr');
+
+  try {
+    var r = await fetch(BACKEND + '/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, phone, password: pass, country: document.getElementById('rg_country').value })
+    });
+    var d = await r.json();
+    if (!r.ok) { showErr('regErr', d.error || 'خطأ في التسجيل'); setLoading('regBtn', false); return; }
+
+    localStorage.setItem('ms_client_token', d.token);
+    localStorage.setItem('ms_client_user', JSON.stringify(d.user));
+
+    setLoading('regBtn', false);
+
+    // Switch to login tab and show success
+    switchTab('login', document.querySelectorAll('.tab')[0]);
+    showLoggedIn(d.user);
+  } catch(e) {
+    showErr('regErr', 'فشل الاتصال — حاول تاني');
+    setLoading('regBtn', false);
+  }
 }
-function loginWA(){
-  window.open('https://wa.me/201050595250?text=أريد تسجيل الدخول لحساب مصر ستيل','_blank');
+
+// ── LOGOUT ──
+function doLogout() {
+  localStorage.removeItem('ms_client_token');
+  localStorage.removeItem('ms_client_user');
+  window.location.reload();
 }
+
+// ── WA LOGIN ──
+function waLogin() {
+  var msg = 'مرحباً مصر ستيل — أريد تسجيل الدخول لحسابي';
+  window.open('https://wa.me/201050595250?text=' + encodeURIComponent(msg), '_blank');
+}
+
+// ── HELPERS ──
+function showErr(id, msg) { var el=document.getElementById(id); el.textContent='❌ '+msg; el.style.display='block'; }
+function hideErr(id) { document.getElementById(id).style.display='none'; }
+function togglePass(id) { var inp=document.getElementById(id); inp.type=inp.type==='password'?'text':'password'; }
+function setLoading(btnId, on) {
+  var btn = document.getElementById(btnId);
+  btn.disabled = on;
+  btn.innerHTML = on ? '<div class="sp"></div>' : (btnId==='loginBtn' ? 'دخول ←' : 'إنشاء حساب مجاني ←');
+}
+
+// ── INIT ──
+checkLoggedIn();
+
+// Allow Enter key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    if (document.getElementById('tab-login').classList.contains('show')) doLogin();
+    else doRegister();
+  }
+});
 </script>
 </body>
 </html>
