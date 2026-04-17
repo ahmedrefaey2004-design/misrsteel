@@ -150,6 +150,12 @@ async function loadProducts() {
     // Check URL params
     var params = new URLSearchParams(location.search);
     var q = params.get('q');
+    var id = params.get('id');
+    if (id) {
+      filtered = allProducts.filter(function(p){ return String(p.id) === String(id); });
+      renderGrid(filtered);
+      return;
+    }
     if (q) { document.getElementById('searchInp').value = q; doSearch(); return; }
 
     renderGrid(filtered);

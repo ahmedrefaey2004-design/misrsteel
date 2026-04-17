@@ -190,7 +190,7 @@ function renderGrid(key){
   var egpR = USD_EGP;
   return PRODUCTS[key].map(function(p){
     var egp = Math.round(p.price * egpR).toLocaleString();
-    return '<a class="prod-card" href="product-'+p.id+'.html">'
+    return '<a class="prod-card" href="marketplace.html?id='+encodeURIComponent(p.id)+'">'
       +'<div class="prod-img"><img src="'+p.img+'" alt="'+p.name+'" loading="lazy" onerror="this.style.display=\'none\'"></div>'
       +'<div class="prod-body">'
       +'<div class="prod-name">'+p.name+'</div>'
