@@ -300,8 +300,7 @@ function renderProducts(prods) {
   var top = prods.slice().reverse().slice(0, 10);
   var html = top.map(function(p) {
     var badge = p.badge && badgeClass[p.badge] ? '<div class="prod-card-badge '+badgeClass[p.badge]+'">'+(p.badge==='hot'?'الأكثر طلباً':'جديد')+'</div>' : '';
-    var img = p.imgs && p.imgs[0] ? p.imgs[0] : 'images/p01-rose-gold-chair.jpg';
-    var imgSrc = img.startsWith('http') ? img : 'https://misrsteel.vercel.app/' + img;
+    var imgSrc = resolveProductImage(firstProductImage(p));
     var egp = Math.round(p.price * USD_EGP).toLocaleString();
     return '<a class="prod-card" href="marketplace.html?id='+p.id+'">'
       + badge
