@@ -250,18 +250,78 @@ var USD_EGP = parseFloat(localStorage.getItem('ms_rate') || '50.85');
 var slideIdx = 0, slideCount = 4, slideAuto;
 var sectionLabels = {home:'🏠 منزل', hall:'🎪 قاعة', museum:'🏛️ لوبي', restaurant:'🍽️ مطعم'};
 var badgeClass = {hot:'badge-hot', new:'badge-new'};
+var defaultBanners = [
+  { titleAr:'أثاث استانلس فاخر', desc:'كراسي وترابيزات استانلس 304 للمنازل والقاعات والفنادق', btn:'تسوق الآن', link:'#products', img:'images/showroom-lounge.jpg' },
+  { titleAr:'كرسي ميداليون فضي', desc:'إطار استانلس فضي · مخمل رمادي راقي', btn:'اطلب الآن', link:'marketplace.html', img:'images/p04-medallion-silver-2.jpg' },
+  { titleAr:'صمّم غرفتك قبل الشراء', desc:'ارفع صورة مكانك واختار من منتجاتنا', btn:'جرّب مجاناً', link:'ai-designer.html', img:'images/showroom-cage.jpg' },
+  { titleAr:'كرسي هوبي الذهبي', desc:'إطار ذهبي حلقي فريد · مثالي لقاعات الأفراح', btn:'اكتشف الآن', link:'marketplace.html', img:'images/p15-new-e-2.jpg' }
+];
 
 // ══ SLIDER ══
 function slide(dir){ slideIdx=(slideIdx+dir+slideCount)%slideCount; document.getElementById('slides').style.transform='translateX('+(slideIdx*100)+'%)'; updateDots(); }
 function goSlide(i){ slideIdx=i; document.getElementById('slides').style.transform='translateX('+(i*100)+'%)'; updateDots(); }
 function updateDots(){ document.querySelectorAll('.sdot').forEach(function(d,i){d.classList.toggle('active',i===slideIdx)}); }
 function initSlider(){
+  clearInterval(slideAuto);
   var dots=''; for(var i=0;i<slideCount;i++) dots+='<div class="sdot'+(i===0?' active':'')+'" onclick="goSlide('+i+')"></div>';
   document.getElementById('sliderDots').innerHTML=dots;
   slideAuto=setInterval(function(){slide(1)},4500);
 }
 document.querySelector('.hero-slider').addEventListener('mouseenter',function(){clearInterval(slideAuto)});
 document.querySelector('.hero-slider').addEventListener('mouseleave',function(){slideAuto=setInterval(function(){slide(1)},4500)});
+
+function normalizeBannerImage(src){
+  if (!src) return 'images/showroom-lounge.jpg';
+  if (src.startsWith('data:') || src.startsWith('http') || src.startsWith('blob:')) return src;
+  return 'https://misrsteel.vercel.app/' + src.replace(/^\.?\//, '');
+}
+
+function renderDynamicBanners(banners){
+  var safeBanners = Array.isArray(banners) && banners.length ? banners : defaultBanners;
+  var topBanners = safeBanners.slice(0, 6);
+  document.getElementById('slides').innerHTML = topBanners.map(function(b, i){
+    var title = b.titleAr || b.titleEn || 'بوستر';
+    var desc = b.desc || '';
+    var btn = b.btn || 'تسوق الآن';
+    var link = b.link || '#products';
+    var tag = i === 0 ? '🏭 مباشرة من المصنع' : '✨ عرض مميز';
+    return '<div class="slide"><img class="slide-bg" src="'+normalizeBannerImage(b.img)+'" alt="'+title+'" onerror="this.src=\'images/showroom-lounge.jpg\'"><div class="slide-overlay"></div><div class="slide-content"><div class="slide-tag">'+tag+'</div><div class="slide-title">'+title+'</div><div class="slide-sub">'+desc+'</div><a class="slide-btn" href="'+link+'">'+btn+'</a></div></div>';
+  }).join('');
+  slideIdx = 0;
+  slideCount = Math.max(1, topBanners.length);
+  document.getElementById('slides').style.transform = 'translateX(0)';
+  initSlider();
+
+  document.querySelector('.promo-strip').innerHTML = safeBanners.slice(0, 2).map(function(b){
+    var title = b.titleAr || b.titleEn || 'عرض مميز';
+    var desc = b.desc || '';
+    var link = b.link || '#products';
+    var btn = b.btn || 'اكتشف';
+    return '<div class="promo-card"><img src="'+normalizeBannerImage(b.img)+'" alt="'+title+'" onerror="this.src=\'images/showroom-lounge.jpg\'"><div class="promo-overlay"><div class="promo-title">'+title+'</div><div class="promo-sub">'+desc+'</div><a href="'+link+'" class="promo-link">'+btn+' ←</a></div></div>';
+  }).join('');
+}
+
+async function loadSiteBanners(){
+  try {
+    var local = localStorage.getItem('ms_banners');
+    if (local) {
+      var localBanners = JSON.parse(local);
+      if (Array.isArray(localBanners) && localBanners.length) {
+        renderDynamicBanners(localBanners);
+        return;
+      }
+    }
+  } catch(e) {}
+
+  try {
+    var r = await fetch(BACKEND + '/api/site-config');
+    var d = await r.json();
+    var posters = d && d.config && Array.isArray(d.config.posters) ? d.config.posters : [];
+    renderDynamicBanners(posters);
+  } catch(e) {
+    renderDynamicBanners(defaultBanners);
+  }
+}
 
 // ══ LOAD PRODUCTS FROM MONGODB ══
 async function loadProducts() {
@@ -341,6 +401,7 @@ document.getElementById('searchInp').addEventListener('keydown',function(e){if(e
 
 // ══ INIT ══
 initSlider();
+loadSiteBanners();
 loadProducts();
 </script>
 </body>
