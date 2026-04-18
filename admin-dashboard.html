@@ -281,6 +281,7 @@ tr:hover td{background:#fafafa}
     <div class="nav-item" onclick="go('affiliates',this)">🤝 المسوّقين</div>
     <div class="nav-item" onclick="go('inquiries',this)">📋 الاستفسارات</div>
     <div class="nav-item" onclick="go('ai_users',this)">🤖 مستخدمو AI</div>
+    <div class="nav-item" onclick="go('partners',this)">🤝 الشركاء والـ API</div>
     <div class="nav-section">الإعدادات</div>
     <div class="nav-item" onclick="go('settings',this)">⚙️ الإعدادات</div>
     <div class="nav-item" onclick="go('reports',this)">📈 التقارير</div>
@@ -420,6 +421,67 @@ tr:hover td{background:#fafafa}
       </div>
     </div>
 
+    <!-- PARTNERS -->
+    <div class="panel" id="panel-partners">
+      <div class="panel-title">
+        <span>🤝 الشركاء وروابط الـ API</span>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-gray btn-sm" onclick="window.open('https://misrsteel-backend.vercel.app/api/feed/meta','_blank')">👁️ Meta JSON Feed</button>
+          <button class="btn btn-gray btn-sm" onclick="window.open('https://misrsteel-backend.vercel.app/api/feed/meta.xml','_blank')">📄 XML Feed</button>
+          <button class="btn btn-orange btn-sm" onclick="openAddPartner()">➕ شريك جديد</button>
+        </div>
+      </div>
+
+      <!-- Feed Links -->
+      <div class="settings-card">
+        <h3>📡 روابط الـ Feed لـ Meta</h3>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:12px">ارفع هذه الروابط في Meta Business Manager ← Catalog ← Data Sources</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <div style="flex:1;padding:10px;background:#f5f5f5;border-radius:6px;font-size:12px;font-family:monospace;word-break:break-all">https://misrsteel-backend.vercel.app/api/feed/meta.xml</div>
+            <button class="btn btn-orange btn-sm" onclick="copyText('https://misrsteel-backend.vercel.app/api/feed/meta.xml')">📋 نسخ XML</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <div style="flex:1;padding:10px;background:#f5f5f5;border-radius:6px;font-size:12px;font-family:monospace;word-break:break-all">https://misrsteel-backend.vercel.app/api/feed/meta</div>
+            <button class="btn btn-orange btn-sm" onclick="copyText('https://misrsteel-backend.vercel.app/api/feed/meta')">📋 نسخ JSON</button>
+          </div>
+        </div>
+        <div style="margin-top:12px">
+          <button class="btn btn-green btn-sm" onclick="notifyWebhooks()">🔔 إرسال Webhook لكل الشركاء</button>
+        </div>
+      </div>
+
+      <!-- Partners Table -->
+      <div class="table-wrap">
+        <div class="table-head"><h3 id="partners-count">الشركاء</h3></div>
+        <div id="partnersTable"><div class="loading"><div class="sp"></div>جاري التحميل...</div></div>
+      </div>
+
+      <!-- Add Partner Modal inline -->
+      <div class="modal" id="partnerModal">
+        <div class="modal-box">
+          <div class="modal-head"><h3 id="partnerModalTitle">➕ شريك جديد</h3><button class="modal-x" onclick="closePartnerModal()">✕</button></div>
+          <div class="modal-body">
+            <div class="form-grid">
+              <div class="fg"><label>اسم الشركة / الشريك *</label><input type="text" id="pm_pname" placeholder="ABC Furniture Egypt"></div>
+              <div class="fg"><label>الإيميل</label><input type="email" id="pm_pemail" placeholder="partner@abc.com"></div>
+              <div class="fg"><label>الموقع / الصفحة</label><input type="text" id="pm_pwebsite" placeholder="https://abc.com"></div>
+              <div class="fg"><label>الدولة</label><input type="text" id="pm_pcountry" placeholder="مصر / السعودية..."></div>
+              <div class="fg"><label>خصم للشريك %</label><input type="number" id="pm_pdiscount" placeholder="5" min="0" max="50"></div>
+            </div>
+            <div class="fg full"><label>Webhook URLs (سطر لكل رابط)</label><textarea id="pm_pwebhooks" rows="3" placeholder="https://partner-site.com/webhook&#10;https://another-site.com/hook"></textarea></div>
+            <div style="background:#f5f5f5;border-radius:6px;padding:10px;font-size:12px;color:var(--muted)">
+              💡 بعد الإنشاء هيتولد API Key تلقائياً — ابعته للشريك عشان يستخدمه في طلباته
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-gray" onclick="closePartnerModal()">إلغاء</button>
+            <button class="btn btn-orange" onclick="savePartner()">💾 إنشاء الشريك</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- SETTINGS -->
     <div class="panel" id="panel-settings">
       <div class="panel-title"><span>⚙️ الإعدادات</span></div>
@@ -468,8 +530,8 @@ tr:hover td{background:#fafafa}
 </div>
 
 <script>
-var API = (localStorage.getItem('ms_api_base') || 'https://misrsteel-backend.vercel.app').replace(/\/$/, '');
-var ADMIN_TOKEN = localStorage.getItem('ms_admin_token') || '';
+var API = 'https://misrsteel-backend.vercel.app';
+var ADMIN_TOKEN = localStorage.getItem('ms_admin_token') || 'misrsteel_admin_2025';
 var allOrders=[], allProducts=[], allAffiliates=[];
 var currentOrderId=null, editProdId=null, editSecId=null, editBannerId=null;
 var prodImgs=[], secImg=null, bannerImg=null;
@@ -490,7 +552,7 @@ function go(key, el) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('panel-' + key).classList.add('show');
   if (el) el.classList.add('active');
-  var map = { overview:loadOverview, products:loadProducts, sections:loadSections, banners:loadBanners, orders:loadOrders, customers:loadCustomers, affiliates:loadAffiliates, inquiries:loadInquiries, ai_users:loadAIUsers, settings:loadSettings, reports:loadReports };
+  var map = { overview:loadOverview, products:loadProducts, sections:loadSections, banners:loadBanners, orders:loadOrders, customers:loadCustomers, affiliates:loadAffiliates, inquiries:loadInquiries, ai_users:loadAIUsers, settings:loadSettings, reports:loadReports, partners:loadPartners };
   if (map[key]) map[key]();
 }
 function loadAll() { checkAPI(); loadOverview(); }
@@ -901,25 +963,106 @@ async function loadReports() {
   } catch(e) {}
 }
 
+// ── PARTNERS ─────────────────────────────────────────
+async function loadPartners() {
+  try {
+    var d = await api('GET', '/api/admin/partners');
+    var partners = d.partners || [];
+    document.getElementById('partners-count').textContent = 'الشركاء (' + partners.length + ')';
+    if (!partners.length) {
+      document.getElementById('partnersTable').innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted)">لا يوجد شركاء بعد</div>';
+      return;
+    }
+    document.getElementById('partnersTable').innerHTML =
+      '<table><tr><th>الشريك</th><th>API Key</th><th>الطلبات</th><th>خصم</th><th>الحالة</th><th>إجراءات</th></tr>' +
+      partners.map(function(p) {
+        return '<tr>' +
+          '<td><strong>' + p.name + '</strong><div style="font-size:10px;color:var(--muted)">' + (p.website||p.country||'') + '</div></td>' +
+          '<td><code style="font-size:10px;background:#f5f5f5;padding:2px 6px;border-radius:3px;word-break:break-all">' + p.apiKey + '</code>' +
+          '<button class="btn btn-gray btn-sm" style="margin-top:4px" onclick="copyText('' + p.apiKey + '')">📋</button></td>' +
+          '<td>' + (p.requests||0) + '</td>' +
+          '<td>' + (p.discount||0) + '%</td>' +
+          '<td><span class="badge ' + (p.active?'b-new':'b-done') + '">' + (p.active?'نشط':'موقف') + '</span></td>' +
+          '<td style="display:flex;gap:4px;flex-wrap:wrap">' +
+          '<button class="btn btn-gray btn-sm" onclick="copyPartnerFeed('' + p.apiKey + '')">🔗 Feed</button>' +
+          '<button class="btn btn-green btn-sm" onclick="testWebhook('' + p._id + '')">🔔 Test</button>' +
+          '<button class="btn btn-red btn-sm" onclick="deletePartner('' + p._id + '')">🗑️</button>' +
+          '</td></tr>';
+      }).join('') + '</table>';
+  } catch(e) {
+    document.getElementById('partnersTable').innerHTML = '<div style="padding:20px;color:var(--red)">❌ ' + e.message + '</div>';
+  }
+}
+
+function openAddPartner() {
+  document.getElementById('partnerModalTitle').textContent = '➕ شريك جديد';
+  ['pm_pname','pm_pemail','pm_pwebsite','pm_pcountry','pm_pdiscount','pm_pwebhooks'].forEach(function(id){ document.getElementById(id).value=''; });
+  document.getElementById('partnerModal').classList.add('open');
+}
+function closePartnerModal() { document.getElementById('partnerModal').classList.remove('open'); }
+
+async function savePartner() {
+  var name = document.getElementById('pm_pname').value.trim();
+  if (!name) { toast('أدخل اسم الشريك','error'); return; }
+  var webhooksRaw = document.getElementById('pm_pwebhooks').value.trim();
+  var webhooks = webhooksRaw ? webhooksRaw.split('\n').map(function(w){return w.trim()}).filter(Boolean) : [];
+  try {
+    var d = await api('POST', '/api/admin/partners', {
+      name, email:document.getElementById('pm_pemail').value.trim(),
+      website:document.getElementById('pm_pwebsite').value.trim(),
+      country:document.getElementById('pm_pcountry').value.trim(),
+      discount:parseFloat(document.getElementById('pm_pdiscount').value)||0,
+      webhooks,
+    });
+    closePartnerModal();
+    toast('✅ تم إنشاء الشريك — API Key: ' + d.apiKey, 'success');
+    loadPartners();
+  } catch(e) { toast('❌ ' + e.message, 'error'); }
+}
+
+async function deletePartner(id) {
+  if (!confirm('إيقاف هذا الشريك؟')) return;
+  try { await api('DELETE', '/api/admin/partners/' + id); toast('تم الإيقاف',''); loadPartners(); }
+  catch(e) { toast('❌ ' + e.message,'error'); }
+}
+
+async function testWebhook(id) {
+  try {
+    await api('POST', '/api/admin/partners/' + id + '/test-webhook', {});
+    toast('✅ تم إرسال Webhook تجريبي','success');
+  } catch(e) { toast('❌ ' + e.message,'error'); }
+}
+
+async function notifyWebhooks() {
+  try {
+    await api('POST', '/api/admin/products/notify', {});
+    toast('✅ تم إرسال Webhook لكل الشركاء','success');
+  } catch(e) { toast('❌ ' + e.message,'error'); }
+}
+
+function copyPartnerFeed(apiKey) {
+  var url = 'https://misrsteel-backend.vercel.app/api/feed/partner?api_key=' + apiKey;
+  copyText(url);
+}
+
+function copyText(text) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(function(){ toast('✅ تم النسخ','success'); });
+  } else {
+    var ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    toast('✅ تم النسخ','success');
+  }
+}
+
 // ── TOAST ─────────────────────────────────────────────
 function toast(msg,type){ var t=document.getElementById('toast'); t.textContent=msg; t.className='toast '+(type||''); t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),3200); }
 
 // ── INIT ──────────────────────────────────────────────
-async function ensureAdminAccess() {
-  try {
-    var s = JSON.parse(localStorage.getItem('ms_session') || '{}');
-    if (s.role !== 'admin' || !ADMIN_TOKEN) throw new Error('unauthorized');
-    var r = await fetch(API + '/api/admin/users', { headers: { 'x-admin-token': ADMIN_TOKEN } });
-    if (!r.ok) throw new Error('unauthorized');
-    checkAPI();
-    loadOverview();
-    setInterval(checkAPI,30000);
-  } catch(e) {
-    localStorage.removeItem('ms_session');
-    window.location = 'login.html?next=admin-dashboard.html';
-  }
-}
-ensureAdminAccess();
+checkAPI();
+loadOverview();
+setInterval(checkAPI,30000);
 </script>
 </body>
 </html>

@@ -143,8 +143,8 @@ button{cursor:pointer;font-family:inherit}
       <button class="nav-search-btn" onclick="doSearch()">🔍</button>
     </div>
     <div class="nav-actions">
-      <button class="nav-btn outline" id="adminDashBtn" style="display:none" onclick="window.location='admin-dashboard.html'">🛠️ الداشبورد</button>
       <button class="nav-btn outline" onclick="window.location='ai-designer.html'">🤖 AI مصمم</button>
+      <button class="nav-btn outline" onclick="window.location='login.html'" style="display:flex;align-items:center;gap:5px">👤 دخول</button>
       <button class="nav-btn" onclick="window.location='marketplace.html'">🛒 اطلب الآن</button>
     </div>
   </div>
@@ -245,7 +245,7 @@ button{cursor:pointer;font-family:inherit}
 
 <script>
 // ══ CONFIG ══
-var BACKEND = (localStorage.getItem('ms_api_base') || 'https://misrsteel-backend.vercel.app').replace(/\/$/, '');
+var BACKEND = 'https://misrsteel-backend.vercel.app';
 var USD_EGP = parseFloat(localStorage.getItem('ms_rate') || '50.85');
 var slideIdx = 0, slideCount = 4, slideAuto;
 var sectionLabels = {home:'🏠 منزل', hall:'🎪 قاعة', museum:'🏛️ لوبي', restaurant:'🍽️ مطعم'};
@@ -266,42 +266,49 @@ document.querySelector('.hero-slider').addEventListener('mouseleave',function(){
 // ══ LOAD PRODUCTS FROM MONGODB ══
 async function loadProducts() {
   try {
-    var prods = await fetchPublicProducts();
-
-    // Get live rate
+    // Get live rate first
     try {
       var sr = await fetch(BACKEND + '/api/settings/public');
       var sd = await sr.json();
-      if (sd.usdRate) { USD_EGP = sd.usdRate; localStorage.setItem('ms_rate', USD_EGP); document.querySelectorAll('.rate-display').forEach(function(el){el.textContent=USD_EGP.toFixed(2);}); }
+      if (sd.usdRate) {
+        USD_EGP = sd.usdRate;
+        localStorage.setItem('ms_rate', USD_EGP);
+        document.querySelectorAll('.rate-display').forEach(function(el){el.textContent=USD_EGP.toFixed(2);});
+      }
     } catch(e) {}
 
-    renderProducts(prods);
-  } catch(e) {
-    // Fallback to static data
-    document.getElementById('bestGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:32px;color:#888">تعذر تحميل المنتجات — <a href="marketplace.html" style="color:var(--orange)">تصفح المتجر</a></div>';
-  }
-}
+    // Get products
+    var r = await fetch(BACKEND + '/api/products', {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' }
+    });
 
-async function fetchPublicProducts() {
-  try {
-    var r = await fetch(BACKEND + '/api/products');
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+
     var d = await r.json();
-    if (Array.isArray(d.products) && d.products.length) return d.products;
-  } catch(e) {}
+    var prods = d.products || [];
 
-  var s = await fetch(BACKEND + '/api/site-config');
-  var sd = await s.json();
-  return sd && sd.config && Array.isArray(sd.config.products) ? sd.config.products : [];
+    if (prods.length === 0) throw new Error('No products');
+    renderProducts(prods);
+
+  } catch(e) {
+    console.error('Products error:', e.message);
+    document.getElementById('bestGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px"><div style="font-size:32px;margin-bottom:12px">⚠️</div><div style="font-size:14px;color:#888;margin-bottom:16px">جاري تحميل المنتجات...</div><button onclick="loadProducts()" style="padding:10px 24px;background:var(--orange);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">🔄 إعادة المحاولة</button></div>';
+  }
 }
 
 function renderProducts(prods) {
   if (!prods.length) { document.getElementById('bestGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:32px;color:#888">لا توجد منتجات بعد</div>'; return; }
 
-  // Show latest 10 (newly added products first)
-  var top = prods.slice().reverse().slice(0, 10);
+  // Show top 10
+  var top = prods.slice(0, 10);
   var html = top.map(function(p) {
     var badge = p.badge && badgeClass[p.badge] ? '<div class="prod-card-badge '+badgeClass[p.badge]+'">'+(p.badge==='hot'?'الأكثر طلباً':'جديد')+'</div>' : '';
-    var imgSrc = resolveProductImage(firstProductImage(p));
+    var img = p.imgs && p.imgs[0] ? p.imgs[0] : 'images/p01-rose-gold-chair.jpg';
+    // Handle base64, full URL, or relative path
+    var imgSrc = img.startsWith('data:') ? img :
+                 img.startsWith('http') ? img :
+                 'https://misrsteel.vercel.app/' + img;
     var egp = Math.round(p.price * USD_EGP).toLocaleString();
     return '<a class="prod-card" href="marketplace.html?id='+p.id+'">'
       + badge
@@ -330,17 +337,10 @@ function addCart(p) {
 function showToast(msg,type){ var t=document.getElementById('toast'); t.textContent=msg; t.className='toast '+(type||''); t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(function(){t.classList.remove('show')},2600); }
 function doSearch(){ var q=document.getElementById('searchInp').value.trim(); if(q) window.location='marketplace.html?q='+encodeURIComponent(q); }
 document.getElementById('searchInp').addEventListener('keydown',function(e){if(e.key==='Enter')doSearch()});
-function syncAdminButton(){
-  try{
-    var s = JSON.parse(localStorage.getItem('ms_session') || '{}');
-    var btn = document.getElementById('adminDashBtn');
-    if(btn) btn.style.display = s.role === 'admin' ? 'inline-block' : 'none';
-  }catch(e){}
-}
+
 
 // ══ INIT ══
 initSlider();
-syncAdminButton();
 loadProducts();
 </script>
 </body>
