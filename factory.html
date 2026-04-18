@@ -165,6 +165,31 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 </style>
 </head>
 <body>
+
+<!-- ADMIN AUTH CHECK -->
+<div id="lockScreen" style="position:fixed;inset:0;background:#0a0a0a;z-index:9999;display:flex;align-items:center;justify-content:center;direction:rtl">
+  <div style="background:#1a1a1a;border:1px solid #333;border-radius:16px;padding:36px;max-width:380px;width:90%;text-align:center">
+    <div style="font-size:40px;margin-bottom:12px">🔒</div>
+    <div style="font-size:18px;font-weight:800;color:#ff6000;margin-bottom:8px">محتاج تسجيل دخول الأدمن</div>
+    <div style="font-size:12px;color:#555;margin-bottom:20px">هذه الصفحة خاصة بالإدارة فقط</div>
+    <a href="admin-dashboard.html" style="display:block;padding:12px;background:#ff6000;color:#fff;border-radius:8px;font-size:14px;font-weight:800;text-decoration:none;font-family:Cairo,sans-serif">
+      ← الذهاب للوحة الإدارة
+    </a>
+  </div>
+</div>
+
+<script>
+(function() {
+  var ADMIN_TOKEN = 'misrsteel_admin_2025';
+  var saved = localStorage.getItem('ms_admin_token');
+  if (saved === ADMIN_TOKEN) {
+    document.getElementById('lockScreen').style.display = 'none';
+  }
+  // else show lock screen
+})();
+</script>
+
+
 <div class="toast" id="toast"></div>
 
 <!-- ══ MODALS ══ -->
