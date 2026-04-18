@@ -4,6 +4,7 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>لوحة الإدارة — مصر ستيل</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root{--orange:#ff6000;--orange-dk:#d94f00;--orange-lt:#fff3eb;--black:#111;--white:#fff;--bg:#f0f2f5;--text:#1a1a1a;--muted:#888;--border:#e5e5e5;--green:#00a650;--red:#cc0000}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -343,6 +344,32 @@ tr:hover td{background:#fafafa}
         <span>🪑 إدارة المنتجات</span>
         <button class="btn btn-orange" onclick="openAddProd()">➕ إضافة منتج جديد</button>
       </div>
+      <!-- EXCEL UPLOAD -->
+      <div class="settings-card" style="margin-bottom:14px">
+        <h3>📊 رفع منتجات من Excel</h3>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <div style="flex:1;min-width:200px">
+            <div style="font-size:12px;color:var(--muted);margin-bottom:8px">ارفع ملف Excel بقائمة المنتجات — بيتحدث اللي موجود ويضيف الجديد تلقائياً</div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <label class="btn btn-orange" style="cursor:pointer">
+                📂 اختار ملف Excel
+                <input type="file" id="xlsxInput" accept=".xlsx,.xls" style="display:none" onchange="handleExcel(this)">
+              </label>
+              <a href="misrsteel_products_template.xlsx" download class="btn btn-gray">⬇️ تحميل النموذج</a>
+            </div>
+          </div>
+          <div id="xlsxStatus" style="font-size:12px;color:var(--muted)"></div>
+        </div>
+        <div id="xlsxPreview" style="margin-top:12px;display:none">
+          <div style="font-size:12px;font-weight:700;margin-bottom:8px" id="xlsxPreviewTitle"></div>
+          <div id="xlsxPreviewTable"></div>
+          <div style="margin-top:10px;display:flex;gap:8px">
+            <button class="btn btn-orange" onclick="uploadExcelProducts()">🚀 رفع المنتجات للموقع</button>
+            <button class="btn btn-gray" onclick="document.getElementById('xlsxPreview').style.display='none'">إلغاء</button>
+          </div>
+        </div>
+      </div>
+
       <div class="table-wrap">
         <div class="table-head">
           <h3 id="prods-count">المنتجات</h3>
@@ -1192,6 +1219,118 @@ function copyText(text) {
     document.execCommand('copy'); document.body.removeChild(ta);
     toast('✅ تم النسخ','success');
   }
+}
+
+// ── EXCEL UPLOAD ─────────────────────────────────────
+var excelProducts = [];
+
+function handleExcel(input) {
+  var file = input.files[0];
+  if (!file) return;
+  document.getElementById('xlsxStatus').textContent = '⏳ جاري قراءة الملف...';
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var wb = XLSX.read(e.target.result, { type: 'binary' });
+      var ws = wb.Sheets[wb.SheetNames[0]];
+      var data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+
+      // Find header row (row index 1 = row 2 in Excel)
+      var rows = data.slice(3); // Skip title + header + instructions
+      excelProducts = [];
+
+      rows.forEach(function(row) {
+        if (!row[0] && !row[2]) return; // Skip empty rows
+        var nameAr = String(row[0] || '').trim();
+        var price  = parseFloat(row[2]) || 0;
+        if (!nameAr || !price) return;
+
+        var frameColors = row[10] ? String(row[10]).split(',').map(function(s){return s.trim();}).filter(Boolean) : [];
+        var fabricColors = row[11] ? String(row[11]).split(',').map(function(s){return s.trim();}).filter(Boolean) : [];
+        var imgs = [row[7], row[8], row[9]].map(function(s){return String(s||'').trim();}).filter(Boolean);
+
+        excelProducts.push({
+          nameAr,
+          nameEn:      String(row[1] || '').trim(),
+          price,
+          section:     String(row[3] || 'home').trim(),
+          finish:      String(row[4] || 'gold').trim(),
+          badge:       String(row[5] || '').trim(),
+          desc:        String(row[6] || '').trim(),
+          imgs,
+          frameColors,
+          fabricColors,
+          hasColorOptions: frameColors.length > 0 || fabricColors.length > 0,
+        });
+      });
+
+      if (!excelProducts.length) {
+        document.getElementById('xlsxStatus').textContent = '❌ لا توجد منتجات في الملف';
+        return;
+      }
+
+      document.getElementById('xlsxStatus').textContent = '✅ تم قراءة ' + excelProducts.length + ' منتج';
+      document.getElementById('xlsxPreviewTitle').textContent = 'معاينة — ' + excelProducts.length + ' منتج سيتم رفعهم:';
+      document.getElementById('xlsxPreviewTable').innerHTML =
+        '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px">' +
+        '<tr style="background:#f8f8f8"><th style="padding:6px;border:1px solid var(--border)">الاسم</th>' +
+        '<th style="padding:6px;border:1px solid var(--border)">السعر</th>' +
+        '<th style="padding:6px;border:1px solid var(--border)">القسم</th>' +
+        '<th style="padding:6px;border:1px solid var(--border)">صور</th></tr>' +
+        excelProducts.slice(0, 10).map(function(p) {
+          return '<tr><td style="padding:6px;border:1px solid var(--border)">' + p.nameAr + '</td>' +
+            '<td style="padding:6px;border:1px solid var(--border);color:var(--orange);font-weight:700">$' + p.price + '</td>' +
+            '<td style="padding:6px;border:1px solid var(--border)">' + p.section + '</td>' +
+            '<td style="padding:6px;border:1px solid var(--border)">' + p.imgs.length + ' صورة</td></tr>';
+        }).join('') +
+        (excelProducts.length > 10 ? '<tr><td colspan="4" style="padding:6px;text-align:center;color:var(--muted)">... و ' + (excelProducts.length - 10) + ' منتج آخر</td></tr>' : '') +
+        '</table></div>';
+      document.getElementById('xlsxPreview').style.display = 'block';
+    } catch(e) {
+      document.getElementById('xlsxStatus').textContent = '❌ خطأ في قراءة الملف: ' + e.message;
+    }
+  };
+  reader.readAsBinaryString(file);
+}
+
+async function uploadExcelProducts() {
+  if (!excelProducts.length) return;
+  var btn = document.querySelector('[onclick="uploadExcelProducts()"]');
+  btn.disabled = true;
+  btn.textContent = '⏳ جاري الرفع...';
+
+  var done = 0, updated = 0, failed = 0;
+
+  for (var i = 0; i < excelProducts.length; i++) {
+    var p = excelProducts[i];
+    btn.textContent = '⏳ ' + (i+1) + '/' + excelProducts.length + ' — ' + p.nameAr;
+
+    // Check if product exists by name
+    var existing = allProducts.find(function(x) {
+      return x.nameAr === p.nameAr || (p.nameEn && x.nameEn === p.nameEn);
+    });
+
+    try {
+      if (existing) {
+        await api('PUT', '/api/admin/products/' + existing.id, p);
+        updated++;
+      } else {
+        await api('POST', '/api/admin/products', p);
+        done++;
+      }
+    } catch(e) { failed++; }
+
+    await new Promise(function(r){setTimeout(r, 200);});
+  }
+
+  btn.disabled = false;
+  btn.textContent = '🚀 رفع المنتجات للموقع';
+  document.getElementById('xlsxPreview').style.display = 'none';
+  document.getElementById('xlsxStatus').textContent = '';
+  toast('✅ تم إضافة ' + done + ' جديد — تحديث ' + updated + (failed ? ' — فشل ' + failed : ''), 'success');
+  loadProducts();
+  document.getElementById('xlsxInput').value = '';
+  excelProducts = [];
 }
 
 // ── TOAST ─────────────────────────────────────────────
