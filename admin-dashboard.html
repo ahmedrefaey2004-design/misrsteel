@@ -566,6 +566,31 @@ var allOrders=[], allProducts=[], allAffiliates=[];
 var currentOrderId=null, editProdId=null, editSecId=null, editBannerId=null;
 var prodImgs=[], secImg=null, bannerImg=null;
 
+// ── Image Compressor ────────────────────────────────
+function compressImage(base64, maxKB, callback) {
+  maxKB = maxKB || 400;
+  var img = new Image();
+  img.onload = function() {
+    var canvas = document.createElement('canvas');
+    var maxW = 800, maxH = 800;
+    var w = img.width, h = img.height;
+    if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+    if (h > maxH) { w = Math.round(w * maxH / h); h = maxH; }
+    canvas.width = w; canvas.height = h;
+    var ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, w, h);
+    // Try quality from 0.8 down until size is ok
+    var quality = 0.8;
+    var result = canvas.toDataURL('image/jpeg', quality);
+    while (result.length * 0.75 / 1024 > maxKB && quality > 0.2) {
+      quality -= 0.1;
+      result = canvas.toDataURL('image/jpeg', quality);
+    }
+    callback(result);
+  };
+  img.src = base64;
+}
+
 // ── API ──────────────────────────────────────────────
 async function api(method, path, body) {
   var opts = { method, headers: { 'Content-Type':'application/json', 'x-admin-token': ADMIN_TOKEN } };
@@ -700,12 +725,18 @@ async function saveProd() {
   } catch(e) { toast('❌ '+e.message,'error'); }
 }
 
-async function toggleProd(id,active) {
+async function toggleProd(id, active) {
   try {
-    if (active) { await api('DELETE','/api/admin/products/'+id); toast('🙈 تم الإخفاء',''); }
-    else { await api('PUT','/api/admin/products/'+id,{active:true}); toast('👁️ تم الإظهار','success'); }
+    if (active) {
+      // Hide (soft delete)
+      await api('PUT', '/api/admin/products/' + id, {active: false});
+      toast('🙈 تم الإخفاء', '');
+    } else {
+      await api('PUT', '/api/admin/products/' + id, {active: true});
+      toast('👁️ تم الإظهار', 'success');
+    }
     loadProducts();
-  } catch(e) { toast('❌ '+e.message,'error'); }
+  } catch(e) { toast('❌ ' + e.message, 'error'); }
 }
 function closeProdModal() { document.getElementById('prodModal').classList.remove('open'); }
 
@@ -842,13 +873,27 @@ function onImgSelect(files,type) {
     if (!file.type.startsWith('image/')) return;
     var reader=new FileReader();
     reader.onload=function(ev){
-      var b64=ev.target.result;
-      if (type==='prod') { prodImgs.push(b64); renderProdImgPreviews(); }
-      else if (type==='sec') { secImg=b64; renderSecImgPreview(); }
-      else if (type==='banner') { bannerImg=b64; renderBannerImgPreview(); }
+      var raw = ev.target.result;
+      var rawKB = Math.round(raw.length * 0.75 / 1024);
+      // Compress if > 300KB
+      if (rawKB > 300) {
+        compressImage(raw, 400, function(compressed) {
+          var newKB = Math.round(compressed.length * 0.75 / 1024);
+          console.log('Compressed: ' + rawKB + 'KB → ' + newKB + 'KB');
+          storeImg(compressed, type);
+        });
+      } else {
+        storeImg(raw, type);
+      }
     };
     reader.readAsDataURL(file);
   });
+}
+
+function storeImg(b64, type) {
+  if (type==='prod') { prodImgs.push(b64); renderProdImgPreviews(); }
+  else if (type==='sec') { secImg=b64; renderSecImgPreview(); }
+  else if (type==='banner') { bannerImg=b64; renderBannerImgPreview(); }
 }
 
 function renderProdImgPreviews() {
