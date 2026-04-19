@@ -385,7 +385,7 @@ function renderProducts(prods) {
       + '<div class="prod-name">'+p.nameAr+'</div>'
       + '<div class="prod-price-row">'
       + '<div><div class="prod-price">$'+p.price+'</div><div class="prod-price-egp">≈ '+egp+' ج.م</div></div>'
-      + '<button class="prod-btn" onclick="event.preventDefault();addCart('+JSON.stringify(p)+')">🛒</button>'
+      + '<button class="prod-btn" data-pid="'+String(p.id).replace(/"/g,'')+'" onclick="event.preventDefault();addCartById(this.dataset.pid)">🛒</button>'
       + '</div></div></a>';
   }).join('');
   document.getElementById('bestGrid').innerHTML = html;
@@ -447,6 +447,11 @@ function setupInfiniteScroll(){
 
 // ══ CART ══
 var cart = JSON.parse(localStorage.getItem('ms_cart') || '[]');
+function addCartById(id){
+  var p = allProducts.find(function(item){ return Number(item.id) === Number(id); });
+  if (!p) return;
+  addCart(p);
+}
 function addCart(p) {
   var ex = cart.find(function(i){return i.id===p.id});
   if (ex) ex.qty = (ex.qty||1)+1;
