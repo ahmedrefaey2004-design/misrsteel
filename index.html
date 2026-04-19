@@ -31,8 +31,14 @@ button{cursor:pointer;font-family:inherit}
 .cat-bar{background:var(--white);border-bottom:1px solid var(--border)}
 .cat-bar-inner{max-width:1280px;margin:0 auto;padding:0 24px;display:flex;gap:0;overflow-x:auto;scrollbar-width:none}
 .cat-bar-inner::-webkit-scrollbar{display:none}
+.cat-item-wrap{position:relative}
 .cat-item{display:flex;align-items:center;gap:6px;padding:11px 18px;font-size:13px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap;text-decoration:none;transition:all .2s}
 .cat-item:hover,.cat-item.active{color:var(--orange);border-bottom-color:var(--orange)}
+.cat-submenu{position:absolute;top:100%;inset-inline-start:0;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 12px 28px rgba(0,0,0,.12);min-width:220px;padding:8px;display:none;z-index:350}
+.cat-item-wrap:hover .cat-submenu{display:block}
+.cat-item-wrap.open .cat-submenu{display:block}
+.cat-submenu a{display:block;padding:9px 12px;border-radius:8px;font-size:12px;color:#333}
+.cat-submenu a:hover{background:var(--orange-lt);color:var(--orange-dk)}
 .hero-slider{position:relative;overflow:hidden;background:var(--black)}
 .slides{display:flex;transition:transform .5s ease;height:480px}
 .slide{min-width:100%;position:relative;overflow:hidden}
@@ -154,10 +160,46 @@ button{cursor:pointer;font-family:inherit}
   <div class="cat-bar">
     <div class="cat-bar-inner">
       <a class="cat-item active" href="#">⭐ الكل</a>
-      <a class="cat-item" href="section-home.html">🏠 المنزل</a>
-      <a class="cat-item" href="section-hall.html">🎪 قاعات</a>
-      <a class="cat-item" href="section-museum.html">🏛️ لوبي</a>
-      <a class="cat-item" href="section-restaurant.html">🍽️ مطاعم</a>
+
+      <div class="cat-item-wrap">
+        <a class="cat-item" href="section-home.html">🏠 المنزل ▾</a>
+        <div class="cat-submenu">
+          <a href="marketplace.html?section=home&q=غرفة%20معيشة">غرف معيشة</a>
+          <a href="marketplace.html?section=home&q=غرفة%20سفرة">غرف سفرة</a>
+          <a href="marketplace.html?section=home&q=غرفة%20نوم">غرف نوم</a>
+          <a href="marketplace.html?section=home&q=كنب">كنب وركنات</a>
+        </div>
+      </div>
+
+      <div class="cat-item-wrap">
+        <a class="cat-item" href="section-hall.html">🎪 قاعات ▾</a>
+        <div class="cat-submenu">
+          <a href="marketplace.html?section=hall&q=كرسي">كراسي أفراح</a>
+          <a href="marketplace.html?section=hall&q=VIP">كراسي VIP</a>
+          <a href="marketplace.html?section=hall&q=ترابيزة">ترابيزات قاعات</a>
+          <a href="marketplace.html?section=hall&q=مؤتمرات">حلول المؤتمرات</a>
+        </div>
+      </div>
+
+      <div class="cat-item-wrap">
+        <a class="cat-item" href="section-museum.html">🏛️ لوبي ▾</a>
+        <div class="cat-submenu">
+          <a href="marketplace.html?section=museum&q=لاونج">أثاث لاونج</a>
+          <a href="marketplace.html?section=museum&q=ريسبشن">ريسبشن</a>
+          <a href="marketplace.html?section=museum&q=ديكور">قطع ديكور</a>
+        </div>
+      </div>
+
+      <div class="cat-item-wrap">
+        <a class="cat-item" href="section-restaurant.html">🍽️ مطاعم ▾</a>
+        <div class="cat-submenu">
+          <a href="marketplace.html?section=restaurant&q=كرسي">كراسي مطاعم</a>
+          <a href="marketplace.html?section=restaurant&q=بار">كراسي بار</a>
+          <a href="marketplace.html?section=restaurant&q=طاولة">طاولات</a>
+          <a href="marketplace.html?section=restaurant&q=كافيه">حلول كافيه</a>
+        </div>
+      </div>
+
       <a class="cat-item" href="marketplace.html">🛒 المتجر</a>
       <a class="cat-item" href="ai-designer.html">🤖 AI مصمم</a>
     </div>
@@ -416,11 +458,25 @@ function addCart(p) {
 function showToast(msg,type){ var t=document.getElementById('toast'); t.textContent=msg; t.className='toast '+(type||''); t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(function(){t.classList.remove('show')},2600); }
 function doSearch(){ var q=document.getElementById('searchInp').value.trim(); if(q) window.location='marketplace.html?q='+encodeURIComponent(q); }
 document.getElementById('searchInp').addEventListener('keydown',function(e){if(e.key==='Enter')doSearch()});
+function initCategoryMenu(){
+  if (window.innerWidth > 900) return;
+  document.querySelectorAll('.cat-item-wrap > .cat-item').forEach(function(link){
+    link.addEventListener('click', function(e){
+      var wrap = this.parentElement;
+      if (!wrap.classList.contains('open')) {
+        e.preventDefault();
+        document.querySelectorAll('.cat-item-wrap.open').forEach(function(w){ w.classList.remove('open'); });
+        wrap.classList.add('open');
+      }
+    });
+  });
+}
 
 
 // ══ INIT ══
 initSlider();
 loadProducts();
+initCategoryMenu();
 </script>
 </body>
 </html>
