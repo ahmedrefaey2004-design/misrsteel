@@ -310,7 +310,7 @@ function renderProducts(prods) {
                  img.startsWith('http') ? img :
                  'https://misrsteel.vercel.app/' + img;
     var egp = Math.round(p.price * USD_EGP).toLocaleString();
-    return '<a class="prod-card" href="marketplace.html?id='+p.id+'">'
+    return '<a class="prod-card" href="product.html?id='+p.id+'">'
       + badge
       + '<div class="prod-img-wrap"><img src="'+imgSrc+'" alt="'+p.nameAr+'" loading="lazy" onerror="this.src=\'images/p01-rose-gold-chair.jpg\'"></div>'
       + '<div class="prod-body">'

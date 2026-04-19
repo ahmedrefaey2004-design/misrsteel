@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تفاصيل المنتج — مصر ستيل</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--orange:#ff6000;--orange-dk:#d94f00;--orange-lt:#fff3eb;--black:#111;--white:#fff;--bg:#f5f5f5;--muted:#888;--border:#e5e5e5;--green:#00a650}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Cairo',sans-serif;background:var(--bg);color:#1a1a1a;direction:rtl}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;font-family:inherit}
+
+/* NAV */
+.nav{background:var(--black);padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--orange);position:sticky;top:0;z-index:100}
+.nav-logo{font-size:18px;font-weight:800;color:var(--orange)}
+.nav-back{color:rgba(255,255,255,.6);font-size:13px;display:flex;align-items:center;gap:6px;padding:7px 14px;border:1px solid rgba(255,255,255,.2);border-radius:6px}
+
+/* PAGE */
+.page{max-width:900px;margin:0 auto;padding:16px}
+
+/* LOADING */
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:50vh;color:var(--muted)}
+.sp{width:44px;height:44px;border:3px solid rgba(255,96,0,.2);border-top-color:var(--orange);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* PRODUCT LAYOUT */
+.prod-layout{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px}
+
+/* GALLERY */
+.gallery{position:relative}
+.main-img{width:100%;aspect-ratio:1;border-radius:12px;overflow:hidden;background:#f0f0f0;margin-bottom:8px}
+.main-img img{width:100%;height:100%;object-fit:cover;transition:opacity .3s}
+.thumbs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
+.thumbs::-webkit-scrollbar{display:none}
+.thumb{width:64px;height:64px;border-radius:8px;overflow:hidden;flex-shrink:0;cursor:pointer;border:2px solid var(--border);transition:border-color .2s}
+.thumb.active{border-color:var(--orange)}
+.thumb img{width:100%;height:100%;object-fit:cover}
+
+/* INFO */
+.prod-info{}
+.prod-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;margin-bottom:10px}
+.badge-hot{background:#fff0f0;color:#cc0000}
+.badge-new{background:#e8f5ec;color:var(--green)}
+.prod-name{font-size:22px;font-weight:800;line-height:1.3;margin-bottom:6px}
+.prod-section{font-size:12px;color:var(--orange);font-weight:700;margin-bottom:14px}
+.prod-price-box{background:var(--orange-lt);border:1px solid rgba(255,96,0,.2);border-radius:10px;padding:14px;margin-bottom:14px}
+.prod-price-main{font-size:28px;font-weight:800;color:var(--orange);line-height:1}
+.prod-price-egp{font-size:12px;color:var(--muted);margin-top:3px;margin-bottom:10px}
+.price-tiers{display:flex;flex-direction:column;gap:4px}
+.pt-row{display:flex;justify-content:space-between;padding:5px 8px;background:rgba(255,255,255,.6);border-radius:5px;font-size:12px}
+.pt-row.best{background:var(--orange);color:#fff;font-weight:700}
+.pt-qty{color:inherit;opacity:.8}
+.pt-price{font-weight:800}
+
+/* COLORS */
+.color-section{margin-bottom:14px}
+.color-label{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
+.color-selected{font-size:11px;color:var(--orange);font-weight:700;margin-right:6px}
+.colors-wrap{display:flex;flex-wrap:wrap;gap:6px}
+.color-btn{padding:6px 14px;border:2px solid var(--border);border-radius:20px;font-size:12px;font-weight:700;background:#fff;transition:all .2s;cursor:pointer;font-family:inherit}
+.color-btn.active{border-color:var(--orange);background:var(--orange-lt);color:var(--orange-dk)}
+
+/* ACTION BUTTONS */
+.action-btns{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.btn-order{width:100%;padding:14px;background:var(--orange);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:800;font-family:inherit;transition:background .2s}
+.btn-order:hover{background:var(--orange-dk)}
+.btn-wa{width:100%;padding:13px;background:#25D366;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px}
+
+/* DESCRIPTION */
+.desc-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px}
+.desc-card h3{font-size:14px;font-weight:800;margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid var(--orange)}
+.desc-text{font-size:13px;line-height:1.9;color:#444}
+.features{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.feature{display:flex;align-items:center;gap:8px;font-size:12px;color:#555}
+.feature-icon{font-size:16px;flex-shrink:0}
+
+/* ORDER FORM */
+.order-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px}
+.order-card h3{font-size:14px;font-weight:800;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--orange)}
+.fg{margin-bottom:12px}
+.fg label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:5px;letter-spacing:.05em}
+.fg input,.fg select,.fg textarea{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;transition:border-color .2s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--orange)}
+.fg-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.submit-btn{width:100%;padding:14px;background:var(--orange);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:800;font-family:inherit;cursor:pointer;transition:background .2s}
+.submit-btn:hover{background:var(--orange-dk)}
+.submit-btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* RELATED */
+.related-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.rel-card{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;transition:all .2s}
+.rel-card:hover{border-color:var(--orange);transform:translateY(-2px)}
+.rel-img{height:120px;overflow:hidden;background:#f0f0f0}
+.rel-img img{width:100%;height:100%;object-fit:cover}
+.rel-body{padding:10px}
+.rel-name{font-size:12px;font-weight:700;margin-bottom:3px}
+.rel-price{font-size:13px;font-weight:800;color:var(--orange)}
+
+/* TOAST */
+.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%) translateY(-20px);background:var(--black);color:#fff;padding:11px 22px;border-radius:8px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.success{background:var(--green)}
+
+/* WHATSAPP FAB */
+.wa-fab{position:fixed;bottom:24px;left:24px;background:#25D366;color:#fff;padding:13px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 4px 16px rgba(0,0,0,.2);text-decoration:none;z-index:200}
+
+@media(max-width:700px){
+  .prod-layout{grid-template-columns:1fr}
+  .features{grid-template-columns:1fr}
+  .related-grid{grid-template-columns:repeat(2,1fr)}
+  .fg-2{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<!-- NAV -->
+<div class="nav">
+  <a class="nav-logo" href="index.html">مصر ستيل</a>
+  <a class="nav-back" href="marketplace.html">← المتجر</a>
+</div>
+
+<div class="page" id="page">
+  <div class="loading"><div class="sp"></div>جاري تحميل المنتج...</div>
+</div>
+
+<a class="wa-fab" href="https://wa.me/201050595250" target="_blank">💬</a>
+
+<script>
+var BACKEND = 'https://misrsteel-backend.vercel.app';
+var USD_EGP = parseFloat(localStorage.getItem('ms_rate') || '51');
+var product = null;
+var selectedFrame = '';
+var selectedFabric = '';
+
+var sectionLabels = {home:'🏠 منزل', hall:'🎪 قاعة', museum:'🏛️ لوبي', restaurant:'🍽️ مطعم'};
+
+// ── LOAD PRODUCT ──
+async function loadProduct() {
+  var params = new URLSearchParams(location.search);
+  var id = params.get('id');
+  if (!id) { showError('لم يتم تحديد المنتج'); return; }
+
+  try {
+    // Get rate
+    try {
+      var sr = await fetch(BACKEND + '/api/settings/public');
+      var sd = await sr.json();
+      if (sd.usdRate) { USD_EGP = sd.usdRate; localStorage.setItem('ms_rate', USD_EGP); }
+    } catch(e) {}
+
+    var r = await fetch(BACKEND + '/api/products/' + id);
+    var d = await r.json();
+    if (!r.ok || !d.product) { showError('المنتج غير موجود'); return; }
+    product = d.product;
+    document.title = product.nameAr + ' — مصر ستيل';
+    renderProduct(product);
+    loadRelated(product.section, product.id);
+  } catch(e) {
+    showError('فشل تحميل المنتج — تحقق من اتصال الإنترنت');
+  }
+}
+
+function getImgSrc(img) {
+  if (!img) return '';
+  if (img.startsWith('data:') || img.startsWith('http')) return img;
+  return 'https://misrsteel.vercel.app/' + img;
+}
+
+function renderProduct(p) {
+  var imgs = p.imgs || [];
+  var egp = p.price > 0 ? Math.round(p.price * USD_EGP).toLocaleString() : '';
+  var frameColors = p.frameColors || [];
+  var fabricColors = p.fabricColors || [];
+
+  // Gallery
+  var mainImgHtml = imgs[0]
+    ? '<img id="mainImg" src="'+getImgSrc(imgs[0])+'" alt="'+p.nameAr+'" onerror="this.parentElement.innerHTML=\'<div style=\\\"display:flex;align-items:center;justify-content:center;height:100%;font-size:80px\\\">🪑</div>\'">'
+    : '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:80px">🪑</div>';
+
+  var thumbsHtml = imgs.length > 1 ? '<div class="thumbs">' +
+    imgs.map(function(img, i) {
+      return '<div class="thumb '+(i===0?'active':'')+'" onclick="switchImg(\''+getImgSrc(img)+'\',this)">' +
+        '<img src="'+getImgSrc(img)+'" loading="lazy" onerror="this.parentElement.style.display=\'none\'">' +
+        '</div>';
+    }).join('') + '</div>' : '';
+
+  // Price
+  var priceHtml = p.price > 0
+    ? '<div class="prod-price-box">' +
+      '<div class="prod-price-main">$' + p.price + '</div>' +
+      '<div class="prod-price-egp">≈ ' + egp + ' ج.م للقطعة</div>' +
+      '<div class="price-tiers">' +
+      '<div class="pt-row"><span class="pt-qty">1–49 قطعة</span><span class="pt-price">$'+Math.round(p.price*1.1)+'</span></div>' +
+      '<div class="pt-row best"><span class="pt-qty">⭐ 50–99 قطعة (الأفضل)</span><span class="pt-price">$'+p.price+'</span></div>' +
+      '<div class="pt-row"><span class="pt-qty">100+ قطعة</span><span class="pt-price">$'+Math.round(p.price*0.9)+'</span></div>' +
+      '</div></div>'
+    : '<div class="prod-price-box"><div class="prod-price-main" style="font-size:18px">السعر عند الطلب</div><div class="prod-price-egp">تواصل معنا للحصول على أفضل سعر</div></div>';
+
+  // Colors
+  var colorsHtml = '';
+  if (frameColors.length) {
+    colorsHtml += '<div class="color-section">' +
+      '<div class="color-label">لون الإطار <span class="color-selected" id="frameSelected"></span></div>' +
+      '<div class="colors-wrap">' +
+      frameColors.map(function(c) {
+        return '<button class="color-btn" onclick="selectFrame(\''+c+'\',this)">'+c+'</button>';
+      }).join('') +
+      '</div></div>';
+  }
+  if (fabricColors.length) {
+    colorsHtml += '<div class="color-section">' +
+      '<div class="color-label">لون القماش <span class="color-selected" id="fabricSelected"></span></div>' +
+      '<div class="colors-wrap">' +
+      fabricColors.map(function(c) {
+        return '<button class="color-btn" onclick="selectFabric(\''+c+'\',this)">'+c+'</button>';
+      }).join('') +
+      '</div></div>';
+  }
+
+  var badgeHtml = p.badge === 'hot' ? '<span class="prod-badge badge-hot">🔥 الأكثر طلباً</span>' :
+                  p.badge === 'new' ? '<span class="prod-badge badge-new">✨ جديد</span>' : '';
+
+  document.getElementById('page').innerHTML =
+    // Product main layout
+    '<div class="prod-layout">' +
+    // Gallery
+    '<div class="gallery">' +
+    '<div class="main-img">'+mainImgHtml+'</div>' +
+    thumbsHtml +
+    '</div>' +
+    // Info
+    '<div class="prod-info">' +
+    badgeHtml +
+    '<div class="prod-name">'+p.nameAr+'</div>' +
+    '<div class="prod-section">'+(sectionLabels[p.section]||p.section)+'</div>' +
+    priceHtml +
+    colorsHtml +
+    '<div class="action-btns">' +
+    '<button class="btn-order" onclick="scrollToOrder()">📋 أكمل الطلب</button>' +
+    '<button class="btn-wa" onclick="quickWA()">💬 تواصل واتساب</button>' +
+    '</div>' +
+    '</div></div>' +
+
+    // Description
+    '<div class="desc-card">' +
+    '<h3>📋 تفاصيل المنتج</h3>' +
+    '<div class="desc-text">'+(p.desc||'أثاث استانلس فاخر من مصر ستيل — جودة عالية وتشطيب احترافي.')+'</div>' +
+    '<div class="features">' +
+    '<div class="feature"><span class="feature-icon">✅</span> استانلس 304 مقاوم للصدأ</div>' +
+    '<div class="feature"><span class="feature-icon">✅</span> ضمان سنة كاملة</div>' +
+    '<div class="feature"><span class="feature-icon">✅</span> تشطيب احترافي</div>' +
+    '<div class="feature"><span class="feature-icon">✅</span> بدون حد أدنى للطلب</div>' +
+    '<div class="feature"><span class="feature-icon">🚢</span> شحن FOB الإسكندرية</div>' +
+    '<div class="feature"><span class="feature-icon">🎨</span> ألوان حسب الطلب</div>' +
+    '</div></div>' +
+
+    // Order form
+    '<div class="order-card" id="orderForm">' +
+    '<h3>🛒 إتمام الطلب</h3>' +
+    '<div class="fg-2">' +
+    '<div class="fg"><label>الاسم الكامل *</label><input type="text" id="of-name" placeholder="أحمد محمد"></div>' +
+    '<div class="fg"><label>واتساب *</label><input type="tel" id="of-phone" placeholder="+201..."></div>' +
+    '</div>' +
+    '<div class="fg-2">' +
+    '<div class="fg"><label>الدولة</label><select id="of-country"><option value="EG">🇪🇬 مصر</option><option value="AE">🇦🇪 الإمارات</option><option value="SA">🇸🇦 السعودية</option><option value="IQ">🇮🇶 العراق</option><option value="KW">🇰🇼 الكويت</option><option value="JO">🇯🇴 الأردن</option><option value="LY">🇱🇾 ليبيا</option><option value="OTHER">🌍 أخرى</option></select></div>' +
+    '<div class="fg"><label>الكمية المطلوبة</label><input type="number" id="of-qty" placeholder="1" min="1" value="1"></div>' +
+    '</div>' +
+    '<div class="fg"><label>ملاحظات (اختياري)</label><textarea id="of-notes" rows="2" placeholder="لون الإطار، لون القماش، أي تفاصيل إضافية..."></textarea></div>' +
+    '<button class="submit-btn" id="submitBtn" onclick="submitOrder()">✅ إرسال الطلب عبر واتساب</button>' +
+    '</div>' +
+
+    // Related
+    '<div id="relatedSection"></div>';
+}
+
+function switchImg(src, thumb) {
+  document.getElementById('mainImg').src = src;
+  document.querySelectorAll('.thumb').forEach(function(t){ t.classList.remove('active'); });
+  thumb.classList.add('active');
+}
+
+function selectFrame(color, btn) {
+  selectedFrame = color;
+  document.querySelectorAll('.colors-wrap button').forEach(function(b){ if(b.onclick.toString().includes('selectFrame')) { b.classList.remove('active'); }});
+  btn.classList.add('active');
+  var el = document.getElementById('frameSelected');
+  if (el) el.textContent = '— ' + color;
+}
+
+function selectFabric(color, btn) {
+  selectedFabric = color;
+  document.querySelectorAll('.colors-wrap button').forEach(function(b){ if(b.onclick.toString().includes('selectFabric')) { b.classList.remove('active'); }});
+  btn.classList.add('active');
+  var el = document.getElementById('fabricSelected');
+  if (el) el.textContent = '— ' + color;
+}
+
+function scrollToOrder() {
+  document.getElementById('orderForm').scrollIntoView({ behavior: 'smooth' });
+}
+
+function quickWA() {
+  var msg = 'مرحباً مصر ستيل 👋\n\nأريد الاستفسار عن:\n' + (product ? product.nameAr : 'منتج') +
+    (product && product.price > 0 ? '\nالسعر: $' + product.price : '') +
+    (selectedFrame ? '\nلون الإطار: ' + selectedFrame : '') +
+    (selectedFabric ? '\nلون القماش: ' + selectedFabric : '');
+  window.open('https://wa.me/201050595250?text=' + encodeURIComponent(msg), '_blank');
+}
+
+function submitOrder() {
+  var name  = document.getElementById('of-name').value.trim();
+  var phone = document.getElementById('of-phone').value.trim();
+  var qty   = document.getElementById('of-qty').value || '1';
+  var notes = document.getElementById('of-notes').value.trim();
+  var country = document.getElementById('of-country').value;
+
+  if (!name || !phone) { toast('أدخل الاسم ورقم الواتساب', 'error'); return; }
+
+  var msg = '🛒 طلب جديد من موقع مصر ستيل\n\n' +
+    '📦 المنتج: ' + (product ? product.nameAr : 'منتج') + '\n' +
+    (product && product.price > 0 ? '💰 السعر: $' + product.price + ' للقطعة\n' : '') +
+    '🔢 الكمية: ' + qty + ' قطعة\n' +
+    (selectedFrame ? '🎨 لون الإطار: ' + selectedFrame + '\n' : '') +
+    (selectedFabric ? '🪑 لون القماش: ' + selectedFabric + '\n' : '') +
+    '\n👤 الاسم: ' + name +
+    '\n📱 الواتساب: ' + phone +
+    '\n🌍 الدولة: ' + country +
+    (notes ? '\n📝 ملاحظات: ' + notes : '') +
+    '\n\nأرجو التواصل لتأكيد الطلب 🙏';
+
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('submitBtn').textContent = '⏳ جاري الإرسال...';
+  
+  window.open('https://wa.me/201050595250?text=' + encodeURIComponent(msg), '_blank');
+  
+  setTimeout(function() {
+    document.getElementById('submitBtn').disabled = false;
+    document.getElementById('submitBtn').textContent = '✅ إرسال الطلب عبر واتساب';
+    toast('✅ تم إرسال طلبك — سنتواصل معك قريباً', 'success');
+  }, 1500);
+}
+
+// ── RELATED PRODUCTS ──
+async function loadRelated(section, excludeId) {
+  try {
+    var r = await fetch(BACKEND + '/api/products?section=' + section);
+    var d = await r.json();
+    var related = (d.products || []).filter(function(p){ return p.id !== excludeId; }).slice(0, 6);
+    if (!related.length) return;
+
+    var html = '<div class="desc-card"><h3>🪑 منتجات مشابهة</h3><div class="related-grid">' +
+      related.map(function(p) {
+        var img = p.imgs && p.imgs[0] ? getImgSrc(p.imgs[0]) : '';
+        return '<div class="rel-card" onclick="window.location=\'product.html?id='+p.id+'\'">' +
+          '<div class="rel-img">' + (img ? '<img src="'+img+'" loading="lazy" onerror="this.style.display=\'none\'">' : '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:30px">🪑</div>') + '</div>' +
+          '<div class="rel-body"><div class="rel-name">'+p.nameAr+'</div><div class="rel-price">'+(p.price>0?'$'+p.price:'عند الطلب')+'</div></div></div>';
+      }).join('') +
+    '</div></div>';
+
+    document.getElementById('relatedSection').innerHTML = html;
+  } catch(e) {}
+}
+
+function showError(msg) {
+  document.getElementById('page').innerHTML =
+    '<div style="text-align:center;padding:60px 20px">' +
+    '<div style="font-size:48px;margin-bottom:16px">😕</div>' +
+    '<div style="font-size:16px;font-weight:700;margin-bottom:8px">'+msg+'</div>' +
+    '<a href="marketplace.html" style="display:inline-block;margin-top:16px;padding:12px 24px;background:var(--orange);color:#fff;border-radius:8px;font-weight:700">← العودة للمتجر</a>' +
+    '</div>';
+}
+
+function toast(msg, type) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + (type||'');
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(function(){ t.classList.remove('show'); }, 3500);
+}
+
+// ── INIT ──
+loadProduct();
+</script>
+</body>
+</html>
