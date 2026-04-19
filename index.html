@@ -70,6 +70,17 @@ button{cursor:pointer;font-family:inherit}
 .dept-name{font-size:11px;font-weight:700;color:var(--text);text-align:center}
 .prod-section{max-width:1280px;margin:0 auto 32px;padding:0 24px}
 .prod-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.load-more-wrap{display:flex;justify-content:center;padding:18px 0;color:var(--muted);font-size:13px}
+.section-showcase{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.section-card{position:relative;border-radius:10px;overflow:hidden;display:block;min-height:84px;border:1px solid var(--border)}
+.section-card img{width:100%;height:100%;object-fit:cover;filter:brightness(.65);transition:transform .3s}
+.section-card:hover img{transform:scale(1.05)}
+.section-card-overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:10px;background:linear-gradient(to top,rgba(0,0,0,.55),transparent)}
+.section-card-name{color:#fff;font-size:12px;font-weight:800;line-height:1.2}
+.section-card-count{color:rgba(255,255,255,.88);font-size:10px}
+.partners-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.partner-card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:10px;display:flex;align-items:center;justify-content:center;min-height:76px}
+.partner-card img{max-height:42px;max-width:100%}
 .prod-card{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;transition:all .25s;text-decoration:none;position:relative;display:block}
 .prod-card:hover{border-color:var(--orange);box-shadow:0 8px 28px rgba(255,96,0,.1);transform:translateY(-4px)}
 .prod-card-badge{position:absolute;top:10px;inset-inline-start:10px;z-index:2;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px}
@@ -116,8 +127,8 @@ button{cursor:pointer;font-family:inherit}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 .prod-skeleton{height:300px;border-radius:10px}
 @media(max-width:1100px){.prod-grid{grid-template-columns:repeat(4,1fr)}.dept-grid{grid-template-columns:repeat(6,1fr)}}
-@media(max-width:900px){.nav-search{display:none}.promo-strip{grid-template-columns:1fr}.dept-grid{grid-template-columns:repeat(4,1fr)}.prod-grid{grid-template-columns:repeat(3,1fr)}.trust-inner{grid-template-columns:1fr 1fr}.footer-grid{grid-template-columns:1fr 1fr}.slides{height:340px}}
-@media(max-width:600px){.prod-grid{grid-template-columns:repeat(2,1fr);gap:10px}.dept-grid{grid-template-columns:repeat(4,1fr)}.footer-grid{grid-template-columns:1fr}.slides{height:260px}.slide-content{max-width:260px}}
+@media(max-width:900px){.nav-search{display:none}.promo-strip{grid-template-columns:1fr}.dept-grid{grid-template-columns:repeat(4,1fr)}.prod-grid{grid-template-columns:repeat(3,1fr)}.section-showcase{grid-template-columns:repeat(2,1fr)}.partners-grid{grid-template-columns:repeat(3,1fr)}.trust-inner{grid-template-columns:1fr 1fr}.footer-grid{grid-template-columns:1fr 1fr}.slides{height:340px}}
+@media(max-width:600px){.prod-grid{grid-template-columns:repeat(2,1fr);gap:10px}.dept-grid{grid-template-columns:repeat(4,1fr)}.partners-grid{grid-template-columns:repeat(2,1fr)}.footer-grid{grid-template-columns:1fr}.slides{height:260px}.slide-content{max-width:260px}}
 </style>
 </head>
 <body>
@@ -176,22 +187,22 @@ button{cursor:pointer;font-family:inherit}
 
 <!-- PROMO BANNERS -->
 <div class="promo-strip">
-  <div class="promo-card"><img src="images/p03-barrel-gold-1.jpg" alt=""><div class="promo-overlay"><div class="promo-title">قاعات الأفراح</div><div class="promo-sub">كراسي VIP بإطار ذهبي وفضي</div><a href="section-hall.html" class="promo-link">تسوق الآن ←</a></div></div>
-  <div class="promo-card"><img src="images/p11-new-a-3.jpg" alt=""><div class="promo-overlay"><div class="promo-title">لاونج فاخر</div><div class="promo-sub">كراسي لاونج دائرية وعصرية</div><a href="section-museum.html" class="promo-link">اكتشف ←</a></div></div>
+  <div class="promo-card"><img src="images/p03-barrel-gold-1.jpg" alt="" onerror="this.src='images/p01-rose-gold-chair.jpg'"><div class="promo-overlay"><div class="promo-title">قاعات الأفراح</div><div class="promo-sub">كراسي VIP بإطار ذهبي وفضي</div><a href="section-hall.html" class="promo-link">تسوق الآن ←</a></div></div>
+  <div class="promo-card"><img src="images/p11-new-a-3.jpg" alt="" onerror="this.src='images/p01-rose-gold-chair.jpg'"><div class="promo-overlay"><div class="promo-title">لاونج فاخر</div><div class="promo-sub">كراسي لاونج دائرية وعصرية</div><a href="section-museum.html" class="promo-link">اكتشف ←</a></div></div>
 </div>
 
 <!-- DEPT -->
 <div class="dept-section">
   <div class="sec-head"><div class="sec-title">تسوق حسب الفئة</div><a href="marketplace.html" class="sec-more">عرض الكل →</a></div>
   <div class="dept-grid">
-    <a class="dept-card" href="section-home.html"><div class="dept-img"><img src="images/p02-linen-armchair.jpg" alt=""></div><div class="dept-name">غرفة معيشة</div></a>
-    <a class="dept-card" href="section-home.html"><div class="dept-img"><img src="images/p04-medallion-silver.jpg" alt=""></div><div class="dept-name">غرفة سفرة</div></a>
-    <a class="dept-card" href="section-hall.html"><div class="dept-img"><img src="images/p15-new-e.jpg" alt=""></div><div class="dept-name">قاعة أفراح</div></a>
-    <a class="dept-card" href="section-restaurant.html"><div class="dept-img"><img src="images/p05-velvet-red.jpg" alt=""></div><div class="dept-name">مطعم</div></a>
-    <a class="dept-card" href="section-museum.html"><div class="dept-img"><img src="images/p09-arc-gold.jpg" alt=""></div><div class="dept-name">لوبي</div></a>
-    <a class="dept-card" href="section-home.html"><div class="dept-img"><img src="images/p13-new-c.jpg" alt=""></div><div class="dept-name">غرفة نوم</div></a>
-    <a class="dept-card" href="section-restaurant.html"><div class="dept-img"><img src="images/p16-new-f.jpg" alt=""></div><div class="dept-name">كافيه</div></a>
-    <a class="dept-card" href="section-hall.html"><div class="dept-img"><img src="images/p08-wrap-black.jpg" alt=""></div><div class="dept-name">مؤتمرات</div></a>
+    <a class="dept-card" href="section-home.html"><div class="dept-img"><img src="images/p02-linen-armchair.jpg" alt="" onerror="this.src='images/p01-rose-gold-chair.jpg'"></div><div class="dept-name">غرفة معيشة</div></a>
+    <a class="dept-card" href="section-home.html"><div class="dept-img"><img src="images/p04-medallion-silver.jpg" alt="" onerror="this.src='images/p01-rose-gold-chair.jpg'"></div><div class="dept-name">غرفة سفرة</div></a>
+    <a class="dept-card" href="section-hall.html"><div class="dept-img"><img src="images/p15-new-e.jpg" alt="" onerror="this.src='images/p01-rose-gold-chair.jpg'"></div><div class="dept-name">قاعة أفراح</div></a>
+    <a class="dept-card" href="section-restaurant.html"><div class="dept-img"><img src="images/p05-velvet-red.jpg" alt="" onerror="this.src='images/p01-rose-gold-chair.jpg'"></div><div class="dept-name">مطعم</div></a>
+    <a class="dept-card" href="section-museum.html"><div class="dept-img"><img src="images/p09-arc-gold.jpg" alt="" onerror="this.src='images/p01-rose-gold-chair.jpg'"></div><div class="dept-name">لوبي</div></a>
+    <a class="dept-card" href="section-home.html"><div class="dept-img"><img src="images/p13-new-c.jpg" alt="" onerror="this.src='images/p01-rose-gold-chair.jpg'"></div><div class="dept-name">غرفة نوم</div></a>
+    <a class="dept-card" href="section-restaurant.html"><div class="dept-img"><img src="images/p16-new-f.jpg" alt="" onerror="this.src='images/p01-rose-gold-chair.jpg'"></div><div class="dept-name">كافيه</div></a>
+    <a class="dept-card" href="section-hall.html"><div class="dept-img"><img src="images/p08-wrap-black.jpg" alt="" onerror="this.src='images/p01-rose-gold-chair.jpg'"></div><div class="dept-name">مؤتمرات</div></a>
   </div>
 </div>
 
@@ -205,6 +216,30 @@ button{cursor:pointer;font-family:inherit}
     <div class="skeleton prod-skeleton"></div>
     <div class="skeleton prod-skeleton"></div>
     <div class="skeleton prod-skeleton"></div>
+  </div>
+</div>
+
+<!-- ALL PRODUCTS + INFINITE SCROLL -->
+<div class="prod-section">
+  <div class="sec-head">
+    <div class="sec-title">🛍️ كل المنتجات</div>
+    <a href="marketplace.html" class="sec-more">كل الأقسام →</a>
+  </div>
+  <div class="section-showcase" id="sectionPills"></div>
+  <div class="prod-grid" id="allGrid"></div>
+  <div class="load-more-wrap" id="loadMoreStatus">اسكرول لتحميل منتجات أكثر...</div>
+  <div id="scrollSentinel" style="height:1px"></div>
+</div>
+
+<!-- PARTNERS -->
+<div class="prod-section">
+  <div class="sec-head"><div class="sec-title">🤝 شركاء النجاح</div><div class="sec-more">تعاون وعقود مستمرة</div></div>
+  <div class="partners-grid" id="partnersGrid">
+    <div class="partner-card"><img src="images/partners/nile-hotels.svg" alt="Nile Hotels" loading="lazy"></div>
+    <div class="partner-card"><img src="images/partners/royal-halls.svg" alt="Royal Halls" loading="lazy"></div>
+    <div class="partner-card"><img src="images/partners/city-lounge.svg" alt="City Lounge Group" loading="lazy"></div>
+    <div class="partner-card"><img src="images/partners/al-noor-catering.svg" alt="Al Noor Catering" loading="lazy"></div>
+    <div class="partner-card"><img src="images/partners/prime-events.svg" alt="Prime Events" loading="lazy"></div>
   </div>
 </div>
 
@@ -249,7 +284,24 @@ var BACKEND = 'https://misrsteel-backend.vercel.app';
 var USD_EGP = parseFloat(localStorage.getItem('ms_rate') || '50.85');
 var slideIdx = 0, slideCount = 4, slideAuto;
 var sectionLabels = {home:'🏠 منزل', hall:'🎪 قاعة', museum:'🏛️ لوبي', restaurant:'🍽️ مطعم'};
+var sectionPosterMap = {
+  home: 'images/p02-linen-armchair.jpg',
+  hall: 'images/p15-new-e.jpg',
+  museum: 'images/p11-new-a-3.jpg',
+  restaurant: 'images/p05-velvet-red.jpg'
+};
 var badgeClass = {hot:'badge-hot', new:'badge-new'};
+var allProducts = [];
+var renderedCount = 0;
+var PAGE_SIZE = 10;
+var infiniteObserver = null;
+
+function resolveImage(img) {
+  if (!img) return '';
+  if (img.startsWith('data:') || img.startsWith('http')) return img;
+  var clean = img.replace(/^\/+/, '');
+  return encodeURI(clean);
+}
 
 // ══ SLIDER ══
 function slide(dir){ slideIdx=(slideIdx+dir+slideCount)%slideCount; document.getElementById('slides').style.transform='translateX('+(slideIdx*100)+'%)'; updateDots(); }
@@ -289,7 +341,11 @@ async function loadProducts() {
     var prods = d.products || [];
 
     if (prods.length === 0) throw new Error('No products');
+    allProducts = prods;
     renderProducts(prods);
+    renderSectionsSummary(prods);
+    renderNextProductsBatch();
+    setupInfiniteScroll();
 
   } catch(e) {
     console.error('Products error:', e.message);
@@ -305,10 +361,7 @@ function renderProducts(prods) {
   var html = top.map(function(p) {
     var badge = p.badge && badgeClass[p.badge] ? '<div class="prod-card-badge '+badgeClass[p.badge]+'">'+(p.badge==='hot'?'الأكثر طلباً':'جديد')+'</div>' : '';
     var img = p.imgs && p.imgs[0] ? p.imgs[0] : 'images/p01-rose-gold-chair.jpg';
-    // Handle base64, full URL, or relative path
-    var imgSrc = img.startsWith('data:') ? img :
-                 img.startsWith('http') ? img :
-                 'https://misrsteel.vercel.app/' + img;
+    var imgSrc = resolveImage(img) || 'images/p01-rose-gold-chair.jpg';
     var egp = Math.round(p.price * USD_EGP).toLocaleString();
     return '<a class="prod-card" href="product.html?id='+p.id+'">'
       + badge
@@ -322,6 +375,68 @@ function renderProducts(prods) {
       + '</div></div></a>';
   }).join('');
   document.getElementById('bestGrid').innerHTML = html;
+}
+
+function buildProductCard(p){
+  var badge = p.badge && badgeClass[p.badge] ? '<div class="prod-card-badge '+badgeClass[p.badge]+'">'+(p.badge==='hot'?'الأكثر طلباً':'جديد')+'</div>' : '';
+  var img = p.imgs && p.imgs[0] ? p.imgs[0] : 'images/p01-rose-gold-chair.jpg';
+  var imgSrc = resolveImage(img) || 'images/p01-rose-gold-chair.jpg';
+  var egp = Math.round(p.price * USD_EGP).toLocaleString();
+  return '<a class="prod-card" href="product.html?id='+p.id+'">'
+    + badge
+    + '<div class="prod-img-wrap"><img src="'+imgSrc+'" alt="'+p.nameAr+'" loading="lazy" onerror="this.src=\'images/p01-rose-gold-chair.jpg\'"></div>'
+    + '<div class="prod-body">'
+    + '<div class="prod-cat">'+(sectionLabels[p.section]||p.section)+'</div>'
+    + '<div class="prod-name">'+p.nameAr+'</div>'
+    + '<div class="prod-price-row">'
+    + '<div><div class="prod-price">$'+p.price+'</div><div class="prod-price-egp">≈ '+egp+' ج.م</div></div>'
+    + '<button class="prod-btn" onclick="event.preventDefault();addCart('+JSON.stringify(p)+')">🛒</button>'
+    + '</div></div></a>';
+}
+
+function renderSectionsSummary(prods){
+  var counts = {}, coverBySection = {};
+  prods.forEach(function(p){
+    var key = p.section || 'other';
+    counts[key] = (counts[key] || 0) + 1;
+    if (!coverBySection[key] && p.imgs && p.imgs[0]) {
+      coverBySection[key] = resolveImage(p.imgs[0]);
+    }
+  });
+  var html = Object.keys(counts).map(function(k){
+    var title = sectionLabels[k] || k;
+    var cover = sectionPosterMap[k] || coverBySection[k] || 'images/p01-rose-gold-chair.jpg';
+    return '<a class="section-card" href="marketplace.html?section='+encodeURIComponent(k)+'">'
+      + '<img src="'+cover+'" alt="'+title+'" loading="lazy" onerror="this.src=\'images/p01-rose-gold-chair.jpg\'">'
+      + '<div class="section-card-overlay"><div class="section-card-name">'+title+'</div><div class="section-card-count">'+counts[k]+' منتج</div></div>'
+      + '</a>';
+  }).join('');
+  document.getElementById('sectionPills').innerHTML = html;
+}
+
+function renderNextProductsBatch(){
+  var grid = document.getElementById('allGrid');
+  var status = document.getElementById('loadMoreStatus');
+  var next = allProducts.slice(renderedCount, renderedCount + PAGE_SIZE);
+  if (!next.length) {
+    status.textContent = 'تم عرض كل المنتجات ✅';
+    if (infiniteObserver) infiniteObserver.disconnect();
+    return;
+  }
+  grid.insertAdjacentHTML('beforeend', next.map(buildProductCard).join(''));
+  renderedCount += next.length;
+  status.textContent = renderedCount >= allProducts.length ? 'تم عرض كل المنتجات ✅' : 'اسكرول لتحميل منتجات أكثر...';
+}
+
+function setupInfiniteScroll(){
+  if (infiniteObserver) infiniteObserver.disconnect();
+  var sentinel = document.getElementById('scrollSentinel');
+  infiniteObserver = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if (entry.isIntersecting) renderNextProductsBatch();
+    });
+  }, { rootMargin: '250px 0px' });
+  infiniteObserver.observe(sentinel);
 }
 
 // ══ CART ══
