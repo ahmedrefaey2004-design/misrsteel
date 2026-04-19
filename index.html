@@ -106,6 +106,14 @@ button{cursor:pointer;font-family:inherit}
 .flags{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:16px 0 24px}
 .flag{display:flex;align-items:center;gap:6px;padding:7px 16px;border:1px solid rgba(255,255,255,.12);border-radius:24px;font-size:12px;color:rgba(255,255,255,.7)}
 .export-cta{display:inline-block;padding:13px 32px;background:var(--orange);color:#fff;border-radius:6px;font-size:14px;font-weight:800}
+.partners-section{max-width:1280px;margin:32px auto;padding:0 24px}
+.partners-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+.partner-card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;min-height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;transition:all .2s}
+.partner-card:hover{border-color:var(--orange);box-shadow:0 8px 20px rgba(255,96,0,.08);transform:translateY(-2px)}
+.partner-logo{width:40px;height:40px;border-radius:8px;background:#f6f6f6;border:1px solid #ececec;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#666;line-height:1}
+.partner-logo-img{width:40px;height:40px;object-fit:contain;border-radius:8px;background:#fff;border:1px solid #f0f0f0;padding:4px}
+.partner-name{font-size:12px;font-weight:700}
+.partner-sub{font-size:10px;color:var(--muted)}
 .footer{background:#111;color:rgba(255,255,255,.55);padding:40px 24px 20px}
 .footer-inner{max-width:1280px;margin:0 auto}
 .footer-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:36px;margin-bottom:32px}
@@ -284,6 +292,22 @@ button{cursor:pointer;font-family:inherit}
     <a class="export-cta" href="marketplace.html">🛒 اطلب الآن</a>
   </div>
 </div>
+
+<!-- PARTNERS -->
+<section class="partners-section">
+  <div class="sec-head">
+    <div class="sec-title">🤝 شركاء النجاح</div>
+    <a href="b2b-portal.html" class="sec-more">انضم كشريك →</a>
+  </div>
+  <div class="partners-grid">
+    <div class="partner-card"><img class="partner-logo-img" src="https://logo.clearbit.com/hilton.com" alt="Hilton" onerror="this.style.display='none';this.parentElement.querySelector('.partner-logo').style.display='flex'"><div class="partner-logo" style="display:none">H</div><div class="partner-name">Hilton Hotels</div><div class="partner-sub">تجهيزات فندقية</div></div>
+    <div class="partner-card"><img class="partner-logo-img" src="https://logo.clearbit.com/fourseasons.com" alt="Four Seasons" onerror="this.style.display='none';this.parentElement.querySelector('.partner-logo').style.display='flex'"><div class="partner-logo" style="display:none">FS</div><div class="partner-name">Four Seasons</div><div class="partner-sub">أثاث ضيافة فاخر</div></div>
+    <div class="partner-card"><img class="partner-logo-img" src="https://logo.clearbit.com/marriott.com" alt="Marriott" onerror="this.style.display='none';this.parentElement.querySelector('.partner-logo').style.display='flex'"><div class="partner-logo" style="display:none">M</div><div class="partner-name">Marriott</div><div class="partner-sub">مشروعات قاعات</div></div>
+    <div class="partner-card"><img class="partner-logo-img" src="https://logo.clearbit.com/kempinski.com" alt="Kempinski" onerror="this.style.display='none';this.parentElement.querySelector('.partner-logo').style.display='flex'"><div class="partner-logo" style="display:none">K</div><div class="partner-name">Kempinski</div><div class="partner-sub">توريد مخصص</div></div>
+    <div class="partner-card"><img class="partner-logo-img" src="https://logo.clearbit.com/rotana.com" alt="Rotana" onerror="this.style.display='none';this.parentElement.querySelector('.partner-logo').style.display='flex'"><div class="partner-logo" style="display:none">R</div><div class="partner-name">Rotana</div><div class="partner-sub">حلول مطاعم وكافيهات</div></div>
+    <div class="partner-card"><img class="partner-logo-img" src="https://logo.clearbit.com/intercontinental.com" alt="InterContinental" onerror="this.style.display='none';this.parentElement.querySelector('.partner-logo').style.display='flex'"><div class="partner-logo" style="display:none">IC</div><div class="partner-name">InterContinental</div><div class="partner-sub">مشروعات تصدير</div></div>
+  </div>
+</section>
 
 <!-- FOOTER -->
 <footer class="footer">
