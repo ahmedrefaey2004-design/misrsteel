@@ -244,3 +244,39 @@ test('admin site-config endpoints support replace and validate payloads', async 
     assert.equal(badProductRes.status, 400);
   });
 });
+
+test('meta catalog CSV endpoint exports products in feed format', async () => {
+  await withServer({ adminToken: 'admin_token_meta' }, async (baseUrl) => {
+    const headers = {
+      'Content-Type': 'application/json',
+      'x-admin-token': 'admin_token_meta'
+    };
+
+    const seedRes = await fetch(`${baseUrl}/api/admin/site-config`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({
+        products: [{
+          id: 'chair-101',
+          nameAr: 'كرسي ستانلس فاخر',
+          desc: 'كرسي مناسب للمطاعم والقاعات',
+          price: 120,
+          imgs: ['images/chair-101.jpg'],
+          inStock: true
+        }]
+      })
+    });
+    assert.equal(seedRes.status, 200);
+
+    const csvRes = await fetch(`${baseUrl}/api/meta/catalog.csv?siteUrl=https://misrsteel.example`);
+    assert.equal(csvRes.status, 200);
+    assert.match(csvRes.headers.get('content-type') || '', /text\/csv/i);
+
+    const csv = await csvRes.text();
+    assert.match(csv, /id,title,description,availability,condition,price,link,image_link,brand/);
+    assert.match(csv, /"chair-101"/);
+    assert.match(csv, /"120\.00 USD"/);
+    assert.match(csv, /"https:\/\/misrsteel\.example\/product\.html\?id=chair-101"/);
+    assert.match(csv, /"https:\/\/misrsteel\.example\/images\/chair-101\.jpg"/);
+  });
+});

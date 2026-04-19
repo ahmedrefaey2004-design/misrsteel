@@ -273,6 +273,70 @@ function createApp(config = createConfig()) {
     res.json({ success: true, config: siteConfigStore.get() });
   });
 
+  app.get('/api/meta/catalog.csv', (req, res) => {
+    const siteConfig = siteConfigStore.get();
+    const products = Array.isArray(siteConfig.products) ? siteConfig.products : [];
+    const siteBaseUrl = (req.query?.siteUrl || 'https://misrsteel.vercel.app').toString().replace(/\/+$/, '');
+    const imageBaseUrl = (req.query?.imageBaseUrl || siteBaseUrl).toString().replace(/\/+$/, '');
+    const defaultBrand = (req.query?.brand || 'MISR STEEL').toString();
+    const defaultCurrency = (req.query?.currency || 'USD').toString().toUpperCase();
+
+    const columns = [
+      'id',
+      'title',
+      'description',
+      'availability',
+      'condition',
+      'price',
+      'link',
+      'image_link',
+      'brand'
+    ];
+
+    function csvEscape(value) {
+      const stringValue = String(value ?? '').replace(/\r?\n|\r/g, ' ').trim();
+      return `"${stringValue.replace(/"/g, '""')}"`;
+    }
+
+    function buildAbsoluteUrl(baseUrl, maybeRelativePath) {
+      if (!maybeRelativePath) return '';
+      if (/^https?:\/\//i.test(maybeRelativePath)) return maybeRelativePath;
+      return `${baseUrl}/${String(maybeRelativePath).replace(/^\/+/, '')}`;
+    }
+
+    const lines = [columns.join(',')];
+    for (const product of products) {
+      if (!product || typeof product !== 'object') continue;
+      const id = product.id ?? '';
+      const title = product.nameAr || product.nameEn || product.name || '';
+      if (!id || !title) continue;
+
+      const unitPrice = Number(product.price);
+      const price = Number.isFinite(unitPrice) && unitPrice > 0
+        ? `${unitPrice.toFixed(2)} ${defaultCurrency}`
+        : '';
+      const image = Array.isArray(product.imgs) && product.imgs.length > 0
+        ? buildAbsoluteUrl(imageBaseUrl, product.imgs[0])
+        : '';
+      const row = [
+        id,
+        title,
+        product.desc || product.description || title,
+        product.inStock === false ? 'out of stock' : 'in stock',
+        'new',
+        price,
+        `${siteBaseUrl}/product.html?id=${encodeURIComponent(String(id))}`,
+        image,
+        product.brand || defaultBrand
+      ];
+      lines.push(row.map(csvEscape).join(','));
+    }
+
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', 'inline; filename="meta-catalog.csv"');
+    res.send(lines.join('\n'));
+  });
+
   app.post('/api/admin/users', (req, res) => {
     if (!requireAdmin(req, res)) return;
     res.json({ total: userStore.list().length, users: userStore.list() });
