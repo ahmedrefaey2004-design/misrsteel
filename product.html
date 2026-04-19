@@ -270,7 +270,7 @@ function renderProduct(p) {
     '<div class="fg"><label>الكمية المطلوبة</label><input type="number" id="of-qty" placeholder="1" min="1" value="1"></div>' +
     '</div>' +
     '<div class="fg"><label>ملاحظات (اختياري)</label><textarea id="of-notes" rows="2" placeholder="لون الإطار، لون القماش، أي تفاصيل إضافية..."></textarea></div>' +
-    '<button class="submit-btn" id="submitBtn" onclick="submitOrder()">✅ إرسال الطلب عبر واتساب</button>' +
+    '<button class="submit-btn" id="submitBtn" onclick="submitOrder()">✅ تسجيل الطلب وفتح واتساب</button>' +
     '</div>' +
 
     // Related
@@ -311,14 +311,22 @@ function quickWA() {
   window.open('https://wa.me/201050595250?text=' + encodeURIComponent(msg), '_blank');
 }
 
-function submitOrder() {
+async function submitOrder() {
   var name  = document.getElementById('of-name').value.trim();
   var phone = document.getElementById('of-phone').value.trim();
-  var qty   = document.getElementById('of-qty').value || '1';
+  var qtyRaw = document.getElementById('of-qty').value;
+  var qty = parseInt(qtyRaw, 10);
   var notes = document.getElementById('of-notes').value.trim();
   var country = document.getElementById('of-country').value;
 
   if (!name || !phone) { toast('أدخل الاسم ورقم الواتساب', 'error'); return; }
+  if (!product) { toast('المنتج غير متاح حالياً', 'error'); return; }
+  if (!Number.isFinite(qty) || qty < 1) { toast('اكتب كمية صحيحة (1 فأكثر)', 'error'); return; }
+
+  var countrySelect = document.getElementById('of-country');
+  var waCountry = countrySelect.selectedOptions[0]
+    ? countrySelect.selectedOptions[0].textContent.trim()
+    : country;
 
   var msg = '🛒 طلب جديد من موقع مصر ستيل\n\n' +
     '📦 المنتج: ' + (product ? product.nameAr : 'منتج') + '\n' +
@@ -328,20 +336,56 @@ function submitOrder() {
     (selectedFabric ? '🪑 لون القماش: ' + selectedFabric + '\n' : '') +
     '\n👤 الاسم: ' + name +
     '\n📱 الواتساب: ' + phone +
-    '\n🌍 الدولة: ' + country +
+    '\n🌍 الدولة: ' + waCountry +
     (notes ? '\n📝 ملاحظات: ' + notes : '') +
     '\n\nأرجو التواصل لتأكيد الطلب 🙏';
 
-  document.getElementById('submitBtn').disabled = true;
-  document.getElementById('submitBtn').textContent = '⏳ جاري الإرسال...';
-  
-  window.open('https://wa.me/201050595250?text=' + encodeURIComponent(msg), '_blank');
-  
-  setTimeout(function() {
-    document.getElementById('submitBtn').disabled = false;
-    document.getElementById('submitBtn').textContent = '✅ إرسال الطلب عبر واتساب';
-    toast('✅ تم إرسال طلبك — سنتواصل معك قريباً', 'success');
-  }, 1500);
+  var orderPayload = {
+    customerName: name,
+    customerPhone: phone,
+    customerCountry: country,
+    notes: notes,
+    items: [{
+      id: product.id,
+      name: product.nameAr || product.name || 'منتج',
+      price: Number(product.price) || 0,
+      qty: qty,
+      frameColor: selectedFrame || undefined,
+      fabricColor: selectedFabric || undefined,
+      img: product.imgs && product.imgs[0] ? product.imgs[0] : ''
+    }],
+    totalUSD: (Number(product.price) || 0) * qty,
+    source: 'product-page'
+  };
+
+  var submitBtn = document.getElementById('submitBtn');
+  submitBtn.disabled = true;
+  submitBtn.textContent = '⏳ جاري تسجيل الطلب...';
+
+  try {
+    var orderRes = await fetch(BACKEND + '/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(orderPayload)
+    });
+
+    var orderData = await orderRes.json().catch(function(){ return {}; });
+    if (!orderRes.ok) {
+      throw new Error(orderData.error || 'تعذر تسجيل الطلب حالياً');
+    }
+
+    if (orderData.orderId) {
+      msg += '\n\n🧾 رقم الطلب: ' + orderData.orderId;
+    }
+
+    window.open('https://wa.me/201050595250?text=' + encodeURIComponent(msg), '_blank');
+    toast('✅ تم تسجيل الطلب وتحويلك للواتساب', 'success');
+  } catch (err) {
+    toast('❌ ' + (err.message || 'تعذر تسجيل الطلب الآن'), 'error');
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = '✅ تسجيل الطلب وفتح واتساب';
+  }
 }
 
 // ── RELATED PRODUCTS ──
