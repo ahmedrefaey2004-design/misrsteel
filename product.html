@@ -158,7 +158,7 @@ async function loadProduct() {
     product = d.product;
     document.title = product.nameAr + ' — مصر ستيل';
     renderProduct(product);
-    loadRelated(product.section, product.id);
+    loadRelated(product);
   } catch(e) {
     showError('فشل تحميل المنتج — تحقق من اتصال الإنترنت');
   }
@@ -345,11 +345,31 @@ function submitOrder() {
 }
 
 // ── RELATED PRODUCTS ──
-async function loadRelated(section, excludeId) {
+function similarityScore(base, candidate) {
+  var score = 0;
+  if (!base || !candidate) return score;
+  if (candidate.section === base.section) score += 3;
+  var baseWords = (base.nameAr || '').split(/\s+/).filter(function(w){ return w.length > 2; });
+  var candidateName = (candidate.nameAr || '').toLowerCase();
+  baseWords.forEach(function(w){
+    if (candidateName.indexOf(w.toLowerCase()) !== -1) score += 1;
+  });
+  if (base.badge && candidate.badge === base.badge) score += 1;
+  return score;
+}
+
+async function loadRelated(baseProduct) {
   try {
-    var r = await fetch(BACKEND + '/api/products?section=' + section);
+    var r = await fetch(BACKEND + '/api/products');
     var d = await r.json();
-    var related = (d.products || []).filter(function(p){ return p.id !== excludeId; }).slice(0, 6);
+    var related = (d.products || [])
+      .filter(function(p){ return p.id !== baseProduct.id; })
+      .map(function(p){
+        return { product: p, score: similarityScore(baseProduct, p) };
+      })
+      .sort(function(a,b){ return b.score - a.score; })
+      .slice(0, 6)
+      .map(function(item){ return item.product; });
     if (!related.length) return;
 
     var html = '<div class="desc-card"><h3>🪑 منتجات مشابهة</h3><div class="related-grid">' +
