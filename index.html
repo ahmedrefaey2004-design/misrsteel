@@ -70,6 +70,9 @@ button{cursor:pointer;font-family:inherit}
 .dept-name{font-size:11px;font-weight:700;color:var(--text);text-align:center}
 .prod-section{max-width:1280px;margin:0 auto 32px;padding:0 24px}
 .prod-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.load-more-wrap{display:flex;justify-content:center;padding:18px 0;color:var(--muted);font-size:13px}
+.section-pills{display:flex;flex-wrap:wrap;gap:8px}
+.section-pill{padding:6px 12px;border-radius:20px;background:var(--orange-lt);color:var(--orange-dk);font-size:11px;font-weight:700}
 .prod-card{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;transition:all .25s;text-decoration:none;position:relative;display:block}
 .prod-card:hover{border-color:var(--orange);box-shadow:0 8px 28px rgba(255,96,0,.1);transform:translateY(-4px)}
 .prod-card-badge{position:absolute;top:10px;inset-inline-start:10px;z-index:2;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px}
@@ -208,6 +211,17 @@ button{cursor:pointer;font-family:inherit}
   </div>
 </div>
 
+<!-- ALL PRODUCTS + INFINITE SCROLL -->
+<div class="prod-section">
+  <div class="sec-head">
+    <div class="sec-title">🛍️ كل المنتجات</div>
+    <div class="section-pills" id="sectionPills"></div>
+  </div>
+  <div class="prod-grid" id="allGrid"></div>
+  <div class="load-more-wrap" id="loadMoreStatus">اسكرول لتحميل منتجات أكثر...</div>
+  <div id="scrollSentinel" style="height:1px"></div>
+</div>
+
 <!-- TRUST -->
 <div class="trust-section">
   <div class="trust-inner">
@@ -250,6 +264,10 @@ var USD_EGP = parseFloat(localStorage.getItem('ms_rate') || '50.85');
 var slideIdx = 0, slideCount = 4, slideAuto;
 var sectionLabels = {home:'🏠 منزل', hall:'🎪 قاعة', museum:'🏛️ لوبي', restaurant:'🍽️ مطعم'};
 var badgeClass = {hot:'badge-hot', new:'badge-new'};
+var allProducts = [];
+var renderedCount = 0;
+var PAGE_SIZE = 10;
+var infiniteObserver = null;
 
 // ══ SLIDER ══
 function slide(dir){ slideIdx=(slideIdx+dir+slideCount)%slideCount; document.getElementById('slides').style.transform='translateX('+(slideIdx*100)+'%)'; updateDots(); }
@@ -289,7 +307,11 @@ async function loadProducts() {
     var prods = d.products || [];
 
     if (prods.length === 0) throw new Error('No products');
+    allProducts = prods;
     renderProducts(prods);
+    renderSectionsSummary(prods);
+    renderNextProductsBatch();
+    setupInfiniteScroll();
 
   } catch(e) {
     console.error('Products error:', e.message);
@@ -322,6 +344,60 @@ function renderProducts(prods) {
       + '</div></div></a>';
   }).join('');
   document.getElementById('bestGrid').innerHTML = html;
+}
+
+function buildProductCard(p){
+  var badge = p.badge && badgeClass[p.badge] ? '<div class="prod-card-badge '+badgeClass[p.badge]+'">'+(p.badge==='hot'?'الأكثر طلباً':'جديد')+'</div>' : '';
+  var img = p.imgs && p.imgs[0] ? p.imgs[0] : 'images/p01-rose-gold-chair.jpg';
+  var imgSrc = img.startsWith('data:') ? img : img.startsWith('http') ? img : 'https://misrsteel.vercel.app/' + img;
+  var egp = Math.round(p.price * USD_EGP).toLocaleString();
+  return '<a class="prod-card" href="product.html?id='+p.id+'">'
+    + badge
+    + '<div class="prod-img-wrap"><img src="'+imgSrc+'" alt="'+p.nameAr+'" loading="lazy" onerror="this.src=\'images/p01-rose-gold-chair.jpg\'"></div>'
+    + '<div class="prod-body">'
+    + '<div class="prod-cat">'+(sectionLabels[p.section]||p.section)+'</div>'
+    + '<div class="prod-name">'+p.nameAr+'</div>'
+    + '<div class="prod-price-row">'
+    + '<div><div class="prod-price">$'+p.price+'</div><div class="prod-price-egp">≈ '+egp+' ج.م</div></div>'
+    + '<button class="prod-btn" onclick="event.preventDefault();addCart('+JSON.stringify(p)+')">🛒</button>'
+    + '</div></div></a>';
+}
+
+function renderSectionsSummary(prods){
+  var counts = {};
+  prods.forEach(function(p){
+    var key = p.section || 'other';
+    counts[key] = (counts[key] || 0) + 1;
+  });
+  var html = Object.keys(counts).map(function(k){
+    return '<span class="section-pill">'+(sectionLabels[k] || k)+' ('+counts[k]+')</span>';
+  }).join('');
+  document.getElementById('sectionPills').innerHTML = html;
+}
+
+function renderNextProductsBatch(){
+  var grid = document.getElementById('allGrid');
+  var status = document.getElementById('loadMoreStatus');
+  var next = allProducts.slice(renderedCount, renderedCount + PAGE_SIZE);
+  if (!next.length) {
+    status.textContent = 'تم عرض كل المنتجات ✅';
+    if (infiniteObserver) infiniteObserver.disconnect();
+    return;
+  }
+  grid.insertAdjacentHTML('beforeend', next.map(buildProductCard).join(''));
+  renderedCount += next.length;
+  status.textContent = renderedCount >= allProducts.length ? 'تم عرض كل المنتجات ✅' : 'اسكرول لتحميل منتجات أكثر...';
+}
+
+function setupInfiniteScroll(){
+  if (infiniteObserver) infiniteObserver.disconnect();
+  var sentinel = document.getElementById('scrollSentinel');
+  infiniteObserver = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if (entry.isIntersecting) renderNextProductsBatch();
+    });
+  }, { rootMargin: '250px 0px' });
+  infiniteObserver.observe(sentinel);
 }
 
 // ══ CART ══
