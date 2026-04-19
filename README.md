@@ -259,6 +259,43 @@ https://amazing-name-123.netlify.app
    - تعدل JSON كامل وتحفظ
    - تضيف/تحذف منتجات أو أقسام من جزء **إضافة عنصر**
 
+---
+
+## 🔵 ربط الموقع مع Meta (Facebook Page) واستيراد المنتجات
+
+دلوقتي فيه Feed مباشر للمنتجات بصيغة CSV تقدر Meta Commerce Manager يسحبه أوتوماتيك.
+
+### 1) رابط الفيد
+- محليًا:
+  - `http://localhost:3000/api/meta/catalog.csv`
+- على الدومين بعد النشر:
+  - `https://YOUR-DOMAIN/api/meta/catalog.csv`
+
+### 2) خيارات مهمة للرابط (اختياري)
+- `siteUrl`: رابط الموقع الأساسي المستخدم في لينك المنتج.
+- `imageBaseUrl`: رابط أساسي للصور (لو مختلف عن `siteUrl`).
+- `brand`: اسم البراند داخل الكتالوج.
+- `currency`: العملة (افتراضي `USD`).
+
+مثال:
+```text
+https://YOUR-DOMAIN/api/meta/catalog.csv?siteUrl=https://misrsteel.com&brand=MISR%20STEEL&currency=USD
+```
+
+### 3) الاستيراد داخل Meta Commerce Manager
+1. افتح **Commerce Manager**.
+2. اختار الكتالوج أو اعمل Catalog جديد.
+3. ادخل على **Data Sources** → **Add Items**.
+4. اختار **Data Feed**.
+5. الصق رابط الفيد (`/api/meta/catalog.csv`).
+6. اختار تحديث مجدول (يوميًا مثلاً) عشان أي منتج جديد يتسحب تلقائي.
+7. اربط الكتالوج بالـ Facebook Page / Instagram Shop من إعدادات القناة.
+
+### 4) ملاحظات مهمة
+- أي منتج لازم يكون له `id` و `nameAr` (أو اسم) عشان يطلع في الفيد.
+- السعر بيتولد كـ `USD` من قيمة `price` في `site-config`.
+- أول صورة في `imgs[0]` بتستخدم كصورة المنتج في Meta.
+
 ### 3) هل نقدر ننشره للعملاء دلوقتي؟
 - **ينفع كتجربة تشغيلية**.
 - للإطلاق التجاري الكامل، لازم قبل النشر:
