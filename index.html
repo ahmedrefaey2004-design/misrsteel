@@ -71,16 +71,8 @@ button{cursor:pointer;font-family:inherit}
 .prod-section{max-width:1280px;margin:0 auto 32px;padding:0 24px}
 .prod-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
 .load-more-wrap{display:flex;justify-content:center;padding:18px 0;color:var(--muted);font-size:13px}
-.section-showcase{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.section-card{position:relative;border-radius:10px;overflow:hidden;display:block;min-height:84px;border:1px solid var(--border)}
-.section-card img{width:100%;height:100%;object-fit:cover;filter:brightness(.65);transition:transform .3s}
-.section-card:hover img{transform:scale(1.05)}
-.section-card-overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:10px;background:linear-gradient(to top,rgba(0,0,0,.55),transparent)}
-.section-card-name{color:#fff;font-size:12px;font-weight:800;line-height:1.2}
-.section-card-count{color:rgba(255,255,255,.88);font-size:10px}
-.partners-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
-.partner-card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:10px;display:flex;align-items:center;justify-content:center;min-height:76px}
-.partner-card img{max-height:42px;max-width:100%}
+.section-pills{display:flex;flex-wrap:wrap;gap:8px}
+.section-pill{padding:6px 12px;border-radius:20px;background:var(--orange-lt);color:var(--orange-dk);font-size:11px;font-weight:700}
 .prod-card{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;transition:all .25s;text-decoration:none;position:relative;display:block}
 .prod-card:hover{border-color:var(--orange);box-shadow:0 8px 28px rgba(255,96,0,.1);transform:translateY(-4px)}
 .prod-card-badge{position:absolute;top:10px;inset-inline-start:10px;z-index:2;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px}
@@ -223,24 +215,11 @@ button{cursor:pointer;font-family:inherit}
 <div class="prod-section">
   <div class="sec-head">
     <div class="sec-title">🛍️ كل المنتجات</div>
-    <a href="marketplace.html" class="sec-more">كل الأقسام →</a>
+    <div class="section-pills" id="sectionPills"></div>
   </div>
-  <div class="section-showcase" id="sectionPills"></div>
   <div class="prod-grid" id="allGrid"></div>
   <div class="load-more-wrap" id="loadMoreStatus">اسكرول لتحميل منتجات أكثر...</div>
   <div id="scrollSentinel" style="height:1px"></div>
-</div>
-
-<!-- PARTNERS -->
-<div class="prod-section">
-  <div class="sec-head"><div class="sec-title">🤝 شركاء النجاح</div><div class="sec-more">تعاون وعقود مستمرة</div></div>
-  <div class="partners-grid" id="partnersGrid">
-    <div class="partner-card"><img src="images/partners/nile-hotels.svg" alt="Nile Hotels" loading="lazy"></div>
-    <div class="partner-card"><img src="images/partners/royal-halls.svg" alt="Royal Halls" loading="lazy"></div>
-    <div class="partner-card"><img src="images/partners/city-lounge.svg" alt="City Lounge Group" loading="lazy"></div>
-    <div class="partner-card"><img src="images/partners/al-noor-catering.svg" alt="Al Noor Catering" loading="lazy"></div>
-    <div class="partner-card"><img src="images/partners/prime-events.svg" alt="Prime Events" loading="lazy"></div>
-  </div>
 </div>
 
 <!-- TRUST -->
@@ -385,22 +364,13 @@ function buildProductCard(p){
 }
 
 function renderSectionsSummary(prods){
-  var counts = {}, coverBySection = {};
+  var counts = {};
   prods.forEach(function(p){
     var key = p.section || 'other';
     counts[key] = (counts[key] || 0) + 1;
-    if (!coverBySection[key] && p.imgs && p.imgs[0]) {
-      var raw = p.imgs[0];
-      coverBySection[key] = raw.startsWith('data:') || raw.startsWith('http') ? raw : 'https://misrsteel.vercel.app/' + raw;
-    }
   });
   var html = Object.keys(counts).map(function(k){
-    var title = sectionLabels[k] || k;
-    var cover = coverBySection[k] || 'images/p01-rose-gold-chair.jpg';
-    return '<a class="section-card" href="marketplace.html?section='+encodeURIComponent(k)+'">'
-      + '<img src="'+cover+'" alt="'+title+'" loading="lazy" onerror="this.src=\'images/p01-rose-gold-chair.jpg\'">'
-      + '<div class="section-card-overlay"><div class="section-card-name">'+title+'</div><div class="section-card-count">'+counts[k]+' منتج</div></div>'
-      + '</a>';
+    return '<span class="section-pill">'+(sectionLabels[k] || k)+' ('+counts[k]+')</span>';
   }).join('');
   document.getElementById('sectionPills').innerHTML = html;
 }
