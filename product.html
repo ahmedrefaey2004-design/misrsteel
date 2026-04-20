@@ -190,29 +190,66 @@ function renderProduct(p) {
     }).join('') + '</div>' : '';
 
   // Price
+  var p1 = Math.round(p.price * 1.1); // 1-49
+  var p2 = p.price;                    // 50-99
+  var p3 = Math.round(p.price * 0.9); // 100+
+
   var priceHtml = p.price > 0
     ? '<div class="prod-price-box">' +
-      '<div class="prod-price-main">$' + p.price + '</div>' +
-      '<div class="prod-price-egp">≈ ' + egp + ' ج.م للقطعة</div>' +
-      '<div style="margin-top:10px">' +
-      '<label style="font-size:11px;font-weight:700;color:#888;display:block;margin-bottom:5px">الكمية المطلوبة</label>' +
-      '<div style="display:flex;align-items:center;gap:8px">' +
-      '<input id="prod-qty" type="number" min="1" value="1" oninput="calcTotal()" style="width:90px;padding:8px 10px;border:2px solid var(--border);border-radius:6px;font-size:15px;font-weight:700;font-family:inherit;text-align:center;outline:none">' +
-      '<div style="flex:1;background:#f5f5f5;border-radius:6px;padding:8px 12px;font-size:13px">' +
-      'الإجمالي: <strong id="prod-total" style="color:var(--orange)">$' + p.price + '</strong>' +
-      '</div></div>' +
-      '<div id="tiers-wrap" style="margin-top:10px;display:none">' +
-      '<div style="font-size:10px;color:#aaa;margin-bottom:6px;font-weight:700">أسعار الكميات:</div>' +
-      '<div class="price-tiers">' +
-      '<div class="pt-row"><span class="pt-qty">1–49 قطعة</span><span class="pt-price">$'+Math.round(p.price*1.1)+'</span></div>' +
-      '<div class="pt-row best"><span class="pt-qty">⭐ 50–99 قطعة</span><span class="pt-price">$'+p.price+'</span></div>' +
-      '<div class="pt-row"><span class="pt-qty">100+ قطعة</span><span class="pt-price">$'+Math.round(p.price*0.9)+'</span></div>' +
-      '</div></div>' +
-      '<button onclick="toggleTiers()" style="margin-top:8px;background:none;border:none;color:var(--orange);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;padding:0">📊 عرض أسعار الكميات ▾</button>' +
-      '</div></div>'
-    : '<div class="prod-price-box"><div class="prod-price-main" style="font-size:18px">السعر عند الطلب</div><div class="prod-price-egp">تواصل معنا للحصول على أفضل سعر</div>' +
-      '<div style="margin-top:10px"><label style="font-size:11px;font-weight:700;color:#888;display:block;margin-bottom:5px">الكمية المطلوبة</label>' +
-      '<input id="prod-qty" type="number" min="1" value="1" style="width:90px;padding:8px 10px;border:2px solid var(--border);border-radius:6px;font-size:15px;font-weight:700;font-family:inherit;text-align:center;outline:none"></div></div>';
+      '<div style="font-size:11px;font-weight:700;color:#888;margin-bottom:10px;letter-spacing:.05em">اختار الكمية المناسبة:</div>' +
+      // Tier cards
+      '<div style="display:flex;flex-direction:column;gap:8px">' +
+      // Tier 1
+      '<div class="tier-card" id="tier-1" onclick="selectTier(1,'+p1+',1,49)" style="border:2px solid var(--border);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all .2s;background:#fff">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center">' +
+          '<div><div style="font-size:13px;font-weight:700">1 — 49 قطعة</div><div style="font-size:11px;color:#888;margin-top:2px">طلب صغير</div></div>' +
+          '<div style="font-size:20px;font-weight:800;color:#555">$'+p1+'<span style="font-size:11px;font-weight:400;color:#aaa">/قطعة</span></div>' +
+        '</div>' +
+        '<div class="qty-section" id="qty-1" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid #f0f0f0">' +
+          '<label style="font-size:11px;font-weight:700;color:#888;display:block;margin-bottom:6px">الكمية:</label>' +
+          '<div style="display:flex;align-items:center;gap:10px">' +
+            '<input type="number" id="qty-input-1" min="1" max="49" value="1" oninput="calcTotal(1,'+p1+')" style="width:80px;padding:8px;border:2px solid var(--orange);border-radius:6px;font-size:15px;font-weight:700;text-align:center;outline:none;font-family:inherit">' +
+            '<div style="font-size:13px">الإجمالي: <strong id="total-1" style="color:var(--orange)">$'+p1+'</strong></div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      // Tier 2
+      '<div class="tier-card" id="tier-2" onclick="selectTier(2,'+p2+',50,99)" style="border:2px solid var(--orange);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all .2s;background:var(--orange-lt);position:relative">' +
+        '<div style="position:absolute;top:-8px;right:12px;background:var(--orange);color:#fff;font-size:10px;font-weight:800;padding:2px 10px;border-radius:10px">⭐ الأفضل</div>' +
+        '<div style="display:flex;justify-content:space-between;align-items:center">' +
+          '<div><div style="font-size:13px;font-weight:700">50 — 99 قطعة</div><div style="font-size:11px;color:#888;margin-top:2px">السعر الأساسي</div></div>' +
+          '<div style="font-size:20px;font-weight:800;color:var(--orange)">$'+p2+'<span style="font-size:11px;font-weight:400;color:#aaa">/قطعة</span></div>' +
+        '</div>' +
+        '<div class="qty-section" id="qty-2" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,96,0,.2)">' +
+          '<label style="font-size:11px;font-weight:700;color:#888;display:block;margin-bottom:6px">الكمية:</label>' +
+          '<div style="display:flex;align-items:center;gap:10px">' +
+            '<input type="number" id="qty-input-2" min="50" max="99" value="50" oninput="calcTotal(2,'+p2+')" style="width:80px;padding:8px;border:2px solid var(--orange);border-radius:6px;font-size:15px;font-weight:700;text-align:center;outline:none;font-family:inherit">' +
+            '<div style="font-size:13px">الإجمالي: <strong id="total-2" style="color:var(--orange)">$'+(p2*50).toLocaleString()+'</strong></div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      // Tier 3
+      '<div class="tier-card" id="tier-3" onclick="selectTier(3,'+p3+',100,9999)" style="border:2px solid var(--border);border-radius:10px;padding:12px 14px;cursor:pointer;transition:all .2s;background:#fff">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center">' +
+          '<div><div style="font-size:13px;font-weight:700">100+ قطعة</div><div style="font-size:11px;color:#888;margin-top:2px">أفضل سعر للجملة</div></div>' +
+          '<div style="font-size:20px;font-weight:800;color:var(--green)">$'+p3+'<span style="font-size:11px;font-weight:400;color:#aaa">/قطعة</span></div>' +
+        '</div>' +
+        '<div class="qty-section" id="qty-3" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid #f0f0f0">' +
+          '<label style="font-size:11px;font-weight:700;color:#888;display:block;margin-bottom:6px">الكمية:</label>' +
+          '<div style="display:flex;align-items:center;gap:10px">' +
+            '<input type="number" id="qty-input-3" min="100" value="100" oninput="calcTotal(3,'+p3+')" style="width:80px;padding:8px;border:2px solid var(--orange);border-radius:6px;font-size:15px;font-weight:700;text-align:center;outline:none;font-family:inherit">' +
+            '<div style="font-size:13px">الإجمالي: <strong id="total-3" style="color:var(--orange)">$'+(p3*100).toLocaleString()+'</strong></div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '</div>' +
+      '</div>'
+    : '<div class="prod-price-box">' +
+      '<div class="prod-price-main" style="font-size:18px">السعر عند الطلب</div>' +
+      '<div class="prod-price-egp">تواصل معنا للحصول على أفضل سعر</div>' +
+      '<div style="margin-top:12px"><label style="font-size:11px;font-weight:700;color:#888;display:block;margin-bottom:6px">الكمية المطلوبة:</label>' +
+      '<input type="number" id="qty-input-0" min="1" value="1" style="width:80px;padding:8px;border:2px solid var(--border);border-radius:6px;font-size:15px;font-weight:700;text-align:center;font-family:inherit;outline:none">' +
+      '</div></div>';
 
   // Colors
   var colorsHtml = '';
@@ -293,32 +330,55 @@ function renderProduct(p) {
     '<div id="relatedSection"></div>';
 }
 
-var basePrice = 0;
-function calcTotal() {
-  var qty = parseInt(document.getElementById('prod-qty').value) || 1;
-  var price = basePrice;
-  // Apply tier pricing
-  if (price > 0) {
-    if (qty >= 100) price = Math.round(price * 0.9);
-    else if (qty >= 50) price = price;
-    else price = Math.round(price * 1.1);
-    var total = price * qty;
-    var el = document.getElementById('prod-total');
-    if (el) el.textContent = '$' + total.toLocaleString();
-  }
+var selectedTier = 0;
+var selectedPrice = 0;
+var selectedQty = 0;
+
+function selectTier(tier, price, minQty, maxQty) {
+  selectedTier = tier;
+  selectedPrice = price;
+  
+  // Hide all qty sections and reset borders
+  [1,2,3].forEach(function(t) {
+    var qs = document.getElementById('qty-'+t);
+    var card = document.getElementById('tier-'+t);
+    if (qs) qs.style.display = 'none';
+    if (card && t !== 2) { card.style.borderColor = 'var(--border)'; card.style.background = '#fff'; }
+    if (card && t === 2) { card.style.borderColor = 'var(--orange)'; card.style.background = 'var(--orange-lt)'; }
+  });
+  
+  // Show selected tier qty section
+  var qsEl = document.getElementById('qty-'+tier);
+  var cardEl = document.getElementById('tier-'+tier);
+  if (qsEl) { qsEl.style.display = 'block'; }
+  if (cardEl && tier !== 2) { cardEl.style.borderColor = 'var(--orange)'; cardEl.style.background = 'var(--orange-lt)'; }
+  
+  // Focus qty input
+  var inp = document.getElementById('qty-input-'+tier);
+  if (inp) { inp.focus(); calcTotal(tier, price); }
 }
 
-function toggleTiers() {
-  var wrap = document.getElementById('tiers-wrap');
-  if (!wrap) return;
-  var btn = wrap.nextElementSibling;
-  if (wrap.style.display === 'none') {
-    wrap.style.display = 'block';
-    if (btn) btn.textContent = '📊 إخفاء أسعار الكميات ▴';
-  } else {
-    wrap.style.display = 'none';
-    if (btn) btn.textContent = '📊 عرض أسعار الكميات ▾';
-  }
+function calcTotal(tier, price) {
+  var inp = document.getElementById('qty-input-'+tier);
+  if (!inp) return;
+  var qty = parseInt(inp.value) || 1;
+  selectedQty = qty;
+  var total = price * qty;
+  var el = document.getElementById('total-'+tier);
+  if (el) el.textContent = '$' + total.toLocaleString();
+  // Update payment display if visible
+  updatePaymentDisplay();
+}
+
+function updatePaymentDisplay() {
+  if (!selectedPrice || !selectedQty) return;
+  var total = selectedPrice * selectedQty;
+  var dep = Math.round(total * 0.75);
+  var rem = total - dep;
+  var d = document.getElementById('deposit-display');
+  var r = document.getElementById('remaining-display');
+  if (d) d.textContent = '$' + dep.toLocaleString();
+  if (r) r.textContent = '$' + rem.toLocaleString();
 }
 
 function switchImg(src, thumb) {
@@ -344,21 +404,12 @@ function selectFabric(color, btn) {
 }
 
 function scrollToOrder() {
-  document.getElementById('orderForm').scrollIntoView({ behavior: 'smooth' });
-  // Update payment terms display
-  if (product && product.price > 0) {
-    var qty = parseInt((document.getElementById('prod-qty')||{value:'1'}).value) || 1;
-    var price = product.price;
-    if (qty >= 100) price = Math.round(price * 0.9);
-    else if (qty < 50) price = Math.round(price * 1.1);
-    var total = price * qty;
-    var dep = Math.round(total * 0.75);
-    var rem = total - dep;
-    var d = document.getElementById('deposit-display');
-    var r = document.getElementById('remaining-display');
-    if (d) d.textContent = '$' + dep.toLocaleString();
-    if (r) r.textContent = '$' + rem.toLocaleString();
+  if (!selectedTier && product && product.price > 0) {
+    // Auto-select tier 2 if none selected
+    selectTier(2, product.price, 50, 99);
   }
+  updatePaymentDisplay();
+  document.getElementById('orderForm').scrollIntoView({ behavior: 'smooth' });
 }
 
 function quickWA() {
@@ -372,9 +423,21 @@ function quickWA() {
 function submitOrder() {
   var name  = document.getElementById('of-name').value.trim();
   var phone = document.getElementById('of-phone').value.trim();
-  // Get qty from product qty input or form
-  var prodQtyEl = document.getElementById('prod-qty');
-  var qty = prodQtyEl ? (prodQtyEl.value || '1') : (document.getElementById('of-qty').value || '1');
+  // Get qty from selected tier
+  var qty = selectedQty || 1;
+  if (!selectedQty) {
+    // fallback - check all qty inputs
+    for (var t=1; t<=3; t++) {
+      var inp = document.getElementById('qty-input-'+t);
+      if (inp && document.getElementById('qty-'+t) && document.getElementById('qty-'+t).style.display !== 'none') {
+        qty = parseInt(inp.value)||1;
+        if (!selectedPrice) selectedPrice = product ? product.price : 0;
+        break;
+      }
+    }
+    var inp0 = document.getElementById('qty-input-0');
+    if (inp0) qty = parseInt(inp0.value)||1;
+  }
   var notes = document.getElementById('of-notes').value.trim();
   var country = document.getElementById('of-country').value;
 
