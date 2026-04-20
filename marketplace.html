@@ -168,7 +168,7 @@ function resolveImageUrl(img) {
   if (!img) return 'images/p01-rose-gold-chair.jpg';
   if (img.startsWith('data:') || /^https?:\/\//i.test(img)) return img;
   var clean = String(img).replace(/^\/+/, '');
-  var base = /^uploads\//i.test(clean) ? BACKEND : location.origin;
+  var base = /^(uploads|api|media|posters|storage|files)\//i.test(clean) ? BACKEND : location.origin;
   return (base.replace(/\/$/, '') + '/' + clean).replace(/([^:]\/)\/+/g, '$1');
 }
 

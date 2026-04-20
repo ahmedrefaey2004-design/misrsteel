@@ -291,7 +291,7 @@ function resolveImageUrl(img, baseUrl) {
   if (!chosenBase) {
     // Admin uploads are عادة under /uploads on backend.
     // Frontend static assets like images/* should stay on frontend origin.
-    chosenBase = /^uploads\//i.test(clean) ? BACKEND : location.origin;
+    chosenBase = /^(uploads|api|media|posters|storage|files)\//i.test(clean) ? BACKEND : location.origin;
   }
   var base = (chosenBase || BACKEND || location.origin).replace(/\/$/, '');
   return (base + '/' + clean).replace(/([^:]\/)\/+/g, '$1');
@@ -337,6 +337,7 @@ function renderHeroBanners(posters) {
   slidesEl.innerHTML = mapped.join('');
   slideCount = mapped.length;
   slideIdx = 0;
+  initSlider();
   goSlide(0);
 }
 
@@ -345,6 +346,7 @@ function slide(dir){ slideIdx=(slideIdx+dir+slideCount)%slideCount; document.get
 function goSlide(i){ slideIdx=i; document.getElementById('slides').style.transform='translateX('+(i*100)+'%)'; updateDots(); }
 function updateDots(){ document.querySelectorAll('.sdot').forEach(function(d,i){d.classList.toggle('active',i===slideIdx)}); }
 function initSlider(){
+  clearInterval(slideAuto);
   var dots=''; for(var i=0;i<slideCount;i++) dots+='<div class="sdot'+(i===0?' active':'')+'" onclick="goSlide('+i+')"></div>';
   document.getElementById('sliderDots').innerHTML=dots;
   slideAuto=setInterval(function(){slide(1)},4500);
