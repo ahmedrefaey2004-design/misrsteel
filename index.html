@@ -282,11 +282,12 @@ function normalizeProducts(list) {
   return (Array.isArray(list) ? list : []).map(normalizeProduct).filter(Boolean);
 }
 
-function resolveImageUrl(img) {
+function resolveImageUrl(img, baseUrl) {
   if (!img) return '';
   if (img.startsWith('data:') || /^https?:\/\//i.test(img)) return img;
   var clean = String(img).replace(/^\/+/, '');
-  return (location.origin + '/' + clean).replace(/([^:]\/)\/+/g, '$1');
+  var base = (baseUrl || BACKEND || location.origin).replace(/\/$/, '');
+  return (base + '/' + clean).replace(/([^:]\/)\/+/g, '$1');
 }
 
 async function fetchJsonWithFallback(path) {
@@ -309,8 +310,9 @@ async function fetchJsonWithFallback(path) {
 
 function getBannerImg(img) {
   if (!img) return '';
-  if (img.startsWith('data:') || img.startsWith('http')) return img;
-  return 'https://misrsteel.vercel.app/' + img.replace(/^\/+/, '');
+  if (img.startsWith('data:') || /^https?:\/\//i.test(img)) return img;
+  // Banner images are usually uploaded from backend/admin so prefer backend base.
+  return resolveImageUrl(img, BACKEND) || resolveImageUrl(img, location.origin);
 }
 
 function renderHeroBanners(posters) {
@@ -416,6 +418,7 @@ async function loadProducts() {
       }
     }
 
+    renderHeroBanners(posters);
     renderProducts(prods);
 
   } catch(e) {
@@ -433,7 +436,7 @@ function renderProducts(prods) {
     var badge = p.badge && badgeClass[p.badge] ? '<div class="prod-card-badge '+badgeClass[p.badge]+'">'+(p.badge==='hot'?'الأكثر طلباً':'جديد')+'</div>' : '';
     var img = p.imgs && p.imgs[0] ? p.imgs[0] : 'images/p01-rose-gold-chair.jpg';
     // Handle base64, full URL, or relative path
-    var imgSrc = resolveImageUrl(img) || 'images/p01-rose-gold-chair.jpg';
+    var imgSrc = resolveImageUrl(img, BACKEND) || resolveImageUrl(img, location.origin) || 'images/p01-rose-gold-chair.jpg';
     var egp = Math.round(p.price * USD_EGP).toLocaleString();
     return '<a class="prod-card" href="product.html?id='+p.id+'">'
       + badge

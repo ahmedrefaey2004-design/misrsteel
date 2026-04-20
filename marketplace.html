@@ -168,7 +168,8 @@ function resolveImageUrl(img) {
   if (!img) return 'images/p01-rose-gold-chair.jpg';
   if (img.startsWith('data:') || /^https?:\/\//i.test(img)) return img;
   var clean = String(img).replace(/^\/+/, '');
-  return (location.origin + '/' + clean).replace(/([^:]\/)\/+/g, '$1');
+  // Product images غالبًا جاية من backend/uploads
+  return (BACKEND.replace(/\/$/, '') + '/' + clean).replace(/([^:]\/)\/+/g, '$1');
 }
 
 async function fetchJsonWithFallback(path) {
