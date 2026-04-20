@@ -40,28 +40,39 @@ function createConfig(env = process.env) {
 function createUserStore(filePath) {
   const users = new Map();
   const resolvedPath = path.resolve(filePath);
+  let persistenceEnabled = true;
 
   function persist() {
-    fs.mkdirSync(path.dirname(resolvedPath), { recursive: true });
-    const payload = JSON.stringify(Object.fromEntries(users.entries()), null, 2);
-    const tempPath = `${resolvedPath}.tmp`;
-    fs.writeFileSync(tempPath, payload, 'utf8');
-    fs.renameSync(tempPath, resolvedPath);
+    if (!persistenceEnabled) return;
+    try {
+      fs.mkdirSync(path.dirname(resolvedPath), { recursive: true });
+      const payload = JSON.stringify(Object.fromEntries(users.entries()), null, 2);
+      const tempPath = `${resolvedPath}.tmp`;
+      fs.writeFileSync(tempPath, payload, 'utf8');
+      fs.renameSync(tempPath, resolvedPath);
+    } catch (error) {
+      persistenceEnabled = false;
+      console.warn(`[user-store] persistence disabled for ${resolvedPath}: ${error.message}`);
+    }
   }
 
   function load() {
-    if (!fs.existsSync(resolvedPath)) return;
-    const raw = fs.readFileSync(resolvedPath, 'utf8');
-    if (!raw.trim()) return;
+    try {
+      if (!fs.existsSync(resolvedPath)) return;
+      const raw = fs.readFileSync(resolvedPath, 'utf8');
+      if (!raw.trim()) return;
 
-    const parsed = JSON.parse(raw);
-    for (const [id, user] of Object.entries(parsed)) {
-      users.set(id, {
-        credits: Number.isFinite(Number(user.credits)) ? Number(user.credits) : DEFAULT_USER.credits,
-        paid: Number.isFinite(Number(user.paid)) ? Number(user.paid) : DEFAULT_USER.paid,
-        used: Number.isFinite(Number(user.used)) ? Number(user.used) : DEFAULT_USER.used,
-        plan: typeof user.plan === 'string' ? user.plan : DEFAULT_USER.plan
-      });
+      const parsed = JSON.parse(raw);
+      for (const [id, user] of Object.entries(parsed)) {
+        users.set(id, {
+          credits: Number.isFinite(Number(user.credits)) ? Number(user.credits) : DEFAULT_USER.credits,
+          paid: Number.isFinite(Number(user.paid)) ? Number(user.paid) : DEFAULT_USER.paid,
+          used: Number.isFinite(Number(user.used)) ? Number(user.used) : DEFAULT_USER.used,
+          plan: typeof user.plan === 'string' ? user.plan : DEFAULT_USER.plan
+        });
+      }
+    } catch (error) {
+      console.warn(`[user-store] load failed for ${resolvedPath}: ${error.message}`);
     }
   }
 
@@ -110,6 +121,7 @@ function createUserStore(filePath) {
 
 function createSiteConfigStore(filePath) {
   const resolvedPath = path.resolve(filePath);
+  let persistenceEnabled = true;
   const DEFAULT_SITE_CONFIG = Object.freeze({
     products: [],
     categories: [],
@@ -132,18 +144,28 @@ function createSiteConfigStore(filePath) {
   }
 
   function persist() {
-    fs.mkdirSync(path.dirname(resolvedPath), { recursive: true });
-    const payload = JSON.stringify(config, null, 2);
-    const tempPath = `${resolvedPath}.tmp`;
-    fs.writeFileSync(tempPath, payload, 'utf8');
-    fs.renameSync(tempPath, resolvedPath);
+    if (!persistenceEnabled) return;
+    try {
+      fs.mkdirSync(path.dirname(resolvedPath), { recursive: true });
+      const payload = JSON.stringify(config, null, 2);
+      const tempPath = `${resolvedPath}.tmp`;
+      fs.writeFileSync(tempPath, payload, 'utf8');
+      fs.renameSync(tempPath, resolvedPath);
+    } catch (error) {
+      persistenceEnabled = false;
+      console.warn(`[site-config] persistence disabled for ${resolvedPath}: ${error.message}`);
+    }
   }
 
   function load() {
-    if (!fs.existsSync(resolvedPath)) return;
-    const raw = fs.readFileSync(resolvedPath, 'utf8');
-    if (!raw.trim()) return;
-    config = normalizeSiteConfig(JSON.parse(raw));
+    try {
+      if (!fs.existsSync(resolvedPath)) return;
+      const raw = fs.readFileSync(resolvedPath, 'utf8');
+      if (!raw.trim()) return;
+      config = normalizeSiteConfig(JSON.parse(raw));
+    } catch (error) {
+      console.warn(`[site-config] load failed for ${resolvedPath}: ${error.message}`);
+    }
   }
 
   function get() {
