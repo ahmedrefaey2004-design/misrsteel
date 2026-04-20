@@ -292,25 +292,25 @@ async function loadDynamicSlides() {
     var slidesEl = document.getElementById('slides');
     if (!slidesEl) return;
 
-    // Keep first default slide, add product slides
-    var extraSlides = selected.map(function(p) {
-      var img = p.imgs[0];
-      var src = img.startsWith('http') || img.startsWith('data:') ? img : 'https://misrsteel.vercel.app/' + img;
-      return '<div class="slide" onclick="window.location='product.html?id='+p.id+''" style="cursor:pointer">' +
-        '<img class="slide-bg" src="' + src + '" alt="' + p.nameAr + '" loading="lazy">' +
-        '<div class="slide-overlay"></div>' +
-        '<div class="slide-content">' +
-        '<div class="slide-tag">✨ منتج مميز</div>' +
-        '<div class="slide-title">' + p.nameAr + '</div>' +
-        '<div class="slide-sub">' + (p.desc ? p.desc.substring(0,80)+'...' : 'اضغط لمعرفة التفاصيل') + '</div>' +
-        '<a class="slide-btn" href="product.html?id='+p.id+'">اعرف أكتر</a>' +
-        '</div></div>';
-    }).join('');
+     // Keep first default slide, add product slides
+     selected.forEach(function(p) {
+       var img = p.imgs[0];
+       var src = img.startsWith('http') || img.startsWith('data:') ? img : 'https://misrsteel.vercel.app/' + img;
+       var slide = document.createElement('div');
+       slide.className = 'slide';
+       slide.style.cursor = 'pointer';
+       var pid = p.id;
+       slide.addEventListener('click', function() { window.location = 'product.html?id=' + pid; });
+       var bg = document.createElement('img');
+       bg.className = 'slide-bg';
+       bg.src = src;
+       bg.alt = p.nameAr;
+       bg.loading = 'lazy';
+       slide.appendChild(bg);
+       slide.innerHTML += '<div class="slide-overlay"></div><div class="slide-content"><div class="slide-tag">✨ منتج مميز</div><div class="slide-title">' + p.nameAr + '</div><div class="slide-sub">' + (p.desc ? p.desc.substring(0,60)+'...' : 'اضغط لمعرفة التفاصيل') + '</div><a class="slide-btn">اعرف أكتر</a></div>';
+       if (slidesEl) slidesEl.appendChild(slide);
+     });
 
-    slidesEl.innerHTML = slidesEl.innerHTML + extraSlides;
-
-    // Reinit slider if function exists
-    if (typeof initSlider === 'function') initSlider();
   } catch(e) {}
 }
 
@@ -379,7 +379,7 @@ function loadMoreProducts() {
     var egp = Math.round(p.price * USD_EGP).toLocaleString();
     return '<a class="prod-card" href="product.html?id='+p.id+'">'
       + badge
-      + '<div class="prod-img-wrap"><img src="'+imgSrc+'" alt="'+p.nameAr+'" loading="lazy" onerror="this.style.display='none'"></div>'
+      + '<div class="prod-img-wrap"><img src="'+imgSrc+'" alt="'+p.nameAr+'" loading="lazy"></div>'
       + '<div class="prod-body">'
       + '<div class="prod-cat">'+(sectionLabels[p.section]||p.section)+'</div>'
       + '<div class="prod-name">'+p.nameAr+'</div>'
