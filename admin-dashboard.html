@@ -483,7 +483,58 @@ tr:hover td{background:#fafafa}
     </div>
 
     <!-- PARTNERS -->
-    <div class="panel" id="panel-partners">
+    <div class="panel" id="panel-portfolio">
+  <div class="panel-header">
+    <h2>🏆 معرض الأعمال</h2>
+    <button class="btn btn-orange" onclick="openAddProject()">+ إضافة مشروع</button>
+  </div>
+  <div class="table-wrap">
+    <div id="portfolioTable"><div style="padding:20px;text-align:center;color:var(--muted)">اضغط لتحميل المشاريع</div></div>
+  </div>
+</div>
+
+<!-- PORTFOLIO MODAL -->
+<div class="modal-overlay" id="projectModal">
+  <div class="modal-box" style="max-width:560px">
+    <div class="modal-header">
+      <h3 id="projModalTitle">إضافة مشروع</h3>
+      <button class="modal-close" onclick="closeProjectModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="fg-grid">
+        <div class="fg full"><label>اسم المشروع *</label><input type="text" id="pj_name" placeholder="فندق النيل الكبير"></div>
+        <div class="fg"><label>الموقع</label><input type="text" id="pj_location" placeholder="القاهرة، مصر"></div>
+        <div class="fg"><label>الفئة</label>
+          <select id="pj_category">
+            <option value="hotel">🏨 فندق</option>
+            <option value="restaurant">🍽️ مطعم</option>
+            <option value="hall">🎪 قاعة أفراح</option>
+            <option value="office">🏢 شركة</option>
+            <option value="home">🏠 منزل</option>
+            <option value="lobby">🏛️ لوبي</option>
+          </select>
+        </div>
+        <div class="fg"><label>السنة</label><input type="text" id="pj_year" placeholder="2024"></div>
+        <div class="fg"><label>الكمية</label><input type="text" id="pj_qty" placeholder="200 قطعة"></div>
+        <div class="fg full"><label>الوصف</label><textarea id="pj_desc" rows="3" placeholder="تفاصيل المشروع..."></textarea></div>
+        <div class="fg full"><label>رابط الفيديو (YouTube أو رابط مباشر)</label><input type="text" id="pj_video" placeholder="https://youtube.com/watch?v=..."></div>
+        <div class="fg full"><label>الوسوم (مفصولة بفاصلة)</label><input type="text" id="pj_tags" placeholder="استانلس ذهبي, 200 كرسي, لوبي فاخر"></div>
+      </div>
+      <div style="margin-top:12px">
+        <label style="font-size:11px;font-weight:700;color:var(--muted);display:block;margin-bottom:8px">صور المشروع</label>
+        <label class="btn btn-gray" style="cursor:pointer;display:inline-flex">📷 رفع صور <input type="file" multiple accept="image/*" style="display:none" onchange="onProjImgSelect(this.files)"></label>
+        <div id="projImgPreviews" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-gray" onclick="closeProjectModal()">إلغاء</button>
+      <button class="btn btn-red" id="deleteProjBtn" onclick="deleteProjFromModal()" style="display:none">🗑️ حذف</button>
+      <button class="btn btn-orange" onclick="saveProject()">💾 حفظ</button>
+    </div>
+  </div>
+</div>
+
+<div class="panel" id="panel-partners">
       <div class="panel-title">
         <span>🤝 الشركاء وروابط الـ API</span>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
