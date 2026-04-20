@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>تصدير المنتجات — مصر ستيل</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Cairo,sans-serif;background:#0a0a0a;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;direction:rtl}
+.box{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:16px;padding:32px;max-width:480px;width:100%;text-align:center}
+.logo{font-size:32px;margin-bottom:8px}
+h1{color:#ff6000;font-size:18px;margin-bottom:6px}
+p{color:#555;font-size:13px;margin-bottom:24px;line-height:1.7}
+.prog-wrap{background:#222;border-radius:6px;height:12px;margin:14px 0;overflow:hidden;display:none}
+.prog{height:100%;background:linear-gradient(to left,#d94f00,#ff6000);border-radius:6px;transition:width .3s;width:0%}
+.status{font-size:12px;color:#555;margin:8px 0;min-height:18px}
+.btn{width:100%;padding:14px;border-radius:8px;font-size:15px;font-weight:800;cursor:pointer;font-family:Cairo,sans-serif;border:none;margin-bottom:8px}
+.btn-orange{background:#ff6000;color:#fff}
+.btn-gray{background:#222;color:#666;border:1px solid #333}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.done{background:#001a00;border:1px solid #4ade80;border-radius:8px;padding:16px;margin-top:14px;display:none}
+.stat{display:inline-block;background:#111;border:1px solid #222;border-radius:8px;padding:10px 20px;margin:4px;font-size:13px}
+.stat strong{color:#ff6000;font-size:18px;display:block}
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="logo">📊</div>
+  <h1>تصدير كل المنتجات</h1>
+  <p>بيجيب كل المنتجات من قاعدة البيانات ويحفظهم في ملف Excel جاهز للرفع مرة أخرى.</p>
+
+  <div class="prog-wrap" id="progWrap"><div class="prog" id="prog"></div></div>
+  <div class="status" id="status">اضغط للبدء</div>
+
+  <button class="btn btn-orange" id="btn" onclick="exportProducts()">⬇️ تصدير كل المنتجات</button>
+  <a href="admin-dashboard.html" class="btn btn-gray" style="display:block;text-decoration:none;line-height:2">← الداشبورد</a>
+
+  <div class="done" id="done">
+    <div style="font-size:28px;margin-bottom:8px">✅</div>
+    <div style="font-weight:800;font-size:15px;margin-bottom:8px">تم تصدير المنتجات!</div>
+    <div id="doneStats"></div>
+    <div style="color:#666;font-size:11px;margin-top:8px">الملف اتحفظ على جهازك تلقائياً</div>
+  </div>
+</div>
+
+<script>
+var BACKEND = 'https://misrsteel-backend.vercel.app';
+var TOKEN = 'misrsteel_admin_2025';
+
+async function exportProducts() {
+  var btn = document.getElementById('btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ جاري التصدير...';
+  document.getElementById('progWrap').style.display = 'block';
+  document.getElementById('status').textContent = 'جاري جلب المنتجات...';
+
+  try {
+    // Fetch all products
+    var r = await fetch(BACKEND + '/api/admin/products?limit=2000', {
+      headers: {'x-admin-token': TOKEN}
+    });
+    var d = await r.json();
+    var products = d.products || [];
+
+    if (!products.length) {
+      document.getElementById('status').textContent = '❌ لا يوجد منتجات في قاعدة البيانات';
+      btn.disabled = false;
+      btn.textContent = '⬇️ تصدير كل المنتجات';
+      return;
+    }
+
+    document.getElementById('status').textContent = 'جاري تحضير ' + products.length + ' منتج...';
+    document.getElementById('prog').style.width = '30%';
+
+    // Build Excel data
+    var headers = [
+      'اسم المنتج بالعربي *',
+      'اسم المنتج بالإنجليزي',
+      'السعر ($) *',
+      'القسم *',
+      'التشطيب',
+      'Badge',
+      'الوصف التسويقي',
+      'رابط الصورة 1',
+      'رابط الصورة 2',
+      'رابط الصورة 3',
+      'ألوان الإطار',
+      'ألوان القماش',
+    ];
+
+    var rows = [
+      ['🏭 مصر ستيل — قائمة المنتجات المصدّرة', '', '', '', '', '', '', '', '', '', '', ''],
+      headers,
+      ['📌 القسم: home/hall/museum/restaurant | التشطيب: gold/silver/black | Badge: hot/new/sale', '', '', '', '', '', '', '', '', '', '', ''],
+    ];
+
+    products.forEach(function(p, i) {
+      var imgs = p.imgs || [];
+      // Clean image URLs
+      var img1 = imgs[0] || '';
+      var img2 = imgs[1] || '';
+      var img3 = imgs[2] || '';
+
+      rows.push([
+        p.nameAr || '',
+        p.nameEn || '',
+        p.price || 0,
+        p.section || 'home',
+        p.finish || 'gold',
+        p.badge || '',
+        p.desc || '',
+        img1,
+        img2,
+        img3,
+        (p.frameColors || []).join(','),
+        (p.fabricColors || []).join(','),
+      ]);
+
+      if (i % 50 === 0) {
+        var pct = 30 + Math.round((i/products.length) * 60);
+        document.getElementById('prog').style.width = pct + '%';
+      }
+    });
+
+    document.getElementById('status').textContent = 'جاري إنشاء ملف Excel...';
+    document.getElementById('prog').style.width = '90%';
+
+    // Create workbook
+    var wb = XLSX.utils.book_new();
+    var ws = XLSX.utils.aoa_to_sheet(rows);
+
+    // Column widths
+    ws['!cols'] = [
+      {wch:28},{wch:24},{wch:12},{wch:14},{wch:11},{wch:10},
+      {wch:55},{wch:55},{wch:55},{wch:55},{wch:30},{wch:30}
+    ];
+
+    // Merge title row
+    ws['!merges'] = [
+      {s:{r:0,c:0}, e:{r:0,c:11}},
+      {s:{r:2,c:0}, e:{r:2,c:11}},
+    ];
+
+    XLSX.utils.book_append_sheet(wb, ws, 'المنتجات');
+
+    // Download
+    var date = new Date().toLocaleDateString('en-GB').replace(/\//g,'-');
+    XLSX.writeFile(wb, 'misrsteel_products_' + date + '.xlsx');
+
+    document.getElementById('prog').style.width = '100%';
+    document.getElementById('status').textContent = '✅ تم التصدير بنجاح!';
+    document.getElementById('btn').style.display = 'none';
+
+    // Count by section
+    var sections = {};
+    products.forEach(function(p){ sections[p.section] = (sections[p.section]||0)+1; });
+    var statsHtml = '<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-bottom:8px">';
+    statsHtml += '<div class="stat"><strong>'+products.length+'</strong>إجمالي المنتجات</div>';
+    Object.keys(sections).forEach(function(s){
+      var labels = {home:'🏠 منزل',hall:'🎪 قاعة',restaurant:'🍽️ مطعم',museum:'🏛️ لوبي'};
+      statsHtml += '<div class="stat"><strong>'+sections[s]+'</strong>'+(labels[s]||s)+'</div>';
+    });
+    statsHtml += '</div>';
+
+    document.getElementById('doneStats').innerHTML = statsHtml;
+    document.getElementById('done').style.display = 'block';
+
+  } catch(e) {
+    document.getElementById('status').textContent = '❌ خطأ: ' + e.message;
+    btn.disabled = false;
+    btn.textContent = '⬇️ تصدير كل المنتجات';
+  }
+}
+</script>
+</body>
+</html>
