@@ -1,498 +1,281 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>مصر ستيل — أثاث استانلس فاخر</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-<style>
-:root{--orange:#ff6000;--orange-dk:#d94f00;--orange-lt:#fff3eb;--black:#111;--white:#fff;--bg:#fafafa;--text:#1a1a1a;--muted:#777;--border:#ebebeb;--green:#00a650}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);direction:rtl}
-img{max-width:100%;display:block}
-a{text-decoration:none;color:inherit}
-button{cursor:pointer;font-family:inherit}
-.topbar{background:#1a1a1a;color:#fff;height:36px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-size:11px}
-.topbar-right{display:flex;align-items:center;gap:16px}
-.topbar-right a{color:rgba(255,255,255,.65);transition:color .2s}
-.topbar-right a:hover{color:#fff}
-.rate-badge{background:var(--orange);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:2px}
-.main-nav{background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:300;box-shadow:0 1px 8px rgba(0,0,0,.06)}
-.nav-top{max-width:1280px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:16px;height:72px}
-.nav-logo{flex-shrink:0;margin-inline-end:28px;text-decoration:none}
-.logo-ar{font-size:22px;font-weight:800;color:var(--orange);line-height:1}
-.logo-en{font-size:10px;color:var(--muted);letter-spacing:.08em}
-.nav-search{flex:1;max-width:520px;display:flex;border:2px solid var(--orange);border-radius:6px;overflow:hidden}
-.nav-search input{flex:1;padding:10px 16px;border:none;outline:none;font-size:14px;font-family:inherit}
-.nav-search-btn{padding:0 20px;background:var(--orange);color:#fff;border:none;font-size:18px}
-.nav-actions{display:flex;align-items:center;gap:8px;margin-inline-start:auto}
-.nav-btn{padding:9px 18px;background:var(--orange);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700}
-.nav-btn.outline{background:transparent;color:var(--text);border:1.5px solid var(--border)}
-.cat-bar{background:var(--white);border-bottom:1px solid var(--border)}
-.cat-bar-inner{max-width:1280px;margin:0 auto;padding:0 24px;display:flex;gap:0;overflow-x:auto;scrollbar-width:none}
-.cat-bar-inner::-webkit-scrollbar{display:none}
-.cat-item{display:flex;align-items:center;gap:6px;padding:11px 18px;font-size:13px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap;text-decoration:none;transition:all .2s}
-.cat-item:hover,.cat-item.active{color:var(--orange);border-bottom-color:var(--orange)}
-.hero-slider{position:relative;overflow:hidden;background:var(--black)}
-.slides{display:flex;transition:transform .5s ease;height:480px}
-.slide{min-width:100%;position:relative;overflow:hidden}
-.slide-bg{width:100%;height:100%;object-fit:cover;opacity:.7}
-.slide-overlay{position:absolute;inset:0;background:linear-gradient(to left,rgba(0,0,0,.7),rgba(0,0,0,.2) 60%,transparent)}
-.slide-content{position:absolute;top:50%;transform:translateY(-50%);inset-inline-end:8%;text-align:right;max-width:420px}
-.slide-tag{display:inline-block;background:var(--orange);color:#fff;font-size:10px;font-weight:700;padding:4px 14px;border-radius:20px;margin-bottom:12px}
-.slide-title{font-size:clamp(22px,3.5vw,42px);font-weight:800;color:#fff;line-height:1.2;margin-bottom:10px}
-.slide-title span{color:#ffd580}
-.slide-sub{font-size:13px;color:rgba(255,255,255,.75);line-height:1.7;margin-bottom:20px}
-.slide-btn{display:inline-block;padding:12px 28px;background:#fff;color:var(--orange);font-size:14px;font-weight:800;border-radius:6px}
-.slider-dots{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:8px}
-.sdot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.4);cursor:pointer;transition:all .3s}
-.sdot.active{background:#fff;width:24px;border-radius:4px}
-.slider-prev,.slider-next{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.15);color:#fff;border:none;width:44px;height:44px;border-radius:50%;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(4px)}
-.slider-prev{left:16px}.slider-next{right:16px}
-.promo-strip{max-width:1280px;margin:20px auto;padding:0 24px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.promo-card{border-radius:10px;overflow:hidden;position:relative;cursor:pointer;height:160px}
-.promo-card img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
-.promo-card:hover img{transform:scale(1.04)}
-.promo-overlay{position:absolute;inset:0;background:linear-gradient(to left,rgba(0,0,0,.65),transparent);display:flex;flex-direction:column;justify-content:center;padding:20px;text-align:right}
-.promo-title{font-size:18px;font-weight:800;color:#fff;margin-bottom:4px}
-.promo-sub{font-size:12px;color:rgba(255,255,255,.65)}
-.promo-link{display:inline-flex;align-items:center;gap:4px;margin-top:10px;font-size:11px;font-weight:700;color:#ffd580}
-.dept-section{max-width:1280px;margin:32px auto;padding:0 24px}
-.sec-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
-.sec-title{font-size:20px;font-weight:800}
-.sec-more{font-size:12px;color:var(--orange);font-weight:700}
-.dept-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:12px}
-.dept-card{display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;text-decoration:none;transition:transform .2s}
-.dept-card:hover{transform:translateY(-3px)}
-.dept-img{width:100%;aspect-ratio:1;border-radius:50%;overflow:hidden;border:2px solid var(--border);background:#f5f5f5;transition:border-color .2s}
-.dept-card:hover .dept-img{border-color:var(--orange)}
-.dept-img img{width:100%;height:100%;object-fit:cover}
-.dept-name{font-size:11px;font-weight:700;color:var(--text);text-align:center}
-.prod-section{max-width:1280px;margin:0 auto 32px;padding:0 24px}
-.prod-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
-.prod-card{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;transition:all .25s;text-decoration:none;position:relative;display:block}
-.prod-card:hover{border-color:var(--orange);box-shadow:0 8px 28px rgba(255,96,0,.1);transform:translateY(-4px)}
-.prod-card-badge{position:absolute;top:10px;inset-inline-start:10px;z-index:2;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px}
-.badge-hot{background:#e02020;color:#fff}
-.badge-new{background:var(--green);color:#fff}
-.prod-img-wrap{height:220px;overflow:hidden;background:#f8f8f8}
-.prod-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
-.prod-card:hover .prod-img-wrap img{transform:scale(1.07)}
-.prod-body{padding:12px}
-.prod-cat{font-size:10px;color:var(--orange);font-weight:700;margin-bottom:4px}
-.prod-name{font-size:13px;font-weight:700;margin-bottom:8px;line-height:1.4}
-.prod-price-row{display:flex;align-items:center;justify-content:space-between}
-.prod-price{font-size:17px;font-weight:800;color:var(--orange)}
-.prod-price-egp{font-size:10px;color:var(--muted)}
-.prod-btn{padding:8px 14px;background:var(--orange);color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:700}
-.trust-section{background:var(--white);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:20px 24px;margin-bottom:32px}
-.trust-inner{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
-.trust-item{display:flex;align-items:center;gap:12px;padding:10px}
-.trust-icon{font-size:28px;flex-shrink:0}
-.trust-text-title{font-size:13px;font-weight:700;margin-bottom:2px}
-.trust-text-sub{font-size:11px;color:var(--muted);line-height:1.4}
-.export-section{background:var(--black);color:#fff;padding:40px 24px;text-align:center}
-.export-title{font-size:clamp(20px,3vw,32px);font-weight:800;margin-bottom:8px}
-.export-title span{color:var(--orange)}
-.flags{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:16px 0 24px}
-.flag{display:flex;align-items:center;gap:6px;padding:7px 16px;border:1px solid rgba(255,255,255,.12);border-radius:24px;font-size:12px;color:rgba(255,255,255,.7)}
-.export-cta{display:inline-block;padding:13px 32px;background:var(--orange);color:#fff;border-radius:6px;font-size:14px;font-weight:800}
-.footer{background:#111;color:rgba(255,255,255,.55);padding:40px 24px 20px}
-.footer-inner{max-width:1280px;margin:0 auto}
-.footer-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:36px;margin-bottom:32px}
-.footer-logo-name{font-size:20px;font-weight:800;color:var(--orange);margin-bottom:3px}
-.footer-desc{font-size:12px;line-height:1.8;margin-top:8px}
-.footer-wa{display:inline-flex;align-items:center;gap:7px;background:#25D366;color:#fff;padding:9px 16px;border-radius:6px;font-size:12px;font-weight:700;margin-top:14px;text-decoration:none}
-.footer-col h4{font-size:13px;font-weight:700;color:#fff;margin-bottom:14px}
-.footer-col a{display:block;font-size:12px;color:rgba(255,255,255,.45);margin-bottom:8px;text-decoration:none;transition:color .2s}
-.footer-col a:hover{color:var(--orange)}
-.footer-bottom{padding-top:20px;border-top:1px solid rgba(255,255,255,.08);display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,.2);flex-wrap:wrap;gap:8px}
-.wa-fab{position:fixed;bottom:24px;inset-inline-end:24px;z-index:400;background:#25D366;color:#fff;padding:13px 20px;border-radius:50px;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;box-shadow:0 4px 20px rgba(0,0,0,.2);text-decoration:none}
-.toast{position:fixed;bottom:80px;inset-inline-end:20px;z-index:500;background:var(--black);color:#fff;padding:11px 18px;border-radius:8px;font-size:13px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.2);transform:translateY(20px);opacity:0;transition:all .3s;pointer-events:none}
-.toast.show{transform:translateY(0);opacity:1}
-.toast.success{background:var(--green)}
-/* Loading skeleton */
-.skeleton{background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:8px}
-@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-.prod-skeleton{height:300px;border-radius:10px}
-@media(max-width:1100px){.prod-grid{grid-template-columns:repeat(4,1fr)}.dept-grid{grid-template-columns:repeat(6,1fr)}}
-@media(max-width:900px){.nav-search{display:none}.promo-strip{grid-template-columns:1fr}.dept-grid{grid-template-columns:repeat(4,1fr)}.prod-grid{grid-template-columns:repeat(3,1fr)}.trust-inner{grid-template-columns:1fr 1fr}.footer-grid{grid-template-columns:1fr 1fr}.slides{height:340px}}
-@media(max-width:600px){.prod-grid{grid-template-columns:repeat(2,1fr);gap:10px}.dept-grid{grid-template-columns:repeat(4,1fr)}.footer-grid{grid-template-columns:1fr}.slides{height:260px}.slide-content{max-width:260px}}
-</style>
-</head>
-<body>
-<div class="toast" id="toast"></div>
-
-<!-- TOPBAR -->
-<div class="topbar">
-  <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,.7)">🚢 شحن FOB الإسكندرية &nbsp;|&nbsp; سعر الدولار: <div class="rate-badge"><span class="rate-display">50.85</span> ج.م</div></div>
-  <div class="topbar-right">
-    <a href="tel:+201050595250">📞 +201050595250</a>
-    <a href="https://wa.me/201050595250" target="_blank">💬 واتساب</a>
-    <a href="contracts.html">📄 العقود</a>
-    <a href="affiliate-login.html">🤝 المسوّقين</a>
-  </div>
-</div>
-
-<!-- NAV -->
-<nav class="main-nav">
-  <div class="nav-top">
-    <a class="nav-logo" href="index.html"><div class="logo-ar">مصر ستيل</div><div class="logo-en">MISR STEEL</div></a>
-    <div class="nav-search">
-      <input type="text" id="searchInp" placeholder="ابحث عن كرسي، ترابيزة، لاونج...">
-      <button class="nav-search-btn" onclick="doSearch()">🔍</button>
-    </div>
-    <div class="nav-actions">
-      <button class="nav-btn outline" onclick="window.location='ai-designer.html'">🤖 AI مصمم</button>
-      <button class="nav-btn outline" onclick="window.location='login.html'" style="display:flex;align-items:center;gap:5px">👤 دخول</button>
-      <button class="nav-btn" onclick="window.location='marketplace.html'">🛒 اطلب الآن</button>
-    </div>
-  </div>
-  <div class="cat-bar">
-    <div class="cat-bar-inner">
-      <a class="cat-item active" href="#">⭐ الكل</a>
-      <a class="cat-item" href="section-home.html">🏠 المنزل</a>
-      <a class="cat-item" href="section-hall.html">🎪 قاعات</a>
-      <a class="cat-item" href="section-museum.html">🏛️ لوبي</a>
-      <a class="cat-item" href="section-restaurant.html">🍽️ مطاعم</a>
-      <a class="cat-item" href="marketplace.html">🛒 المتجر</a>
-      <a class="cat-item" href="ai-designer.html">🤖 AI مصمم</a>
-    </div>
-  </div>
-</nav>
-
-<!-- HERO SLIDER -->
-<div class="hero-slider">
-  <div class="slides" id="slides">
-    <div class="slide"><img class="slide-bg" src="images/showroom-lounge.jpg" alt=""><div class="slide-overlay"></div><div class="slide-content"><div class="slide-tag">🏭 مباشرة من المصنع</div><div class="slide-title">أثاث <span>استانلس فاخر</span><br>لكل مكان</div><div class="slide-sub">كراسي وترابيزات استانلس 304 للمنازل والقاعات والفنادق</div><a class="slide-btn" href="#products">تسوق الآن</a></div></div>
-    <div class="slide"><img class="slide-bg" src="images/p04-medallion-silver-2.jpg" alt=""><div class="slide-overlay"></div><div class="slide-content"><div class="slide-tag">✨ الأكثر طلباً</div><div class="slide-title">كرسي <span>ميداليون فضي</span></div><div class="slide-sub">إطار استانلس فضي · مخمل رمادي راقي</div><a class="slide-btn" href="marketplace.html">اطلب الآن</a></div></div>
-    <div class="slide"><img class="slide-bg" src="images/showroom-cage.jpg" alt=""><div class="slide-overlay"></div><div class="slide-content"><div class="slide-tag">🤖 AI مصمم</div><div class="slide-title">صمّم <span>غرفتك</span><br>قبل الشراء</div><div class="slide-sub">ارفع صورة مكانك واختار من منتجاتنا</div><a class="slide-btn" href="ai-designer.html">جرّب مجاناً</a></div></div>
-    <div class="slide"><img class="slide-bg" src="images/p15-new-e-2.jpg" alt=""><div class="slide-overlay"></div><div class="slide-content"><div class="slide-tag">👑 VIP</div><div class="slide-title">كرسي <span>هوبي الذهبي</span></div><div class="slide-sub">إطار ذهبي حلقي فريد · مثالي لقاعات الأفراح</div><a class="slide-btn" href="marketplace.html">اكتشف الآن</a></div></div>
-  </div>
-  <button class="slider-prev" onclick="slide(-1)">‹</button>
-  <button class="slider-next" onclick="slide(1)">›</button>
-  <div class="slider-dots" id="sliderDots"></div>
-</div>
-
-<!-- PROMO BANNERS -->
-<div class="promo-strip">
-  <div class="promo-card"><img src="images/p03-barrel-gold-1.jpg" alt=""><div class="promo-overlay"><div class="promo-title">قاعات الأفراح</div><div class="promo-sub">كراسي VIP بإطار ذهبي وفضي</div><a href="section-hall.html" class="promo-link">تسوق الآن ←</a></div></div>
-  <div class="promo-card"><img src="images/p11-new-a-3.jpg" alt=""><div class="promo-overlay"><div class="promo-title">لاونج فاخر</div><div class="promo-sub">كراسي لاونج دائرية وعصرية</div><a href="section-museum.html" class="promo-link">اكتشف ←</a></div></div>
-</div>
-
-<!-- DEPT -->
-<div class="dept-section">
-  <div class="sec-head"><div class="sec-title">تسوق حسب الفئة</div><a href="marketplace.html" class="sec-more">عرض الكل →</a></div>
-  <div class="dept-grid" id="deptGrid">
-    <a class="dept-card" href="section-home.html"><div class="dept-img"><img src="images/p02-linen-armchair.jpg" alt=""></div><div class="dept-name">غرفة معيشة</div></a>
-    <a class="dept-card" href="section-home.html"><div class="dept-img"><img src="images/p04-medallion-silver.jpg" alt=""></div><div class="dept-name">غرفة سفرة</div></a>
-    <a class="dept-card" href="section-hall.html"><div class="dept-img"><img src="images/p15-new-e.jpg" alt=""></div><div class="dept-name">قاعة أفراح</div></a>
-    <a class="dept-card" href="section-restaurant.html"><div class="dept-img"><img src="images/p05-velvet-red.jpg" alt=""></div><div class="dept-name">مطعم</div></a>
-    <a class="dept-card" href="section-museum.html"><div class="dept-img"><img src="images/p09-arc-gold.jpg" alt=""></div><div class="dept-name">لوبي</div></a>
-    <a class="dept-card" href="section-home.html"><div class="dept-img"><img src="images/p13-new-c.jpg" alt=""></div><div class="dept-name">غرفة نوم</div></a>
-    <a class="dept-card" href="section-restaurant.html"><div class="dept-img"><img src="images/p16-new-f.jpg" alt=""></div><div class="dept-name">كافيه</div></a>
-    <a class="dept-card" href="section-hall.html"><div class="dept-img"><img src="images/p08-wrap-black.jpg" alt=""></div><div class="dept-name">مؤتمرات</div></a>
-  </div>
-</div>
-
-<!-- BEST SELLERS — من MongoDB -->
-<div class="prod-section" id="products">
-  <div class="sec-head"><div class="sec-title">⭐ الأكثر طلباً</div><a href="marketplace.html" class="sec-more">عرض الكل →</a></div>
-  <div class="prod-grid" id="bestGrid">
-    <!-- Skeleton loading -->
-    <div class="skeleton prod-skeleton"></div>
-    <div class="skeleton prod-skeleton"></div>
-    <div class="skeleton prod-skeleton"></div>
-    <div class="skeleton prod-skeleton"></div>
-    <div class="skeleton prod-skeleton"></div>
-  </div>
-</div>
-
-<!-- TRUST -->
-<div class="trust-section">
-  <div class="trust-inner">
-    <div class="trust-item"><span class="trust-icon">🏭</span><div><div class="trust-text-title">مباشرة من المصنع</div><div class="trust-text-sub">بدون وسطاء — أسعار المصنع</div></div></div>
-    <div class="trust-item"><span class="trust-icon">🚫</span><div><div class="trust-text-title">بدون حد أدنى للطلب</div><div class="trust-text-sub">قطعة واحدة أو ألف</div></div></div>
-    <div class="trust-item"><span class="trust-icon">⭐</span><div><div class="trust-text-title">ضمان سنة كاملة</div><div class="trust-text-sub">ضد عيوب التصنيع</div></div></div>
-    <div class="trust-item"><span class="trust-icon">🚢</span><div><div class="trust-text-title">شحن FOB الإسكندرية</div><div class="trust-text-sub">تصدير لكل دول العالم</div></div></div>
-  </div>
-</div>
-
-<!-- EXPORT -->
-<div class="export-section">
-  <div style="max-width:800px;margin:0 auto">
-    <div class="export-title">🌍 نصدّر لـ <span>8+ دول</span></div>
-    <div class="flags">
-      <div class="flag">🇪🇬 مصر</div><div class="flag">🇮🇶 العراق</div><div class="flag">🇸🇦 السعودية</div><div class="flag">🇦🇪 الإمارات</div><div class="flag">🇰🇼 الكويت</div><div class="flag">🇯🇴 الأردن</div><div class="flag">🇱🇾 ليبيا</div><div class="flag">🇩🇿 الجزائر</div>
-    </div>
-    <a class="export-cta" href="marketplace.html">🛒 اطلب الآن</a>
-  </div>
-</div>
-
-<!-- FOOTER -->
-<footer class="footer">
-  <div class="footer-inner">
-    <div class="footer-grid">
-      <div><div class="footer-logo-name">مصر ستيل</div><p class="footer-desc">مصنع أثاث استانلس متخصص في الكراسي والترابيزات للمنازل والفنادق والمطاعم والقاعات.</p><a class="footer-wa" href="https://wa.me/201050595250" target="_blank">💬 واتساب</a></div>
-      <div class="footer-col"><h4>الأقسام</h4><a href="section-home.html">🏠 المنزل</a><a href="section-hall.html">🎪 القاعات</a><a href="section-museum.html">🏛️ لوبي</a><a href="section-restaurant.html">🍽️ المطاعم</a></div>
-      <div class="footer-col"><h4>روابط</h4><a href="marketplace.html">🛒 المتجر</a><a href="ai-designer.html">🤖 AI مصمم</a><a href="contracts.html">📄 العقود</a><a href="affiliate-login.html">🤝 المسوّقين</a></div>
-      <div class="footer-col"><h4>تواصل</h4><a href="tel:+201050595250">📞 +201050595250</a><a href="https://wa.me/201050595250">💬 واتساب</a><a href="mailto:info@misrsteel.com">✉️ info@misrsteel.com</a></div>
-    </div>
-    <div class="footer-bottom"><span>© 2025 مصر ستيل · MISR STEEL</span><span>🇪🇬 صُنع في مصر</span></div>
-  </div>
-</footer>
-<a class="wa-fab" href="https://wa.me/201050595250" target="_blank">💬 واتساب</a>
-
-<script>
-// ══ CONFIG ══
-var BACKEND = 'https://misrsteel-backend.vercel.app';
-var USD_EGP = parseFloat(localStorage.getItem('ms_rate') || '50.85');
-var slideIdx = 0, slideCount = 4, slideAuto;
-var sectionLabels = {home:'🏠 منزل', hall:'🎪 قاعة', museum:'🏛️ لوبي', restaurant:'🍽️ مطعم'};
-var badgeClass = {hot:'badge-hot', new:'badge-new'};
-
-
-function normalizeProduct(raw) {
-  if (!raw || typeof raw !== 'object') return null;
-  var imgs = Array.isArray(raw.imgs) ? raw.imgs.filter(Boolean) : [];
-  if (!imgs.length && raw.image) imgs = [raw.image];
-  var price = Number(raw.price);
-  if (!Number.isFinite(price)) price = Number(raw.priceUsd);
-  if (!Number.isFinite(price)) price = 0;
-  return {
-    id: raw.id || raw._id || ('p_' + Math.random().toString(36).slice(2,9)),
-    nameAr: raw.nameAr || raw.titleAr || raw.name || 'منتج',
-    section: raw.section || 'home',
-    badge: raw.badge || '',
-    price: price,
-    imgs: imgs
-  };
-}
-
-function normalizeProducts(list) {
-  return (Array.isArray(list) ? list : []).map(normalizeProduct).filter(Boolean);
-}
-
-function getBannerImg(img) {
-  if (!img) return '';
-  if (img.startsWith('data:') || img.startsWith('http')) return img;
-  return 'https://misrsteel.vercel.app/' + img.replace(/^\/+/, '');
-}
-
-function renderHeroBanners(posters) {
-  var slidesEl = document.getElementById('slides');
-  if (!slidesEl) return;
-  if (!Array.isArray(posters) || !posters.length) return;
-  var mapped = posters.filter(function(p){ return p && p.img; }).map(function(p){
-    var title = p.titleAr || p.titleEn || 'MISR STEEL';
-    var desc = p.desc || '';
-    var btn = p.btn || 'اكتشف الآن';
-    var link = p.link || 'marketplace.html';
-    var tag = p.tag || '✨ عرض مميز';
-    return '<div class="slide"><img class="slide-bg" src="'+getBannerImg(p.img)+'" alt="'+title+'"><div class="slide-overlay"></div><div class="slide-content"><div class="slide-tag">'+tag+'</div><div class="slide-title">'+title+'</div><div class="slide-sub">'+desc+'</div><a class="slide-btn" href="'+link+'">'+btn+'</a></div></div>';
-  });
-  if (!mapped.length) return;
-  slidesEl.innerHTML = mapped.join('');
-  slideCount = mapped.length;
-  slideIdx = 0;
-  goSlide(0);
-}
-
-// ══ SLIDER ══
-function slide(dir){ slideIdx=(slideIdx+dir+slideCount)%slideCount; document.getElementById('slides').style.transform='translateX('+(slideIdx*100)+'%)'; updateDots(); }
-function goSlide(i){ slideIdx=i; document.getElementById('slides').style.transform='translateX('+(i*100)+'%)'; updateDots(); }
-function updateDots(){ document.querySelectorAll('.sdot').forEach(function(d,i){d.classList.toggle('active',i===slideIdx)}); }
-function initSlider(){
-  var dots=''; for(var i=0;i<slideCount;i++) dots+='<div class="sdot'+(i===0?' active':'')+'" onclick="goSlide('+i+')"></div>';
-  document.getElementById('sliderDots').innerHTML=dots;
-  slideAuto=setInterval(function(){slide(1)},4500);
-}
-document.querySelector('.hero-slider').addEventListener('mouseenter',function(){clearInterval(slideAuto)});
-document.querySelector('.hero-slider').addEventListener('mouseleave',function(){slideAuto=setInterval(function(){slide(1)},4500)});
-
-// ══ LOAD PRODUCTS FROM MONGODB ══
-async function loadProducts() {
-  try {
-    // Get live rate first
-    try {
-      var sr = await fetch(BACKEND + '/api/settings/public');
-      var sd = await sr.json();
-      if (sd.usdRate) {
-        USD_EGP = sd.usdRate;
-        localStorage.setItem('ms_rate', USD_EGP);
-        document.querySelectorAll('.rate-display').forEach(function(el){el.textContent=USD_EGP.toFixed(2);});
-      }
-    } catch(e) {}
-
-    // Get products
-    var prods = [];
-    var posters = [];
-
-    try {
-      var r = await fetch(BACKEND + '/api/products', {
-        method: 'GET',
-        headers: { 'Accept': 'application/json' }
-      });
-      if (r.ok) {
-        var d = await r.json();
-        prods = normalizeProducts(d.products);
-      }
-    } catch (productsErr) {
-      console.warn('Products API error:', productsErr.message);
-    }
-
-    // Fallback #1: site-config from backend
-    if (!prods.length || !posters.length) {
-      try {
-        var fr = await fetch(BACKEND + '/api/site-config', {
-          method: 'GET',
-          headers: { 'Accept': 'application/json' }
-        });
-        if (fr.ok) {
-          var fd = await fr.json();
-          var cfg = (fd && fd.config) || {};
-          if (!prods.length) prods = normalizeProducts(cfg.products);
-          posters = Array.isArray(cfg.posters) ? cfg.posters : posters;
-        }
-      } catch (fallbackErr) {
-        console.warn('Fallback products error:', fallbackErr.message);
-      }
-    }
-
-    // Fallback #2: local data file in the frontend repo
-    if (!prods.length || !posters.length) {
-      try {
-        var lr = await fetch('data/site-config.json', {
-          method: 'GET',
-          headers: { 'Accept': 'application/json' }
-        });
-        if (lr.ok) {
-          var ld = await lr.json();
-          if (!prods.length) prods = normalizeProducts(ld.products);
-          if (!posters.length) posters = Array.isArray(ld.posters) ? ld.posters : posters;
-        }
-      } catch (localErr) {
-        console.warn('Local fallback error:', localErr.message);
-      }
-    }
-
-    // Fallback #3: locally saved admin banners in browser storage
-    if (!posters.length) {
-      try {
-        posters = JSON.parse(localStorage.getItem('ms_banners') || '[]');
-      } catch (storageErr) {
-        console.warn('Banner storage error:', storageErr.message);
-      }
-    }
-
-    if (!prods.length) {
-      // Fallback to site-config in case /api/products was emptied by mistake
-      try {
-        var fr = await fetch(BACKEND + '/api/site-config', {
-          method: 'GET',
-          headers: { 'Accept': 'application/json' }
-        });
-        if (fr.ok) {
-          var fd = await fr.json();
-          prods = (fd && fd.config && fd.config.products) || [];
-        }
-      } catch (fallbackErr) {
-        console.warn('Fallback products error:', fallbackErr.message);
-      }
-    }
-
-    renderProducts(prods);
-
-  } catch(e) {
-    console.error('Products error:', e.message);
-    document.getElementById('bestGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px"><div style="font-size:32px;margin-bottom:12px">⚠️</div><div style="font-size:14px;color:#888;margin-bottom:16px">تعذر تحميل المنتجات الآن</div><button onclick="loadProducts()" style="padding:10px 24px;background:var(--orange);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">🔄 إعادة المحاولة</button></div>';
-  }
-}
-
-function renderProducts(prods) {
-  if (!prods.length) { document.getElementById('bestGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:32px;color:#888">لا توجد منتجات بعد</div>'; return; }
-
-  // Show top 10
-  var top = prods.slice(0, 10);
-  var html = top.map(function(p) {
-    var badge = p.badge && badgeClass[p.badge] ? '<div class="prod-card-badge '+badgeClass[p.badge]+'">'+(p.badge==='hot'?'الأكثر طلباً':'جديد')+'</div>' : '';
-    var img = p.imgs && p.imgs[0] ? p.imgs[0] : 'images/p01-rose-gold-chair.jpg';
-    // Handle base64, full URL, or relative path
-    var imgSrc = resolveImageUrl(img) || 'images/p01-rose-gold-chair.jpg';
-    var egp = Math.round(p.price * USD_EGP).toLocaleString();
-    return '<a class="prod-card" href="product.html?id='+p.id+'">'
-      + badge
-      + '<div class="prod-img-wrap"><img src="'+imgSrc+'" alt="'+p.nameAr+'" loading="lazy" onerror="this.src=\'images/p01-rose-gold-chair.jpg\'"></div>'
-      + '<div class="prod-body">'
-      + '<div class="prod-cat">'+(sectionLabels[p.section]||p.section)+'</div>'
-      + '<div class="prod-name">'+p.nameAr+'</div>'
-      + '<div class="prod-price-row">'
-      + '<div><div class="prod-price">$'+p.price+'</div><div class="prod-price-egp">≈ '+egp+' ج.م</div></div>'
-      + '<button class="prod-btn" onclick="event.preventDefault();addCart('+JSON.stringify(p)+')">🛒</button>'
-      + '</div></div></a>';
-  }).join('');
-  document.getElementById('bestGrid').innerHTML = html;
-}
-
-// ══ CART ══
-var cart = JSON.parse(localStorage.getItem('ms_cart') || '[]');
-function addCart(p) {
-  var ex = cart.find(function(i){return i.id===p.id});
-  if (ex) ex.qty = (ex.qty||1)+1;
-  else cart.push({id:p.id, name:p.nameAr, price:p.price, img:(p.imgs&&p.imgs[0])||'', qty:1});
-  localStorage.setItem('ms_cart', JSON.stringify(cart));
-  showToast('✓ أضيف: '+p.nameAr, 'success');
-}
-
-function showToast(msg,type){ var t=document.getElementById('toast'); t.textContent=msg; t.className='toast '+(type||''); t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(function(){t.classList.remove('show')},2600); }
-function doSearch(){ var q=document.getElementById('searchInp').value.trim(); if(q) window.location='marketplace.html?q='+encodeURIComponent(q); }
-document.getElementById('searchInp').addEventListener('keydown',function(e){if(e.key==='Enter')doSearch()});
-
-
-// ══ INIT ══
-initSlider();
-loadProducts();
-</script>
-
-<!-- PORTFOLIO SECTION -->
-<section style="padding:50px 20px;background:#fff">
-  <div style="max-width:1100px;margin:0 auto">
-    <div style="text-align:center;margin-bottom:32px">
-      <div style="display:inline-block;background:#fff3eb;color:#ff6000;padding:6px 18px;border-radius:20px;font-size:12px;font-weight:700;margin-bottom:12px">✨ أعمالنا المنفذة</div>
-      <h2 style="font-size:26px;font-weight:900;margin-bottom:8px">مشاريع نفخر بها</h2>
-      <p style="color:#888;font-size:14px">من الفنادق إلى القاعات والمطاعم — أعمالنا تتحدث عنّا</p>
-    </div>
-    <div id="homePortfolioGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px"></div>
-    <div style="text-align:center">
-      <a href="portfolio.html" style="display:inline-block;padding:13px 32px;background:#ff6000;color:#fff;border-radius:10px;font-size:14px;font-weight:800;text-decoration:none">🏆 عرض كل المشاريع ←</a>
-    </div>
-  </div>
-</section>
-<script>
-// Load portfolio preview
-async function loadPortfolioPreview(){
-  try{
-    var r=await fetch("https://misrsteel-backend.vercel.app/api/portfolio");
-    var d=await r.json();
-    var projects=(d.projects||[]).slice(0,3);
-    if(!projects.length){document.getElementById("homePortfolioGrid").style.display="none";return;}
-    document.getElementById("homePortfolioGrid").innerHTML=projects.map(function(p){
-      var img=p.imgs&&p.imgs[0]?p.imgs[0]:"";
-      var src=img?(img.startsWith("http")||img.startsWith("data:")?img:"https://misrsteel.vercel.app/"+img):"";
-      var catLabel={hotel:"🏨 فندق",restaurant:"🍽️ مطعم",hall:"🎪 قاعة",office:"🏢 شركة",home:"🏠 منزل",lobby:"🏛️ لوبي"}[p.category]||p.category;
-      return '<a href="portfolio.html" style="display:block;background:#f9f9f9;border:1px solid #e5e5e5;border-radius:12px;overflow:hidden;text-decoration:none;color:inherit;transition:all .2s" onmouseover="this.style.transform=\'translateY(-4px)\'" onmouseout="this.style.transform=\'\'">'+
-        '<div style="height:180px;overflow:hidden;background:#f0f0f0">'+
-        (src?'<img src="'+src+'" style="width:100%;height:100%;object-fit:cover" loading="lazy">':"<div style='display:flex;align-items:center;justify-content:center;height:100%;font-size:40px'>🏗️</div>")+
-        '</div>'+
-        '<div style="padding:12px">'+
-        '<div style="background:#fff3eb;color:#ff6000;display:inline-block;padding:2px 10px;border-radius:10px;font-size:10px;font-weight:700;margin-bottom:6px">'+catLabel+'</div>'+
-        '<div style="font-size:14px;font-weight:800;margin-bottom:3px">'+p.name+'</div>'+
-        '<div style="font-size:12px;color:#888">📍 '+p.location+'</div>'+
-        '</div></a>';
-    }).join("");
-  }catch(e){document.getElementById("homePortfolioGrid").parentElement.parentElement.style.display="none";}
-}
-loadPortfolioPreview();
-</script>
-</body>
-</html>
+ (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
+diff --git a/index.html b/index.html
+index 5d6680197cd42ee8c24898d79a227d00a7c33a5b..decf28fe7af5fc10664538000cceafbd345227ac 100644
+--- a/index.html
++++ b/index.html
+@@ -224,223 +224,241 @@ button{cursor:pointer;font-family:inherit}
+     <div class="export-title">🌍 نصدّر لـ <span>8+ دول</span></div>
+     <div class="flags">
+       <div class="flag">🇪🇬 مصر</div><div class="flag">🇮🇶 العراق</div><div class="flag">🇸🇦 السعودية</div><div class="flag">🇦🇪 الإمارات</div><div class="flag">🇰🇼 الكويت</div><div class="flag">🇯🇴 الأردن</div><div class="flag">🇱🇾 ليبيا</div><div class="flag">🇩🇿 الجزائر</div>
+     </div>
+     <a class="export-cta" href="marketplace.html">🛒 اطلب الآن</a>
+   </div>
+ </div>
+ 
+ <!-- FOOTER -->
+ <footer class="footer">
+   <div class="footer-inner">
+     <div class="footer-grid">
+       <div><div class="footer-logo-name">مصر ستيل</div><p class="footer-desc">مصنع أثاث استانلس متخصص في الكراسي والترابيزات للمنازل والفنادق والمطاعم والقاعات.</p><a class="footer-wa" href="https://wa.me/201050595250" target="_blank">💬 واتساب</a></div>
+       <div class="footer-col"><h4>الأقسام</h4><a href="section-home.html">🏠 المنزل</a><a href="section-hall.html">🎪 القاعات</a><a href="section-museum.html">🏛️ لوبي</a><a href="section-restaurant.html">🍽️ المطاعم</a></div>
+       <div class="footer-col"><h4>روابط</h4><a href="marketplace.html">🛒 المتجر</a><a href="ai-designer.html">🤖 AI مصمم</a><a href="contracts.html">📄 العقود</a><a href="affiliate-login.html">🤝 المسوّقين</a></div>
+       <div class="footer-col"><h4>تواصل</h4><a href="tel:+201050595250">📞 +201050595250</a><a href="https://wa.me/201050595250">💬 واتساب</a><a href="mailto:info@misrsteel.com">✉️ info@misrsteel.com</a></div>
+     </div>
+     <div class="footer-bottom"><span>© 2025 مصر ستيل · MISR STEEL</span><span>🇪🇬 صُنع في مصر</span></div>
+   </div>
+ </footer>
+ <a class="wa-fab" href="https://wa.me/201050595250" target="_blank">💬 واتساب</a>
+ 
+ <script>
+ // ══ CONFIG ══
+ var BACKEND = 'https://misrsteel-backend.vercel.app';
++var API_BASES = (function() {
++  var list = [];
++  if (location && /^https?:$/i.test(location.protocol)) {
++    list.push(location.origin);
++  }
++  list.push(BACKEND);
++  // Remove duplicates while preserving order.
++  return list.filter(function(base, idx){ return list.indexOf(base) === idx; });
++})();
+ var USD_EGP = parseFloat(localStorage.getItem('ms_rate') || '50.85');
+ var slideIdx = 0, slideCount = 4, slideAuto;
+ var sectionLabels = {home:'🏠 منزل', hall:'🎪 قاعة', museum:'🏛️ لوبي', restaurant:'🍽️ مطعم'};
+ var badgeClass = {hot:'badge-hot', new:'badge-new'};
+ 
+ 
+ function normalizeProduct(raw) {
+   if (!raw || typeof raw !== 'object') return null;
+   var imgs = Array.isArray(raw.imgs) ? raw.imgs.filter(Boolean) : [];
+   if (!imgs.length && raw.image) imgs = [raw.image];
+   var price = Number(raw.price);
+   if (!Number.isFinite(price)) price = Number(raw.priceUsd);
+   if (!Number.isFinite(price)) price = 0;
+   return {
+     id: raw.id || raw._id || ('p_' + Math.random().toString(36).slice(2,9)),
+     nameAr: raw.nameAr || raw.titleAr || raw.name || 'منتج',
+     section: raw.section || 'home',
+     badge: raw.badge || '',
+     price: price,
+     imgs: imgs
+   };
+ }
+ 
+ function normalizeProducts(list) {
+   return (Array.isArray(list) ? list : []).map(normalizeProduct).filter(Boolean);
+ }
+ 
++function resolveImageUrl(img, baseUrl) {
++  if (!img) return '';
++  if (img.startsWith('data:') || /^https?:\/\//i.test(img)) return img;
++  var clean = String(img).replace(/^\/+/, '');
++  var base = (baseUrl || BACKEND || location.origin).replace(/\/$/, '');
++  return (base + '/' + clean).replace(/([^:]\/)\/+/g, '$1');
++}
++
++async function fetchJsonWithFallback(path) {
++  var lastError = null;
++  for (var i = 0; i < API_BASES.length; i++) {
++    var base = API_BASES[i];
++    try {
++      var res = await fetch(base.replace(/\/$/, '') + path, {
++        method: 'GET',
++        headers: { 'Accept': 'application/json' }
++      });
++      if (res.ok) return await res.json();
++    } catch (err) {
++      lastError = err;
++    }
++  }
++  if (lastError) throw lastError;
++  throw new Error('No API source responded for ' + path);
++}
++
+ function getBannerImg(img) {
+   if (!img) return '';
+-  if (img.startsWith('data:') || img.startsWith('http')) return img;
+-  return 'https://misrsteel.vercel.app/' + img.replace(/^\/+/, '');
++  if (img.startsWith('data:') || /^https?:\/\//i.test(img)) return img;
++  // Banner images are usually uploaded from backend/admin so prefer backend base.
++  return resolveImageUrl(img, BACKEND) || resolveImageUrl(img, location.origin);
+ }
+ 
+ function renderHeroBanners(posters) {
+   var slidesEl = document.getElementById('slides');
+   if (!slidesEl) return;
+   if (!Array.isArray(posters) || !posters.length) return;
+   var mapped = posters.filter(function(p){ return p && p.img; }).map(function(p){
+     var title = p.titleAr || p.titleEn || 'MISR STEEL';
+     var desc = p.desc || '';
+     var btn = p.btn || 'اكتشف الآن';
+     var link = p.link || 'marketplace.html';
+     var tag = p.tag || '✨ عرض مميز';
+     return '<div class="slide"><img class="slide-bg" src="'+getBannerImg(p.img)+'" alt="'+title+'"><div class="slide-overlay"></div><div class="slide-content"><div class="slide-tag">'+tag+'</div><div class="slide-title">'+title+'</div><div class="slide-sub">'+desc+'</div><a class="slide-btn" href="'+link+'">'+btn+'</a></div></div>';
+   });
+   if (!mapped.length) return;
+   slidesEl.innerHTML = mapped.join('');
+   slideCount = mapped.length;
+   slideIdx = 0;
+   goSlide(0);
+ }
+ 
+ // ══ SLIDER ══
+ function slide(dir){ slideIdx=(slideIdx+dir+slideCount)%slideCount; document.getElementById('slides').style.transform='translateX('+(slideIdx*100)+'%)'; updateDots(); }
+ function goSlide(i){ slideIdx=i; document.getElementById('slides').style.transform='translateX('+(i*100)+'%)'; updateDots(); }
+ function updateDots(){ document.querySelectorAll('.sdot').forEach(function(d,i){d.classList.toggle('active',i===slideIdx)}); }
+ function initSlider(){
+   var dots=''; for(var i=0;i<slideCount;i++) dots+='<div class="sdot'+(i===0?' active':'')+'" onclick="goSlide('+i+')"></div>';
+   document.getElementById('sliderDots').innerHTML=dots;
+   slideAuto=setInterval(function(){slide(1)},4500);
+ }
+ document.querySelector('.hero-slider').addEventListener('mouseenter',function(){clearInterval(slideAuto)});
+ document.querySelector('.hero-slider').addEventListener('mouseleave',function(){slideAuto=setInterval(function(){slide(1)},4500)});
+ 
+ // ══ LOAD PRODUCTS FROM MONGODB ══
+ async function loadProducts() {
+   try {
+     // Get live rate first
+     try {
+-      var sr = await fetch(BACKEND + '/api/settings/public');
+-      var sd = await sr.json();
++      var sd = await fetchJsonWithFallback('/api/settings/public');
+       if (sd.usdRate) {
+         USD_EGP = sd.usdRate;
+         localStorage.setItem('ms_rate', USD_EGP);
+         document.querySelectorAll('.rate-display').forEach(function(el){el.textContent=USD_EGP.toFixed(2);});
+       }
+     } catch(e) {}
+ 
+     // Get products
+     var prods = [];
+     var posters = [];
+ 
+     try {
+-      var r = await fetch(BACKEND + '/api/products', {
+-        method: 'GET',
+-        headers: { 'Accept': 'application/json' }
+-      });
+-      if (r.ok) {
+-        var d = await r.json();
+-        prods = normalizeProducts(d.products);
+-      }
++      var d = await fetchJsonWithFallback('/api/products');
++      prods = normalizeProducts(d.products);
+     } catch (productsErr) {
+       console.warn('Products API error:', productsErr.message);
+     }
+ 
+     // Fallback #1: site-config from backend
+     if (!prods.length || !posters.length) {
+       try {
+-        var fr = await fetch(BACKEND + '/api/site-config', {
+-          method: 'GET',
+-          headers: { 'Accept': 'application/json' }
+-        });
+-        if (fr.ok) {
+-          var fd = await fr.json();
+-          var cfg = (fd && fd.config) || {};
+-          if (!prods.length) prods = normalizeProducts(cfg.products);
+-          posters = Array.isArray(cfg.posters) ? cfg.posters : posters;
+-        }
++        var fd = await fetchJsonWithFallback('/api/site-config');
++        var cfg = (fd && fd.config) || {};
++        if (!prods.length) prods = normalizeProducts(cfg.products);
++        posters = Array.isArray(cfg.posters) ? cfg.posters : posters;
+       } catch (fallbackErr) {
+         console.warn('Fallback products error:', fallbackErr.message);
+       }
+     }
+ 
+     // Fallback #2: local data file in the frontend repo
+     if (!prods.length || !posters.length) {
+       try {
+         var lr = await fetch('data/site-config.json', {
+           method: 'GET',
+           headers: { 'Accept': 'application/json' }
+         });
+         if (lr.ok) {
+           var ld = await lr.json();
+           if (!prods.length) prods = normalizeProducts(ld.products);
+           if (!posters.length) posters = Array.isArray(ld.posters) ? ld.posters : posters;
+         }
+       } catch (localErr) {
+         console.warn('Local fallback error:', localErr.message);
+       }
+     }
+ 
+     // Fallback #3: locally saved admin banners in browser storage
+     if (!posters.length) {
+       try {
+         posters = JSON.parse(localStorage.getItem('ms_banners') || '[]');
+       } catch (storageErr) {
+         console.warn('Banner storage error:', storageErr.message);
+       }
+     }
+ 
+     if (!prods.length) {
+       // Fallback to site-config in case /api/products was emptied by mistake
+       try {
+-        var fr = await fetch(BACKEND + '/api/site-config', {
+-          method: 'GET',
+-          headers: { 'Accept': 'application/json' }
+-        });
+-        if (fr.ok) {
+-          var fd = await fr.json();
+-          prods = (fd && fd.config && fd.config.products) || [];
+-        }
++        var fd = await fetchJsonWithFallback('/api/site-config');
++        prods = (fd && fd.config && fd.config.products) || [];
+       } catch (fallbackErr) {
+         console.warn('Fallback products error:', fallbackErr.message);
+       }
+     }
+ 
++    renderHeroBanners(posters);
+     renderProducts(prods);
+ 
+   } catch(e) {
+     console.error('Products error:', e.message);
+     document.getElementById('bestGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px"><div style="font-size:32px;margin-bottom:12px">⚠️</div><div style="font-size:14px;color:#888;margin-bottom:16px">تعذر تحميل المنتجات الآن</div><button onclick="loadProducts()" style="padding:10px 24px;background:var(--orange);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">🔄 إعادة المحاولة</button></div>';
+   }
+ }
+ 
+ function renderProducts(prods) {
+   if (!prods.length) { document.getElementById('bestGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:32px;color:#888">لا توجد منتجات بعد</div>'; return; }
+ 
+   // Show top 10
+   var top = prods.slice(0, 10);
+   var html = top.map(function(p) {
+     var badge = p.badge && badgeClass[p.badge] ? '<div class="prod-card-badge '+badgeClass[p.badge]+'">'+(p.badge==='hot'?'الأكثر طلباً':'جديد')+'</div>' : '';
+     var img = p.imgs && p.imgs[0] ? p.imgs[0] : 'images/p01-rose-gold-chair.jpg';
+     // Handle base64, full URL, or relative path
+-    var imgSrc = resolveImageUrl(img) || 'images/p01-rose-gold-chair.jpg';
++    var imgSrc = resolveImageUrl(img, BACKEND) || resolveImageUrl(img, location.origin) || 'images/p01-rose-gold-chair.jpg';
+     var egp = Math.round(p.price * USD_EGP).toLocaleString();
+     return '<a class="prod-card" href="product.html?id='+p.id+'">'
+       + badge
+       + '<div class="prod-img-wrap"><img src="'+imgSrc+'" alt="'+p.nameAr+'" loading="lazy" onerror="this.src=\'images/p01-rose-gold-chair.jpg\'"></div>'
+       + '<div class="prod-body">'
+       + '<div class="prod-cat">'+(sectionLabels[p.section]||p.section)+'</div>'
+       + '<div class="prod-name">'+p.nameAr+'</div>'
+       + '<div class="prod-price-row">'
+       + '<div><div class="prod-price">$'+p.price+'</div><div class="prod-price-egp">≈ '+egp+' ج.م</div></div>'
+       + '<button class="prod-btn" onclick="event.preventDefault();addCart('+JSON.stringify(p)+')">🛒</button>'
+       + '</div></div></a>';
+   }).join('');
+   document.getElementById('bestGrid').innerHTML = html;
+ }
+ 
+ // ══ CART ══
+ var cart = JSON.parse(localStorage.getItem('ms_cart') || '[]');
+ function addCart(p) {
+   var ex = cart.find(function(i){return i.id===p.id});
+   if (ex) ex.qty = (ex.qty||1)+1;
+   else cart.push({id:p.id, name:p.nameAr, price:p.price, img:(p.imgs&&p.imgs[0])||'', qty:1});
+   localStorage.setItem('ms_cart', JSON.stringify(cart));
+   showToast('✓ أضيف: '+p.nameAr, 'success');
+ }
+ 
+ 
+EOF
+)
