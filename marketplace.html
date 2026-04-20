@@ -133,6 +133,29 @@ var USD_EGP = parseFloat(localStorage.getItem('ms_rate') || '50.85');
 var allProducts = [], filtered = [];
 var sectionLabels = {home:'🏠 منزل', hall:'🎪 قاعة', museum:'🏛️ لوبي', restaurant:'🍽️ مطعم'};
 
+
+function normalizeProduct(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+  var imgs = Array.isArray(raw.imgs) ? raw.imgs.filter(Boolean) : [];
+  if (!imgs.length && raw.image) imgs = [raw.image];
+  var price = Number(raw.price);
+  if (!Number.isFinite(price)) price = Number(raw.priceUsd);
+  if (!Number.isFinite(price)) price = 0;
+  return {
+    id: raw.id || raw._id || ('p_' + Math.random().toString(36).slice(2,9)),
+    nameAr: raw.nameAr || raw.titleAr || raw.name || 'منتج',
+    section: raw.section || 'home',
+    finish: raw.finish || 'gold',
+    badge: raw.badge || '',
+    price: price,
+    imgs: imgs
+  };
+}
+
+function normalizeProducts(list) {
+  return (Array.isArray(list) ? list : []).map(normalizeProduct).filter(Boolean);
+}
+
 // ══ LOAD FROM MONGODB ══
 async function loadProducts() {
   try {
