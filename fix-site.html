@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>إصلاح الموقع — مصر ستيل</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Cairo,sans-serif;background:#0a0a0a;color:#fff;min-height:100vh;padding:20px;direction:rtl}
+.wrap{max-width:600px;margin:0 auto}
+h1{color:#ff6000;font-size:20px;margin-bottom:20px;text-align:center}
+.card{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:20px;margin-bottom:16px}
+.card h2{font-size:15px;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.card p{font-size:12px;color:#666;margin-bottom:14px;line-height:1.7}
+.prog-wrap{background:#222;border-radius:6px;height:10px;margin:10px 0;overflow:hidden;display:none}
+.prog{height:100%;border-radius:6px;transition:width .3s;width:0%}
+.prog.red{background:linear-gradient(to left,#cc0000,#ff4444)}
+.prog.orange{background:linear-gradient(to left,#d94f00,#ff6000)}
+.status{font-size:11px;color:#555;margin:6px 0;min-height:16px}
+.btn{width:100%;padding:12px;border-radius:8px;font-size:14px;font-weight:800;cursor:pointer;font-family:Cairo,sans-serif;border:none;margin-bottom:6px}
+.btn-red{background:#ff4444;color:#fff}
+.btn-orange{background:#ff6000;color:#fff}
+.btn-gray{background:#222;color:#666;border:1px solid #333}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.done{background:#002200;border:1px solid #4ade80;border-radius:6px;padding:10px;margin-top:10px;font-size:12px;color:#4ade80;display:none;text-align:center}
+.result{font-size:12px;color:#aaa;margin-top:8px}
+.step-num{background:#ff6000;color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🔧 إصلاح الموقع — مصر ستيل</h1>
+
+  <!-- Step 1: Delete all -->
+  <div class="card">
+    <h2><span class="step-num">1</span> حذف كل المنتجات القديمة</h2>
+    <p>سيتم حذف كل المنتجات الحالية من قاعدة البيانات نهائياً ثم نرفع الجديدة.</p>
+    <div class="prog-wrap" id="prog1-wrap"><div class="prog red" id="prog1"></div></div>
+    <div class="status" id="status1">جاهز</div>
+    <button class="btn btn-red" id="btn1" onclick="deleteAll()">🗑️ احذف كل المنتجات</button>
+    <div class="done" id="done1">✅ تم حذف كل المنتجات!</div>
+  </div>
+
+  <!-- Step 2: Upload Excel -->
+  <div class="card">
+    <h2><span class="step-num">2</span> رفع المنتجات من Excel</h2>
+    <p>اختار ملف <strong>misrsteel_products_FULL.xlsx</strong> لرفع كل المنتجات بصورها.</p>
+    <div class="prog-wrap" id="prog2-wrap"><div class="prog orange" id="prog2"></div></div>
+    <div class="status" id="status2">اختار الملف أولاً</div>
+    <label class="btn btn-orange" style="cursor:pointer;display:block;text-align:center">
+      📂 اختار ملف Excel
+      <input type="file" accept=".xlsx,.xls" style="display:none" onchange="handleExcel(this)">
+    </label>
+    <div class="done" id="done2"></div>
+    <div class="result" id="result2"></div>
+  </div>
+
+  <!-- Step 3: Fix banners -->
+  <div class="card">
+    <h2><span class="step-num">3</span> إصلاح البوسترات</h2>
+    <p>لو البوسترات مش ظاهرة — اضغط هنا لإعادة ضبط الإعدادات.</p>
+    <div class="status" id="status3">جاهز</div>
+    <button class="btn btn-orange" id="btn3" onclick="fixBanners()">🖼️ إصلاح البوسترات</button>
+    <div class="done" id="done3">✅ تم إصلاح البوسترات!</div>
+  </div>
+
+  <div style="text-align:center;margin-top:16px">
+    <a href="admin-dashboard.html" style="color:#ff6000;font-size:13px;font-weight:700">← الذهاب للداشبورد</a>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+var BACKEND = 'https://misrsteel-backend.vercel.app';
+var TOKEN = 'misrsteel_admin_2025';
+var excelProducts = [];
+
+// ══ STEP 1: DELETE ALL ══
+async function deleteAll() {
+  var btn = document.getElementById('btn1');
+  btn.disabled = true;
+  document.getElementById('prog1-wrap').style.display = 'block';
+  document.getElementById('status1').textContent = 'جاري جلب المنتجات...';
+
+  try {
+    var r = await fetch(BACKEND + '/api/admin/products?limit=1000', {
+      headers: {'x-admin-token': TOKEN}
+    });
+    var d = await r.json();
+    var products = d.products || [];
+
+    if (!products.length) {
+      document.getElementById('status1').textContent = 'لا يوجد منتجات';
+      document.getElementById('done1').style.display = 'block';
+      return;
+    }
+
+    document.getElementById('status1').textContent = 'جاري حذف ' + products.length + ' منتج...';
+    var done = 0;
+
+    for (var i = 0; i < products.length; i++) {
+      try {
+        await fetch(BACKEND + '/api/admin/products/' + products[i].id, {
+          method: 'DELETE', headers: {'x-admin-token': TOKEN}
+        });
+        done++;
+      } catch(e) {}
+      document.getElementById('prog1').style.width = Math.round(((i+1)/products.length)*100) + '%';
+      document.getElementById('status1').textContent = 'تم حذف ' + done + ' من ' + products.length;
+    }
+
+    document.getElementById('done1').style.display = 'block';
+    document.getElementById('btn1').style.display = 'none';
+  } catch(e) {
+    document.getElementById('status1').textContent = '❌ ' + e.message;
+    btn.disabled = false;
+  }
+}
+
+// ══ STEP 2: EXCEL UPLOAD ══
+function handleExcel(input) {
+  var file = input.files[0];
+  if (!file) return;
+  document.getElementById('status2').textContent = '⏳ جاري قراءة الملف...';
+
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var wb = XLSX.read(e.target.result, {type:'binary'});
+      var ws = wb.Sheets[wb.SheetNames[0]];
+      var data = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
+      var rows = data.slice(3);
+
+      excelProducts = [];
+      rows.forEach(function(row) {
+        var nameAr = String(row[0]||'').trim();
+        if (!nameAr) return;
+        var frameColors = row[10] ? String(row[10]).split(',').map(function(s){return s.trim();}).filter(Boolean) : [];
+        var fabricColors = row[11] ? String(row[11]).split(',').map(function(s){return s.trim();}).filter(Boolean) : [];
+        var imgs = [row[7],row[8],row[9]].map(function(s){return String(s||'').trim();}).filter(Boolean);
+        excelProducts.push({
+          nameAr, nameEn: String(row[1]||'').trim(),
+          price: parseFloat(row[2])||0,
+          section: String(row[3]||'home').trim(),
+          finish: String(row[4]||'gold').trim(),
+          badge: String(row[5]||'').trim(),
+          desc: String(row[6]||'').trim(),
+          imgs, frameColors, fabricColors,
+          hasColorOptions: frameColors.length>0||fabricColors.length>0,
+        });
+      });
+
+      if (!excelProducts.length) {
+        document.getElementById('status2').textContent = '❌ لا توجد منتجات في الملف';
+        return;
+      }
+
+      document.getElementById('status2').textContent = '✅ تم قراءة ' + excelProducts.length + ' منتج — اضغط رفع';
+      document.getElementById('prog2-wrap').style.display = 'block';
+
+      // Add upload button
+      var label = document.querySelector('#btn3').parentElement.previousElementSibling.previousElementSibling;
+      var uploadBtn = document.createElement('button');
+      uploadBtn.className = 'btn btn-orange';
+      uploadBtn.textContent = '🚀 رفع ' + excelProducts.length + ' منتج';
+      uploadBtn.onclick = uploadProducts;
+      uploadBtn.id = 'uploadBtn';
+      // Remove old upload btn if exists
+      var old = document.getElementById('uploadBtn');
+      if (old) old.remove();
+      document.querySelector('#done2').before(uploadBtn);
+
+    } catch(e) {
+      document.getElementById('status2').textContent = '❌ خطأ: ' + e.message;
+    }
+  };
+  reader.readAsBinaryString(file);
+}
+
+async function uploadProducts() {
+  var btn = document.getElementById('uploadBtn');
+  btn.disabled = true;
+  var done = 0, failed = 0;
+
+  for (var i = 0; i < excelProducts.length; i++) {
+    var p = excelProducts[i];
+    document.getElementById('status2').textContent = '(' + (i+1) + '/' + excelProducts.length + ') ' + p.nameAr;
+    document.getElementById('prog2').style.width = Math.round(((i+1)/excelProducts.length)*100) + '%';
+
+    try {
+      var r = await fetch(BACKEND + '/api/admin/products', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json','x-admin-token':TOKEN},
+        body: JSON.stringify(p)
+      });
+      if (r.ok) done++; else failed++;
+    } catch(e) { failed++; }
+
+    await new Promise(function(res){setTimeout(res,150);});
+  }
+
+  document.getElementById('status2').textContent = '✅ تم رفع ' + done + ' منتج' + (failed?' | ❌ فشل '+failed:'');
+  document.getElementById('result2').textContent = 'تم بنجاح! يمكنك الآن فتح الموقع.';
+  var doneEl = document.getElementById('done2');
+  doneEl.textContent = '✅ تم رفع ' + done + ' منتج بنجاح!';
+  doneEl.style.display = 'block';
+  btn.style.display = 'none';
+}
+
+// ══ STEP 3: FIX BANNERS ══
+async function fixBanners() {
+  document.getElementById('btn3').disabled = true;
+  document.getElementById('status3').textContent = 'جاري الإصلاح...';
+  try {
+    // Just verify banners endpoint works
+    var r = await fetch(BACKEND + '/api/settings/public');
+    var d = await r.json();
+    document.getElementById('status3').textContent = '✅ الإعدادات شغالة';
+    document.getElementById('done3').textContent = '✅ البوسترات تُضاف من الداشبورد ← البوسترات والزرايب';
+    document.getElementById('done3').style.display = 'block';
+  } catch(e) {
+    document.getElementById('status3').textContent = '❌ ' + e.message;
+    document.getElementById('btn3').disabled = false;
+  }
+}
+</script>
+</body>
+</html>

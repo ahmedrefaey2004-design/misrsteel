@@ -164,10 +164,18 @@ button{cursor:pointer;font-family:inherit}
 <!-- HERO SLIDER -->
 <div class="hero-slider">
   <div class="slides" id="slides">
-    <div class="slide"><img class="slide-bg" src="images/p01-rose-gold-chair.jpg" alt=""><div class="slide-overlay"></div><div class="slide-content"><div class="slide-tag">🏭 مباشرة من المصنع</div><div class="slide-title">أثاث <span>استانلس فاخر</span><br>لكل مكان</div><div class="slide-sub">كراسي وترابيزات استانلس 304 للمنازل والقاعات والفنادق</div><a class="slide-btn" href="#products">تسوق الآن</a></div></div>
-    <div class="slide"><img class="slide-bg" src="images/p04-medallion-silver.jpg" alt=""><div class="slide-overlay"></div><div class="slide-content"><div class="slide-tag">✨ الأكثر طلباً</div><div class="slide-title">كرسي <span>ميداليون فضي</span></div><div class="slide-sub">إطار استانلس فضي · مخمل رمادي راقي</div><a class="slide-btn" href="marketplace.html">اطلب الآن</a></div></div>
-    <div class="slide"><img class="slide-bg" src="images/p11-new-a.jpg" alt=""><div class="slide-overlay"></div><div class="slide-content"><div class="slide-tag">🤖 AI مصمم</div><div class="slide-title">صمّم <span>غرفتك</span><br>قبل الشراء</div><div class="slide-sub">ارفع صورة مكانك واختار من منتجاتنا</div><a class="slide-btn" href="ai-designer.html">جرّب مجاناً</a></div></div>
-    <div class="slide"><img class="slide-bg" src="images/p15-new-e.jpg" alt=""><div class="slide-overlay"></div><div class="slide-content"><div class="slide-tag">👑 VIP</div><div class="slide-title">كرسي <span>هوبي الذهبي</span></div><div class="slide-sub">إطار ذهبي حلقي فريد · مثالي لقاعات الأفراح</div><a class="slide-btn" href="marketplace.html">اكتشف الآن</a></div></div>
+    <div class="slide">
+      <div class="slide-overlay"></div>
+      <div class="slide-content">
+        <div class="slide-tag">🏭 مباشرة من المصنع</div>
+        <div class="slide-title">أثاث <span>استانلس فاخر</span><br>لكل مكان</div>
+        <div class="slide-sub">كراسي وترابيزات استانلس 304 للمنازل والقاعات والفنادق</div>
+        <a class="slide-btn" href="marketplace.html">تسوق الآن</a>
+      </div>
+    </div>
+  </div><div class="slide-title">كرسي <span>ميداليون فضي</span></div><div class="slide-sub">إطار استانلس فضي · مخمل رمادي راقي</div><a class="slide-btn" href="marketplace.html">اطلب الآن</a></div></div>
+    <div class="slide"><img class="slide-bg" src="images/showroom-cage.jpg" alt=""><div class="slide-overlay"></div><div class="slide-content"><div class="slide-tag">🤖 AI مصمم</div><div class="slide-title">صمّم <span>غرفتك</span><br>قبل الشراء</div><div class="slide-sub">ارفع صورة مكانك واختار من منتجاتنا</div><a class="slide-btn" href="ai-designer.html">جرّب مجاناً</a></div></div>
+    <div class="slide"><img class="slide-bg" src="images/p15-new-e-2.jpg" alt=""><div class="slide-overlay"></div><div class="slide-content"><div class="slide-tag">👑 VIP</div><div class="slide-title">كرسي <span>هوبي الذهبي</span></div><div class="slide-sub">إطار ذهبي حلقي فريد · مثالي لقاعات الأفراح</div><a class="slide-btn" href="marketplace.html">اكتشف الآن</a></div></div>
   </div>
   <button class="slider-prev" onclick="slide(-1)">‹</button>
   <button class="slider-next" onclick="slide(1)">›</button>
@@ -184,14 +192,11 @@ button{cursor:pointer;font-family:inherit}
 <div class="dept-section">
   <div class="sec-head"><div class="sec-title">تسوق حسب الفئة</div><a href="marketplace.html" class="sec-more">عرض الكل →</a></div>
   <div class="dept-grid" id="deptGrid">
-    <a class="dept-card" data-section="home" href="section-home.html"><div class="dept-img"><img src="images/p02-linen-armchair.jpg" alt=""></div><div class="dept-name">غرفة معيشة</div></a>
-    <a class="dept-card" data-section="home" href="section-home.html"><div class="dept-img"><img src="images/p04-medallion-silver.jpg" alt=""></div><div class="dept-name">غرفة سفرة</div></a>
-    <a class="dept-card" data-section="hall" href="section-hall.html"><div class="dept-img"><img src="images/p15-new-e.jpg" alt=""></div><div class="dept-name">قاعة أفراح</div></a>
-    <a class="dept-card" data-section="restaurant" href="section-restaurant.html"><div class="dept-img"><img src="images/p05-velvet-red.jpg" alt=""></div><div class="dept-name">مطعم</div></a>
-    <a class="dept-card" data-section="museum" href="section-museum.html"><div class="dept-img"><img src="images/p09-arc-gold.jpg" alt=""></div><div class="dept-name">لوبي</div></a>
-    <a class="dept-card" data-section="home" href="section-home.html"><div class="dept-img"><img src="images/p13-new-c.jpg" alt=""></div><div class="dept-name">غرفة نوم</div></a>
-    <a class="dept-card" data-section="restaurant" href="section-restaurant.html"><div class="dept-img"><img src="images/p16-new-f.jpg" alt=""></div><div class="dept-name">كافيه</div></a>
-    <a class="dept-card" data-section="hall" href="section-hall.html"><div class="dept-img"><img src="images/p08-wrap-black.jpg" alt=""></div><div class="dept-name">مؤتمرات</div></a>
+    <!-- Loading skeletons -->
+    <div class="dept-card"><div class="dept-img skeleton"></div><div class="dept-name skeleton" style="height:16px;border-radius:4px;margin-top:8px"></div></div>
+    <div class="dept-card"><div class="dept-img skeleton"></div><div class="dept-name skeleton" style="height:16px;border-radius:4px;margin-top:8px"></div></div>
+    <div class="dept-card"><div class="dept-img skeleton"></div><div class="dept-name skeleton" style="height:16px;border-radius:4px;margin-top:8px"></div></div>
+    <div class="dept-card"><div class="dept-img skeleton"></div><div class="dept-name skeleton" style="height:16px;border-radius:4px;margin-top:8px"></div></div>
   </div>
 </div>
 
@@ -273,88 +278,6 @@ function installGlobalImageFallback() {
 }
 installGlobalImageFallback();
 
-
-function normalizeProduct(raw) {
-  if (!raw || typeof raw !== 'object') return null;
-  var imgs = Array.isArray(raw.imgs) ? raw.imgs.filter(Boolean) : [];
-  if (!imgs.length && raw.image) imgs = [raw.image];
-  var price = Number(raw.price);
-  if (!Number.isFinite(price)) price = Number(raw.priceUsd);
-  if (!Number.isFinite(price)) price = 0;
-  return {
-    id: raw.id || raw._id || ('p_' + Math.random().toString(36).slice(2,9)),
-    nameAr: raw.nameAr || raw.titleAr || raw.name || 'منتج',
-    section: raw.section || 'home',
-    badge: raw.badge || '',
-    price: price,
-    imgs: imgs
-  };
-}
-
-function normalizeProducts(list) {
-  return (Array.isArray(list) ? list : []).map(normalizeProduct).filter(Boolean);
-}
-
-function resolveImageUrl(img, baseUrl) {
-  if (!img) return '';
-  if (img.startsWith('data:') || /^https?:\/\//i.test(img)) return img;
-  var clean = String(img).replace(/^\/+/, '');
-  var chosenBase = baseUrl;
-  if (!chosenBase) {
-    // Admin uploads are عادة under /uploads on backend.
-    // Frontend static assets like images/* should stay on frontend origin.
-    chosenBase = /^(uploads|api|media|posters|storage|files)\//i.test(clean) ? BACKEND : location.origin;
-  }
-  var base = (chosenBase || BACKEND || location.origin).replace(/\/$/, '');
-  return (base + '/' + clean).replace(/([^:]\/)\/+/g, '$1');
-}
-
-async function fetchJsonWithFallback(path) {
-  var lastError = null;
-  for (var i = 0; i < API_BASES.length; i++) {
-    var base = API_BASES[i];
-    try {
-      var res = await fetch(base.replace(/\/$/, '') + path, {
-        method: 'GET',
-        headers: { 'Accept': 'application/json' }
-      });
-      if (res.ok) return await res.json();
-    } catch (err) {
-      lastError = err;
-    }
-  }
-  if (lastError) throw lastError;
-  throw new Error('No API source responded for ' + path);
-}
-
-function getBannerImg(img) {
-  if (!img) return '';
-  if (img.startsWith('data:') || /^https?:\/\//i.test(img)) return img;
-  if (/^[\w.-]+\.[a-z]{2,}(\/|$)/i.test(img)) return 'https://' + img;
-  return resolveImageUrl(img);
-}
-
-function renderHeroBanners(posters) {
-  var slidesEl = document.getElementById('slides');
-  if (!slidesEl) return;
-  if (!Array.isArray(posters) || !posters.length) return;
-  var mapped = posters.filter(function(p){ return p && (p.img || p.image); }).map(function(p){
-    var title = p.titleAr || p.titleEn || 'MISR STEEL';
-    var desc = p.desc || '';
-    var btn = p.btn || 'اكتشف الآن';
-    var link = p.link || 'marketplace.html';
-    var tag = p.tag || '✨ عرض مميز';
-    var bannerImg = p.img || p.image;
-    return '<div class="slide"><img class="slide-bg" src="'+getBannerImg(bannerImg)+'" alt="'+title+'"><div class="slide-overlay"></div><div class="slide-content"><div class="slide-tag">'+tag+'</div><div class="slide-title">'+title+'</div><div class="slide-sub">'+desc+'</div><a class="slide-btn" href="'+link+'">'+btn+'</a></div></div>';
-  });
-  if (!mapped.length) return;
-  slidesEl.innerHTML = mapped.join('');
-  slideCount = mapped.length;
-  slideIdx = 0;
-  initSlider();
-  goSlide(0);
-}
-
 // ══ SLIDER ══
 function slide(dir){ slideIdx=(slideIdx+dir+slideCount)%slideCount; document.getElementById('slides').style.transform='translateX('+(slideIdx*100)+'%)'; updateDots(); }
 function goSlide(i){ slideIdx=i; document.getElementById('slides').style.transform='translateX('+(i*100)+'%)'; updateDots(); }
@@ -369,6 +292,91 @@ document.querySelector('.hero-slider').addEventListener('mouseenter',function(){
 document.querySelector('.hero-slider').addEventListener('mouseleave',function(){slideAuto=setInterval(function(){slide(1)},4500)});
 
 // ══ LOAD PRODUCTS FROM MONGODB ══
+// Daily rotating slides from product images
+async function loadDeptImages() {
+  try {
+    var r = await fetch(BACKEND + '/api/products?limit=500');
+    var d = await r.json();
+    var prods = d.products || [];
+
+    // Define categories
+    var cats = [
+      { name:'غرفة معيشة',  section:'home',       link:'marketplace.html?section=home',       sub:'home'       },
+      { name:'غرفة نوم',    section:'home',       link:'marketplace.html?section=home',       sub:'bedroom'    },
+      { name:'غرفة سفرة',  section:'home',       link:'marketplace.html?section=home',       sub:'dining'     },
+      { name:'كنبة ركنية',  section:'home',       link:'marketplace.html?section=home',       sub:'corner'     },
+      { name:'قاعة أفراح', section:'hall',       link:'marketplace.html?section=hall',       sub:'hall'       },
+      { name:'مطعم',        section:'restaurant', link:'marketplace.html?section=restaurant', sub:'restaurant' },
+      { name:'لوبي & فندق', section:'museum',     link:'marketplace.html?section=museum',     sub:'museum'     },
+      { name:'كرسي بار',    section:'home',       link:'marketplace.html?section=home',       sub:'bar'        },
+    ];
+
+    // Get first image per section from products
+    var sectionImgs = {};
+    prods.forEach(function(p) {
+      if (!sectionImgs[p.section] && p.imgs && p.imgs[0]) {
+        sectionImgs[p.section] = p.imgs[0];
+      }
+    });
+
+    // Build cards
+    var html = cats.map(function(cat) {
+      var img = sectionImgs[cat.section] || '';
+      var src = img ? (img.startsWith('http') || img.startsWith('data:') ? img : 'https://misrsteel.vercel.app/' + img) : '';
+      var imgHtml = src
+        ? '<img src="' + src + '" alt="' + cat.name + '" loading="lazy" style="width:100%;height:100%;object-fit:cover;transition:transform .4s">'
+        : '<div style="width:100%;height:100%;background:linear-gradient(135deg,#1a1a1a,#2a2a2a);display:flex;align-items:center;justify-content:center;font-size:32px">🪑</div>';
+      return '<a class="dept-card" href="' + cat.link + '"><div class="dept-img">' + imgHtml + '</div><div class="dept-name">' + cat.name + '</div></a>';
+    }).join('');
+
+    var grid = document.getElementById('deptGrid');
+    if (grid) grid.innerHTML = html;
+  } catch(e) {
+    console.log('loadDeptImages error:', e.message);
+  }
+}
+
+async function loadDynamicSlides() {
+  try {
+    var r = await fetch(BACKEND + '/api/products?limit=100');
+    var d = await r.json();
+    var prods = (d.products || []).filter(function(p){ return p.imgs && p.imgs[0]; });
+    if (!prods.length) return;
+
+    // Pick 3 different products daily using date seed
+    var today = new Date();
+    var seed = today.getFullYear() * 10000 + (today.getMonth()+1) * 100 + today.getDate();
+    var selected = [];
+    for (var i = 0; i < 3 && i < prods.length; i++) {
+      var idx = (seed + i * 37) % prods.length;
+      selected.push(prods[idx]);
+    }
+
+    var slidesEl = document.getElementById('slides');
+    if (!slidesEl) return;
+
+     // Keep first default slide, add product slides
+     selected.forEach(function(p) {
+       var img = p.imgs[0];
+       var src = img.startsWith('http') || img.startsWith('data:') ? img : 'https://misrsteel.vercel.app/' + img;
+       var slide = document.createElement('div');
+       slide.className = 'slide';
+       slide.style.cursor = 'pointer';
+       var pid = p.id;
+       slide.addEventListener('click', function() { window.location = 'product.html?id=' + pid; });
+       var bg = document.createElement('img');
+       bg.className = 'slide-bg';
+       bg.src = src;
+       bg.alt = p.nameAr;
+       bg.loading = 'lazy';
+       slide.appendChild(bg);
+       slide.innerHTML += '<div class="slide-overlay"></div><div class="slide-content"><div class="slide-tag">✨ منتج مميز</div><div class="slide-title">' + p.nameAr + '</div><div class="slide-sub">' + (p.desc ? p.desc.substring(0,60)+'...' : 'اضغط لمعرفة التفاصيل') + '</div><a class="slide-btn">اعرف أكتر</a></div>';
+       if (slidesEl) slidesEl.appendChild(slide);
+     });
+
+  } catch(e) {}
+}
+
 async function loadProducts() {
   try {
     // Get live rate first
@@ -382,97 +390,90 @@ async function loadProducts() {
     } catch(e) {}
 
     // Get products
-    var prods = [];
-    var posters = [];
+    var r = await fetch(BACKEND + '/api/products', {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' }
+    });
 
-    try {
-      var d = await fetchJsonWithFallback('/api/products');
-      prods = normalizeProducts(d.products);
-    } catch (productsErr) {
-      console.warn('Products API error:', productsErr.message);
-    }
+    if (!r.ok) throw new Error('HTTP ' + r.status);
 
-    // Fallback #1: site-config from backend
-    if (!prods.length || !posters.length) {
-      try {
-        var fd = await fetchJsonWithFallback('/api/site-config');
-        var cfg = (fd && fd.config) || {};
-        if (!prods.length) prods = normalizeProducts(cfg.products);
-        posters = Array.isArray(cfg.posters) ? cfg.posters : posters;
-      } catch (fallbackErr) {
-        console.warn('Fallback products error:', fallbackErr.message);
-      }
-    }
+    var d = await r.json();
+    var prods = d.products || [];
 
-    // Fallback #2: local data file in the frontend repo
-    if (!prods.length || !posters.length) {
-      try {
-        var lr = await fetch('data/site-config.json', {
-          method: 'GET',
-          headers: { 'Accept': 'application/json' }
-        });
-        if (lr.ok) {
-          var ld = await lr.json();
-          if (!prods.length) prods = normalizeProducts(ld.products);
-          if (!posters.length) posters = Array.isArray(ld.posters) ? ld.posters : posters;
-        }
-      } catch (localErr) {
-        console.warn('Local fallback error:', localErr.message);
-      }
-    }
-
-    // Fallback #3: locally saved admin banners in browser storage
-    if (!posters.length) {
-      try {
-        posters = JSON.parse(localStorage.getItem('ms_banners') || '[]');
-      } catch (storageErr) {
-        console.warn('Banner storage error:', storageErr.message);
-      }
-    }
-
-    if (!prods.length) {
-      // Fallback to site-config in case /api/products was emptied by mistake
-      try {
-        var fd = await fetchJsonWithFallback('/api/site-config');
-        prods = (fd && fd.config && fd.config.products) || [];
-      } catch (fallbackErr) {
-        console.warn('Fallback products error:', fallbackErr.message);
-      }
-    }
-
-    renderHeroBanners(posters);
+    if (prods.length === 0) throw new Error('No products');
     renderProducts(prods);
     syncDeptIconsFromProducts(prods);
 
   } catch(e) {
     console.error('Products error:', e.message);
-    document.getElementById('bestGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px"><div style="font-size:32px;margin-bottom:12px">⚠️</div><div style="font-size:14px;color:#888;margin-bottom:16px">تعذر تحميل المنتجات الآن</div><button onclick="loadProducts()" style="padding:10px 24px;background:var(--orange);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">🔄 إعادة المحاولة</button></div>';
+    document.getElementById('bestGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px"><div style="font-size:32px;margin-bottom:12px">⚠️</div><div style="font-size:14px;color:#888;margin-bottom:16px">جاري تحميل المنتجات...</div><button onclick="loadProducts()" style="padding:10px 24px;background:var(--orange);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">🔄 إعادة المحاولة</button></div>';
   }
 }
 
-function renderProducts(prods) {
-  if (!prods.length) { document.getElementById('bestGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:32px;color:#888">لا توجد منتجات بعد</div>'; return; }
+var allProdsData = [];
+var currentPage = 0;
+var pageSize = 12;
+var isLoading = false;
 
-  // Show top 10
-  var top = prods.slice(0, 10);
+function renderProducts(prods) {
+  allProdsData = prods;
+  currentPage = 0;
+  if (!prods.length) { document.getElementById('bestGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:32px;color:#888">لا توجد منتجات بعد</div>'; return; }
+  document.getElementById('bestGrid').innerHTML = '';
+  loadMoreProducts();
+  setupInfiniteScroll();
+}
+
+function loadMoreProducts() {
+  if (isLoading) return;
+  var start = currentPage * pageSize;
+  var end = start + pageSize;
+  var batch = allProdsData.slice(start, end);
+  if (!batch.length) return;
+  isLoading = true;
+  var top = batch;
   var html = top.map(function(p) {
     var badge = p.badge && badgeClass[p.badge] ? '<div class="prod-card-badge '+badgeClass[p.badge]+'">'+(p.badge==='hot'?'الأكثر طلباً':'جديد')+'</div>' : '';
     var img = p.imgs && p.imgs[0] ? p.imgs[0] : 'images/p01-rose-gold-chair.jpg';
     // Handle base64, full URL, or relative path
-    var imgSrc = resolveImageUrl(img) || 'images/p01-rose-gold-chair.jpg';
+    var imgSrc = img.startsWith('data:') ? img :
+                 img.startsWith('http') ? img :
+                 'https://misrsteel.vercel.app/' + img;
     var egp = Math.round(p.price * USD_EGP).toLocaleString();
     return '<a class="prod-card" href="product.html?id='+p.id+'">'
       + badge
-      + '<div class="prod-img-wrap"><img src="'+imgSrc+'" alt="'+p.nameAr+'" loading="lazy" onerror="this.src=\'images/p01-rose-gold-chair.jpg\'"></div>'
+      + '<div class="prod-img-wrap"><img src="'+imgSrc+'" alt="'+p.nameAr+'" loading="lazy"></div>'
       + '<div class="prod-body">'
       + '<div class="prod-cat">'+(sectionLabels[p.section]||p.section)+'</div>'
       + '<div class="prod-name">'+p.nameAr+'</div>'
       + '<div class="prod-price-row">'
       + '<div><div class="prod-price">$'+p.price+'</div><div class="prod-price-egp">≈ '+egp+' ج.م</div></div>'
-      + '<button class="prod-btn" onclick="event.preventDefault();addCart('+JSON.stringify(p)+')">🛒</button>'
+      + '<button class="prod-btn" onclick="event.preventDefault();addCartById('+p.id+')">🛒</button>'
       + '</div></div></a>';
   }).join('');
-  document.getElementById('bestGrid').innerHTML = html;
+  var grid = document.getElementById('bestGrid');
+  var div = document.createElement('div');
+  div.style.display = 'contents';
+  div.innerHTML = html;
+  grid.appendChild(div);
+  currentPage++;
+  isLoading = false;
+}
+
+function setupInfiniteScroll() {
+  var sentinel = document.getElementById('scroll-sentinel');
+  if (!sentinel) {
+    sentinel = document.createElement('div');
+    sentinel.id = 'scroll-sentinel';
+    sentinel.style.height = '20px';
+    document.getElementById('bestGrid').after(sentinel);
+  }
+  var observer = new IntersectionObserver(function(entries) {
+    if (entries[0].isIntersecting && !isLoading) {
+      loadMoreProducts();
+    }
+  }, { threshold: 0.1 });
+  observer.observe(sentinel);
 }
 
 function syncDeptIconsFromProducts(prods) {
@@ -495,6 +496,11 @@ function syncDeptIconsFromProducts(prods) {
 
 // ══ CART ══
 var cart = JSON.parse(localStorage.getItem('ms_cart') || '[]');
+function addCartById(id) {
+  var p = allProdsData.find(function(x){return x.id===id;});
+  if (p) addCart(p);
+}
+
 function addCart(p) {
   var ex = cart.find(function(i){return i.id===p.id});
   if (ex) ex.qty = (ex.qty||1)+1;
@@ -511,6 +517,8 @@ document.getElementById('searchInp').addEventListener('keydown',function(e){if(e
 // ══ INIT ══
 initSlider();
 loadProducts();
+loadDynamicSlides();
+loadDeptImages();
 </script>
 
 <!-- PORTFOLIO SECTION -->
@@ -528,28 +536,33 @@ loadProducts();
   </div>
 </section>
 <script>
-// Load portfolio preview
-async function loadPortfolioPreview(){
-  try{
-    var r=await fetch("https://misrsteel-backend.vercel.app/api/portfolio");
-    var d=await r.json();
-    var projects=(d.projects||[]).slice(0,3);
-    if(!projects.length){document.getElementById("homePortfolioGrid").style.display="none";return;}
-    document.getElementById("homePortfolioGrid").innerHTML=projects.map(function(p){
-      var img=p.imgs&&p.imgs[0]?p.imgs[0]:"";
-      var src=img?(img.startsWith("http")||img.startsWith("data:")?img:"https://misrsteel.vercel.app/"+img):"";
-      var catLabel={hotel:"🏨 فندق",restaurant:"🍽️ مطعم",hall:"🎪 قاعة",office:"🏢 شركة",home:"🏠 منزل",lobby:"🏛️ لوبي"}[p.category]||p.category;
-      return '<a href="portfolio.html" style="display:block;background:#f9f9f9;border:1px solid #e5e5e5;border-radius:12px;overflow:hidden;text-decoration:none;color:inherit;transition:all .2s" onmouseover="this.style.transform=\'translateY(-4px)\'" onmouseout="this.style.transform=\'\'">'+
-        '<div style="height:180px;overflow:hidden;background:#f0f0f0">'+
-        (src?'<img src="'+src+'" style="width:100%;height:100%;object-fit:cover" loading="lazy">':"<div style='display:flex;align-items:center;justify-content:center;height:100%;font-size:40px'>🏗️</div>")+
-        '</div>'+
-        '<div style="padding:12px">'+
-        '<div style="background:#fff3eb;color:#ff6000;display:inline-block;padding:2px 10px;border-radius:10px;font-size:10px;font-weight:700;margin-bottom:6px">'+catLabel+'</div>'+
-        '<div style="font-size:14px;font-weight:800;margin-bottom:3px">'+p.name+'</div>'+
-        '<div style="font-size:12px;color:#888">📍 '+p.location+'</div>'+
+async function loadPortfolioPreview() {
+  try {
+    var r = await fetch('https://misrsteel-backend.vercel.app/api/portfolio');
+    var d = await r.json();
+    var projects = (d.projects || []).slice(0, 3);
+    var grid = document.getElementById('homePortfolioGrid');
+    if (!grid) return;
+    if (!projects.length) { grid.parentElement.parentElement.style.display='none'; return; }
+    var catLabel = {hotel:'🏨 فندق',restaurant:'🍽️ مطعم',hall:'🎪 قاعة',office:'🏢 شركة',home:'🏠 منزل',lobby:'🏛️ لوبي'};
+    grid.innerHTML = projects.map(function(p) {
+      var img = p.imgs && p.imgs[0] ? p.imgs[0] : '';
+      var src = img ? (img.startsWith('http') || img.startsWith('data:') ? img : 'https://misrsteel.vercel.app/' + img) : '';
+      var cat = catLabel[p.category] || p.category;
+      return '<a href="portfolio.html" style="display:block;background:#f9f9f9;border:1px solid #e5e5e5;border-radius:12px;overflow:hidden;text-decoration:none;color:inherit">' +
+        '<div style="height:180px;overflow:hidden;background:#f0f0f0">' +
+        (src ? '<img src="' + src + '" style="width:100%;height:100%;object-fit:cover" loading="lazy">' : '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:40px">🏗️</div>') +
+        '</div>' +
+        '<div style="padding:12px">' +
+        '<div style="background:#fff3eb;color:#ff6000;display:inline-block;padding:2px 10px;border-radius:10px;font-size:10px;font-weight:700;margin-bottom:6px">' + cat + '</div>' +
+        '<div style="font-size:14px;font-weight:800;margin-bottom:3px">' + p.name + '</div>' +
+        '<div style="font-size:12px;color:#888">📍 ' + p.location + '</div>' +
         '</div></a>';
-    }).join("");
-  }catch(e){document.getElementById("homePortfolioGrid").parentElement.parentElement.style.display="none";}
+    }).join('');
+  } catch(e) {
+    var grid = document.getElementById('homePortfolioGrid');
+    if (grid) grid.parentElement.parentElement.style.display = 'none';
+  }
 }
 loadPortfolioPreview();
 </script>
