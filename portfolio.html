@@ -30,6 +30,12 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:#1a1a1a;direction
 .hero-stat-num{font-size:28px;font-weight:800;color:var(--orange)}
 .hero-stat-label{font-size:11px;color:rgba(255,255,255,.5);margin-top:2px}
 
+/* HERO SLIDER */
+.hero-slider{position:absolute;inset:0;overflow:hidden;z-index:0}
+.hero-slider-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1s ease;filter:brightness(.35)}
+.hero-slider-img.active{opacity:1}
+.hero-content{position:relative;z-index:1}
+
 /* FILTERS */
 .filters-wrap{background:#fff;border-bottom:1px solid var(--border);padding:14px 20px;position:sticky;top:56px;z-index:90;overflow-x:auto;white-space:nowrap;scrollbar-width:none}
 .filters-wrap::-webkit-scrollbar{display:none}
@@ -129,15 +135,18 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);color:#1a1a1a;direction
 </div>
 
 <!-- HERO -->
-<div class="hero">
+<div class="hero" style="position:relative">
+  <div class="hero-slider" id="heroSlider"></div>
+  <div class="hero-content">
   <div class="hero-tag">✨ مشاريعنا المنفذة</div>
   <h1>أعمالنا تتكلم<br><span>عنّا</span></h1>
   <p>من الفنادق الفاخرة إلى قاعات الأفراح والمطاعم — نفّذنا مئات المشاريع في مصر والوطن العربي</p>
   <div class="hero-stats">
     <div class="hero-stat"><div class="hero-stat-num" id="stat-projects">0</div><div class="hero-stat-label">مشروع منفذ</div></div>
-    <div class="hero-stat"><div class="hero-stat-num">+15</div><div class="hero-stat-label">سنة خبرة</div></div>
-    <div class="hero-stat"><div class="hero-stat-num">+10</div><div class="hero-stat-label">دولة</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">2022</div><div class="hero-stat-label">تأسست في فبراير 2022</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">+100M</div><div class="hero-stat-label">جنيه حجم الأعمال</div></div>
     <div class="hero-stat"><div class="hero-stat-num">100%</div><div class="hero-stat-label">رضا العملاء</div></div>
+  </div>
   </div>
 </div>
 
@@ -209,11 +218,13 @@ async function loadProjects() {
     allProjects = d.projects || [];
     document.getElementById('stat-projects').textContent = '+' + allProjects.length;
     renderProjects(allProjects);
+    initSlider(allProjects);
   } catch(e) {
     // Show sample projects if API not available
     allProjects = getSampleProjects();
     document.getElementById('stat-projects').textContent = '+' + allProjects.length;
     renderProjects(allProjects);
+    initSlider(allProjects);
   }
 }
 
@@ -323,6 +334,35 @@ function waProject() {
   if (!currentProject) return;
   var msg = 'مرحباً، رأيت مشروع "' + currentProject.name + '" في معرض أعمالكم وأريد الاستفسار.';
   window.open('https://wa.me/201050595250?text=' + encodeURIComponent(msg), '_blank');
+}
+
+// ── HERO SLIDER ──
+var sliderImgs = [];
+var sliderIdx = 0;
+
+function initSlider(projects) {
+  var imgs = [];
+  projects.forEach(function(p) {
+    (p.imgs||[]).slice(0,2).forEach(function(img) {
+      var src = img.startsWith('http')||img.startsWith('data:') ? img : 'https://misrsteel.vercel.app/'+img;
+      imgs.push(src);
+    });
+  });
+  if (!imgs.length) return;
+  sliderImgs = imgs.slice(0, 10);
+  var slider = document.getElementById('heroSlider');
+  slider.innerHTML = sliderImgs.map(function(src, i) {
+    return '<img class="hero-slider-img'+(i===0?' active':'')+'" src="'+src+'" loading="'+(i===0?'eager':'lazy')+'" onerror="this.remove()">';
+  }).join('');
+  if (sliderImgs.length > 1) {
+    setInterval(function() {
+      var imgs = document.querySelectorAll('.hero-slider-img');
+      if (!imgs.length) return;
+      imgs[sliderIdx % imgs.length].classList.remove('active');
+      sliderIdx = (sliderIdx + 1) % imgs.length;
+      imgs[sliderIdx].classList.add('active');
+    }, 4000);
+  }
 }
 
 // ── INIT ──
