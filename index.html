@@ -402,6 +402,7 @@ async function loadProducts() {
 
     if (prods.length === 0) throw new Error('No products');
     renderProducts(prods);
+    syncDeptIconsFromProducts(prods);
 
   } catch(e) {
     console.error('Products error:', e.message);
@@ -473,6 +474,24 @@ function setupInfiniteScroll() {
     }
   }, { threshold: 0.1 });
   observer.observe(sentinel);
+}
+
+function syncDeptIconsFromProducts(prods) {
+  if (!Array.isArray(prods) || !prods.length) return;
+  var coverBySection = {};
+  prods.forEach(function (p) {
+    if (!p || !p.section || coverBySection[p.section]) return;
+    var img = p.imgs && p.imgs[0] ? p.imgs[0] : '';
+    if (!img) return;
+    coverBySection[p.section] = resolveImageUrl(img) || img;
+  });
+
+  document.querySelectorAll('.dept-card[data-section]').forEach(function (card) {
+    var section = card.getAttribute('data-section');
+    var img = card.querySelector('.dept-img img');
+    if (!img || !coverBySection[section]) return;
+    img.src = coverBySection[section];
+  });
 }
 
 // ══ CART ══
