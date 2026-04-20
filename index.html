@@ -379,13 +379,13 @@ function loadMoreProducts() {
     var egp = Math.round(p.price * USD_EGP).toLocaleString();
     return '<a class="prod-card" href="product.html?id='+p.id+'">'
       + badge
-      + '<div class="prod-img-wrap"><img src="'+imgSrc+'" alt="'+p.nameAr+'" loading="lazy" onerror="this.src=\'images/p01-rose-gold-chair.jpg\'"></div>'
+      + '<div class="prod-img-wrap"><img src="'+imgSrc+'" alt="'+p.nameAr+'" loading="lazy" onerror="this.style.display='none'"></div>'
       + '<div class="prod-body">'
       + '<div class="prod-cat">'+(sectionLabels[p.section]||p.section)+'</div>'
       + '<div class="prod-name">'+p.nameAr+'</div>'
       + '<div class="prod-price-row">'
       + '<div><div class="prod-price">$'+p.price+'</div><div class="prod-price-egp">≈ '+egp+' ج.م</div></div>'
-      + '<button class="prod-btn" onclick="event.preventDefault();addCart('+JSON.stringify(p)+')">🛒</button>'
+      + '<button class="prod-btn" onclick="event.preventDefault();addCartById('+p.id+')">🛒</button>'
       + '</div></div></a>';
   }).join('');
   var grid = document.getElementById('bestGrid');
@@ -415,6 +415,11 @@ function setupInfiniteScroll() {
 
 // ══ CART ══
 var cart = JSON.parse(localStorage.getItem('ms_cart') || '[]');
+function addCartById(id) {
+  var p = allProdsData.find(function(x){return x.id===id;});
+  if (p) addCart(p);
+}
+
 function addCart(p) {
   var ex = cart.find(function(i){return i.id===p.id});
   if (ex) ex.qty = (ex.qty||1)+1;
