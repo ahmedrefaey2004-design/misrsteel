@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>بوابة المسوقين — مصر ستيل</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{--orange:#ff6000;--orange-dk:#d94f00;--orange-lt:#fff3eb;--black:#111;--bg:#f5f5f5;--border:#e5e5e5;--green:#00a650;--muted:#888}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Cairo',sans-serif;background:var(--bg);direction:rtl;min-height:100vh}
+
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#0a0a0a 0%,#1a1a1a 100%)}
+.login-box{background:#1e1e1e;border:1px solid #2a2a2a;border-radius:16px;padding:36px;max-width:400px;width:100%;text-align:center}
+.login-logo{font-size:36px;margin-bottom:8px}
+.login-title{font-size:22px;font-weight:800;color:var(--orange);margin-bottom:4px}
+.login-sub{font-size:12px;color:#555;margin-bottom:28px}
+.inp{width:100%;padding:13px 16px;background:#111;border:2px solid #333;border-radius:8px;color:#fff;font-size:14px;font-family:inherit;outline:none;margin-bottom:12px;text-align:right}
+.inp:focus{border-color:var(--orange)}
+.inp::placeholder{color:#444}
+.login-btn{width:100%;padding:14px;background:var(--orange);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;transition:.2s}
+.login-btn:hover{background:var(--orange-dk)}
+.login-err{color:#f87171;font-size:12px;margin-top:10px;display:none}
+
+/* DASHBOARD */
+.dash{display:none}
+.nav{background:var(--black);padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--orange)}
+.nav-logo{font-size:17px;font-weight:800;color:var(--orange)}
+.nav-right{display:flex;align-items:center;gap:12px}
+.nav-name{font-size:13px;color:#aaa}
+.nav-logout{font-size:12px;color:#555;cursor:pointer;padding:5px 12px;border:1px solid #333;border-radius:5px}
+
+.page{max-width:900px;margin:0 auto;padding:20px}
+.welcome{background:linear-gradient(135deg,var(--orange),var(--orange-dk));border-radius:12px;padding:20px 24px;margin-bottom:20px;color:#fff}
+.welcome h2{font-size:20px;font-weight:800;margin-bottom:4px}
+.welcome p{font-size:13px;opacity:.85}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat{background:#fff;border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center}
+.stat-num{font-size:26px;font-weight:800;color:var(--orange)}
+.stat-label{font-size:11px;color:var(--muted);margin-top:4px}
+
+/* CODE */
+.code-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px}
+.code-card h3{font-size:14px;font-weight:800;margin-bottom:12px;border-bottom:2px solid var(--orange);padding-bottom:8px}
+.code-wrap{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.code-display{font-size:24px;font-weight:800;color:var(--orange);background:var(--orange-lt);padding:10px 20px;border-radius:8px;letter-spacing:2px;flex:1;text-align:center}
+.copy-btn{padding:10px 16px;background:var(--black);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.link-wrap{margin-top:10px;display:flex;align-items:center;gap:8px}
+.link-inp{flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:6px;font-size:11px;color:#555;font-family:inherit;background:#f9f9f9}
+.commission-info{margin-top:10px;font-size:12px;color:#555;background:#f5f5f5;padding:10px;border-radius:6px}
+
+/* UPLOAD */
+.upload-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px}
+.upload-card h3{font-size:14px;font-weight:800;margin-bottom:12px;border-bottom:2px solid var(--orange);padding-bottom:8px}
+.upload-desc{font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.7}
+.upload-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.btn{padding:11px 18px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px}
+.btn-orange{background:var(--orange);color:#fff}
+.btn-gray{background:#f0f0f0;color:#555}
+.btn-green{background:var(--green);color:#fff}
+
+/* PREVIEW TABLE */
+.preview-wrap{display:none;margin-top:14px}
+.preview-title{font-size:13px;font-weight:700;margin-bottom:8px}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:8px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:#f5f5f5;padding:8px 12px;text-align:right;font-weight:700;border-bottom:1px solid var(--border)}
+td{padding:8px 12px;border-bottom:1px solid #f0f0f0}
+tr:last-child td{border-bottom:none}
+.status-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700}
+.s-ok{background:#e8f5ec;color:var(--green)}
+.s-err{background:#fff0f0;color:#cc0000}
+
+/* PROGRESS */
+.prog-wrap{display:none;margin-top:14px}
+.prog-bar-wrap{background:#f0f0f0;border-radius:6px;height:10px;margin:8px 0;overflow:hidden}
+.prog-bar{height:100%;background:linear-gradient(to left,var(--orange-dk),var(--orange));border-radius:6px;transition:width .3s;width:0%}
+.prog-status{font-size:12px;color:var(--muted)}
+
+/* ORDERS TABLE */
+.orders-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px}
+.orders-card h3{font-size:14px;font-weight:800;margin-bottom:12px;border-bottom:2px solid var(--orange);padding-bottom:8px}
+.empty{text-align:center;padding:30px;color:var(--muted);font-size:13px}
+
+/* TOAST */
+.toast{position:fixed;top:65px;left:50%;transform:translateX(-50%) translateY(-20px);background:#111;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:.3s;pointer-events:none;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.success{background:var(--green)}
+.toast.error{background:#cc0000}
+
+@media(max-width:600px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .code-wrap{flex-direction:column}
+  .code-display{width:100%}
+}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="loginWrap">
+  <div class="login-box">
+    <div class="login-logo">🤝</div>
+    <div class="login-title">بوابة المسوقين</div>
+    <div class="login-sub">مصر ستيل — ادخل الكود الخاص بيك</div>
+    <input class="inp" id="loginCode" type="text" placeholder="كود المسوق (مثال: MS-AHMED)" oninput="this.value=this.value.toUpperCase()">
+    <input class="inp" id="loginPhone" type="tel" placeholder="رقم الواتساب المسجل">
+    <button class="login-btn" onclick="doLogin()">🚀 دخول</button>
+    <div class="login-err" id="loginErr">❌ الكود أو الرقم غير صحيح</div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dash" id="dash">
+  <div class="nav">
+    <div class="nav-logo">مصر ستيل 🤝</div>
+    <div class="nav-right">
+      <span class="nav-name" id="navName"></span>
+      <span class="nav-logout" onclick="doLogout()">خروج</span>
+    </div>
+  </div>
+
+  <div class="page">
+    <!-- Welcome -->
+    <div class="welcome">
+      <h2 id="welcomeName">أهلاً بك!</h2>
+      <p>داشبورد المسوق — تابع مبيعاتك وعمولاتك وارفع أوردرات عملائك</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat"><div class="stat-num" id="st-sales">0</div><div class="stat-label">إجمالي المبيعات $</div></div>
+      <div class="stat"><div class="stat-num" id="st-orders">0</div><div class="stat-label">عدد الأوردرات</div></div>
+      <div class="stat"><div class="stat-num" id="st-comm">0</div><div class="stat-label">العمولة المستحقة $</div></div>
+      <div class="stat"><div class="stat-num" id="st-level">-</div><div class="stat-label">المستوى</div></div>
+    </div>
+
+    <!-- Code & Link -->
+    <div class="code-card">
+      <h3>🔗 كودك ورابط المشاركة</h3>
+      <div class="code-wrap">
+        <div class="code-display" id="myCode">...</div>
+        <button class="copy-btn" onclick="copyCode()">📋 نسخ الكود</button>
+      </div>
+      <div class="link-wrap">
+        <input class="link-inp" id="myLink" readonly>
+        <button class="copy-btn" onclick="copyLink()">📋 نسخ الرابط</button>
+      </div>
+      <div class="commission-info" id="commInfo">جاري التحميل...</div>
+    </div>
+
+    <!-- Upload Orders -->
+    <div class="upload-card">
+      <h3>📊 رفع أوردرات من Excel</h3>
+      <div class="upload-desc">
+        حمّل نموذج Excel ← اكتب بيانات عملائك ← ارفع الملف وسيتم تسجيل الأوردرات تلقائياً باسمك وحساب عمولتك.
+      </div>
+      <div class="upload-actions">
+        <label class="btn btn-orange">
+          📂 اختار ملف Excel
+          <input type="file" id="xlsxInput" accept=".xlsx,.xls" style="display:none" onchange="handleExcel(this)">
+        </label>
+        <a href="affiliate_orders_template.xlsx" download class="btn btn-gray">⬇️ تحميل النموذج</a>
+      </div>
+      <div id="xlsxStatus" style="font-size:12px;color:var(--muted)"></div>
+
+      <!-- Preview -->
+      <div class="preview-wrap" id="previewWrap">
+        <div class="preview-title" id="previewTitle"></div>
+        <div class="tbl-wrap">
+          <table id="previewTable"></table>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px">
+          <button class="btn btn-green" onclick="uploadOrders()">🚀 رفع الأوردرات</button>
+          <button class="btn btn-gray" onclick="cancelPreview()">إلغاء</button>
+        </div>
+      </div>
+
+      <!-- Progress -->
+      <div class="prog-wrap" id="progWrap">
+        <div class="prog-bar-wrap"><div class="prog-bar" id="progBar"></div></div>
+        <div class="prog-status" id="progStatus">جاري الرفع...</div>
+      </div>
+    </div>
+
+    <!-- Orders -->
+    <div class="orders-card">
+      <h3>📦 أوردراتك</h3>
+      <div id="ordersTable"><div class="empty">⏳ جاري التحميل...</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+var BACKEND = 'https://misrsteel-backend.vercel.app';
+var aff = null;
+var pendingOrders = [];
+
+// ── LOGIN ──
+async function doLogin() {
+  var code  = document.getElementById('loginCode').value.trim();
+  var phone = document.getElementById('loginPhone').value.trim();
+  if (!code || !phone) { showLoginErr('أدخل الكود ورقم الواتساب'); return; }
+
+  try {
+    var r = await fetch(BACKEND + '/api/affiliates/login', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({code, phone})
+    });
+    var d = await r.json();
+    if (!r.ok || !d.affiliate) { showLoginErr(d.error || 'الكود أو الرقم غير صحيح'); return; }
+    
+    aff = d.affiliate;
+    localStorage.setItem('aff_session', JSON.stringify(aff));
+    showDash();
+  } catch(e) {
+    showLoginErr('فشل الاتصال — تحقق من الإنترنت');
+  }
+}
+
+function showLoginErr(msg) {
+  var el = document.getElementById('loginErr');
+  el.textContent = '❌ ' + msg;
+  el.style.display = 'block';
+}
+
+function doLogout() {
+  localStorage.removeItem('aff_session');
+  aff = null;
+  document.getElementById('loginWrap').style.display = 'flex';
+  document.getElementById('dash').style.display = 'none';
+  document.getElementById('loginCode').value = '';
+  document.getElementById('loginPhone').value = '';
+  document.getElementById('loginErr').style.display = 'none';
+}
+
+// ── DASHBOARD ──
+function showDash() {
+  document.getElementById('loginWrap').style.display = 'none';
+  document.getElementById('dash').style.display = 'block';
+
+  // Welcome
+  document.getElementById('welcomeName').textContent = 'أهلاً ' + (aff.name || '') + '! 👋';
+  document.getElementById('navName').textContent = aff.name || '';
+
+  // Code & Link
+  document.getElementById('myCode').textContent = aff.code || '-';
+  var link = 'https://misrsteel.vercel.app/marketplace.html?ref=' + (aff.code||'');
+  document.getElementById('myLink').value = link;
+
+  // Commission info
+  document.getElementById('commInfo').innerHTML =
+    '💰 نسبة عمولتك: <strong style="color:var(--orange)">' + (aff.commissionRate||10) + '%</strong> من كل بيعة' +
+    ' | المستوى: <strong>' + (aff.level||'starter') + '</strong>';
+
+  // Stats
+  document.getElementById('st-sales').textContent  = '$' + (aff.totalSales||0).toLocaleString();
+  document.getElementById('st-orders').textContent = aff.totalOrders || 0;
+  document.getElementById('st-comm').textContent   = '$' + (aff.pendingCommission||0).toFixed(2);
+  document.getElementById('st-level').textContent  = aff.level || 'starter';
+
+  loadMyOrders();
+}
+
+// ── LOAD ORDERS ──
+async function loadMyOrders() {
+  try {
+    var r = await fetch(BACKEND + '/api/affiliates/orders?code=' + (aff.code||''), {
+      headers: {'x-aff-token': aff.token || ''}
+    });
+    var d = await r.json();
+    var orders = d.orders || [];
+    renderOrders(orders);
+  } catch(e) {
+    document.getElementById('ordersTable').innerHTML = '<div class="empty">لا توجد أوردرات بعد</div>';
+  }
+}
+
+function renderOrders(orders) {
+  if (!orders.length) {
+    document.getElementById('ordersTable').innerHTML = '<div class="empty">📭 لا توجد أوردرات بعد — ارفع أول شيت!</div>';
+    return;
+  }
+  var html = '<div class="tbl-wrap"><table><tr><th>العميل</th><th>الواتساب</th><th>المنتج</th><th>الكمية</th><th>السعر</th><th>عمولتك</th><th>التاريخ</th></tr>';
+  orders.forEach(function(o) {
+    var comm = ((o.totalUSD||0) * (aff.commissionRate||10) / 100).toFixed(2);
+    var date = o.createdAt ? new Date(o.createdAt).toLocaleDateString('ar-EG') : '-';
+    html += '<tr><td><strong>' + (o.customerName||'-') + '</strong></td>' +
+      '<td>' + (o.customerPhone||'-') + '</td>' +
+      '<td>' + (o.items&&o.items[0]?o.items[0].nameAr:'-') + '</td>' +
+      '<td>' + (o.items&&o.items[0]?o.items[0].qty:'-') + '</td>' +
+      '<td><strong style="color:var(--orange)">$' + (o.totalUSD||0) + '</strong></td>' +
+      '<td><strong style="color:var(--green)">$' + comm + '</strong></td>' +
+      '<td>' + date + '</td></tr>';
+  });
+  html += '</table></div>';
+  document.getElementById('ordersTable').innerHTML = html;
+}
+
+// ── EXCEL UPLOAD ──
+function handleExcel(input) {
+  var file = input.files[0];
+  if (!file) return;
+  document.getElementById('xlsxStatus').textContent = '⏳ جاري قراءة الملف...';
+
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var wb = XLSX.read(e.target.result, {type:'binary'});
+      var ws = wb.Sheets[wb.SheetNames[0]];
+      var data = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
+      var rows = data.slice(3); // skip title + header + instructions
+
+      pendingOrders = [];
+      rows.forEach(function(row) {
+        var name  = String(row[0]||'').trim();
+        var phone = String(row[1]||'').trim();
+        var prod  = String(row[3]||'').trim();
+        var qty   = parseInt(row[4])||1;
+        var price = parseFloat(row[5])||0;
+        if (!name || !phone || !prod || !price) return;
+        pendingOrders.push({
+          customerName: name,
+          customerPhone: phone,
+          customerCountry: String(row[2]||'').trim(),
+          productName: prod,
+          qty: qty,
+          priceUSD: price,
+          totalUSD: price * qty,
+          notes: String(row[6]||'').trim(),
+          affiliateCode: aff.code,
+        });
+      });
+
+      if (!pendingOrders.length) {
+        document.getElementById('xlsxStatus').textContent = '❌ لا توجد بيانات في الملف';
+        return;
+      }
+
+      document.getElementById('xlsxStatus').textContent = '✅ تم قراءة ' + pendingOrders.length + ' أوردر';
+      document.getElementById('previewTitle').textContent = 'معاينة — ' + pendingOrders.length + ' أوردر:';
+
+      var html = '<tr><th>العميل</th><th>الواتساب</th><th>المنتج</th><th>الكمية</th><th>سعر البيع</th><th>الإجمالي</th></tr>';
+      pendingOrders.slice(0,10).forEach(function(o) {
+        html += '<tr><td>'+o.customerName+'</td><td>'+o.customerPhone+'</td><td>'+o.productName+'</td><td>'+o.qty+'</td><td>$'+o.priceUSD+'</td><td style="color:var(--orange);font-weight:700">$'+o.totalUSD+'</td></tr>';
+      });
+      if (pendingOrders.length > 10) html += '<tr><td colspan="6" style="text-align:center;color:var(--muted)">... و '+(pendingOrders.length-10)+' أوردر آخر</td></tr>';
+
+      document.getElementById('previewTable').innerHTML = html;
+      document.getElementById('previewWrap').style.display = 'block';
+    } catch(e) {
+      document.getElementById('xlsxStatus').textContent = '❌ خطأ في قراءة الملف';
+    }
+  };
+  reader.readAsBinaryString(file);
+}
+
+function cancelPreview() {
+  document.getElementById('previewWrap').style.display = 'none';
+  document.getElementById('xlsxInput').value = '';
+  pendingOrders = [];
+  document.getElementById('xlsxStatus').textContent = '';
+}
+
+async function uploadOrders() {
+  if (!pendingOrders.length) return;
+  document.getElementById('previewWrap').style.display = 'none';
+  document.getElementById('progWrap').style.display = 'block';
+
+  var done = 0, failed = 0;
+  for (var i = 0; i < pendingOrders.length; i++) {
+    var o = pendingOrders[i];
+    document.getElementById('progStatus').textContent = 'جاري رفع ('+(i+1)+'/'+pendingOrders.length+'): '+o.customerName;
+    document.getElementById('progBar').style.width = Math.round(((i+1)/pendingOrders.length)*100) + '%';
+
+    try {
+      var r = await fetch(BACKEND + '/api/orders', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+          customerName: o.customerName,
+          customerPhone: o.customerPhone,
+          customerCountry: o.customerCountry,
+          items: [{nameAr: o.productName, qty: o.qty, priceUSD: o.priceUSD}],
+          totalUSD: o.totalUSD,
+          notes: o.notes,
+          affiliateCode: o.affiliateCode,
+          source: 'affiliate_excel',
+        })
+      });
+      if (r.ok) done++; else failed++;
+    } catch(e) { failed++; }
+
+    await new Promise(function(r){setTimeout(r,200);});
+  }
+
+  document.getElementById('progWrap').style.display = 'none';
+  document.getElementById('xlsxInput').value = '';
+  pendingOrders = [];
+  document.getElementById('xlsxStatus').textContent = '';
+
+  toast('✅ تم رفع ' + done + ' أوردر' + (failed?' | ❌ فشل '+failed:''), 'success');
+  loadMyOrders();
+}
+
+// ── COPY ──
+function copyCode() {
+  navigator.clipboard.writeText(aff.code||'');
+  toast('✅ تم نسخ الكود', 'success');
+}
+function copyLink() {
+  navigator.clipboard.writeText(document.getElementById('myLink').value);
+  toast('✅ تم نسخ الرابط', 'success');
+}
+
+// ── TOAST ──
+function toast(msg, type) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + (type||'');
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(function(){ t.classList.remove('show'); }, 3500);
+}
+
+// ── INIT ──
+var saved = localStorage.getItem('aff_session');
+if (saved) {
+  try { aff = JSON.parse(saved); showDash(); } catch(e) {}
+}
+</script>
+</body>
+</html>
