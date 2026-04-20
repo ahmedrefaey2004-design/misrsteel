@@ -191,15 +191,12 @@ button{cursor:pointer;font-family:inherit}
 <!-- DEPT -->
 <div class="dept-section">
   <div class="sec-head"><div class="sec-title">تسوق حسب الفئة</div><a href="marketplace.html" class="sec-more">عرض الكل →</a></div>
-  <div class="dept-grid">
-    <a class="dept-card" href="section-home.html"><div class="dept-img"><img src="images/p02-linen-armchair.jpg" alt=""></div><div class="dept-name">غرفة معيشة</div></a>
-    <a class="dept-card" href="section-home.html"><div class="dept-img"><img src="images/p04-medallion-silver.jpg" alt=""></div><div class="dept-name">غرفة سفرة</div></a>
-    <a class="dept-card" href="section-hall.html"><div class="dept-img"><img src="images/p15-new-e.jpg" alt=""></div><div class="dept-name">قاعة أفراح</div></a>
-    <a class="dept-card" href="section-restaurant.html"><div class="dept-img"><img src="images/p05-velvet-red.jpg" alt=""></div><div class="dept-name">مطعم</div></a>
-    <a class="dept-card" href="section-museum.html"><div class="dept-img"><img src="images/p09-arc-gold.jpg" alt=""></div><div class="dept-name">لوبي</div></a>
-    <a class="dept-card" href="section-home.html"><div class="dept-img"><img src="images/p13-new-c.jpg" alt=""></div><div class="dept-name">غرفة نوم</div></a>
-    <a class="dept-card" href="section-restaurant.html"><div class="dept-img"><img src="images/p16-new-f.jpg" alt=""></div><div class="dept-name">كافيه</div></a>
-    <a class="dept-card" href="section-hall.html"><div class="dept-img"><img src="images/p08-wrap-black.jpg" alt=""></div><div class="dept-name">مؤتمرات</div></a>
+  <div class="dept-grid" id="deptGrid">
+    <!-- Loading skeletons -->
+    <div class="dept-card"><div class="dept-img skeleton"></div><div class="dept-name skeleton" style="height:16px;border-radius:4px;margin-top:8px"></div></div>
+    <div class="dept-card"><div class="dept-img skeleton"></div><div class="dept-name skeleton" style="height:16px;border-radius:4px;margin-top:8px"></div></div>
+    <div class="dept-card"><div class="dept-img skeleton"></div><div class="dept-name skeleton" style="height:16px;border-radius:4px;margin-top:8px"></div></div>
+    <div class="dept-card"><div class="dept-img skeleton"></div><div class="dept-name skeleton" style="height:16px;border-radius:4px;margin-top:8px"></div></div>
   </div>
 </div>
 
@@ -273,6 +270,49 @@ document.querySelector('.hero-slider').addEventListener('mouseleave',function(){
 
 // ══ LOAD PRODUCTS FROM MONGODB ══
 // Daily rotating slides from product images
+async function loadDeptImages() {
+  try {
+    var r = await fetch(BACKEND + '/api/products?limit=500');
+    var d = await r.json();
+    var prods = d.products || [];
+
+    // Define categories
+    var cats = [
+      { name:'غرفة معيشة',  section:'home',       link:'marketplace.html?section=home',       sub:'home'       },
+      { name:'غرفة نوم',    section:'home',       link:'marketplace.html?section=home',       sub:'bedroom'    },
+      { name:'غرفة سفرة',  section:'home',       link:'marketplace.html?section=home',       sub:'dining'     },
+      { name:'كنبة ركنية',  section:'home',       link:'marketplace.html?section=home',       sub:'corner'     },
+      { name:'قاعة أفراح', section:'hall',       link:'marketplace.html?section=hall',       sub:'hall'       },
+      { name:'مطعم',        section:'restaurant', link:'marketplace.html?section=restaurant', sub:'restaurant' },
+      { name:'لوبي & فندق', section:'museum',     link:'marketplace.html?section=museum',     sub:'museum'     },
+      { name:'كرسي بار',    section:'home',       link:'marketplace.html?section=home',       sub:'bar'        },
+    ];
+
+    // Get first image per section from products
+    var sectionImgs = {};
+    prods.forEach(function(p) {
+      if (!sectionImgs[p.section] && p.imgs && p.imgs[0]) {
+        sectionImgs[p.section] = p.imgs[0];
+      }
+    });
+
+    // Build cards
+    var html = cats.map(function(cat) {
+      var img = sectionImgs[cat.section] || '';
+      var src = img ? (img.startsWith('http') || img.startsWith('data:') ? img : 'https://misrsteel.vercel.app/' + img) : '';
+      var imgHtml = src
+        ? '<img src="' + src + '" alt="' + cat.name + '" loading="lazy" style="width:100%;height:100%;object-fit:cover;transition:transform .4s">'
+        : '<div style="width:100%;height:100%;background:linear-gradient(135deg,#1a1a1a,#2a2a2a);display:flex;align-items:center;justify-content:center;font-size:32px">🪑</div>';
+      return '<a class="dept-card" href="' + cat.link + '"><div class="dept-img">' + imgHtml + '</div><div class="dept-name">' + cat.name + '</div></a>';
+    }).join('');
+
+    var grid = document.getElementById('deptGrid');
+    if (grid) grid.innerHTML = html;
+  } catch(e) {
+    console.log('loadDeptImages error:', e.message);
+  }
+}
+
 async function loadDynamicSlides() {
   try {
     var r = await fetch(BACKEND + '/api/products?limit=100');
@@ -437,6 +477,7 @@ document.getElementById('searchInp').addEventListener('keydown',function(e){if(e
 initSlider();
 loadProducts();
 loadDynamicSlides();
+loadDeptImages();
 </script>
 
 <!-- PORTFOLIO SECTION -->
