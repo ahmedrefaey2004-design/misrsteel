@@ -385,7 +385,22 @@ async function loadProducts() {
       }
     }
 
-    renderHeroBanners(posters);
+    if (!prods.length) {
+      // Fallback to site-config in case /api/products was emptied by mistake
+      try {
+        var fr = await fetch(BACKEND + '/api/site-config', {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' }
+        });
+        if (fr.ok) {
+          var fd = await fr.json();
+          prods = (fd && fd.config && fd.config.products) || [];
+        }
+      } catch (fallbackErr) {
+        console.warn('Fallback products error:', fallbackErr.message);
+      }
+    }
+
     renderProducts(prods);
 
   } catch(e) {
