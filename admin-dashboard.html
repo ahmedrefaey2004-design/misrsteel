@@ -313,6 +313,7 @@ tr:hover td{background:#fafafa}
     <div class="nav-item" onclick="go('ai_users',this)">🤖 مستخدمو AI</div>
     <div class="nav-item" onclick="go('partners',this)">🤝 الشركاء والـ API</div>
     <div class="nav-item" onclick="window.open('factory.html','_blank')" style="color:var(--orange)">🏭 نظام ERP المصنع</div>
+    <div class="nav-item" onclick="go('portfolio',null)">🏆 معرض الأعمال</div>
     <div class="nav-section">الإعدادات</div>
     <div class="nav-item" onclick="go('settings',this)">⚙️ الإعدادات</div>
     <div class="nav-item" onclick="go('reports',this)">📈 التقارير</div>
@@ -1243,7 +1244,7 @@ function handleExcel(input) {
         if (!row[0] && !row[2]) return; // Skip empty rows
         var nameAr = String(row[0] || '').trim();
         var price  = parseFloat(row[2]) || 0;
-        if (!nameAr || !price) return;
+        if (!nameAr) return; // allow price = 0
 
         var frameColors = row[10] ? String(row[10]).split(',').map(function(s){return s.trim();}).filter(Boolean) : [];
         var fabricColors = row[11] ? String(row[11]).split(',').map(function(s){return s.trim();}).filter(Boolean) : [];
@@ -1332,6 +1333,127 @@ async function uploadExcelProducts() {
   document.getElementById('xlsxInput').value = '';
   excelProducts = [];
 }
+
+// ── PORTFOLIO ──────────────────────────────────────────
+var editProjId = null;
+var projImgs = [];
+
+async function loadPortfolio() {
+  try {
+    var d = await api('GET', '/api/admin/portfolio');
+    var projects = d.projects || [];
+    if (!projects.length) {
+      document.getElementById('portfolioTable').innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted)">لا توجد مشاريع بعد — اضغط + لإضافة مشروع</div>';
+      return;
+    }
+    var catLabels = {hotel:'🏨 فندق',restaurant:'🍽️ مطعم',hall:'🎪 قاعة',office:'🏢 شركة',home:'🏠 منزل',lobby:'🏛️ لوبي'};
+    var html = '<table><tr><th>الصورة</th><th>المشروع</th><th>الموقع</th><th>الفئة</th><th>السنة</th><th>إجراء</th></tr>';
+    projects.forEach(function(p) {
+      var img = p.imgs && p.imgs[0] ? p.imgs[0] : '';
+      var imgSrc = img ? (img.startsWith('http')||img.startsWith('data:') ? img : 'https://misrsteel.vercel.app/'+img) : '';
+      var imgHtml = imgSrc ? '<img src="'+imgSrc+'" style="width:50px;height:50px;object-fit:cover;border-radius:6px">' : '<span style="font-size:24px">🏗️</span>';
+      html += '<tr><td>'+imgHtml+'</td><td><strong>'+p.name+'</strong></td><td>'+(p.location||'-')+'</td><td>'+(catLabels[p.category]||p.category)+'</td><td>'+(p.year||'-')+'</td>' +
+        '<td><button class="btn btn-gray btn-sm" onclick="editProject('+p.id+')">✏️ تعديل</button></td></tr>';
+    });
+    html += '</table>';
+    document.getElementById('portfolioTable').innerHTML = '<div class="tbl-wrap">'+html+'</div>';
+  } catch(e) { document.getElementById('portfolioTable').innerHTML = '<div style="padding:20px;color:var(--red)">❌ '+e.message+'</div>'; }
+}
+
+var allPortfolio = [];
+async function loadPortfolioData() {
+  try { var d = await api('GET','/api/admin/portfolio'); allPortfolio = d.projects||[]; } catch(e) {}
+}
+
+function openAddProject() {
+  editProjId = null; projImgs = [];
+  document.getElementById('projModalTitle').textContent = '➕ إضافة مشروع جديد';
+  ['pj_name','pj_location','pj_year','pj_qty','pj_desc','pj_tags','pj_video'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('pj_category').value = 'hotel';
+  document.getElementById('projImgPreviews').innerHTML = '';
+  document.getElementById('deleteProjBtn').style.display = 'none';
+  document.getElementById('projectModal').classList.add('open');
+}
+
+function editProject(id) {
+  if (!allPortfolio.length) { loadPortfolioData().then(function(){ editProject(id); }); return; }
+  var p = allPortfolio.find(function(x){ return x.id===id; });
+  if (!p) return;
+  editProjId = id; projImgs = p.imgs||[];
+  document.getElementById('projModalTitle').textContent = '✏️ تعديل المشروع';
+  document.getElementById('pj_name').value = p.name||'';
+  document.getElementById('pj_location').value = p.location||'';
+  document.getElementById('pj_category').value = p.category||'hotel';
+  document.getElementById('pj_year').value = p.year||'';
+  document.getElementById('pj_qty').value = p.qty||'';
+  document.getElementById('pj_desc').value = p.desc||'';
+  document.getElementById('pj_tags').value = (p.tags||[]).join(', ');
+  document.getElementById('pj_video').value = (p.videos && p.videos[0]) || '';
+  document.getElementById('deleteProjBtn').style.display = 'inline-flex';
+  // Show existing images
+  renderProjImgPreviews();
+  document.getElementById('projectModal').classList.add('open');
+}
+
+function onProjImgSelect(files) {
+  Array.from(files).forEach(function(file) {
+    if (!file.type.startsWith('image/')) return;
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      compressImage(ev.target.result, 300, function(compressed) {
+        projImgs.push(compressed);
+        renderProjImgPreviews();
+      });
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderProjImgPreviews() {
+  document.getElementById('projImgPreviews').innerHTML = projImgs.map(function(img, i) {
+    var src = img.startsWith('http')||img.startsWith('data:') ? img : 'https://misrsteel.vercel.app/'+img;
+    return '<div style="position:relative"><img src="'+src+'" style="width:70px;height:70px;object-fit:cover;border-radius:6px;border:1px solid var(--border)"><button onclick="projImgs.splice('+i+',1);renderProjImgPreviews()" style="position:absolute;top:-6px;left:-6px;background:#f00;color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer;padding:0;line-height:1">✕</button></div>';
+  }).join('');
+}
+
+async function saveProject() {
+  var name = document.getElementById('pj_name').value.trim();
+  if (!name) { toast('أدخل اسم المشروع', 'error'); return; }
+  var tagsStr = document.getElementById('pj_tags').value.trim();
+  var tags = tagsStr ? tagsStr.split(',').map(function(t){return t.trim();}).filter(Boolean) : [];
+  var videoUrl = document.getElementById('pj_video').value.trim();
+  var body = {
+    name, location: document.getElementById('pj_location').value.trim(),
+    category: document.getElementById('pj_category').value,
+    year: document.getElementById('pj_year').value.trim(),
+    qty: document.getElementById('pj_qty').value.trim(),
+    desc: document.getElementById('pj_desc').value.trim(),
+    tags, imgs: projImgs,
+    videos: videoUrl ? [videoUrl] : [],
+  };
+  try {
+    if (editProjId) await api('PUT', '/api/admin/portfolio/'+editProjId, body);
+    else await api('POST', '/api/admin/portfolio', body);
+    toast('✅ تم الحفظ', 'success');
+    closeProjectModal();
+    await loadPortfolioData();
+    loadPortfolio();
+  } catch(e) { toast('❌ '+e.message, 'error'); }
+}
+
+async function deleteProjFromModal() {
+  if (!editProjId) return;
+  if (!confirm('حذف هذا المشروع نهائياً؟')) return;
+  try {
+    await api('DELETE', '/api/admin/portfolio/'+editProjId);
+    toast('✅ تم الحذف', 'success');
+    closeProjectModal();
+    await loadPortfolioData();
+    loadPortfolio();
+  } catch(e) { toast('❌ '+e.message, 'error'); }
+}
+
+function closeProjectModal() { document.getElementById('projectModal').classList.remove('open'); }
 
 // ── TOAST ─────────────────────────────────────────────
 function toast(msg,type){ var t=document.getElementById('toast'); t.textContent=msg; t.className='toast '+(type||''); t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),3200); }

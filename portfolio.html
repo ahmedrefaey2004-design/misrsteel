@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>معرض أعمالنا — مصر ستيل</title>
+<meta name="description" content="مشاريع مصر ستيل المنفذة — فنادق، مطاعم، قاعات أفراح، شركات في مصر والوطن العربي">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--orange:#ff6000;--orange-dk:#d94f00;--orange-lt:#fff3eb;--black:#0a0a0a;--bg:#f5f5f5;--border:#e5e5e5;--muted:#888;--white:#fff;--green:#00a650}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Cairo',sans-serif;background:var(--bg);color:#1a1a1a;direction:rtl}
+
+/* NAV */
+.nav{background:var(--black);padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--orange);position:sticky;top:0;z-index:100}
+.nav-logo{font-size:19px;font-weight:800;color:var(--orange);text-decoration:none}
+.nav-links{display:flex;gap:16px}
+.nav-links a{color:rgba(255,255,255,.6);font-size:13px;text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:var(--orange)}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,var(--black) 0%,#1a0a00 100%);padding:60px 20px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ff6000' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")}
+.hero-tag{display:inline-block;background:rgba(255,96,0,.15);color:var(--orange);border:1px solid rgba(255,96,0,.3);padding:6px 18px;border-radius:20px;font-size:12px;font-weight:700;margin-bottom:16px;letter-spacing:.08em}
+.hero h1{font-size:36px;font-weight:900;color:#fff;margin-bottom:12px;line-height:1.2}
+.hero h1 span{color:var(--orange)}
+.hero p{font-size:14px;color:rgba(255,255,255,.6);max-width:500px;margin:0 auto 24px;line-height:1.8}
+.hero-stats{display:flex;justify-content:center;gap:40px;flex-wrap:wrap}
+.hero-stat{text-align:center}
+.hero-stat-num{font-size:28px;font-weight:800;color:var(--orange)}
+.hero-stat-label{font-size:11px;color:rgba(255,255,255,.5);margin-top:2px}
+
+/* FILTERS */
+.filters-wrap{background:#fff;border-bottom:1px solid var(--border);padding:14px 20px;position:sticky;top:56px;z-index:90;overflow-x:auto;white-space:nowrap;scrollbar-width:none}
+.filters-wrap::-webkit-scrollbar{display:none}
+.filter-btn{display:inline-block;padding:8px 18px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;border:2px solid var(--border);background:#fff;margin-left:8px;transition:all .2s;font-family:inherit}
+.filter-btn.active{background:var(--orange);color:#fff;border-color:var(--orange)}
+.filter-btn:hover:not(.active){border-color:var(--orange);color:var(--orange)}
+
+/* GRID */
+.page{max-width:1100px;margin:0 auto;padding:24px 16px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.proj-count{font-size:13px;color:var(--muted);margin-bottom:16px}
+
+/* PROJECT CARD */
+.proj-card{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:all .25s;position:relative}
+.proj-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.12);border-color:var(--orange)}
+.proj-img{height:220px;overflow:hidden;background:#f0f0f0;position:relative}
+.proj-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.proj-card:hover .proj-img img{transform:scale(1.05)}
+.proj-cat{position:absolute;top:12px;right:12px;background:var(--orange);color:#fff;padding:4px 12px;border-radius:12px;font-size:10px;font-weight:800}
+.proj-body{padding:14px}
+.proj-name{font-size:15px;font-weight:800;margin-bottom:4px}
+.proj-location{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px;margin-bottom:8px}
+.proj-desc{font-size:12px;color:#555;line-height:1.7;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.proj-footer{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid #f5f5f5}
+.proj-items{font-size:11px;color:var(--muted)}
+.proj-arrow{color:var(--orange);font-size:14px;font-weight:800}
+
+/* LOADING */
+.loading{text-align:center;padding:60px;color:var(--muted)}
+.sp{width:40px;height:40px;border:3px solid rgba(255,96,0,.2);border-top-color:var(--orange);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* EMPTY */
+.empty{text-align:center;padding:60px;color:var(--muted)}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;transition:opacity .3s}
+.modal-overlay.open{opacity:1}
+.modal-box{background:#fff;border-radius:16px;max-width:700px;width:100%;max-height:90vh;overflow-y:auto;transform:scale(.95);transition:transform .3s}
+.modal-overlay.open .modal-box{transform:scale(1)}
+.modal-header{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fff;z-index:1}
+.modal-header h2{font-size:17px;font-weight:800}
+.modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:#aaa;line-height:1}
+.modal-gallery{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:16px}
+.modal-gallery img{width:100%;height:160px;object-fit:cover;border-radius:8px;cursor:pointer}
+.modal-gallery img:first-child{grid-column:1/-1;height:260px}
+.modal-body{padding:0 16px 16px}
+.modal-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.modal-tag{padding:4px 12px;border-radius:12px;font-size:11px;font-weight:700;background:#f5f5f5;color:#555}
+.modal-tag.orange{background:var(--orange-lt);color:var(--orange-dk)}
+.modal-desc{font-size:13px;color:#444;line-height:1.9;margin-bottom:16px}
+.modal-details{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.detail-item{background:#f9f9f9;border-radius:8px;padding:10px 12px}
+.detail-label{font-size:10px;color:var(--muted);font-weight:700;margin-bottom:3px}
+.detail-value{font-size:13px;font-weight:700}
+.modal-cta{display:flex;gap:8px}
+.cta-btn{flex:1;padding:12px;border:none;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit}
+.cta-main{background:var(--orange);color:#fff}
+.cta-wa{background:#25D366;color:#fff}
+
+/* LIGHTBOX */
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:600;display:none;align-items:center;justify-content:center}
+.lightbox.open{display:flex}
+.lightbox img{max-width:90vw;max-height:90vh;object-fit:contain;border-radius:8px}
+.lightbox-close{position:absolute;top:16px;left:16px;background:none;border:none;color:#fff;font-size:28px;cursor:pointer}
+
+/* CTA SECTION */
+.cta-section{background:linear-gradient(135deg,var(--black),#1a0a00);padding:50px 20px;text-align:center;margin-top:32px}
+.cta-section h2{font-size:26px;font-weight:800;color:#fff;margin-bottom:8px}
+.cta-section p{color:rgba(255,255,255,.6);font-size:14px;margin-bottom:24px}
+.cta-section .btn{display:inline-block;padding:14px 32px;background:var(--orange);color:#fff;border-radius:10px;font-size:15px;font-weight:800;text-decoration:none;margin:4px}
+.cta-section .btn-outline{background:transparent;border:2px solid rgba(255,255,255,.3);color:#fff}
+
+@media(max-width:700px){
+  .grid{grid-template-columns:repeat(2,1fr)}
+  .hero h1{font-size:26px}
+  .hero-stats{gap:20px}
+  .modal-gallery{grid-template-columns:1fr}
+  .modal-gallery img:first-child{height:200px}
+  .modal-details{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+  .grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<div class="nav">
+  <a class="nav-logo" href="index.html">مصر ستيل</a>
+  <div class="nav-links">
+    <a href="marketplace.html">المتجر</a>
+    <a href="portfolio.html" style="color:var(--orange)">أعمالنا</a>
+    <a href="index.html#contact">تواصل</a>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">✨ مشاريعنا المنفذة</div>
+  <h1>أعمالنا تتكلم<br><span>عنّا</span></h1>
+  <p>من الفنادق الفاخرة إلى قاعات الأفراح والمطاعم — نفّذنا مئات المشاريع في مصر والوطن العربي</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="hero-stat-num" id="stat-projects">0</div><div class="hero-stat-label">مشروع منفذ</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">+15</div><div class="hero-stat-label">سنة خبرة</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">+10</div><div class="hero-stat-label">دولة</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">100%</div><div class="hero-stat-label">رضا العملاء</div></div>
+  </div>
+</div>
+
+<!-- FILTERS -->
+<div class="filters-wrap">
+  <button class="filter-btn active" onclick="filterProjects('all',this)">🏆 الكل</button>
+  <button class="filter-btn" onclick="filterProjects('hotel',this)">🏨 فنادق</button>
+  <button class="filter-btn" onclick="filterProjects('restaurant',this)">🍽️ مطاعم</button>
+  <button class="filter-btn" onclick="filterProjects('hall',this)">🎪 قاعات أفراح</button>
+  <button class="filter-btn" onclick="filterProjects('office',this)">🏢 شركات ومكاتب</button>
+  <button class="filter-btn" onclick="filterProjects('home',this)">🏠 منازل</button>
+  <button class="filter-btn" onclick="filterProjects('lobby',this)">🏛️ لوبي</button>
+</div>
+
+<div class="page">
+  <div class="proj-count" id="projCount"></div>
+  <div class="grid" id="projGrid">
+    <div class="loading"><div class="sp"></div>جاري تحميل المشاريع...</div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-section">
+  <h2>مشروعك القادم مع مصر ستيل</h2>
+  <p>تواصل معنا وابدأ مشروعك الآن</p>
+  <a href="https://wa.me/201050595250" target="_blank" class="btn">💬 تواصل واتساب</a>
+  <a href="marketplace.html" class="btn btn-outline">🛒 تصفح المنتجات</a>
+</div>
+
+<!-- PROJECT MODAL -->
+<div class="modal-overlay" id="projModal" onclick="closeModal(event)">
+  <div class="modal-box" id="modalBox">
+    <div class="modal-header">
+      <h2 id="modal-name"></h2>
+      <button class="modal-close" onclick="closeProjModal()">✕</button>
+    </div>
+    <div class="modal-gallery" id="modal-gallery"></div>
+    <div class="modal-body">
+      <div class="modal-tags" id="modal-tags"></div>
+      <div class="modal-desc" id="modal-desc"></div>
+      <div class="modal-details" id="modal-details"></div>
+      <div class="modal-cta">
+        <button class="cta-btn cta-main" onclick="reqProject()">📋 اطلب مشروع مشابه</button>
+        <button class="cta-btn cta-wa" onclick="waProject()">💬 واتساب</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="this.classList.remove('open')">
+  <button class="lightbox-close" onclick="document.getElementById('lightbox').classList.remove('open')">✕</button>
+  <img id="lightbox-img" src="" alt="">
+</div>
+
+<script>
+var BACKEND = 'https://misrsteel-backend.vercel.app';
+var allProjects = [];
+var currentProject = null;
+var currentFilter = 'all';
+
+var catLabels = {hotel:'🏨 فندق', restaurant:'🍽️ مطعم', hall:'🎪 قاعة أفراح', office:'🏢 شركة', home:'🏠 منزل', lobby:'🏛️ لوبي'};
+
+// ── LOAD PROJECTS ──
+async function loadProjects() {
+  try {
+    var r = await fetch(BACKEND + '/api/portfolio');
+    var d = await r.json();
+    allProjects = d.projects || [];
+    document.getElementById('stat-projects').textContent = '+' + allProjects.length;
+    renderProjects(allProjects);
+  } catch(e) {
+    // Show sample projects if API not available
+    allProjects = getSampleProjects();
+    document.getElementById('stat-projects').textContent = '+' + allProjects.length;
+    renderProjects(allProjects);
+  }
+}
+
+function getSampleProjects() {
+  return [
+    {id:1,name:'فندق النيل الكبير',location:'القاهرة، مصر',category:'hotel',desc:'تجهيز لوبي وكافيه الفندق بكراسي استانلس ذهبية فاخرة — 200 كرسي بار + طقم انتظار كامل.',imgs:['images/portfolio/hotel-1.jpg'],tags:['استانلس ذهبي','200 كرسي','لوبي + كافيه'],year:'2024',qty:'200 قطعة'},
+    {id:2,name:'قاعة ألف ليلة',location:'الإسكندرية، مصر',category:'hall',desc:'تجهيز قاعة أفراح بطاقة 500 شخص بكراسي ملكية ذهبية وطقم كنبة عرسان.',imgs:['images/portfolio/hall-1.jpg'],tags:['ذهبي ملكي','500 كرسي','قاعة أفراح'],year:'2024',qty:'500 قطعة'},
+    {id:3,name:'مطعم لافييت',location:'دبي، الإمارات',category:'restaurant',desc:'تجهيز مطعم فاخر بكراسي مطعم أنيقة وترابيزات استانلس — 80 طقم كامل.',imgs:['images/portfolio/rest-1.jpg'],tags:['استانلس فضي','80 طقم','مطعم فاخر'],year:'2023',qty:'80 طقم'},
+    {id:4,name:'برج الأعمال',location:'القاهرة الجديدة، مصر',category:'office',desc:'تجهيز ردهة الاستقبال وقاعات الاجتماعات بأثاث استانلس فاخر.',imgs:['images/portfolio/office-1.jpg'],tags:['استانلس أسود','كراسي مؤتمرات','ريسبشن'],year:'2023',qty:'120 قطعة'},
+    {id:5,name:'فيلا الملكة',location:'الشيخ زايد، مصر',category:'home',desc:'تجهيز كامل لفيلا فاخرة — غرف نوم، انتريه، سفرة بأحدث التصاميم الراقية.',imgs:['images/portfolio/home-1.jpg'],tags:['تجهيز كامل','فيلا فاخرة','ذهبي + أبيض'],year:'2024',qty:'طقم كامل'},
+    {id:6,name:'فندق بالم بيتش',location:'الغردقة، مصر',category:'hotel',desc:'تجهيز منطقة البيسين والمطعم المكشوف بأثاث خارجي مقاوم للعوامل الجوية.',imgs:['images/portfolio/hotel-2.jpg'],tags:['أثاث خارجي','بيسين','مطعم مكشوف'],year:'2023',qty:'300 قطعة'},
+  ];
+}
+
+function renderProjects(projects) {
+  var grid = document.getElementById('projGrid');
+  document.getElementById('projCount').textContent = projects.length + ' مشروع منفذ';
+  
+  if (!projects.length) {
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1">📭 لا توجد مشاريع في هذا القسم بعد</div>';
+    return;
+  }
+
+  grid.innerHTML = projects.map(function(p) {
+    var img = p.imgs && p.imgs[0] ? p.imgs[0] : '';
+    var imgSrc = img ? (img.startsWith('http')||img.startsWith('data:') ? img : 'https://misrsteel.vercel.app/'+img) : '';
+    var imgHtml = imgSrc
+      ? '<img src="'+imgSrc+'" alt="'+p.name+'" loading="lazy" onerror="this.parentElement.innerHTML=\'<div style=\\\"display:flex;align-items:center;justify-content:center;height:100%;font-size:40px\\\">🏗️</div>\'">'
+      : '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:40px;color:#ccc">🏗️</div>';
+    
+    return '<div class="proj-card" onclick="openProject('+p.id+')">' +
+      '<div class="proj-img">' + imgHtml + '</div>' +
+      '<span class="proj-cat">'+(catLabels[p.category]||p.category)+'</span>' +
+      '<div class="proj-body">' +
+      '<div class="proj-name">'+p.name+'</div>' +
+      '<div class="proj-location">📍 '+p.location+'</div>' +
+      '<div class="proj-desc">'+p.desc+'</div>' +
+      '<div class="proj-footer"><span class="proj-items">'+(p.qty||'')+'</span><span class="proj-arrow">← تفاصيل</span></div>' +
+      '</div></div>';
+  }).join('');
+}
+
+function filterProjects(cat, btn) {
+  currentFilter = cat;
+  document.querySelectorAll('.filter-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  var filtered = cat === 'all' ? allProjects : allProjects.filter(function(p){ return p.category===cat; });
+  renderProjects(filtered);
+}
+
+// ── PROJECT MODAL ──
+function openProject(id) {
+  var p = allProjects.find(function(x){ return x.id===id; });
+  if (!p) return;
+  currentProject = p;
+
+  document.getElementById('modal-name').textContent = p.name;
+
+  // Gallery
+  var imgs = p.imgs || [];
+  var galleryHtml = imgs.length
+    ? imgs.slice(0,5).map(function(img,i) {
+        var src = img.startsWith('http')||img.startsWith('data:') ? img : 'https://misrsteel.vercel.app/'+img;
+        return '<img src="'+src+'" loading="lazy" onclick="openLightbox(\''+src+'\')" onerror="this.style.display=\'none\'">';
+      }).join('')
+    : '<div style="grid-column:1/-1;height:200px;display:flex;align-items:center;justify-content:center;font-size:40px;color:#ddd;background:#f9f9f9;border-radius:8px">🏗️</div>';
+  document.getElementById('modal-gallery').innerHTML = galleryHtml;
+
+  // Tags
+  var tags = p.tags || [];
+  document.getElementById('modal-tags').innerHTML =
+    '<span class="modal-tag orange">'+(catLabels[p.category]||p.category)+'</span>' +
+    tags.map(function(t){ return '<span class="modal-tag">'+t+'</span>'; }).join('');
+
+  document.getElementById('modal-desc').textContent = p.desc || '';
+
+  // Details
+  document.getElementById('modal-details').innerHTML =
+    '<div class="detail-item"><div class="detail-label">📍 الموقع</div><div class="detail-value">'+(p.location||'-')+'</div></div>' +
+    '<div class="detail-item"><div class="detail-label">📅 السنة</div><div class="detail-value">'+(p.year||'-')+'</div></div>' +
+    '<div class="detail-item"><div class="detail-label">📦 الكمية</div><div class="detail-value">'+(p.qty||'-')+'</div></div>' +
+    '<div class="detail-item"><div class="detail-label">🏷️ الفئة</div><div class="detail-value">'+(catLabels[p.category]||p.category)+'</div></div>';
+
+  document.getElementById('projModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('projModal')) closeProjModal();
+}
+function closeProjModal() {
+  document.getElementById('projModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function openLightbox(src) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox').classList.add('open');
+}
+
+function reqProject() {
+  if (!currentProject) return;
+  var msg = '🏗️ أريد تنفيذ مشروع مشابه لـ: ' + currentProject.name + '\nالموقع: ' + currentProject.location + '\n\nأرجو التواصل معي.';
+  window.open('https://wa.me/201050595250?text=' + encodeURIComponent(msg), '_blank');
+}
+function waProject() {
+  if (!currentProject) return;
+  var msg = 'مرحباً، رأيت مشروع "' + currentProject.name + '" في معرض أعمالكم وأريد الاستفسار.';
+  window.open('https://wa.me/201050595250?text=' + encodeURIComponent(msg), '_blank');
+}
+
+// ── INIT ──
+loadProjects();
+</script>
+</body>
+</html>
