@@ -145,6 +145,18 @@ async function loadProducts() {
     var r = await fetch(BACKEND + '/api/products');
     var d = await r.json();
     allProducts = d.products || [];
+
+    // Fallback to site-config in case products collection is empty
+    if (!allProducts.length) {
+      try {
+        var fr = await fetch(BACKEND + '/api/site-config');
+        var fd = await fr.json();
+        allProducts = (fd && fd.config && fd.config.products) || [];
+      } catch (fallbackErr) {
+        console.warn('Fallback products error:', fallbackErr.message);
+      }
+    }
+
     filtered = allProducts.slice();
 
     // Check URL params

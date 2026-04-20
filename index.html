@@ -288,12 +288,27 @@ async function loadProducts() {
     var d = await r.json();
     var prods = d.products || [];
 
-    if (prods.length === 0) throw new Error('No products');
+    if (!prods.length) {
+      // Fallback to site-config in case /api/products was emptied by mistake
+      try {
+        var fr = await fetch(BACKEND + '/api/site-config', {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' }
+        });
+        if (fr.ok) {
+          var fd = await fr.json();
+          prods = (fd && fd.config && fd.config.products) || [];
+        }
+      } catch (fallbackErr) {
+        console.warn('Fallback products error:', fallbackErr.message);
+      }
+    }
+
     renderProducts(prods);
 
   } catch(e) {
     console.error('Products error:', e.message);
-    document.getElementById('bestGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px"><div style="font-size:32px;margin-bottom:12px">⚠️</div><div style="font-size:14px;color:#888;margin-bottom:16px">جاري تحميل المنتجات...</div><button onclick="loadProducts()" style="padding:10px 24px;background:var(--orange);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">🔄 إعادة المحاولة</button></div>';
+    document.getElementById('bestGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px"><div style="font-size:32px;margin-bottom:12px">⚠️</div><div style="font-size:14px;color:#888;margin-bottom:16px">تعذر تحميل المنتجات الآن</div><button onclick="loadProducts()" style="padding:10px 24px;background:var(--orange);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">🔄 إعادة المحاولة</button></div>';
   }
 }
 
