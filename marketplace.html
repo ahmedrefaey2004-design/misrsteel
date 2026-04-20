@@ -133,29 +133,6 @@ var USD_EGP = parseFloat(localStorage.getItem('ms_rate') || '50.85');
 var allProducts = [], filtered = [];
 var sectionLabels = {home:'🏠 منزل', hall:'🎪 قاعة', museum:'🏛️ لوبي', restaurant:'🍽️ مطعم'};
 
-
-function normalizeProduct(raw) {
-  if (!raw || typeof raw !== 'object') return null;
-  var imgs = Array.isArray(raw.imgs) ? raw.imgs.filter(Boolean) : [];
-  if (!imgs.length && raw.image) imgs = [raw.image];
-  var price = Number(raw.price);
-  if (!Number.isFinite(price)) price = Number(raw.priceUsd);
-  if (!Number.isFinite(price)) price = 0;
-  return {
-    id: raw.id || raw._id || ('p_' + Math.random().toString(36).slice(2,9)),
-    nameAr: raw.nameAr || raw.titleAr || raw.name || 'منتج',
-    section: raw.section || 'home',
-    finish: raw.finish || 'gold',
-    badge: raw.badge || '',
-    price: price,
-    imgs: imgs
-  };
-}
-
-function normalizeProducts(list) {
-  return (Array.isArray(list) ? list : []).map(normalizeProduct).filter(Boolean);
-}
-
 // ══ LOAD FROM MONGODB ══
 async function loadProducts() {
   try {
@@ -168,18 +145,6 @@ async function loadProducts() {
     var r = await fetch(BACKEND + '/api/products');
     var d = await r.json();
     allProducts = d.products || [];
-
-    // Fallback to site-config in case products collection is empty
-    if (!allProducts.length) {
-      try {
-        var fr = await fetch(BACKEND + '/api/site-config');
-        var fd = await fr.json();
-        allProducts = (fd && fd.config && fd.config.products) || [];
-      } catch (fallbackErr) {
-        console.warn('Fallback products error:', fallbackErr.message);
-      }
-    }
-
     filtered = allProducts.slice();
 
     // Check URL params
@@ -206,7 +171,7 @@ function renderGrid(prods) {
   var html = prods.map(function(p) {
     var badge = p.badge === 'hot' ? '<div class="mp-badge badge-hot">الأكثر طلباً</div>' : p.badge === 'new' ? '<div class="mp-badge badge-new">جديد</div>' : '';
     var img = p.imgs && p.imgs[0] ? p.imgs[0] : '';
-    var imgSrc = img ? resolveImageUrl(img) : '';
+    var imgSrc = img ? (img.startsWith('data:') ? img : img.startsWith('http') ? img : 'https://misrsteel.vercel.app/' + img) : '';
     var egp = p.price > 0 ? Math.round(p.price * USD_EGP).toLocaleString() : '';
     return '<div class="mp-card">'
       + badge
