@@ -164,8 +164,16 @@ button{cursor:pointer;font-family:inherit}
 <!-- HERO SLIDER -->
 <div class="hero-slider">
   <div class="slides" id="slides">
-    <div class="slide"><img class="slide-bg" src="images/showroom-lounge.jpg" alt=""><div class="slide-overlay"></div><div class="slide-content"><div class="slide-tag">🏭 مباشرة من المصنع</div><div class="slide-title">أثاث <span>استانلس فاخر</span><br>لكل مكان</div><div class="slide-sub">كراسي وترابيزات استانلس 304 للمنازل والقاعات والفنادق</div><a class="slide-btn" href="#products">تسوق الآن</a></div></div>
-    <div class="slide"><img class="slide-bg" src="images/p04-medallion-silver-2.jpg" alt=""><div class="slide-overlay"></div><div class="slide-content"><div class="slide-tag">✨ الأكثر طلباً</div><div class="slide-title">كرسي <span>ميداليون فضي</span></div><div class="slide-sub">إطار استانلس فضي · مخمل رمادي راقي</div><a class="slide-btn" href="marketplace.html">اطلب الآن</a></div></div>
+    <div class="slide">
+      <div class="slide-overlay"></div>
+      <div class="slide-content">
+        <div class="slide-tag">🏭 مباشرة من المصنع</div>
+        <div class="slide-title">أثاث <span>استانلس فاخر</span><br>لكل مكان</div>
+        <div class="slide-sub">كراسي وترابيزات استانلس 304 للمنازل والقاعات والفنادق</div>
+        <a class="slide-btn" href="marketplace.html">تسوق الآن</a>
+      </div>
+    </div>
+  </div><div class="slide-title">كرسي <span>ميداليون فضي</span></div><div class="slide-sub">إطار استانلس فضي · مخمل رمادي راقي</div><a class="slide-btn" href="marketplace.html">اطلب الآن</a></div></div>
     <div class="slide"><img class="slide-bg" src="images/showroom-cage.jpg" alt=""><div class="slide-overlay"></div><div class="slide-content"><div class="slide-tag">🤖 AI مصمم</div><div class="slide-title">صمّم <span>غرفتك</span><br>قبل الشراء</div><div class="slide-sub">ارفع صورة مكانك واختار من منتجاتنا</div><a class="slide-btn" href="ai-designer.html">جرّب مجاناً</a></div></div>
     <div class="slide"><img class="slide-bg" src="images/p15-new-e-2.jpg" alt=""><div class="slide-overlay"></div><div class="slide-content"><div class="slide-tag">👑 VIP</div><div class="slide-title">كرسي <span>هوبي الذهبي</span></div><div class="slide-sub">إطار ذهبي حلقي فريد · مثالي لقاعات الأفراح</div><a class="slide-btn" href="marketplace.html">اكتشف الآن</a></div></div>
   </div>
@@ -264,6 +272,48 @@ document.querySelector('.hero-slider').addEventListener('mouseenter',function(){
 document.querySelector('.hero-slider').addEventListener('mouseleave',function(){slideAuto=setInterval(function(){slide(1)},4500)});
 
 // ══ LOAD PRODUCTS FROM MONGODB ══
+// Daily rotating slides from product images
+async function loadDynamicSlides() {
+  try {
+    var r = await fetch(BACKEND + '/api/products?limit=100');
+    var d = await r.json();
+    var prods = (d.products || []).filter(function(p){ return p.imgs && p.imgs[0]; });
+    if (!prods.length) return;
+
+    // Pick 3 different products daily using date seed
+    var today = new Date();
+    var seed = today.getFullYear() * 10000 + (today.getMonth()+1) * 100 + today.getDate();
+    var selected = [];
+    for (var i = 0; i < 3 && i < prods.length; i++) {
+      var idx = (seed + i * 37) % prods.length;
+      selected.push(prods[idx]);
+    }
+
+    var slidesEl = document.getElementById('slides');
+    if (!slidesEl) return;
+
+    // Keep first default slide, add product slides
+    var extraSlides = selected.map(function(p) {
+      var img = p.imgs[0];
+      var src = img.startsWith('http') || img.startsWith('data:') ? img : 'https://misrsteel.vercel.app/' + img;
+      return '<div class="slide" onclick="window.location='product.html?id='+p.id+''" style="cursor:pointer">' +
+        '<img class="slide-bg" src="' + src + '" alt="' + p.nameAr + '" loading="lazy">' +
+        '<div class="slide-overlay"></div>' +
+        '<div class="slide-content">' +
+        '<div class="slide-tag">✨ منتج مميز</div>' +
+        '<div class="slide-title">' + p.nameAr + '</div>' +
+        '<div class="slide-sub">' + (p.desc ? p.desc.substring(0,80)+'...' : 'اضغط لمعرفة التفاصيل') + '</div>' +
+        '<a class="slide-btn" href="product.html?id='+p.id+'">اعرف أكتر</a>' +
+        '</div></div>';
+    }).join('');
+
+    slidesEl.innerHTML = slidesEl.innerHTML + extraSlides;
+
+    // Reinit slider if function exists
+    if (typeof initSlider === 'function') initSlider();
+  } catch(e) {}
+}
+
 async function loadProducts() {
   try {
     // Get live rate first
@@ -297,11 +347,28 @@ async function loadProducts() {
   }
 }
 
-function renderProducts(prods) {
-  if (!prods.length) { document.getElementById('bestGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:32px;color:#888">لا توجد منتجات بعد</div>'; return; }
+var allProdsData = [];
+var currentPage = 0;
+var pageSize = 12;
+var isLoading = false;
 
-  // Show top 10
-  var top = prods.slice(0, 10);
+function renderProducts(prods) {
+  allProdsData = prods;
+  currentPage = 0;
+  if (!prods.length) { document.getElementById('bestGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:32px;color:#888">لا توجد منتجات بعد</div>'; return; }
+  document.getElementById('bestGrid').innerHTML = '';
+  loadMoreProducts();
+  setupInfiniteScroll();
+}
+
+function loadMoreProducts() {
+  if (isLoading) return;
+  var start = currentPage * pageSize;
+  var end = start + pageSize;
+  var batch = allProdsData.slice(start, end);
+  if (!batch.length) return;
+  isLoading = true;
+  var top = batch;
   var html = top.map(function(p) {
     var badge = p.badge && badgeClass[p.badge] ? '<div class="prod-card-badge '+badgeClass[p.badge]+'">'+(p.badge==='hot'?'الأكثر طلباً':'جديد')+'</div>' : '';
     var img = p.imgs && p.imgs[0] ? p.imgs[0] : 'images/p01-rose-gold-chair.jpg';
@@ -321,7 +388,29 @@ function renderProducts(prods) {
       + '<button class="prod-btn" onclick="event.preventDefault();addCart('+JSON.stringify(p)+')">🛒</button>'
       + '</div></div></a>';
   }).join('');
-  document.getElementById('bestGrid').innerHTML = html;
+  var grid = document.getElementById('bestGrid');
+  var div = document.createElement('div');
+  div.style.display = 'contents';
+  div.innerHTML = html;
+  grid.appendChild(div);
+  currentPage++;
+  isLoading = false;
+}
+
+function setupInfiniteScroll() {
+  var sentinel = document.getElementById('scroll-sentinel');
+  if (!sentinel) {
+    sentinel = document.createElement('div');
+    sentinel.id = 'scroll-sentinel';
+    sentinel.style.height = '20px';
+    document.getElementById('bestGrid').after(sentinel);
+  }
+  var observer = new IntersectionObserver(function(entries) {
+    if (entries[0].isIntersecting && !isLoading) {
+      loadMoreProducts();
+    }
+  }, { threshold: 0.1 });
+  observer.observe(sentinel);
 }
 
 // ══ CART ══
@@ -342,6 +431,7 @@ document.getElementById('searchInp').addEventListener('keydown',function(e){if(e
 // ══ INIT ══
 initSlider();
 loadProducts();
+loadDynamicSlides();
 </script>
 
 <!-- PORTFOLIO SECTION -->
