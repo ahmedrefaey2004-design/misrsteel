@@ -251,6 +251,53 @@ var slideIdx = 0, slideCount = 4, slideAuto;
 var sectionLabels = {home:'🏠 منزل', hall:'🎪 قاعة', museum:'🏛️ لوبي', restaurant:'🍽️ مطعم'};
 var badgeClass = {hot:'badge-hot', new:'badge-new'};
 
+
+function normalizeProduct(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+  var imgs = Array.isArray(raw.imgs) ? raw.imgs.filter(Boolean) : [];
+  if (!imgs.length && raw.image) imgs = [raw.image];
+  var price = Number(raw.price);
+  if (!Number.isFinite(price)) price = Number(raw.priceUsd);
+  if (!Number.isFinite(price)) price = 0;
+  return {
+    id: raw.id || raw._id || ('p_' + Math.random().toString(36).slice(2,9)),
+    nameAr: raw.nameAr || raw.titleAr || raw.name || 'منتج',
+    section: raw.section || 'home',
+    badge: raw.badge || '',
+    price: price,
+    imgs: imgs
+  };
+}
+
+function normalizeProducts(list) {
+  return (Array.isArray(list) ? list : []).map(normalizeProduct).filter(Boolean);
+}
+
+function getBannerImg(img) {
+  if (!img) return '';
+  if (img.startsWith('data:') || img.startsWith('http')) return img;
+  return 'https://misrsteel.vercel.app/' + img.replace(/^\/+/, '');
+}
+
+function renderHeroBanners(posters) {
+  var slidesEl = document.getElementById('slides');
+  if (!slidesEl) return;
+  if (!Array.isArray(posters) || !posters.length) return;
+  var mapped = posters.filter(function(p){ return p && p.img; }).map(function(p){
+    var title = p.titleAr || p.titleEn || 'MISR STEEL';
+    var desc = p.desc || '';
+    var btn = p.btn || 'اكتشف الآن';
+    var link = p.link || 'marketplace.html';
+    var tag = p.tag || '✨ عرض مميز';
+    return '<div class="slide"><img class="slide-bg" src="'+getBannerImg(p.img)+'" alt="'+title+'"><div class="slide-overlay"></div><div class="slide-content"><div class="slide-tag">'+tag+'</div><div class="slide-title">'+title+'</div><div class="slide-sub">'+desc+'</div><a class="slide-btn" href="'+link+'">'+btn+'</a></div></div>';
+  });
+  if (!mapped.length) return;
+  slidesEl.innerHTML = mapped.join('');
+  slideCount = mapped.length;
+  slideIdx = 0;
+  goSlide(0);
+}
+
 // ══ SLIDER ══
 function slide(dir){ slideIdx=(slideIdx+dir+slideCount)%slideCount; document.getElementById('slides').style.transform='translateX('+(slideIdx*100)+'%)'; updateDots(); }
 function goSlide(i){ slideIdx=i; document.getElementById('slides').style.transform='translateX('+(i*100)+'%)'; updateDots(); }
@@ -278,22 +325,72 @@ async function loadProducts() {
     } catch(e) {}
 
     // Get products
-    var r = await fetch(BACKEND + '/api/products', {
-      method: 'GET',
-      headers: { 'Accept': 'application/json' }
-    });
+    var prods = [];
+    var posters = [];
 
-    if (!r.ok) throw new Error('HTTP ' + r.status);
+    try {
+      var r = await fetch(BACKEND + '/api/products', {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
+      });
+      if (r.ok) {
+        var d = await r.json();
+        prods = normalizeProducts(d.products);
+      }
+    } catch (productsErr) {
+      console.warn('Products API error:', productsErr.message);
+    }
 
-    var d = await r.json();
-    var prods = d.products || [];
+    // Fallback #1: site-config from backend
+    if (!prods.length || !posters.length) {
+      try {
+        var fr = await fetch(BACKEND + '/api/site-config', {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' }
+        });
+        if (fr.ok) {
+          var fd = await fr.json();
+          var cfg = (fd && fd.config) || {};
+          if (!prods.length) prods = normalizeProducts(cfg.products);
+          posters = Array.isArray(cfg.posters) ? cfg.posters : posters;
+        }
+      } catch (fallbackErr) {
+        console.warn('Fallback products error:', fallbackErr.message);
+      }
+    }
 
-    if (prods.length === 0) throw new Error('No products');
+    // Fallback #2: local data file in the frontend repo
+    if (!prods.length || !posters.length) {
+      try {
+        var lr = await fetch('data/site-config.json', {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' }
+        });
+        if (lr.ok) {
+          var ld = await lr.json();
+          if (!prods.length) prods = normalizeProducts(ld.products);
+          if (!posters.length) posters = Array.isArray(ld.posters) ? ld.posters : posters;
+        }
+      } catch (localErr) {
+        console.warn('Local fallback error:', localErr.message);
+      }
+    }
+
+    // Fallback #3: locally saved admin banners in browser storage
+    if (!posters.length) {
+      try {
+        posters = JSON.parse(localStorage.getItem('ms_banners') || '[]');
+      } catch (storageErr) {
+        console.warn('Banner storage error:', storageErr.message);
+      }
+    }
+
+    renderHeroBanners(posters);
     renderProducts(prods);
 
   } catch(e) {
     console.error('Products error:', e.message);
-    document.getElementById('bestGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px"><div style="font-size:32px;margin-bottom:12px">⚠️</div><div style="font-size:14px;color:#888;margin-bottom:16px">جاري تحميل المنتجات...</div><button onclick="loadProducts()" style="padding:10px 24px;background:var(--orange);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">🔄 إعادة المحاولة</button></div>';
+    document.getElementById('bestGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px"><div style="font-size:32px;margin-bottom:12px">⚠️</div><div style="font-size:14px;color:#888;margin-bottom:16px">تعذر تحميل المنتجات الآن</div><button onclick="loadProducts()" style="padding:10px 24px;background:var(--orange);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">🔄 إعادة المحاولة</button></div>';
   }
 }
 
