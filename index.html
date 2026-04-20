@@ -260,6 +260,18 @@ var USD_EGP = parseFloat(localStorage.getItem('ms_rate') || '50.85');
 var slideIdx = 0, slideCount = 4, slideAuto;
 var sectionLabels = {home:'🏠 منزل', hall:'🎪 قاعة', museum:'🏛️ لوبي', restaurant:'🍽️ مطعم'};
 var badgeClass = {hot:'badge-hot', new:'badge-new'};
+var IMG_FALLBACK = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><defs><linearGradient id="g" x1="0" x2="1"><stop stop-color="#dcdcdc"/><stop offset="1" stop-color="#7a7a7a"/></linearGradient></defs><rect width="1200" height="600" fill="url(#g)"/></svg>');
+
+function installGlobalImageFallback() {
+  document.addEventListener('error', function (event) {
+    var t = event && event.target;
+    if (!t || t.tagName !== 'IMG') return;
+    if (t.dataset.fallbackApplied === '1') return;
+    t.dataset.fallbackApplied = '1';
+    t.src = IMG_FALLBACK;
+  }, true);
+}
+installGlobalImageFallback();
 
 
 function normalizeProduct(raw) {
@@ -318,6 +330,7 @@ async function fetchJsonWithFallback(path) {
 function getBannerImg(img) {
   if (!img) return '';
   if (img.startsWith('data:') || /^https?:\/\//i.test(img)) return img;
+  if (/^[\w.-]+\.[a-z]{2,}(\/|$)/i.test(img)) return 'https://' + img;
   return resolveImageUrl(img);
 }
 
@@ -325,13 +338,14 @@ function renderHeroBanners(posters) {
   var slidesEl = document.getElementById('slides');
   if (!slidesEl) return;
   if (!Array.isArray(posters) || !posters.length) return;
-  var mapped = posters.filter(function(p){ return p && p.img; }).map(function(p){
+  var mapped = posters.filter(function(p){ return p && (p.img || p.image); }).map(function(p){
     var title = p.titleAr || p.titleEn || 'MISR STEEL';
     var desc = p.desc || '';
     var btn = p.btn || 'اكتشف الآن';
     var link = p.link || 'marketplace.html';
     var tag = p.tag || '✨ عرض مميز';
-    return '<div class="slide"><img class="slide-bg" src="'+getBannerImg(p.img)+'" alt="'+title+'"><div class="slide-overlay"></div><div class="slide-content"><div class="slide-tag">'+tag+'</div><div class="slide-title">'+title+'</div><div class="slide-sub">'+desc+'</div><a class="slide-btn" href="'+link+'">'+btn+'</a></div></div>';
+    var bannerImg = p.img || p.image;
+    return '<div class="slide"><img class="slide-bg" src="'+getBannerImg(bannerImg)+'" alt="'+title+'"><div class="slide-overlay"></div><div class="slide-content"><div class="slide-tag">'+tag+'</div><div class="slide-title">'+title+'</div><div class="slide-sub">'+desc+'</div><a class="slide-btn" href="'+link+'">'+btn+'</a></div></div>';
   });
   if (!mapped.length) return;
   slidesEl.innerHTML = mapped.join('');
