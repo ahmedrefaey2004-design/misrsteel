@@ -156,34 +156,6 @@ function normalizeProducts(list) {
   return (Array.isArray(list) ? list : []).map(normalizeProduct).filter(Boolean);
 }
 
-
-function pickArray(obj, keys) {
-  for (var i = 0; i < keys.length; i++) {
-    var v = obj && obj[keys[i]];
-    if (Array.isArray(v)) return v;
-  }
-  return [];
-}
-
-function resolveImageUrl(img) {
-  if (typeof img !== 'string') return '';
-  var v = img.trim();
-  if (!v) return '';
-  if (v.startsWith('data:') || /^https?:\/\//i.test(v)) return v;
-  if (v.startsWith('/uploads/') || v.startsWith('uploads/')) return BACKEND + '/' + v.replace(/^\/+/, '');
-  return v.replace(/^\/+/, '');
-}
-
-
-function emergencyProducts() {
-  return [
-    {id:'fallback-1',nameAr:'كرسي استانلس ذهبي',section:'hall',finish:'gold',badge:'new',price:45,imgs:['images/p15-new-e.jpg']},
-    {id:'fallback-2',nameAr:'كرسي لاونج فاخر',section:'museum',finish:'gold',badge:'hot',price:52,imgs:['images/p11-new-a-1.jpg']},
-    {id:'fallback-3',nameAr:'كرسي مودرن أسود',section:'home',finish:'black',badge:'new',price:39,imgs:['images/p08-wrap-black.jpg']},
-    {id:'fallback-4',nameAr:'كرسي مطعم أحمر',section:'restaurant',finish:'gold',badge:'hot',price:41,imgs:['images/p05-velvet-red.jpg']}
-  ];
-}
-
 // ══ LOAD FROM MONGODB ══
 async function loadProducts() {
   try {
@@ -193,46 +165,21 @@ async function loadProducts() {
     if (sd.usdRate) { USD_EGP = sd.usdRate; localStorage.setItem('ms_rate', USD_EGP); document.querySelectorAll('.rate-display').forEach(function(el){el.textContent=USD_EGP.toFixed(2)}); }
 
     // Get products
-    allProducts = [];
+    var r = await fetch(BACKEND + '/api/products');
+    var d = await r.json();
+    allProducts = d.products || [];
 
-    try {
-      var r = await fetch(BACKEND + '/api/products');
-      if (r.ok) {
-        var d = await r.json();
-        allProducts = normalizeProducts(pickArray(d,['products','items']) || pickArray(d && d.data,['products','items']));
-      }
-    } catch (productsErr) {
-      console.warn('Products API error:', productsErr.message);
-    }
-
-    // Fallback #1: backend site-config
+    // Fallback to site-config in case products collection is empty
     if (!allProducts.length) {
       try {
         var fr = await fetch(BACKEND + '/api/site-config');
-        if (fr.ok) {
-          var fd = await fr.json();
-          var cfg = (fd && fd.config) || fd || {};
-          allProducts = normalizeProducts(pickArray(cfg,['products','items']));
-        }
+        var fd = await fr.json();
+        allProducts = (fd && fd.config && fd.config.products) || [];
       } catch (fallbackErr) {
         console.warn('Fallback products error:', fallbackErr.message);
       }
     }
 
-    // Fallback #2: local data file
-    if (!allProducts.length) {
-      try {
-        var lr = await fetch('data/site-config.json');
-        if (lr.ok) {
-          var ld = await lr.json();
-          allProducts = normalizeProducts(pickArray(ld,['products','items']));
-        }
-      } catch (localErr) {
-        console.warn('Local products fallback error:', localErr.message);
-      }
-    }
-
-    if (!allProducts.length) allProducts = emergencyProducts();
     filtered = allProducts.slice();
 
     // Check URL params
