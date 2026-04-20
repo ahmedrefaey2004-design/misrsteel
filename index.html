@@ -248,10 +248,11 @@ button{cursor:pointer;font-family:inherit}
 var BACKEND = 'https://misrsteel-backend.vercel.app';
 var API_BASES = (function() {
   var list = [];
+  // Prefer explicit backend first, then same-origin fallback.
+  list.push(BACKEND);
   if (location && /^https?:$/i.test(location.protocol)) {
     list.push(location.origin);
   }
-  list.push(BACKEND);
   // Remove duplicates while preserving order.
   return list.filter(function(base, idx){ return list.indexOf(base) === idx; });
 })();
@@ -286,7 +287,13 @@ function resolveImageUrl(img, baseUrl) {
   if (!img) return '';
   if (img.startsWith('data:') || /^https?:\/\//i.test(img)) return img;
   var clean = String(img).replace(/^\/+/, '');
-  var base = (baseUrl || BACKEND || location.origin).replace(/\/$/, '');
+  var chosenBase = baseUrl;
+  if (!chosenBase) {
+    // Admin uploads are عادة under /uploads on backend.
+    // Frontend static assets like images/* should stay on frontend origin.
+    chosenBase = /^uploads\//i.test(clean) ? BACKEND : location.origin;
+  }
+  var base = (chosenBase || BACKEND || location.origin).replace(/\/$/, '');
   return (base + '/' + clean).replace(/([^:]\/)\/+/g, '$1');
 }
 
@@ -311,8 +318,7 @@ async function fetchJsonWithFallback(path) {
 function getBannerImg(img) {
   if (!img) return '';
   if (img.startsWith('data:') || /^https?:\/\//i.test(img)) return img;
-  // Banner images are usually uploaded from backend/admin so prefer backend base.
-  return resolveImageUrl(img, BACKEND) || resolveImageUrl(img, location.origin);
+  return resolveImageUrl(img);
 }
 
 function renderHeroBanners(posters) {
@@ -436,7 +442,7 @@ function renderProducts(prods) {
     var badge = p.badge && badgeClass[p.badge] ? '<div class="prod-card-badge '+badgeClass[p.badge]+'">'+(p.badge==='hot'?'الأكثر طلباً':'جديد')+'</div>' : '';
     var img = p.imgs && p.imgs[0] ? p.imgs[0] : 'images/p01-rose-gold-chair.jpg';
     // Handle base64, full URL, or relative path
-    var imgSrc = resolveImageUrl(img, BACKEND) || resolveImageUrl(img, location.origin) || 'images/p01-rose-gold-chair.jpg';
+    var imgSrc = resolveImageUrl(img) || 'images/p01-rose-gold-chair.jpg';
     var egp = Math.round(p.price * USD_EGP).toLocaleString();
     return '<a class="prod-card" href="product.html?id='+p.id+'">'
       + badge
