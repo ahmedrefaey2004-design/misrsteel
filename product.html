@@ -157,8 +157,9 @@ async function loadProduct() {
     if (!r.ok || !d.product) { showError('المنتج غير موجود'); return; }
     product = d.product;
     document.title = product.nameAr + ' — مصر ستيل';
+  basePrice = product.price || 0;
     renderProduct(product);
-    loadRelated(product);
+    loadRelated(product.section, product.id);
   } catch(e) {
     showError('فشل تحميل المنتج — تحقق من اتصال الإنترنت');
   }
@@ -193,12 +194,25 @@ function renderProduct(p) {
     ? '<div class="prod-price-box">' +
       '<div class="prod-price-main">$' + p.price + '</div>' +
       '<div class="prod-price-egp">≈ ' + egp + ' ج.م للقطعة</div>' +
+      '<div style="margin-top:10px">' +
+      '<label style="font-size:11px;font-weight:700;color:#888;display:block;margin-bottom:5px">الكمية المطلوبة</label>' +
+      '<div style="display:flex;align-items:center;gap:8px">' +
+      '<input id="prod-qty" type="number" min="1" value="1" oninput="calcTotal()" style="width:90px;padding:8px 10px;border:2px solid var(--border);border-radius:6px;font-size:15px;font-weight:700;font-family:inherit;text-align:center;outline:none">' +
+      '<div style="flex:1;background:#f5f5f5;border-radius:6px;padding:8px 12px;font-size:13px">' +
+      'الإجمالي: <strong id="prod-total" style="color:var(--orange)">$' + p.price + '</strong>' +
+      '</div></div>' +
+      '<div id="tiers-wrap" style="margin-top:10px;display:none">' +
+      '<div style="font-size:10px;color:#aaa;margin-bottom:6px;font-weight:700">أسعار الكميات:</div>' +
       '<div class="price-tiers">' +
       '<div class="pt-row"><span class="pt-qty">1–49 قطعة</span><span class="pt-price">$'+Math.round(p.price*1.1)+'</span></div>' +
-      '<div class="pt-row best"><span class="pt-qty">⭐ 50–99 قطعة (الأفضل)</span><span class="pt-price">$'+p.price+'</span></div>' +
+      '<div class="pt-row best"><span class="pt-qty">⭐ 50–99 قطعة</span><span class="pt-price">$'+p.price+'</span></div>' +
       '<div class="pt-row"><span class="pt-qty">100+ قطعة</span><span class="pt-price">$'+Math.round(p.price*0.9)+'</span></div>' +
+      '</div></div>' +
+      '<button onclick="toggleTiers()" style="margin-top:8px;background:none;border:none;color:var(--orange);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;padding:0">📊 عرض أسعار الكميات ▾</button>' +
       '</div></div>'
-    : '<div class="prod-price-box"><div class="prod-price-main" style="font-size:18px">السعر عند الطلب</div><div class="prod-price-egp">تواصل معنا للحصول على أفضل سعر</div></div>';
+    : '<div class="prod-price-box"><div class="prod-price-main" style="font-size:18px">السعر عند الطلب</div><div class="prod-price-egp">تواصل معنا للحصول على أفضل سعر</div>' +
+      '<div style="margin-top:10px"><label style="font-size:11px;font-weight:700;color:#888;display:block;margin-bottom:5px">الكمية المطلوبة</label>' +
+      '<input id="prod-qty" type="number" min="1" value="1" style="width:90px;padding:8px 10px;border:2px solid var(--border);border-radius:6px;font-size:15px;font-weight:700;font-family:inherit;text-align:center;outline:none"></div></div>';
 
   // Colors
   var colorsHtml = '';
@@ -265,16 +279,46 @@ function renderProduct(p) {
     '<div class="fg"><label>الاسم الكامل *</label><input type="text" id="of-name" placeholder="أحمد محمد"></div>' +
     '<div class="fg"><label>واتساب *</label><input type="tel" id="of-phone" placeholder="+201..."></div>' +
     '</div>' +
-    '<div class="fg-2">' +
     '<div class="fg"><label>الدولة</label><select id="of-country"><option value="EG">🇪🇬 مصر</option><option value="AE">🇦🇪 الإمارات</option><option value="SA">🇸🇦 السعودية</option><option value="IQ">🇮🇶 العراق</option><option value="KW">🇰🇼 الكويت</option><option value="JO">🇯🇴 الأردن</option><option value="LY">🇱🇾 ليبيا</option><option value="OTHER">🌍 أخرى</option></select></div>' +
-    '<div class="fg"><label>الكمية المطلوبة</label><input type="number" id="of-qty" placeholder="1" min="1" value="1"></div>' +
+    '<div class="fg"><label>ملاحظات (اختياري)</label><textarea id="of-notes" rows="2" placeholder="أي تفاصيل إضافية..."></textarea></div>' +
+    '<div style="background:#fff3eb;border-radius:8px;padding:12px;margin-bottom:12px;font-size:12px">' +
+    '<div style="font-weight:700;margin-bottom:6px;color:#cc4400">💳 شروط الدفع:</div>' +
+    '<div style="display:flex;justify-content:space-between;padding:4px 0"><span>مقدم عند الطلب (75%)</span><span style="font-weight:700;color:var(--orange)" id="deposit-display">-</span></div>' +
+    '<div style="display:flex;justify-content:space-between;padding:4px 0"><span>قبل التسليم (25%)</span><span style="font-weight:700" id="remaining-display">-</span></div>' +
     '</div>' +
-    '<div class="fg"><label>ملاحظات (اختياري)</label><textarea id="of-notes" rows="2" placeholder="لون الإطار، لون القماش، أي تفاصيل إضافية..."></textarea></div>' +
-    '<button class="submit-btn" id="submitBtn" onclick="submitOrder()">✅ تسجيل الطلب وفتح واتساب</button>' +
+    '<button class="submit-btn" id="submitBtn" onclick="submitOrder()">✅ إرسال الطلب عبر واتساب</button>' +
     '</div>' +
 
     // Related
     '<div id="relatedSection"></div>';
+}
+
+var basePrice = 0;
+function calcTotal() {
+  var qty = parseInt(document.getElementById('prod-qty').value) || 1;
+  var price = basePrice;
+  // Apply tier pricing
+  if (price > 0) {
+    if (qty >= 100) price = Math.round(price * 0.9);
+    else if (qty >= 50) price = price;
+    else price = Math.round(price * 1.1);
+    var total = price * qty;
+    var el = document.getElementById('prod-total');
+    if (el) el.textContent = '$' + total.toLocaleString();
+  }
+}
+
+function toggleTiers() {
+  var wrap = document.getElementById('tiers-wrap');
+  if (!wrap) return;
+  var btn = wrap.nextElementSibling;
+  if (wrap.style.display === 'none') {
+    wrap.style.display = 'block';
+    if (btn) btn.textContent = '📊 إخفاء أسعار الكميات ▴';
+  } else {
+    wrap.style.display = 'none';
+    if (btn) btn.textContent = '📊 عرض أسعار الكميات ▾';
+  }
 }
 
 function switchImg(src, thumb) {
@@ -301,6 +345,20 @@ function selectFabric(color, btn) {
 
 function scrollToOrder() {
   document.getElementById('orderForm').scrollIntoView({ behavior: 'smooth' });
+  // Update payment terms display
+  if (product && product.price > 0) {
+    var qty = parseInt((document.getElementById('prod-qty')||{value:'1'}).value) || 1;
+    var price = product.price;
+    if (qty >= 100) price = Math.round(price * 0.9);
+    else if (qty < 50) price = Math.round(price * 1.1);
+    var total = price * qty;
+    var dep = Math.round(total * 0.75);
+    var rem = total - dep;
+    var d = document.getElementById('deposit-display');
+    var r = document.getElementById('remaining-display');
+    if (d) d.textContent = '$' + dep.toLocaleString();
+    if (r) r.textContent = '$' + rem.toLocaleString();
+  }
 }
 
 function quickWA() {
@@ -311,22 +369,16 @@ function quickWA() {
   window.open('https://wa.me/201050595250?text=' + encodeURIComponent(msg), '_blank');
 }
 
-async function submitOrder() {
+function submitOrder() {
   var name  = document.getElementById('of-name').value.trim();
   var phone = document.getElementById('of-phone').value.trim();
-  var qtyRaw = document.getElementById('of-qty').value;
-  var qty = parseInt(qtyRaw, 10);
+  // Get qty from product qty input or form
+  var prodQtyEl = document.getElementById('prod-qty');
+  var qty = prodQtyEl ? (prodQtyEl.value || '1') : (document.getElementById('of-qty').value || '1');
   var notes = document.getElementById('of-notes').value.trim();
   var country = document.getElementById('of-country').value;
 
   if (!name || !phone) { toast('أدخل الاسم ورقم الواتساب', 'error'); return; }
-  if (!product) { toast('المنتج غير متاح حالياً', 'error'); return; }
-  if (!Number.isFinite(qty) || qty < 1) { toast('اكتب كمية صحيحة (1 فأكثر)', 'error'); return; }
-
-  var countrySelect = document.getElementById('of-country');
-  var waCountry = countrySelect.selectedOptions[0]
-    ? countrySelect.selectedOptions[0].textContent.trim()
-    : country;
 
   var msg = '🛒 طلب جديد من موقع مصر ستيل\n\n' +
     '📦 المنتج: ' + (product ? product.nameAr : 'منتج') + '\n' +
@@ -336,84 +388,28 @@ async function submitOrder() {
     (selectedFabric ? '🪑 لون القماش: ' + selectedFabric + '\n' : '') +
     '\n👤 الاسم: ' + name +
     '\n📱 الواتساب: ' + phone +
-    '\n🌍 الدولة: ' + waCountry +
+    '\n🌍 الدولة: ' + country +
     (notes ? '\n📝 ملاحظات: ' + notes : '') +
     '\n\nأرجو التواصل لتأكيد الطلب 🙏';
 
-  var orderPayload = {
-    customerName: name,
-    customerPhone: phone,
-    customerCountry: country,
-    notes: notes,
-    items: [{
-      id: product.id,
-      name: product.nameAr || product.name || 'منتج',
-      price: Number(product.price) || 0,
-      qty: qty,
-      frameColor: selectedFrame || undefined,
-      fabricColor: selectedFabric || undefined,
-      img: product.imgs && product.imgs[0] ? product.imgs[0] : ''
-    }],
-    totalUSD: (Number(product.price) || 0) * qty,
-    source: 'product-page'
-  };
-
-  var submitBtn = document.getElementById('submitBtn');
-  submitBtn.disabled = true;
-  submitBtn.textContent = '⏳ جاري تسجيل الطلب...';
-
-  try {
-    var orderRes = await fetch(BACKEND + '/api/orders', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(orderPayload)
-    });
-
-    var orderData = await orderRes.json().catch(function(){ return {}; });
-    if (!orderRes.ok) {
-      throw new Error(orderData.error || 'تعذر تسجيل الطلب حالياً');
-    }
-
-    if (orderData.orderId) {
-      msg += '\n\n🧾 رقم الطلب: ' + orderData.orderId;
-    }
-
-    window.open('https://wa.me/201050595250?text=' + encodeURIComponent(msg), '_blank');
-    toast('✅ تم تسجيل الطلب وتحويلك للواتساب', 'success');
-  } catch (err) {
-    toast('❌ ' + (err.message || 'تعذر تسجيل الطلب الآن'), 'error');
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.textContent = '✅ تسجيل الطلب وفتح واتساب';
-  }
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('submitBtn').textContent = '⏳ جاري الإرسال...';
+  
+  window.open('https://wa.me/201050595250?text=' + encodeURIComponent(msg), '_blank');
+  
+  setTimeout(function() {
+    document.getElementById('submitBtn').disabled = false;
+    document.getElementById('submitBtn').textContent = '✅ إرسال الطلب عبر واتساب';
+    toast('✅ تم إرسال طلبك — سنتواصل معك قريباً', 'success');
+  }, 1500);
 }
 
 // ── RELATED PRODUCTS ──
-function similarityScore(base, candidate) {
-  var score = 0;
-  if (!base || !candidate) return score;
-  if (candidate.section === base.section) score += 3;
-  var baseWords = (base.nameAr || '').split(/\s+/).filter(function(w){ return w.length > 2; });
-  var candidateName = (candidate.nameAr || '').toLowerCase();
-  baseWords.forEach(function(w){
-    if (candidateName.indexOf(w.toLowerCase()) !== -1) score += 1;
-  });
-  if (base.badge && candidate.badge === base.badge) score += 1;
-  return score;
-}
-
-async function loadRelated(baseProduct) {
+async function loadRelated(section, excludeId) {
   try {
-    var r = await fetch(BACKEND + '/api/products');
+    var r = await fetch(BACKEND + '/api/products?section=' + section);
     var d = await r.json();
-    var related = (d.products || [])
-      .filter(function(p){ return p.id !== baseProduct.id; })
-      .map(function(p){
-        return { product: p, score: similarityScore(baseProduct, p) };
-      })
-      .sort(function(a,b){ return b.score - a.score; })
-      .slice(0, 6)
-      .map(function(item){ return item.product; });
+    var related = (d.products || []).filter(function(p){ return p.id !== excludeId; }).slice(0, 6);
     if (!related.length) return;
 
     var html = '<div class="desc-card"><h3>🪑 منتجات مشابهة</h3><div class="related-grid">' +
