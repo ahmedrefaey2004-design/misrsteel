@@ -143,8 +143,8 @@ function resolveProductImage(img){
   if (!img) return 'images/p01-rose-gold-chair.jpg';
   if (img.startsWith('http') || img.startsWith('data:') || img.startsWith('blob:')) return img;
   var clean = img.replace(/^\.?\//, '');
-  if (clean.startsWith('images/')) return 'https://misrsteel.vercel.app/' + clean;
-  return BACKEND + '/' + clean;
+  if (clean.startsWith('uploads/')) return BACKEND + '/' + clean;
+  return location.origin.replace(/\/$/, '') + '/' + clean;
 }
 
 function firstProductImage(p){

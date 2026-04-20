@@ -246,10 +246,32 @@ button{cursor:pointer;font-family:inherit}
 <script>
 // ══ CONFIG ══
 var BACKEND = 'https://misrsteel-backend.vercel.app';
+var API_BASES = (function() {
+  var list = [];
+  // Prefer explicit backend first, then same-origin fallback.
+  list.push(BACKEND);
+  if (location && /^https?:$/i.test(location.protocol)) {
+    list.push(location.origin);
+  }
+  // Remove duplicates while preserving order.
+  return list.filter(function(base, idx){ return list.indexOf(base) === idx; });
+})();
 var USD_EGP = parseFloat(localStorage.getItem('ms_rate') || '50.85');
 var slideIdx = 0, slideCount = 4, slideAuto;
 var sectionLabels = {home:'🏠 منزل', hall:'🎪 قاعة', museum:'🏛️ لوبي', restaurant:'🍽️ مطعم'};
 var badgeClass = {hot:'badge-hot', new:'badge-new'};
+var IMG_FALLBACK = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><defs><linearGradient id="g" x1="0" x2="1"><stop stop-color="#dcdcdc"/><stop offset="1" stop-color="#7a7a7a"/></linearGradient></defs><rect width="1200" height="600" fill="url(#g)"/></svg>');
+
+function installGlobalImageFallback() {
+  document.addEventListener('error', function (event) {
+    var t = event && event.target;
+    if (!t || t.tagName !== 'IMG') return;
+    if (t.dataset.fallbackApplied === '1') return;
+    t.dataset.fallbackApplied = '1';
+    t.src = IMG_FALLBACK;
+  }, true);
+}
+installGlobalImageFallback();
 
 
 function normalizeProduct(raw) {
@@ -273,28 +295,63 @@ function normalizeProducts(list) {
   return (Array.isArray(list) ? list : []).map(normalizeProduct).filter(Boolean);
 }
 
+function resolveImageUrl(img, baseUrl) {
+  if (!img) return '';
+  if (img.startsWith('data:') || /^https?:\/\//i.test(img)) return img;
+  var clean = String(img).replace(/^\/+/, '');
+  var chosenBase = baseUrl;
+  if (!chosenBase) {
+    // Admin uploads are عادة under /uploads on backend.
+    // Frontend static assets like images/* should stay on frontend origin.
+    chosenBase = /^(uploads|api|media|posters|storage|files)\//i.test(clean) ? BACKEND : location.origin;
+  }
+  var base = (chosenBase || BACKEND || location.origin).replace(/\/$/, '');
+  return (base + '/' + clean).replace(/([^:]\/)\/+/g, '$1');
+}
+
+async function fetchJsonWithFallback(path) {
+  var lastError = null;
+  for (var i = 0; i < API_BASES.length; i++) {
+    var base = API_BASES[i];
+    try {
+      var res = await fetch(base.replace(/\/$/, '') + path, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
+      });
+      if (res.ok) return await res.json();
+    } catch (err) {
+      lastError = err;
+    }
+  }
+  if (lastError) throw lastError;
+  throw new Error('No API source responded for ' + path);
+}
+
 function getBannerImg(img) {
   if (!img) return '';
-  if (img.startsWith('data:') || img.startsWith('http')) return img;
-  return 'https://misrsteel.vercel.app/' + img.replace(/^\/+/, '');
+  if (img.startsWith('data:') || /^https?:\/\//i.test(img)) return img;
+  if (/^[\w.-]+\.[a-z]{2,}(\/|$)/i.test(img)) return 'https://' + img;
+  return resolveImageUrl(img);
 }
 
 function renderHeroBanners(posters) {
   var slidesEl = document.getElementById('slides');
   if (!slidesEl) return;
   if (!Array.isArray(posters) || !posters.length) return;
-  var mapped = posters.filter(function(p){ return p && p.img; }).map(function(p){
+  var mapped = posters.filter(function(p){ return p && (p.img || p.image); }).map(function(p){
     var title = p.titleAr || p.titleEn || 'MISR STEEL';
     var desc = p.desc || '';
     var btn = p.btn || 'اكتشف الآن';
     var link = p.link || 'marketplace.html';
     var tag = p.tag || '✨ عرض مميز';
-    return '<div class="slide"><img class="slide-bg" src="'+getBannerImg(p.img)+'" alt="'+title+'"><div class="slide-overlay"></div><div class="slide-content"><div class="slide-tag">'+tag+'</div><div class="slide-title">'+title+'</div><div class="slide-sub">'+desc+'</div><a class="slide-btn" href="'+link+'">'+btn+'</a></div></div>';
+    var bannerImg = p.img || p.image;
+    return '<div class="slide"><img class="slide-bg" src="'+getBannerImg(bannerImg)+'" alt="'+title+'"><div class="slide-overlay"></div><div class="slide-content"><div class="slide-tag">'+tag+'</div><div class="slide-title">'+title+'</div><div class="slide-sub">'+desc+'</div><a class="slide-btn" href="'+link+'">'+btn+'</a></div></div>';
   });
   if (!mapped.length) return;
   slidesEl.innerHTML = mapped.join('');
   slideCount = mapped.length;
   slideIdx = 0;
+  initSlider();
   goSlide(0);
 }
 
@@ -303,6 +360,7 @@ function slide(dir){ slideIdx=(slideIdx+dir+slideCount)%slideCount; document.get
 function goSlide(i){ slideIdx=i; document.getElementById('slides').style.transform='translateX('+(i*100)+'%)'; updateDots(); }
 function updateDots(){ document.querySelectorAll('.sdot').forEach(function(d,i){d.classList.toggle('active',i===slideIdx)}); }
 function initSlider(){
+  clearInterval(slideAuto);
   var dots=''; for(var i=0;i<slideCount;i++) dots+='<div class="sdot'+(i===0?' active':'')+'" onclick="goSlide('+i+')"></div>';
   document.getElementById('sliderDots').innerHTML=dots;
   slideAuto=setInterval(function(){slide(1)},4500);
@@ -315,8 +373,7 @@ async function loadProducts() {
   try {
     // Get live rate first
     try {
-      var sr = await fetch(BACKEND + '/api/settings/public');
-      var sd = await sr.json();
+      var sd = await fetchJsonWithFallback('/api/settings/public');
       if (sd.usdRate) {
         USD_EGP = sd.usdRate;
         localStorage.setItem('ms_rate', USD_EGP);
@@ -329,14 +386,8 @@ async function loadProducts() {
     var posters = [];
 
     try {
-      var r = await fetch(BACKEND + '/api/products', {
-        method: 'GET',
-        headers: { 'Accept': 'application/json' }
-      });
-      if (r.ok) {
-        var d = await r.json();
-        prods = normalizeProducts(d.products);
-      }
+      var d = await fetchJsonWithFallback('/api/products');
+      prods = normalizeProducts(d.products);
     } catch (productsErr) {
       console.warn('Products API error:', productsErr.message);
     }
@@ -344,16 +395,10 @@ async function loadProducts() {
     // Fallback #1: site-config from backend
     if (!prods.length || !posters.length) {
       try {
-        var fr = await fetch(BACKEND + '/api/site-config', {
-          method: 'GET',
-          headers: { 'Accept': 'application/json' }
-        });
-        if (fr.ok) {
-          var fd = await fr.json();
-          var cfg = (fd && fd.config) || {};
-          if (!prods.length) prods = normalizeProducts(cfg.products);
-          posters = Array.isArray(cfg.posters) ? cfg.posters : posters;
-        }
+        var fd = await fetchJsonWithFallback('/api/site-config');
+        var cfg = (fd && fd.config) || {};
+        if (!prods.length) prods = normalizeProducts(cfg.products);
+        posters = Array.isArray(cfg.posters) ? cfg.posters : posters;
       } catch (fallbackErr) {
         console.warn('Fallback products error:', fallbackErr.message);
       }
@@ -388,19 +433,14 @@ async function loadProducts() {
     if (!prods.length) {
       // Fallback to site-config in case /api/products was emptied by mistake
       try {
-        var fr = await fetch(BACKEND + '/api/site-config', {
-          method: 'GET',
-          headers: { 'Accept': 'application/json' }
-        });
-        if (fr.ok) {
-          var fd = await fr.json();
-          prods = (fd && fd.config && fd.config.products) || [];
-        }
+        var fd = await fetchJsonWithFallback('/api/site-config');
+        prods = (fd && fd.config && fd.config.products) || [];
       } catch (fallbackErr) {
         console.warn('Fallback products error:', fallbackErr.message);
       }
     }
 
+    renderHeroBanners(posters);
     renderProducts(prods);
 
   } catch(e) {
