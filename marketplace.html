@@ -129,6 +129,14 @@ a{text-decoration:none;color:inherit}button{cursor:pointer;font-family:inherit}
 
 <script>
 var BACKEND = 'https://misrsteel-backend.vercel.app';
+var API_BASES = (function() {
+  var list = [];
+  if (location && /^https?:$/i.test(location.protocol)) {
+    list.push(location.origin);
+  }
+  list.push(BACKEND);
+  return list.filter(function(base, idx){ return list.indexOf(base) === idx; });
+})();
 var USD_EGP = parseFloat(localStorage.getItem('ms_rate') || '50.85');
 var allProducts = [], filtered = [];
 var sectionLabels = {home:'🏠 منزل', hall:'🎪 قاعة', museum:'🏛️ لوبي', restaurant:'🍽️ مطعم'};
@@ -156,24 +164,46 @@ function normalizeProducts(list) {
   return (Array.isArray(list) ? list : []).map(normalizeProduct).filter(Boolean);
 }
 
+function resolveImageUrl(img) {
+  if (!img) return 'images/p01-rose-gold-chair.jpg';
+  if (img.startsWith('data:') || /^https?:\/\//i.test(img)) return img;
+  var clean = String(img).replace(/^\/+/, '');
+  return (location.origin + '/' + clean).replace(/([^:]\/)\/+/g, '$1');
+}
+
+async function fetchJsonWithFallback(path) {
+  var lastError = null;
+  for (var i = 0; i < API_BASES.length; i++) {
+    var base = API_BASES[i];
+    try {
+      var res = await fetch(base.replace(/\/$/, '') + path, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
+      });
+      if (res.ok) return await res.json();
+    } catch (err) {
+      lastError = err;
+    }
+  }
+  if (lastError) throw lastError;
+  throw new Error('No API source responded for ' + path);
+}
+
 // ══ LOAD FROM MONGODB ══
 async function loadProducts() {
   try {
     // Get live rate
-    var sr = await fetch(BACKEND + '/api/settings/public');
-    var sd = await sr.json();
+    var sd = await fetchJsonWithFallback('/api/settings/public');
     if (sd.usdRate) { USD_EGP = sd.usdRate; localStorage.setItem('ms_rate', USD_EGP); document.querySelectorAll('.rate-display').forEach(function(el){el.textContent=USD_EGP.toFixed(2)}); }
 
     // Get products
-    var r = await fetch(BACKEND + '/api/products');
-    var d = await r.json();
+    var d = await fetchJsonWithFallback('/api/products');
     allProducts = d.products || [];
 
     // Fallback to site-config in case products collection is empty
     if (!allProducts.length) {
       try {
-        var fr = await fetch(BACKEND + '/api/site-config');
-        var fd = await fr.json();
+        var fd = await fetchJsonWithFallback('/api/site-config');
         allProducts = (fd && fd.config && fd.config.products) || [];
       } catch (fallbackErr) {
         console.warn('Fallback products error:', fallbackErr.message);

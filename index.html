@@ -246,6 +246,15 @@ button{cursor:pointer;font-family:inherit}
 <script>
 // ══ CONFIG ══
 var BACKEND = 'https://misrsteel-backend.vercel.app';
+var API_BASES = (function() {
+  var list = [];
+  if (location && /^https?:$/i.test(location.protocol)) {
+    list.push(location.origin);
+  }
+  list.push(BACKEND);
+  // Remove duplicates while preserving order.
+  return list.filter(function(base, idx){ return list.indexOf(base) === idx; });
+})();
 var USD_EGP = parseFloat(localStorage.getItem('ms_rate') || '50.85');
 var slideIdx = 0, slideCount = 4, slideAuto;
 var sectionLabels = {home:'🏠 منزل', hall:'🎪 قاعة', museum:'🏛️ لوبي', restaurant:'🍽️ مطعم'};
@@ -271,6 +280,31 @@ function normalizeProduct(raw) {
 
 function normalizeProducts(list) {
   return (Array.isArray(list) ? list : []).map(normalizeProduct).filter(Boolean);
+}
+
+function resolveImageUrl(img) {
+  if (!img) return '';
+  if (img.startsWith('data:') || /^https?:\/\//i.test(img)) return img;
+  var clean = String(img).replace(/^\/+/, '');
+  return (location.origin + '/' + clean).replace(/([^:]\/)\/+/g, '$1');
+}
+
+async function fetchJsonWithFallback(path) {
+  var lastError = null;
+  for (var i = 0; i < API_BASES.length; i++) {
+    var base = API_BASES[i];
+    try {
+      var res = await fetch(base.replace(/\/$/, '') + path, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
+      });
+      if (res.ok) return await res.json();
+    } catch (err) {
+      lastError = err;
+    }
+  }
+  if (lastError) throw lastError;
+  throw new Error('No API source responded for ' + path);
 }
 
 function getBannerImg(img) {
@@ -315,8 +349,7 @@ async function loadProducts() {
   try {
     // Get live rate first
     try {
-      var sr = await fetch(BACKEND + '/api/settings/public');
-      var sd = await sr.json();
+      var sd = await fetchJsonWithFallback('/api/settings/public');
       if (sd.usdRate) {
         USD_EGP = sd.usdRate;
         localStorage.setItem('ms_rate', USD_EGP);
@@ -329,14 +362,8 @@ async function loadProducts() {
     var posters = [];
 
     try {
-      var r = await fetch(BACKEND + '/api/products', {
-        method: 'GET',
-        headers: { 'Accept': 'application/json' }
-      });
-      if (r.ok) {
-        var d = await r.json();
-        prods = normalizeProducts(d.products);
-      }
+      var d = await fetchJsonWithFallback('/api/products');
+      prods = normalizeProducts(d.products);
     } catch (productsErr) {
       console.warn('Products API error:', productsErr.message);
     }
@@ -344,16 +371,10 @@ async function loadProducts() {
     // Fallback #1: site-config from backend
     if (!prods.length || !posters.length) {
       try {
-        var fr = await fetch(BACKEND + '/api/site-config', {
-          method: 'GET',
-          headers: { 'Accept': 'application/json' }
-        });
-        if (fr.ok) {
-          var fd = await fr.json();
-          var cfg = (fd && fd.config) || {};
-          if (!prods.length) prods = normalizeProducts(cfg.products);
-          posters = Array.isArray(cfg.posters) ? cfg.posters : posters;
-        }
+        var fd = await fetchJsonWithFallback('/api/site-config');
+        var cfg = (fd && fd.config) || {};
+        if (!prods.length) prods = normalizeProducts(cfg.products);
+        posters = Array.isArray(cfg.posters) ? cfg.posters : posters;
       } catch (fallbackErr) {
         console.warn('Fallback products error:', fallbackErr.message);
       }
@@ -388,14 +409,8 @@ async function loadProducts() {
     if (!prods.length) {
       // Fallback to site-config in case /api/products was emptied by mistake
       try {
-        var fr = await fetch(BACKEND + '/api/site-config', {
-          method: 'GET',
-          headers: { 'Accept': 'application/json' }
-        });
-        if (fr.ok) {
-          var fd = await fr.json();
-          prods = (fd && fd.config && fd.config.products) || [];
-        }
+        var fd = await fetchJsonWithFallback('/api/site-config');
+        prods = (fd && fd.config && fd.config.products) || [];
       } catch (fallbackErr) {
         console.warn('Fallback products error:', fallbackErr.message);
       }
