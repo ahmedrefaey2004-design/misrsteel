@@ -206,7 +206,7 @@ function renderGrid(prods) {
   var html = prods.map(function(p) {
     var badge = p.badge === 'hot' ? '<div class="mp-badge badge-hot">الأكثر طلباً</div>' : p.badge === 'new' ? '<div class="mp-badge badge-new">جديد</div>' : '';
     var img = p.imgs && p.imgs[0] ? p.imgs[0] : '';
-    var imgSrc = img ? (img.startsWith('data:') ? img : img.startsWith('http') ? img : 'https://misrsteel.vercel.app/' + img) : '';
+    var imgSrc = img ? resolveImageUrl(img) : '';
     var egp = p.price > 0 ? Math.round(p.price * USD_EGP).toLocaleString() : '';
     return '<div class="mp-card">'
       + badge

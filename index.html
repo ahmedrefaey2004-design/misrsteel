@@ -183,7 +183,7 @@ button{cursor:pointer;font-family:inherit}
 <!-- DEPT -->
 <div class="dept-section">
   <div class="sec-head"><div class="sec-title">تسوق حسب الفئة</div><a href="marketplace.html" class="sec-more">عرض الكل →</a></div>
-  <div class="dept-grid">
+  <div class="dept-grid" id="deptGrid">
     <a class="dept-card" href="section-home.html"><div class="dept-img"><img src="images/p02-linen-armchair.jpg" alt=""></div><div class="dept-name">غرفة معيشة</div></a>
     <a class="dept-card" href="section-home.html"><div class="dept-img"><img src="images/p04-medallion-silver.jpg" alt=""></div><div class="dept-name">غرفة سفرة</div></a>
     <a class="dept-card" href="section-hall.html"><div class="dept-img"><img src="images/p15-new-e.jpg" alt=""></div><div class="dept-name">قاعة أفراح</div></a>
@@ -418,9 +418,7 @@ function renderProducts(prods) {
     var badge = p.badge && badgeClass[p.badge] ? '<div class="prod-card-badge '+badgeClass[p.badge]+'">'+(p.badge==='hot'?'الأكثر طلباً':'جديد')+'</div>' : '';
     var img = p.imgs && p.imgs[0] ? p.imgs[0] : 'images/p01-rose-gold-chair.jpg';
     // Handle base64, full URL, or relative path
-    var imgSrc = img.startsWith('data:') ? img :
-                 img.startsWith('http') ? img :
-                 'https://misrsteel.vercel.app/' + img;
+    var imgSrc = resolveImageUrl(img) || 'images/p01-rose-gold-chair.jpg';
     var egp = Math.round(p.price * USD_EGP).toLocaleString();
     return '<a class="prod-card" href="product.html?id='+p.id+'">'
       + badge
