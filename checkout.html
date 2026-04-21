@@ -32,6 +32,12 @@
 .pay-btn{width:100%;padding:14px;background:var(--orange);color:#fff;border:none;border-radius:6px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;transition:background .2s;display:flex;align-items:center;justify-content:center;gap:8px}
 .pay-btn:hover{background:var(--orange-dk)}
 .pay-btn:disabled{opacity:.6;cursor:not-allowed}
+.contract-approval{background:#fff8f2;border:1px solid rgba(255,96,0,.25);border-radius:8px;padding:12px;margin-bottom:12px}
+.contract-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.contract-btn{padding:9px 12px;border:1px solid var(--orange);border-radius:6px;background:#fff;color:var(--orange);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.contract-note{font-size:11px;color:var(--muted)}
+.approve-row{display:flex;gap:8px;align-items:flex-start;font-size:12px;color:var(--text)}
+.approve-row input{margin-top:2px}
 .sec-strip{display:flex;gap:12px;justify-content:center;padding:12px 0;flex-wrap:wrap}
 .sec-item{font-size:10px;color:var(--muted);display:flex;align-items:center;gap:4px}
 
@@ -231,8 +237,19 @@
 
         <div id="payError" style="display:none;background:#fff0f0;border:1px solid #ffcccc;border-radius:6px;padding:12px;font-size:12px;color:var(--red);margin-bottom:12px"></div>
 
-        <button class="pay-btn" id="payBtn" onclick="initiatePayment()">
-          🔒 ادفع الآن
+        <div class="contract-approval">
+          <div class="contract-actions">
+            <a class="contract-btn" href="contracts.html" target="_blank" rel="noopener">📄 عرض العقود والشروط</a>
+          </div>
+          <label class="approve-row">
+            <input type="checkbox" id="approveContracts" onchange="togglePayAvailability()">
+            <span>أوافق على العقود والشروط وسياسة الدفع والاسترجاع قبل إكمال الطلب.</span>
+          </label>
+          <div class="contract-note">لا يمكن فتح زر إكمال الطلب إلا بعد الموافقة.</div>
+        </div>
+
+        <button class="pay-btn" id="payBtn" onclick="initiatePayment()" disabled>
+          🔒 إكمال الطلب والدفع
         </button>
 
         <div class="sec-strip" style="margin-top:10px">
@@ -257,6 +274,7 @@ var USD_EGP = parseFloat(localStorage.getItem('ms_rate') || '50.85');
 var cart    = JSON.parse(localStorage.getItem('ms_cart') || '[]');
 var selectedMethod = 'card';
 var currentOrderId = null;
+var contractsApproved = false;
 
 // ── Load cart summary ─────────────────────────────
 function loadSummary() {
@@ -291,6 +309,7 @@ function selectMethod(method, el) {
 
 // ── Initiate payment ──────────────────────────────
 async function initiatePayment() {
+  if (!contractsApproved) { showError('لازم توافق على العقود والشروط أولاً'); return; }
   var name  = document.getElementById('custName').value.trim();
   var phone = document.getElementById('custPhone').value.trim();
   if (!name || !phone) { showError('أدخل اسمك وهاتفك أولاً'); return; }
@@ -413,8 +432,17 @@ function showError(msg) {
 
 function setLoading(on) {
   var btn = document.getElementById('payBtn');
-  btn.disabled = on;
-  btn.innerHTML = on ? '<div class="pay-spinner"></div>' : '🔒 ادفع الآن';
+  btn.disabled = on || !contractsApproved;
+  btn.innerHTML = on ? '<div class="pay-spinner"></div>' : '🔒 إكمال الطلب والدفع';
+}
+
+function togglePayAvailability() {
+  contractsApproved = !!document.getElementById('approveContracts').checked;
+  var btn = document.getElementById('payBtn');
+  btn.disabled = !contractsApproved;
+  if (contractsApproved) {
+    document.getElementById('payError').style.display = 'none';
+  }
 }
 
 // ── Init ──────────────────────────────────────────
