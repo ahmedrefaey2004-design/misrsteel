@@ -627,6 +627,18 @@ tr:hover td{background:#fafafa}
         </div>
         <button class="btn btn-orange" onclick="saveSettings()">💾 حفظ</button>
       </div>
+      <div class="settings-card">
+        <h3>🧬 ربط GitHub (رفع تلقائي)</h3>
+        <div class="form-grid">
+          <div class="fg"><label>GitHub Token (Classic/PAT)</label><input type="password" id="gh_token" placeholder="ghp_xxxxxxxxx"></div>
+          <div class="fg"><label>Repository Owner</label><input type="text" id="gh_owner" placeholder="username أو org"></div>
+          <div class="fg"><label>Repository Name</label><input type="text" id="gh_repo" placeholder="misrsteel"></div>
+          <div class="fg"><label>Branch</label><input type="text" id="gh_branch" placeholder="main"></div>
+          <div class="fg"><label>Images Folder</label><input type="text" id="gh_img_dir" placeholder="images/uploads"></div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:8px">أي صورة جديدة للمنتج/القسم/البوستر هتترفع تلقائيًا على GitHub عند الحفظ.</div>
+        <button class="btn btn-orange" onclick="saveGitHubSettings()">🔐 حفظ إعدادات GitHub</button>
+      </div>
     </div>
 
     <!-- REPORTS -->
@@ -682,6 +694,74 @@ async function api(method, path, body) {
   var d = await r.json();
   if (!r.ok) throw new Error(d.error || 'API Error');
   return d;
+}
+
+function getGitHubCfg() {
+  return {
+    token:  (document.getElementById('gh_token')||{}).value || localStorage.getItem('ms_gh_token') || '',
+    owner:  (document.getElementById('gh_owner')||{}).value || localStorage.getItem('ms_gh_owner') || '',
+    repo:   (document.getElementById('gh_repo')||{}).value || localStorage.getItem('ms_gh_repo') || '',
+    branch: (document.getElementById('gh_branch')||{}).value || localStorage.getItem('ms_gh_branch') || 'main',
+    imgDir: (document.getElementById('gh_img_dir')||{}).value || localStorage.getItem('ms_gh_img_dir') || 'images/uploads'
+  };
+}
+function ghReady(cfg) { return !!(cfg.token && cfg.owner && cfg.repo); }
+function ghEncodePath(path) { return path.split('/').map(encodeURIComponent).join('/'); }
+function isDataUrl(v) { return typeof v === 'string' && v.startsWith('data:image/'); }
+
+function saveGitHubSettings() {
+  var cfg = getGitHubCfg();
+  localStorage.setItem('ms_gh_token', cfg.token || '');
+  localStorage.setItem('ms_gh_owner', cfg.owner || '');
+  localStorage.setItem('ms_gh_repo', cfg.repo || '');
+  localStorage.setItem('ms_gh_branch', cfg.branch || 'main');
+  localStorage.setItem('ms_gh_img_dir', cfg.imgDir || 'images/uploads');
+  toast(ghReady(cfg) ? '✅ تم حفظ إعدادات GitHub' : '⚠️ أكمل Token/Owner/Repo لتفعيل الرفع التلقائي', ghReady(cfg) ? 'success' : '');
+}
+
+async function githubPutFile(path, base64Content, message) {
+  var cfg = getGitHubCfg();
+  if (!ghReady(cfg)) throw new Error('GitHub غير مهيأ — احفظ Token/Owner/Repo من الإعدادات');
+  var apiBase = 'https://api.github.com/repos/' + encodeURIComponent(cfg.owner) + '/' + encodeURIComponent(cfg.repo) + '/contents/' + ghEncodePath(path);
+  var headers = { 'Authorization': 'Bearer ' + cfg.token, 'Accept': 'application/vnd.github+json' };
+  var sha = null;
+  try {
+    var oldRes = await fetch(apiBase + '?ref=' + encodeURIComponent(cfg.branch), { headers: headers });
+    if (oldRes.ok) {
+      var oldData = await oldRes.json();
+      sha = oldData.sha || null;
+    }
+  } catch(e) {}
+  var putRes = await fetch(apiBase, {
+    method: 'PUT',
+    headers: { ...headers, 'Content-Type':'application/json' },
+    body: JSON.stringify({ message: message, content: base64Content, branch: cfg.branch, sha: sha || undefined })
+  });
+  var putData = await putRes.json();
+  if (!putRes.ok) throw new Error((putData && (putData.message || putData.error)) || 'GitHub upload failed');
+  return putData;
+}
+
+async function uploadDataUrlToGitHub(dataUrl, subFolder, prefix) {
+  if (!isDataUrl(dataUrl)) return dataUrl;
+  var cfg = getGitHubCfg();
+  if (!ghReady(cfg)) throw new Error('اربط GitHub أولاً من الإعدادات لرفع الصور تلقائيًا');
+  var m = dataUrl.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
+  if (!m) throw new Error('صيغة الصورة غير مدعومة');
+  var mime = m[1];
+  var content = m[2];
+  var ext = mime.indexOf('png')>-1 ? 'png' : (mime.indexOf('webp')>-1 ? 'webp' : 'jpg');
+  var name = (prefix||'img') + '-' + Date.now() + '-' + Math.floor(Math.random()*100000) + '.' + ext;
+  var path = (cfg.imgDir.replace(/\/+$/,'')) + '/' + (subFolder||'misc') + '/' + name;
+  await githubPutFile(path, content, 'upload: ' + path);
+  return path;
+}
+
+async function syncJsonToGitHub(path, obj, title) {
+  var cfg = getGitHubCfg();
+  if (!ghReady(cfg)) return;
+  var content = btoa(unescape(encodeURIComponent(JSON.stringify(obj, null, 2))));
+  await githubPutFile(path, content, title || ('update ' + path));
 }
 
 // ── NAV ──────────────────────────────────────────────
@@ -797,13 +877,26 @@ async function saveProd() {
   var price=parseFloat(document.getElementById('pm_price').value);
   if (!nameAr||!price) { toast('أدخل الاسم والسعر','error'); return; }
   var imgUrl=document.getElementById('pm_imgUrl').value.trim();
-  var imgs = prodImgs.length ? prodImgs : (imgUrl ? [imgUrl] : []);
+  var imgs = prodImgs.length ? prodImgs.slice() : (imgUrl ? [imgUrl] : []);
+  if (imgs.some(isDataUrl)) {
+    try {
+      imgs = await Promise.all(imgs.map(function(im, idx){ return uploadDataUrlToGitHub(im, 'products', 'prod-'+(editProdId||'new')+'-'+idx); }));
+    } catch(e) {
+      toast('❌ فشل رفع صور المنتج على GitHub: '+e.message,'error');
+      return;
+    }
+  }
   var frameColors = Array.from(document.querySelectorAll('.fc-check:checked')).map(function(c){return c.value;});
   var fabricColors = Array.from(document.querySelectorAll('.fab-check:checked')).map(function(c){return c.value;});
   var body={nameAr,price,nameEn:document.getElementById('pm_nameEn').value.trim(),section:document.getElementById('pm_section').value,finish:document.getElementById('pm_finish').value,badge:document.getElementById('pm_badge').value,desc:document.getElementById('pm_desc').value.trim(),imgs,frameColors,fabricColors,hasColorOptions:frameColors.length>0||fabricColors.length>0};
   try {
     if (editProdId) { await api('PUT','/api/admin/products/'+editProdId,body); toast('✅ تم تعديل المنتج','success'); }
     else { await api('POST','/api/admin/products',body); toast('✅ تم إضافة المنتج','success'); }
+    try {
+      await syncJsonToGitHub('data/admin/products-last-save.json', body, 'sync: product from dashboard');
+    } catch(syncErr) {
+      toast('⚠️ المنتج اتحفظ لكن مزامنة GitHub فشلت: '+syncErr.message,'');
+    }
     closeProdModal(); loadProducts();
   } catch(e) { toast('❌ '+e.message,'error'); }
 }
@@ -837,7 +930,7 @@ async function deleteProdFromModal() {
 // ── SECTIONS ──────────────────────────────────────────
 var localSections = [
   {id:'home',    nameAr:'المنزل',        nameEn:'Home',       desc:'غرف معيشة وسفرة ونوم', link:'section-home.html',       img:'images/showroom-lounge.jpg'},
-  {id:'hall',    nameAr:'قاعات الأفراح', nameEn:'Halls',      desc:'قاعات أفراح ومؤتمرات',  link:'section-hall.html',       img:'images/p15-new-e-2.jpg'},
+  {id:'hall',    nameAr:'قاعات الأفراح', nameEn:'Halls',      desc:'قاعات أفراح ومؤتمرات',  link:'section-hall.html',       img:'images/sections/S.S.-Gold-Fashion-Chairs.jpg'},
   {id:'museum',  nameAr:'لوبي / متحف',   nameEn:'Lobby',      desc:'لوبي فنادق واستقبال',   link:'section-museum.html',     img:'images/p11-new-a-1.jpg'},
   {id:'restaurant',nameAr:'مطاعم وكافيهات',nameEn:'Restaurant',desc:'مطاعم وكافيهات فاخرة',link:'section-restaurant.html', img:'images/p05-velvet-red-1.jpg'},
 ];
@@ -873,10 +966,15 @@ function editSec(id) {
   document.getElementById('sectionModal').classList.add('open');
 }
 
-function saveSec() {
+async function saveSec() {
   var nameAr=document.getElementById('sec_nameAr').value.trim();
   if (!nameAr) { toast('أدخل اسم القسم','error'); return; }
-  var data = { nameAr, nameEn:document.getElementById('sec_nameEn').value.trim(), desc:document.getElementById('sec_desc').value.trim(), link:document.getElementById('sec_link').value.trim(), img:secImg||'' };
+  var imgPath = secImg || '';
+  if (isDataUrl(imgPath)) {
+    try { imgPath = await uploadDataUrlToGitHub(imgPath, 'sections', 'section-'+(editSecId||'new')); }
+    catch(e) { toast('❌ فشل رفع صورة القسم على GitHub: '+e.message,'error'); return; }
+  }
+  var data = { nameAr, nameEn:document.getElementById('sec_nameEn').value.trim(), desc:document.getElementById('sec_desc').value.trim(), link:document.getElementById('sec_link').value.trim(), img:imgPath };
   if (editSecId) {
     var idx=localSections.findIndex(x=>x.id===editSecId);
     if (idx>-1) localSections[idx]={...localSections[idx],...data};
@@ -886,15 +984,17 @@ function saveSec() {
   }
   localStorage.setItem('ms_sections',JSON.stringify(localSections));
   closeSecModal(); loadSections();
-  toast('✅ تم حفظ القسم — ارفع الصورة على GitHub في images/','success');
+  try { await syncJsonToGitHub('data/admin/sections.json', localSections, 'sync: sections from dashboard'); }
+  catch(e) { toast('⚠️ القسم اتحفظ محليًا لكن مزامنة GitHub فشلت: '+e.message,''); return; }
+  toast('✅ تم حفظ القسم ومزامنته على GitHub','success');
 }
 function closeSecModal() { document.getElementById('sectionModal').classList.remove('open'); }
 
 // ── BANNERS ───────────────────────────────────────────
 var localBanners = [
   {id:1, titleAr:'أثاث استانلس فاخر', titleEn:'Premium Stainless', desc:'مباشرة من المصنع — بدون حد أدنى', btn:'تسوق الآن', link:'marketplace.html', color:'#ff6000', img:'images/showroom-lounge.jpg'},
-  {id:2, titleAr:'قاعات الأفراح VIP', titleEn:'Wedding Halls VIP',   desc:'كراسي ذهبية وفضية لقاعاتك',    btn:'اكتشف الآن', link:'section-hall.html', color:'#1a1a1a', img:'images/p15-new-e-2.jpg'},
-  {id:3, titleAr:'AI مصمم الغرفة',    titleEn:'AI Room Designer',   desc:'صمّم مكانك قبل الشراء',          btn:'جرّب مجاناً', link:'ai-designer.html', color:'#2d1200', img:'images/p03-barrel-gold-1.jpg'},
+  {id:2, titleAr:'قاعات الأفراح VIP', titleEn:'Wedding Halls VIP',   desc:'كراسي ذهبية وفضية لقاعاتك',    btn:'اكتشف الآن', link:'section-hall.html', color:'#1a1a1a', img:'images/sections/S.S.-Gold-Fashion-Chairs.jpg'},
+  {id:3, titleAr:'AI مصمم الغرفة',    titleEn:'AI Room Designer',   desc:'صمّم مكانك قبل الشراء',          btn:'جرّب مجاناً', link:'ai-designer.html', color:'#2d1200', img:'images/sections/Round-Back-Chair-with-Gold-Trim-480x402.jpg'},
 ];
 
 function loadBanners() {
@@ -931,20 +1031,35 @@ function editBanner(id) {
   document.getElementById('bannerModal').classList.add('open');
 }
 
-function saveBanner() {
+async function saveBanner() {
   var titleAr=document.getElementById('bn_titleAr').value.trim();
   if (!titleAr) { toast('أدخل عنوان البوستر','error'); return; }
-  var data={titleAr,titleEn:document.getElementById('bn_titleEn').value.trim(),desc:document.getElementById('bn_desc').value.trim(),link:document.getElementById('bn_link').value.trim(),btn:document.getElementById('bn_btn').value.trim(),color:document.getElementById('bn_color').value,img:bannerImg||''};
+  var imgPath = bannerImg || '';
+  if (isDataUrl(imgPath)) {
+    try { imgPath = await uploadDataUrlToGitHub(imgPath, 'banners', 'banner-'+(editBannerId||'new')); }
+    catch(e) { toast('❌ فشل رفع صورة البوستر على GitHub: '+e.message,'error'); return; }
+  }
+  var data={titleAr,titleEn:document.getElementById('bn_titleEn').value.trim(),desc:document.getElementById('bn_desc').value.trim(),link:document.getElementById('bn_link').value.trim(),btn:document.getElementById('bn_btn').value.trim(),color:document.getElementById('bn_color').value,img:imgPath};
   if (editBannerId) {
     var idx=localBanners.findIndex(x=>x.id===editBannerId);
     if (idx>-1) localBanners[idx]={...localBanners[idx],...data};
   } else { data.id=Date.now(); localBanners.push(data); }
   localStorage.setItem('ms_banners',JSON.stringify(localBanners));
   closeBannerModal(); loadBanners();
-  toast('✅ تم حفظ البوستر','success');
+  try { await syncJsonToGitHub('data/admin/banners.json', localBanners, 'sync: banners from dashboard'); }
+  catch(e) { toast('⚠️ البوستر اتحفظ محليًا لكن مزامنة GitHub فشلت: '+e.message,''); return; }
+  toast('✅ تم حفظ البوستر ومزامنته على GitHub','success');
 }
 
-function delBanner(id) { if(!confirm('حذف البوستر؟')) return; localBanners=localBanners.filter(b=>b.id!==id); localStorage.setItem('ms_banners',JSON.stringify(localBanners)); loadBanners(); toast('تم الحذف',''); }
+async function delBanner(id) {
+  if(!confirm('حذف البوستر؟')) return;
+  localBanners=localBanners.filter(b=>b.id!==id);
+  localStorage.setItem('ms_banners',JSON.stringify(localBanners));
+  loadBanners();
+  try { await syncJsonToGitHub('data/admin/banners.json', localBanners, 'sync: delete banner from dashboard'); }
+  catch(e) { toast('⚠️ تم الحذف محليًا لكن مزامنة GitHub فشلت: '+e.message,''); return; }
+  toast('تم الحذف','');
+}
 function closeBannerModal() { document.getElementById('bannerModal').classList.remove('open'); }
 
 // ── IMAGE UPLOAD ──────────────────────────────────────
@@ -1134,6 +1249,11 @@ async function loadSettings() {
     document.getElementById('set_d100').value=s.discount100||10;
     document.getElementById('set_d500').value=s.discount500||20;
   } catch(e) {}
+  document.getElementById('gh_token').value = localStorage.getItem('ms_gh_token') || '';
+  document.getElementById('gh_owner').value = localStorage.getItem('ms_gh_owner') || '';
+  document.getElementById('gh_repo').value = localStorage.getItem('ms_gh_repo') || '';
+  document.getElementById('gh_branch').value = localStorage.getItem('ms_gh_branch') || 'main';
+  document.getElementById('gh_img_dir').value = localStorage.getItem('ms_gh_img_dir') || 'images/uploads';
 }
 async function updateRate() {
   var r=parseFloat(document.getElementById('newRate').value);
