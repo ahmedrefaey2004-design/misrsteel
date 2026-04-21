@@ -129,14 +129,6 @@ a{text-decoration:none;color:inherit}button{cursor:pointer;font-family:inherit}
 
 <script>
 var BACKEND = 'https://misrsteel-backend.vercel.app';
-var API_BASES = (function() {
-  var list = [];
-  list.push(BACKEND);
-  if (location && /^https?:$/i.test(location.protocol)) {
-    list.push(location.origin);
-  }
-  return list.filter(function(base, idx){ return list.indexOf(base) === idx; });
-})();
 var USD_EGP = parseFloat(localStorage.getItem('ms_rate') || '50.85');
 var allProducts = [], filtered = [];
 var sectionLabels = {home:'🏠 منزل', hall:'🎪 قاعة', museum:'🏛️ لوبي', restaurant:'🍽️ مطعم'};
@@ -145,20 +137,34 @@ var sectionLabels = {home:'🏠 منزل', hall:'🎪 قاعة', museum:'🏛️
 async function loadProducts() {
   try {
     // Get live rate
-    var sd = await fetchJsonWithFallback('/api/settings/public');
+    var sr = await fetch(BACKEND + '/api/settings/public');
+    var sd = await sr.json();
     if (sd.usdRate) { USD_EGP = sd.usdRate; localStorage.setItem('ms_rate', USD_EGP); document.querySelectorAll('.rate-display').forEach(function(el){el.textContent=USD_EGP.toFixed(2)}); }
 
     // Get products
-    var d = await fetchJsonWithFallback('/api/products');
+    var r = await fetch(BACKEND + '/api/products');
+    var d = await r.json();
     allProducts = d.products || [];
     filtered = allProducts.slice();
 
     // Check URL params
     var params = new URLSearchParams(location.search);
-    var q = params.get('q');
-    var pid = params.get('id');
+    var q       = params.get('q');
+    var pid     = params.get('id');
+    var section = params.get('section');
+
+    // Filter by section if provided
+    if (section) {
+      filtered = allProducts.filter(function(p){ return p.section === section; });
+      // Update section filter buttons if exist
+      var label = {home:'🏠 منزل', hall:'🎪 قاعات', restaurant:'🍽️ مطاعم', museum:'🏛️ لوبي'}[section] || section;
+      var countEl = document.getElementById('mpCount');
+      if (countEl) countEl.textContent = filtered.length + ' منتج في ' + label;
+    }
+
     if (q) { document.getElementById('searchInp').value = q; doSearch(); return; }
     renderGrid(filtered);
+
     // Auto open product if id in URL
     if (pid) {
       setTimeout(function() {
