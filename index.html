@@ -273,14 +273,14 @@ async function loadDeptImages() {
     });
 
     var cats = [
-      { name:'انتريه',       folder:'Seating_Sets', section:'home',       link:'marketplace.html?section=home' },
-      { name:'غرفة نوم',     folder:'Bedroom_Sets', section:'home',       link:'marketplace.html?section=home' },
-      { name:'غرفة سفرة',   folder:'سفره',          section:'home',       link:'marketplace.html?section=home' },
-      { name:'كنبة ركنية',   folder:'corner',        section:'home',       link:'marketplace.html?section=home' },
-      { name:'وحدة تلفزيون', folder:'TV_Units',      section:'home',       link:'marketplace.html?section=home' },
-      { name:'ترابيزة',      folder:'ترابيزة',       section:'home',       link:'marketplace.html?section=home' },
-      { name:'قاعة أفراح',  folder:'hall',           section:'hall',       link:'marketplace.html?section=hall' },
-      { name:'مطعم وفندق',  folder:'hotel',           section:'restaurant', link:'marketplace.html?section=restaurant' },
+      { name:'انتريه',       folder:'Seating_Sets', section:'home' },
+      { name:'غرفة نوم',     folder:'Bedroom_Sets', section:'home' },
+      { name:'غرفة سفرة',   folder:'سفره',          section:'home' },
+      { name:'كنبة ركنية',   folder:'corner',        section:'home' },
+      { name:'وحدة تلفزيون', folder:'TV_Units',      section:'home' },
+      { name:'ترابيزة',      folder:'ترابيزة',       section:'home' },
+      { name:'قاعة أفراح',  folder:'hall',           section:'hall' },
+      { name:'مطعم وفندق',  folder:'hotel',          section:'restaurant' },
     ];
 
     // Collect images per folder from product URLs
@@ -307,7 +307,8 @@ async function loadDeptImages() {
     cats.forEach(function(cat, i) {
       var imgs = folderImgs[cat.folder] || folderImgs['_s_' + cat.section] || [];
       var src = imgs.length ? imgs[(day + i * 7) % imgs.length] : '';
-      html += '<a class="dept-card" href="' + cat.link + '">';
+      var link = 'marketplace.html?section=' + encodeURIComponent(cat.section) + '&folder=' + encodeURIComponent(cat.folder);
+      html += '<a class="dept-card" href="' + link + '">';
       html += '<div class="dept-img">';
       if (src) {
         html += '<img src="' + src + '" alt="' + cat.name + '" loading="lazy" style="width:100%;height:100%;object-fit:cover;transition:transform .4s">';
