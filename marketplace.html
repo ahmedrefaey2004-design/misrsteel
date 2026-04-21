@@ -152,6 +152,7 @@ async function loadProducts() {
     var q       = params.get('q');
     var pid     = params.get('id');
     var section = params.get('section');
+    var folder  = params.get('folder');
 
     // Filter by section if provided
     if (section) {
@@ -160,6 +161,18 @@ async function loadProducts() {
       var label = {home:'🏠 منزل', hall:'🎪 قاعات', restaurant:'🍽️ مطاعم', museum:'🏛️ لوبي'}[section] || section;
       var countEl = document.getElementById('mpCount');
       if (countEl) countEl.textContent = filtered.length + ' منتج في ' + label;
+    }
+
+    // Filter by folder/category source (e.g. سفره, Bedroom_Sets, TV_Units...)
+    if (folder) {
+      filtered = filtered.filter(function(p){
+        return (p.imgs || []).some(function(img){
+          if (!img || typeof img !== 'string') return false;
+          return img.indexOf('images/' + folder + '/') >= 0 || img.indexOf('/images/' + folder + '/') >= 0;
+        });
+      });
+      var countEl2 = document.getElementById('mpCount');
+      if (countEl2) countEl2.textContent = filtered.length + ' منتج في قسم ' + folder;
     }
 
     if (q) { document.getElementById('searchInp').value = q; doSearch(); return; }
@@ -198,10 +211,7 @@ function mpLoadMore() {
   var batch = mpAllProds.slice(start, start + mpPageSize);
   if (!batch.length) return;
   mpLoading = true;
-  var html = batch.ma(prods) {
-  document.getElementById('mpCount').textContent = prods.length + ' منتج';
-  if (!prods.length) { document.getElementById('mpGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#888">لا توجد منتجات</div>'; return; }
-  var html = prods.map(function(p) {
+  var html = batch.map(function(p) {
     var badge = p.badge === 'hot' ? '<div class="mp-badge badge-hot">الأكثر طلباً</div>' : p.badge === 'new' ? '<div class="mp-badge badge-new">جديد</div>' : '';
     var img = p.imgs && p.imgs[0] ? p.imgs[0] : '';
     var imgSrc = img ? (img.startsWith('data:') ? img : img.startsWith('http') ? img : 'https://misrsteel.vercel.app/' + img) : '';
