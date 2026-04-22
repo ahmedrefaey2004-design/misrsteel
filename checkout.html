@@ -336,7 +336,7 @@ async function initiatePayment() {
   setLoading(true);
 
   try {
-    // 1. Create order in backend
+    // 1) Create order in backend (مهم لكل طرق الدفع عشان يسجل في لوحة المسوّق)
     var orderRes = await fetch(BACKEND + '/api/orders', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -352,10 +352,20 @@ async function initiatePayment() {
         affiliateCode:   affiliateCode
       })
     });
+    if (!orderRes.ok) throw new Error('فشل تسجيل الأوردر');
     var orderData = await orderRes.json();
-    currentOrderId = orderData.orderId;
+    currentOrderId = orderData.orderId || orderData.id || null;
 
-    // 2. Initiate Paymob payment
+    // التحويل البنكي: بعد تسجيل الأوردر نكتفي برسالة النجاح بدون باي موب
+    if (selectedMethod === 'bank') {
+      setLoading(false);
+      showSuccess(orderData.ref || orderData.orderRef || currentOrderId || ('BANK-' + Date.now()));
+      localStorage.removeItem('ms_cart');
+      sendWAConfirm(name, phone, total, deposit);
+      return;
+    }
+
+    // 2) Initiate Paymob payment
     var payRes = await fetch(BACKEND + '/api/pay/initiate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
