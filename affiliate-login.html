@@ -103,12 +103,12 @@ body.en .al-title{font-family:'DM Sans',sans-serif}
             <div class="input-wrap"><span class="input-icon">✉️</span><input type="email" id="al_email" required placeholder="affiliate@email.com"></div>
           </div>
           <div class="form-group">
-            <label><span class="ar">كلمة المرور</span><span class="en-t">Password</span></label>
-            <div class="input-wrap"><span class="input-icon">🔒</span><input type="password" id="al_pass" required placeholder="••••••••"></div>
+            <label><span class="ar">رقم الواتساب المسجّل</span><span class="en-t">Registered WhatsApp number</span></label>
+            <div class="input-wrap"><span class="input-icon">📱</span><input type="tel" id="al_pass" required placeholder="+20..."></div>
           </div>
           <div class="form-group">
-            <label><span class="ar">كود المسوّق (اختياري)</span><span class="en-t">Referral code (optional)</span></label>
-            <input type="text" class="code-input" id="al_code" placeholder="STEEL-XXXX" oninput="this.value=this.value.toUpperCase()">
+            <label><span class="ar">كود المسوّق</span><span class="en-t">Affiliate code</span></label>
+            <input type="text" class="code-input" id="al_code" required placeholder="MS-AHMED" oninput="this.value=this.value.toUpperCase()">
           </div>
           <button type="submit" class="btn btn-orange btn-full btn-lg">
             <span class="ar">دخول لوحة المسوّق ←</span><span class="en-t">Enter Affiliate Dashboard →</span>
@@ -205,12 +205,14 @@ function switchTab(t){
 }
 function doAffLogin(e){
   e.preventDefault();
-  var email = document.getElementById('al_email').value;
-  var code = 'STEEL-' + Math.floor(Math.random()*9000+1000);
-  Auth.loginAffiliate({email:email, code:code});
-  document.querySelector('#tab-login form').style.display='none';
-  document.getElementById('dashCode').textContent = code;
-  document.getElementById('loginSuccess').style.display='block';
+  var code = document.getElementById('al_code').value.trim().toUpperCase();
+  var phone = document.getElementById('al_pass').value.trim();
+  if(!code || !phone){
+    alert('من فضلك أدخل كود المسوّق ورقم الواتساب المسجل');
+    return;
+  }
+  localStorage.setItem('aff_login_prefill', JSON.stringify({ code: code, phone: phone }));
+  window.location.href = 'affiliate.html?code=' + encodeURIComponent(code) + '&phone=' + encodeURIComponent(phone);
 }
 function doApply(e){
   e.preventDefault();
