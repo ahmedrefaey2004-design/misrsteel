@@ -431,6 +431,16 @@ var PRODUCTS = [
 
 var currentCat = 'all';
 var currentPM = 'card';
+var BACKEND = 'https://misrsteel-backend.vercel.app';
+
+function resolveAffiliateCode(){
+  var fromUrl = new URLSearchParams(location.search).get('ref');
+  var fromInput = (document.getElementById('affCodeInp') || {}).value || '';
+  var fromStorage = localStorage.getItem('ms_aff_ref') || '';
+  var code = (fromUrl || fromInput || fromStorage || '').trim().toUpperCase();
+  if (code) localStorage.setItem('ms_aff_ref', code);
+  return code;
+}
 
 function filterShop(btn, cat){
   currentCat = cat;
@@ -594,18 +604,54 @@ function fmtCard(inp){
   inp.value = v.replace(/(.{4})/g,'$1 ').trim();
 }
 
-function processPayment(){
+async function processPayment(){
+  if (Cart.items.length === 0) {
+    showToast(document.body.classList.contains('en') ? 'Add products first!' : 'أضف منتجات للسلة أولاً', 'error');
+    return;
+  }
   var btn = document.getElementById('payBtn');
   btn.innerHTML = '⏳ ...';
   btn.disabled = true;
+  var generatedRef = 'REF-'+new Date().getFullYear()+'-'+Math.floor(Math.random()*9000+1000);
+
+  // محاولة تسجيل الأوردر في الباك إند بحيث يظهر في لوحة المسوّق
+  try {
+    var total = Cart.getTotal();
+    var affiliateCode = resolveAffiliateCode();
+    var payload = {
+      customerName: 'عميل من المتجر',
+      customerPhone: '',
+      customerCountry: 'EG',
+      items: Cart.items.map(function(i){
+        return { id: i.id, nameAr: i.nameAr || i.name || 'منتج', qty: i.qty || 1, priceUSD: i.price || 0 };
+      }),
+      totalUSD: total,
+      notes: 'Shop checkout flow',
+      affiliateCode: affiliateCode,
+      source: 'shop_checkout'
+    };
+    var orderRes = await fetch(BACKEND + '/api/orders', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    if (orderRes.ok) {
+      var orderData = await orderRes.json();
+      if (orderData && (orderData.ref || orderData.orderRef || orderData.orderId)) {
+        generatedRef = orderData.ref || orderData.orderRef || orderData.orderId;
+      }
+    }
+  } catch (_e) {
+    // ما نوقفش تجربة العميل لو الباك إند مش متاح
+  }
+
   setTimeout(function(){
-    var ref = 'REF-'+new Date().getFullYear()+'-'+Math.floor(Math.random()*9000+1000);
-    document.getElementById('orderRef').textContent = ref;
+    document.getElementById('orderRef').textContent = generatedRef;
     document.querySelector('.cp-body').style.display = 'none';
     document.getElementById('successState').style.display = 'block';
     Cart.items = []; Cart.save();
     updateCheckoutSummary();
-  }, 2500);
+  }, 1200);
 }
 
 function openWA(){
@@ -614,14 +660,23 @@ function openWA(){
 }
 
 function applyAffCode(){
-  var code = document.getElementById('affCodeInp').value.trim();
-  if(code.length >= 4){ document.getElementById('affCodeOk').style.display='inline'; showToast('✓ '+code+' — كود صالح','success'); }
+  var code = document.getElementById('affCodeInp').value.trim().toUpperCase();
+  if(code.length >= 4){
+    localStorage.setItem('ms_aff_ref', code);
+    document.getElementById('affCodeOk').style.display='inline';
+    showToast('✓ '+code+' — كود صالح','success');
+  }
 }
 
 document.addEventListener('DOMContentLoaded', function(){
   document.getElementById('navPlaceholder').innerHTML = buildNav('shop');
   document.getElementById('cartPlaceholder').innerHTML = buildCartDrawer();
   document.getElementById('footerPlaceholder').innerHTML = buildFooter();
+  var savedRef = resolveAffiliateCode();
+  if (savedRef && document.getElementById('affCodeInp')) {
+    document.getElementById('affCodeInp').value = savedRef;
+    if (savedRef.length >= 4) document.getElementById('affCodeOk').style.display = 'inline';
+  }
   loadProductsFromApi().then(function(){ renderShopProducts(); });
   Cart.load();
   updateCheckoutSummary();

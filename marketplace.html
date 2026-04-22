@@ -132,6 +132,21 @@ var BACKEND = 'https://misrsteel-backend.vercel.app';
 var USD_EGP = parseFloat(localStorage.getItem('ms_rate') || '50.85');
 var allProducts = [], filtered = [];
 var sectionLabels = {home:'🏠 منزل', hall:'🎪 قاعة', museum:'🏛️ لوبي', restaurant:'🍽️ مطعم'};
+var FALLBACK_IMG = "data:image/svg+xml;utf8," + encodeURIComponent(
+  "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 420'>" +
+  "<rect width='600' height='420' fill='#f4f4f4'/>" +
+  "<rect x='180' y='95' width='240' height='180' rx='16' fill='#ff6000' opacity='0.12'/>" +
+  "<text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='#666' font-size='28' font-family='Arial'>MISR STEEL</text>" +
+  "</svg>"
+);
+
+// حفظ كود الإحالة لو الزائر جاي من رابط مسوّق
+(function syncAffiliateRefFromUrl(){
+  try {
+    var ref = new URLSearchParams(location.search).get('ref');
+    if (ref && ref.trim()) localStorage.setItem('ms_aff_ref', ref.trim().toUpperCase());
+  } catch (_e) {}
+})();
 
 // ══ LOAD FROM MONGODB ══
 async function loadProducts() {
@@ -211,14 +226,15 @@ function mpLoadMore() {
   var batch = mpAllProds.slice(start, start + mpPageSize);
   if (!batch.length) return;
   mpLoading = true;
-  var html = batch.map(function(p) {
+  var html = batch.map(function(p, idx) {
     var badge = p.badge === 'hot' ? '<div class="mp-badge badge-hot">الأكثر طلباً</div>' : p.badge === 'new' ? '<div class="mp-badge badge-new">جديد</div>' : '';
     var img = p.imgs && p.imgs[0] ? p.imgs[0] : '';
     var imgSrc = img ? (img.startsWith('data:') ? img : img.startsWith('http') ? img : 'https://misrsteel.vercel.app/' + img) : '';
     var egp = p.price > 0 ? Math.round(p.price * USD_EGP).toLocaleString() : '';
+    var productIndex = start + idx;
     return '<div class="mp-card">'
       + badge
-      + '<div class="mp-img"><img src="'+imgSrc+'" alt="'+p.nameAr+'" loading="lazy" onerror="this.src=\'images/p01-rose-gold-chair.jpg\'"></div>'
+      + '<div class="mp-img"><img class="js-prod-img" src="'+imgSrc+'" alt="'+p.nameAr+'" loading="lazy"></div>'
       + '<div class="mp-body">'
       + '<div class="mp-section-tag">'+(sectionLabels[p.section]||p.section)+'</div>'
       + '<div class="mp-name">'+p.nameAr+'</div>'
@@ -229,14 +245,35 @@ function mpLoadMore() {
       + '</div>'
       + '<div class="mp-egp">≈ '+egp+' ج.م للقطعة</div>'
       + '<div class="mp-actions">'
-      + '<button class="btn-mp" onclick="waOrder('+JSON.stringify(p).replace(/'/g,"&#39;")+')">اطلب الآن</button>'
-      + '<button class="btn-mp-wa" onclick="waProduct('+JSON.stringify(p).replace(/'/g,"&#39;")+')">💬</button>'
+      + '<button class="btn-mp js-order-btn" data-product-index="'+productIndex+'">اطلب الآن</button>'
+      + '<button class="btn-mp-wa js-wa-btn" data-product-index="'+productIndex+'">💬</button>'
       + '</div></div></div>';
   }).join('');
   var grid = document.getElementById('mpGrid');
   var div = document.createElement('div');
   div.style.display = 'contents';
   div.innerHTML = html;
+  div.querySelectorAll('.js-prod-img').forEach(function(imgEl){
+    imgEl.addEventListener('error', function(){
+      imgEl.src = FALLBACK_IMG;
+    }, { once: true });
+  });
+  div.querySelectorAll('.js-order-btn').forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      var i = parseInt(btn.getAttribute('data-product-index'), 10);
+      var p = mpAllProds[i];
+      if (p) waOrder(p);
+    });
+  });
+  div.querySelectorAll('.js-wa-btn').forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      var i = parseInt(btn.getAttribute('data-product-index'), 10);
+      var p = mpAllProds[i];
+      if (p) waProduct(p);
+    });
+  });
   grid.appendChild(div);
   mpPage++;
   mpLoading = false;
