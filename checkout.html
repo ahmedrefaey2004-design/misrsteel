@@ -276,6 +276,13 @@ var selectedMethod = 'card';
 var currentOrderId = null;
 var contractsApproved = false;
 
+function resolveAffiliateCode() {
+  var refFromUrl = new URLSearchParams(location.search).get('ref');
+  var affiliateCode = (refFromUrl || localStorage.getItem('ms_aff_ref') || '').trim().toUpperCase();
+  if (affiliateCode) localStorage.setItem('ms_aff_ref', affiliateCode);
+  return affiliateCode;
+}
+
 // ── Load cart summary ─────────────────────────────
 function loadSummary() {
   if (!cart.length) {
@@ -317,18 +324,12 @@ async function initiatePayment() {
 
   var total   = cart.reduce(function(s,i){ return s + (i.price||0)*(i.qty||1); }, 0);
   var deposit = Math.round(total * 0.5 * 100) / 100;
-
-  // Bank transfer — no API needed
-  if (selectedMethod === 'bank') {
-    showSuccess('BANK-' + Date.now());
-    sendWAConfirm(name, phone, total, deposit);
-    return;
-  }
+  var affiliateCode = resolveAffiliateCode();
 
   setLoading(true);
 
   try {
-    // 1. Create order in backend
+    // 1) Create order in backend (مهم لكل طرق الدفع عشان يسجل في لوحة المسوّق)
     var orderRes = await fetch(BACKEND + '/api/orders', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -341,13 +342,23 @@ async function initiatePayment() {
         items:           cart,
         totalUSD:        total,
         depositUSD:      deposit,
-        affiliateCode:   new URLSearchParams(location.search).get('ref') || ''
+        affiliateCode:   affiliateCode
       })
     });
+    if (!orderRes.ok) throw new Error('فشل تسجيل الأوردر');
     var orderData = await orderRes.json();
-    currentOrderId = orderData.orderId;
+    currentOrderId = orderData.orderId || orderData.id || null;
 
-    // 2. Initiate Paymob payment
+    // التحويل البنكي: بعد تسجيل الأوردر نكتفي برسالة النجاح بدون باي موب
+    if (selectedMethod === 'bank') {
+      setLoading(false);
+      showSuccess(orderData.ref || orderData.orderRef || currentOrderId || ('BANK-' + Date.now()));
+      localStorage.removeItem('ms_cart');
+      sendWAConfirm(name, phone, total, deposit);
+      return;
+    }
+
+    // 2) Initiate Paymob payment
     var payRes = await fetch(BACKEND + '/api/pay/initiate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
