@@ -201,6 +201,20 @@ var BACKEND = 'https://misrsteel-backend.vercel.app';
 var aff = null;
 var pendingOrders = [];
 
+function readLoginPrefill() {
+  var params = new URLSearchParams(location.search);
+  var code = (params.get('code') || '').trim();
+  var phone = (params.get('phone') || '').trim();
+  if (!code || !phone) {
+    try {
+      var saved = JSON.parse(localStorage.getItem('aff_login_prefill') || '{}');
+      code = code || (saved.code || '');
+      phone = phone || (saved.phone || '');
+    } catch (_e) {}
+  }
+  return { code: code, phone: phone };
+}
+
 // ── LOGIN ──
 async function doLogin() {
   var code  = document.getElementById('loginCode').value.trim();
@@ -218,6 +232,7 @@ async function doLogin() {
     
     aff = d.affiliate;
     localStorage.setItem('aff_session', JSON.stringify(aff));
+    localStorage.removeItem('aff_login_prefill');
     showDash();
   } catch(e) {
     showLoginErr('فشل الاتصال — تحقق من الإنترنت');
@@ -433,6 +448,13 @@ function toast(msg, type) {
 var saved = localStorage.getItem('aff_session');
 if (saved) {
   try { aff = JSON.parse(saved); showDash(); } catch(e) {}
+} else {
+  var prefill = readLoginPrefill();
+  if (prefill.code) document.getElementById('loginCode').value = prefill.code;
+  if (prefill.phone) document.getElementById('loginPhone').value = prefill.phone;
+  if (prefill.code && prefill.phone) {
+    doLogin();
+  }
 }
 </script>
 </body>
