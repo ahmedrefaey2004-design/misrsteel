@@ -646,7 +646,7 @@ tr:hover td{background:#fafafa}
       <div class="settings-card">
         <h3>💵 سعر الدولار</h3>
         <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
-          <div><div style="font-size:11px;color:var(--muted);margin-bottom:4px">الحالي</div><div class="rate-big" id="curRate">--</div><div style="font-size:11px;color:var(--muted)">ج.م / دولار</div></div>
+          <div><div style="font-size:11px;color:var(--muted);margin-bottom:4px">الحالي (لايف)</div><div class="rate-big" id="curRate">--</div><div style="font-size:11px;color:var(--muted)">ج.م / دولار</div><button class="btn btn-gray btn-sm" style="margin-top:6px;font-size:11px" onclick="refreshLiveRate()">🔄 تحديث السعر</button></div>
           <div style="flex:1;min-width:200px">
             <div style="font-size:11px;color:var(--muted);margin-bottom:6px">تحديث يدوي</div>
             <div style="display:flex;gap:8px">
@@ -1730,6 +1730,16 @@ async function deleteProjFromModal() {
 }
 
 function closeProjectModal() { document.getElementById('projectModal').classList.remove('open'); }
+
+// ── LIVE RATE ──────────────────────────────────────────
+async function refreshLiveRate() {
+  try {
+    toast('⏳ جاري جلب السعر اللايف...', '');
+    var d = await api('POST', '/api/admin/update-rate', {});
+    document.getElementById('curRate').textContent = d.usdRate + ' (الآن)';
+    toast('✅ ' + d.message, 'success');
+  } catch(e) { toast('❌ ' + e.message, 'error'); }
+}
 
 // ── TOAST ─────────────────────────────────────────────
 function toast(msg,type){ var t=document.getElementById('toast'); t.textContent=msg; t.className='toast '+(type||''); t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),3200); }
