@@ -124,6 +124,9 @@ tr:hover td{background:#fafafa}
 .qcard-label{font-size:12px;font-weight:700}
 
 @media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar{display:none}.kpi-grid{grid-template-columns:repeat(2,1fr)}.quick-grid{grid-template-columns:repeat(2,1fr)}.sections-grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:400;display:none;align-items:center;justify-content:center;padding:16px}
+.modal-overlay.open{display:flex}
 </style>
 </head>
 <body>
@@ -449,15 +452,56 @@ tr:hover td{background:#fafafa}
 
     <!-- AFFILIATES -->
     <div class="panel" id="panel-affiliates">
-      <div class="panel-title"><span>🤝 المسوّقون</span></div>
-      <div class="table-wrap">
-        <div class="table-head"><h3 id="affs-count">المسوّقون</h3></div>
-        <div id="affsTable"><div class="loading"><div class="sp"></div>جاري التحميل...</div></div>
+  <div class="panel-header">
+    <h2>🤝 المسوّقون</h2>
+    <button class="btn btn-orange" onclick="openAddAffiliate()">+ إضافة مسوق</button>
+  </div>
+  <!-- Tabs -->
+  <div style="display:flex;gap:8px;padding:0 16px 12px;border-bottom:1px solid var(--border);margin-bottom:12px">
+    <button class="btn btn-orange" id="aff-tab-active" onclick="showAffTab('active')" style="font-size:12px;padding:6px 14px">✅ المسوقون النشطون</button>
+    <button class="btn btn-gray" id="aff-tab-pending" onclick="showAffTab('pending')" style="font-size:12px;padding:6px 14px">⏳ طلبات الانتساب</button>
+  </div>
+  <div class="table-wrap">
+    <div id="affsTable"><div style="padding:20px;text-align:center;color:var(--muted)">⏳ جاري التحميل...</div></div>
+  </div>
+</div>
+
+<!-- AFFILIATE MODAL -->
+<div class="modal-overlay" id="affModal">
+  <div class="modal-box" style="max-width:500px">
+    <div class="modal-header">
+      <h3 id="affModalTitle">إضافة مسوق جديد</h3>
+      <button class="modal-close" onclick="closeAffModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="fg-grid">
+        <div class="fg full"><label>الاسم *</label><input type="text" id="aff_name" placeholder="أحمد محمد"></div>
+        <div class="fg"><label>رقم الواتساب *</label><input type="tel" id="aff_phone" placeholder="+201..."></div>
+        <div class="fg"><label>نسبة العمولة %</label><input type="number" id="aff_comm" value="10" min="1" max="50"></div>
+        <div class="fg"><label>المستوى</label>
+          <select id="aff_level">
+            <option value="starter">Starter</option>
+            <option value="silver">Silver</option>
+            <option value="gold">Gold</option>
+            <option value="vip">VIP</option>
+          </select>
+        </div>
+      </div>
+      <div id="aff_code_display" style="display:none;background:var(--orange-lt);border-radius:8px;padding:14px;margin-top:12px;text-align:center">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:4px">كود المسوق</div>
+        <div id="aff_code_val" style="font-size:24px;font-weight:800;color:var(--orange);letter-spacing:3px"></div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">ابعت الكود ده للمسوق عشان يدخل بيه</div>
       </div>
     </div>
+    <div class="modal-footer">
+      <button class="btn btn-gray" onclick="closeAffModal()">إلغاء</button>
+      <button class="btn btn-red" id="deleteAffBtn" onclick="deleteAffFromModal()" style="display:none">🗑️ حذف</button>
+      <button class="btn btn-orange" id="saveAffBtn" onclick="saveAffiliate()">💾 حفظ وإنشاء كود</button>
+    </div>
+  </div>
+</div>
 
-    <!-- INQUIRIES -->
-    <div class="panel" id="panel-inquiries">
+<div class="panel" id="panel-inquiries">
       <div class="panel-title"><span>📋 الاستفسارات</span></div>
       <div class="table-wrap">
         <div class="table-head"><h3 id="inqs-count">الاستفسارات</h3></div>
@@ -627,18 +671,6 @@ tr:hover td{background:#fafafa}
         </div>
         <button class="btn btn-orange" onclick="saveSettings()">💾 حفظ</button>
       </div>
-      <div class="settings-card">
-        <h3>🧬 ربط GitHub (رفع تلقائي)</h3>
-        <div class="form-grid">
-          <div class="fg"><label>GitHub Token (Classic/PAT)</label><input type="password" id="gh_token" placeholder="ghp_xxxxxxxxx"></div>
-          <div class="fg"><label>Repository Owner</label><input type="text" id="gh_owner" placeholder="username أو org"></div>
-          <div class="fg"><label>Repository Name</label><input type="text" id="gh_repo" placeholder="misrsteel"></div>
-          <div class="fg"><label>Branch</label><input type="text" id="gh_branch" placeholder="main"></div>
-          <div class="fg"><label>Images Folder</label><input type="text" id="gh_img_dir" placeholder="images/uploads"></div>
-        </div>
-        <div style="font-size:11px;color:var(--muted);margin-top:8px">أي صورة جديدة للمنتج/القسم/البوستر هتترفع تلقائيًا على GitHub عند الحفظ.</div>
-        <button class="btn btn-orange" onclick="saveGitHubSettings()">🔐 حفظ إعدادات GitHub</button>
-      </div>
     </div>
 
     <!-- REPORTS -->
@@ -662,109 +694,47 @@ var prodImgs=[], secImg=null, bannerImg=null;
 
 // ── Image Compressor ────────────────────────────────
 function compressImage(base64, maxKB, callback) {
-  maxKB = maxKB || 200;
+  maxKB = maxKB || 80;
   var img = new Image();
   img.onload = function() {
     var canvas = document.createElement('canvas');
-    var maxW = 600, maxH = 600;
+    // Max 800px للجانب الأطول
+    var maxD = 800;
     var w = img.width, h = img.height;
-    if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
-    if (h > maxH) { w = Math.round(w * maxH / h); h = maxH; }
+    if (w > h) { if (w > maxD) { h = Math.round(h * maxD / w); w = maxD; } }
+    else        { if (h > maxD) { w = Math.round(w * maxD / h); h = maxD; } }
     canvas.width = w; canvas.height = h;
     var ctx = canvas.getContext('2d');
     ctx.drawImage(img, 0, 0, w, h);
-    var quality = 0.75;
+
+    // ضغط تدريجي لحد ما نوصل للحجم المطلوب
+    var quality = 0.85;
     var result = canvas.toDataURL('image/jpeg', quality);
-    while (result.length * 0.75 / 1024 > maxKB && quality > 0.15) {
-      quality -= 0.1;
+    var sizeKB = Math.round(result.length * 0.75 / 1024);
+
+    while (sizeKB > maxKB && quality > 0.1) {
+      quality -= 0.05;
       result = canvas.toDataURL('image/jpeg', quality);
+      sizeKB = Math.round(result.length * 0.75 / 1024);
     }
-    var finalKB = Math.round(result.length * 0.75 / 1024);
-    console.log('Image compressed to: ' + finalKB + 'KB (quality: ' + quality.toFixed(1) + ')');
+
+    // لو لسه كبير نصغر الأبعاد
+    if (sizeKB > maxKB) {
+      var scale = Math.sqrt(maxKB / sizeKB);
+      canvas.width  = Math.round(w * scale);
+      canvas.height = Math.round(h * scale);
+      ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      result = canvas.toDataURL('image/jpeg', 0.7);
+      sizeKB = Math.round(result.length * 0.75 / 1024);
+    }
+
+    console.log('Image compressed to: ' + sizeKB + 'KB (quality: ' + quality.toFixed(2) + ')');
     callback(result);
   };
   img.src = base64;
 }
 
-// ── API ──────────────────────────────────────────────
-async function api(method, path, body) {
-  var opts = { method, headers: { 'Content-Type':'application/json', 'x-admin-token': ADMIN_TOKEN } };
-  if (body) opts.body = JSON.stringify(body);
-  var r = await fetch(API + path, opts);
-  var d = await r.json();
-  if (!r.ok) throw new Error(d.error || 'API Error');
-  return d;
-}
-
-function getGitHubCfg() {
-  return {
-    token:  (document.getElementById('gh_token')||{}).value || localStorage.getItem('ms_gh_token') || '',
-    owner:  (document.getElementById('gh_owner')||{}).value || localStorage.getItem('ms_gh_owner') || '',
-    repo:   (document.getElementById('gh_repo')||{}).value || localStorage.getItem('ms_gh_repo') || '',
-    branch: (document.getElementById('gh_branch')||{}).value || localStorage.getItem('ms_gh_branch') || 'main',
-    imgDir: (document.getElementById('gh_img_dir')||{}).value || localStorage.getItem('ms_gh_img_dir') || 'images/uploads'
-  };
-}
-function ghReady(cfg) { return !!(cfg.token && cfg.owner && cfg.repo); }
-function ghEncodePath(path) { return path.split('/').map(encodeURIComponent).join('/'); }
-function isDataUrl(v) { return typeof v === 'string' && v.startsWith('data:image/'); }
-
-function saveGitHubSettings() {
-  var cfg = getGitHubCfg();
-  localStorage.setItem('ms_gh_token', cfg.token || '');
-  localStorage.setItem('ms_gh_owner', cfg.owner || '');
-  localStorage.setItem('ms_gh_repo', cfg.repo || '');
-  localStorage.setItem('ms_gh_branch', cfg.branch || 'main');
-  localStorage.setItem('ms_gh_img_dir', cfg.imgDir || 'images/uploads');
-  toast(ghReady(cfg) ? '✅ تم حفظ إعدادات GitHub' : '⚠️ أكمل Token/Owner/Repo لتفعيل الرفع التلقائي', ghReady(cfg) ? 'success' : '');
-}
-
-async function githubPutFile(path, base64Content, message) {
-  var cfg = getGitHubCfg();
-  if (!ghReady(cfg)) throw new Error('GitHub غير مهيأ — احفظ Token/Owner/Repo من الإعدادات');
-  var apiBase = 'https://api.github.com/repos/' + encodeURIComponent(cfg.owner) + '/' + encodeURIComponent(cfg.repo) + '/contents/' + ghEncodePath(path);
-  var headers = { 'Authorization': 'Bearer ' + cfg.token, 'Accept': 'application/vnd.github+json' };
-  var sha = null;
-  try {
-    var oldRes = await fetch(apiBase + '?ref=' + encodeURIComponent(cfg.branch), { headers: headers });
-    if (oldRes.ok) {
-      var oldData = await oldRes.json();
-      sha = oldData.sha || null;
-    }
-  } catch(e) {}
-  var putRes = await fetch(apiBase, {
-    method: 'PUT',
-    headers: { ...headers, 'Content-Type':'application/json' },
-    body: JSON.stringify({ message: message, content: base64Content, branch: cfg.branch, sha: sha || undefined })
-  });
-  var putData = await putRes.json();
-  if (!putRes.ok) throw new Error((putData && (putData.message || putData.error)) || 'GitHub upload failed');
-  return putData;
-}
-
-async function uploadDataUrlToGitHub(dataUrl, subFolder, prefix) {
-  if (!isDataUrl(dataUrl)) return dataUrl;
-  var cfg = getGitHubCfg();
-  if (!ghReady(cfg)) throw new Error('اربط GitHub أولاً من الإعدادات لرفع الصور تلقائيًا');
-  var m = dataUrl.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
-  if (!m) throw new Error('صيغة الصورة غير مدعومة');
-  var mime = m[1];
-  var content = m[2];
-  var ext = mime.indexOf('png')>-1 ? 'png' : (mime.indexOf('webp')>-1 ? 'webp' : 'jpg');
-  var name = (prefix||'img') + '-' + Date.now() + '-' + Math.floor(Math.random()*100000) + '.' + ext;
-  var path = (cfg.imgDir.replace(/\/+$/,'')) + '/' + (subFolder||'misc') + '/' + name;
-  await githubPutFile(path, content, 'upload: ' + path);
-  return path;
-}
-
-async function syncJsonToGitHub(path, obj, title) {
-  var cfg = getGitHubCfg();
-  if (!ghReady(cfg)) return;
-  var content = btoa(unescape(encodeURIComponent(JSON.stringify(obj, null, 2))));
-  await githubPutFile(path, content, title || ('update ' + path));
-}
-
-// ── NAV ──────────────────────────────────────────────
 function go(key, el) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('show'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -877,26 +847,13 @@ async function saveProd() {
   var price=parseFloat(document.getElementById('pm_price').value);
   if (!nameAr||!price) { toast('أدخل الاسم والسعر','error'); return; }
   var imgUrl=document.getElementById('pm_imgUrl').value.trim();
-  var imgs = prodImgs.length ? prodImgs.slice() : (imgUrl ? [imgUrl] : []);
-  if (imgs.some(isDataUrl)) {
-    try {
-      imgs = await Promise.all(imgs.map(function(im, idx){ return uploadDataUrlToGitHub(im, 'products', 'prod-'+(editProdId||'new')+'-'+idx); }));
-    } catch(e) {
-      toast('❌ فشل رفع صور المنتج على GitHub: '+e.message,'error');
-      return;
-    }
-  }
+  var imgs = prodImgs.length ? prodImgs : (imgUrl ? [imgUrl] : []);
   var frameColors = Array.from(document.querySelectorAll('.fc-check:checked')).map(function(c){return c.value;});
   var fabricColors = Array.from(document.querySelectorAll('.fab-check:checked')).map(function(c){return c.value;});
   var body={nameAr,price,nameEn:document.getElementById('pm_nameEn').value.trim(),section:document.getElementById('pm_section').value,finish:document.getElementById('pm_finish').value,badge:document.getElementById('pm_badge').value,desc:document.getElementById('pm_desc').value.trim(),imgs,frameColors,fabricColors,hasColorOptions:frameColors.length>0||fabricColors.length>0};
   try {
     if (editProdId) { await api('PUT','/api/admin/products/'+editProdId,body); toast('✅ تم تعديل المنتج','success'); }
     else { await api('POST','/api/admin/products',body); toast('✅ تم إضافة المنتج','success'); }
-    try {
-      await syncJsonToGitHub('data/admin/products-last-save.json', body, 'sync: product from dashboard');
-    } catch(syncErr) {
-      toast('⚠️ المنتج اتحفظ لكن مزامنة GitHub فشلت: '+syncErr.message,'');
-    }
     closeProdModal(); loadProducts();
   } catch(e) { toast('❌ '+e.message,'error'); }
 }
@@ -930,7 +887,7 @@ async function deleteProdFromModal() {
 // ── SECTIONS ──────────────────────────────────────────
 var localSections = [
   {id:'home',    nameAr:'المنزل',        nameEn:'Home',       desc:'غرف معيشة وسفرة ونوم', link:'section-home.html',       img:'images/showroom-lounge.jpg'},
-  {id:'hall',    nameAr:'قاعات الأفراح', nameEn:'Halls',      desc:'قاعات أفراح ومؤتمرات',  link:'section-hall.html',       img:'images/sections/S.S.-Gold-Fashion-Chairs.jpg'},
+  {id:'hall',    nameAr:'قاعات الأفراح', nameEn:'Halls',      desc:'قاعات أفراح ومؤتمرات',  link:'section-hall.html',       img:'images/p15-new-e-2.jpg'},
   {id:'museum',  nameAr:'لوبي / متحف',   nameEn:'Lobby',      desc:'لوبي فنادق واستقبال',   link:'section-museum.html',     img:'images/p11-new-a-1.jpg'},
   {id:'restaurant',nameAr:'مطاعم وكافيهات',nameEn:'Restaurant',desc:'مطاعم وكافيهات فاخرة',link:'section-restaurant.html', img:'images/p05-velvet-red-1.jpg'},
 ];
@@ -966,15 +923,10 @@ function editSec(id) {
   document.getElementById('sectionModal').classList.add('open');
 }
 
-async function saveSec() {
+function saveSec() {
   var nameAr=document.getElementById('sec_nameAr').value.trim();
   if (!nameAr) { toast('أدخل اسم القسم','error'); return; }
-  var imgPath = secImg || '';
-  if (isDataUrl(imgPath)) {
-    try { imgPath = await uploadDataUrlToGitHub(imgPath, 'sections', 'section-'+(editSecId||'new')); }
-    catch(e) { toast('❌ فشل رفع صورة القسم على GitHub: '+e.message,'error'); return; }
-  }
-  var data = { nameAr, nameEn:document.getElementById('sec_nameEn').value.trim(), desc:document.getElementById('sec_desc').value.trim(), link:document.getElementById('sec_link').value.trim(), img:imgPath };
+  var data = { nameAr, nameEn:document.getElementById('sec_nameEn').value.trim(), desc:document.getElementById('sec_desc').value.trim(), link:document.getElementById('sec_link').value.trim(), img:secImg||'' };
   if (editSecId) {
     var idx=localSections.findIndex(x=>x.id===editSecId);
     if (idx>-1) localSections[idx]={...localSections[idx],...data};
@@ -984,17 +936,15 @@ async function saveSec() {
   }
   localStorage.setItem('ms_sections',JSON.stringify(localSections));
   closeSecModal(); loadSections();
-  try { await syncJsonToGitHub('data/admin/sections.json', localSections, 'sync: sections from dashboard'); }
-  catch(e) { toast('⚠️ القسم اتحفظ محليًا لكن مزامنة GitHub فشلت: '+e.message,''); return; }
-  toast('✅ تم حفظ القسم ومزامنته على GitHub','success');
+  toast('✅ تم حفظ القسم — ارفع الصورة على GitHub في images/','success');
 }
 function closeSecModal() { document.getElementById('sectionModal').classList.remove('open'); }
 
 // ── BANNERS ───────────────────────────────────────────
 var localBanners = [
   {id:1, titleAr:'أثاث استانلس فاخر', titleEn:'Premium Stainless', desc:'مباشرة من المصنع — بدون حد أدنى', btn:'تسوق الآن', link:'marketplace.html', color:'#ff6000', img:'images/showroom-lounge.jpg'},
-  {id:2, titleAr:'قاعات الأفراح VIP', titleEn:'Wedding Halls VIP',   desc:'كراسي ذهبية وفضية لقاعاتك',    btn:'اكتشف الآن', link:'section-hall.html', color:'#1a1a1a', img:'images/sections/S.S.-Gold-Fashion-Chairs.jpg'},
-  {id:3, titleAr:'AI مصمم الغرفة',    titleEn:'AI Room Designer',   desc:'صمّم مكانك قبل الشراء',          btn:'جرّب مجاناً', link:'ai-designer.html', color:'#2d1200', img:'images/sections/Round-Back-Chair-with-Gold-Trim-480x402.jpg'},
+  {id:2, titleAr:'قاعات الأفراح VIP', titleEn:'Wedding Halls VIP',   desc:'كراسي ذهبية وفضية لقاعاتك',    btn:'اكتشف الآن', link:'section-hall.html', color:'#1a1a1a', img:'images/p15-new-e-2.jpg'},
+  {id:3, titleAr:'AI مصمم الغرفة',    titleEn:'AI Room Designer',   desc:'صمّم مكانك قبل الشراء',          btn:'جرّب مجاناً', link:'ai-designer.html', color:'#2d1200', img:'images/p03-barrel-gold-1.jpg'},
 ];
 
 function loadBanners() {
@@ -1031,35 +981,20 @@ function editBanner(id) {
   document.getElementById('bannerModal').classList.add('open');
 }
 
-async function saveBanner() {
+function saveBanner() {
   var titleAr=document.getElementById('bn_titleAr').value.trim();
   if (!titleAr) { toast('أدخل عنوان البوستر','error'); return; }
-  var imgPath = bannerImg || '';
-  if (isDataUrl(imgPath)) {
-    try { imgPath = await uploadDataUrlToGitHub(imgPath, 'banners', 'banner-'+(editBannerId||'new')); }
-    catch(e) { toast('❌ فشل رفع صورة البوستر على GitHub: '+e.message,'error'); return; }
-  }
-  var data={titleAr,titleEn:document.getElementById('bn_titleEn').value.trim(),desc:document.getElementById('bn_desc').value.trim(),link:document.getElementById('bn_link').value.trim(),btn:document.getElementById('bn_btn').value.trim(),color:document.getElementById('bn_color').value,img:imgPath};
+  var data={titleAr,titleEn:document.getElementById('bn_titleEn').value.trim(),desc:document.getElementById('bn_desc').value.trim(),link:document.getElementById('bn_link').value.trim(),btn:document.getElementById('bn_btn').value.trim(),color:document.getElementById('bn_color').value,img:bannerImg||''};
   if (editBannerId) {
     var idx=localBanners.findIndex(x=>x.id===editBannerId);
     if (idx>-1) localBanners[idx]={...localBanners[idx],...data};
   } else { data.id=Date.now(); localBanners.push(data); }
   localStorage.setItem('ms_banners',JSON.stringify(localBanners));
   closeBannerModal(); loadBanners();
-  try { await syncJsonToGitHub('data/admin/banners.json', localBanners, 'sync: banners from dashboard'); }
-  catch(e) { toast('⚠️ البوستر اتحفظ محليًا لكن مزامنة GitHub فشلت: '+e.message,''); return; }
-  toast('✅ تم حفظ البوستر ومزامنته على GitHub','success');
+  toast('✅ تم حفظ البوستر','success');
 }
 
-async function delBanner(id) {
-  if(!confirm('حذف البوستر؟')) return;
-  localBanners=localBanners.filter(b=>b.id!==id);
-  localStorage.setItem('ms_banners',JSON.stringify(localBanners));
-  loadBanners();
-  try { await syncJsonToGitHub('data/admin/banners.json', localBanners, 'sync: delete banner from dashboard'); }
-  catch(e) { toast('⚠️ تم الحذف محليًا لكن مزامنة GitHub فشلت: '+e.message,''); return; }
-  toast('تم الحذف','');
-}
+function delBanner(id) { if(!confirm('حذف البوستر؟')) return; localBanners=localBanners.filter(b=>b.id!==id); localStorage.setItem('ms_banners',JSON.stringify(localBanners)); loadBanners(); toast('تم الحذف',''); }
 function closeBannerModal() { document.getElementById('bannerModal').classList.remove('open'); }
 
 // ── IMAGE UPLOAD ──────────────────────────────────────
@@ -1249,11 +1184,6 @@ async function loadSettings() {
     document.getElementById('set_d100').value=s.discount100||10;
     document.getElementById('set_d500').value=s.discount500||20;
   } catch(e) {}
-  document.getElementById('gh_token').value = localStorage.getItem('ms_gh_token') || '';
-  document.getElementById('gh_owner').value = localStorage.getItem('ms_gh_owner') || '';
-  document.getElementById('gh_repo').value = localStorage.getItem('ms_gh_repo') || '';
-  document.getElementById('gh_branch').value = localStorage.getItem('ms_gh_branch') || 'main';
-  document.getElementById('gh_img_dir').value = localStorage.getItem('ms_gh_img_dir') || 'images/uploads';
 }
 async function updateRate() {
   var r=parseFloat(document.getElementById('newRate').value);
@@ -1505,6 +1435,179 @@ async function uploadExcelProducts() {
   excelProducts = [];
 }
 
+// ── AFFILIATES ──────────────────────────────────────────
+var editAffId = null;
+var currentAffTab = 'active';
+
+function showAffTab(tab) {
+  currentAffTab = tab;
+  document.getElementById('aff-tab-active').className = 'btn ' + (tab==='active'?'btn-orange':'btn-gray');
+  document.getElementById('aff-tab-active').style.cssText = 'font-size:12px;padding:6px 14px';
+  document.getElementById('aff-tab-pending').className = 'btn ' + (tab==='pending'?'btn-orange':'btn-gray');
+  document.getElementById('aff-tab-pending').style.cssText = 'font-size:12px;padding:6px 14px';
+  loadAffiliates();
+}
+
+async function loadAffiliates() {
+  try {
+    var d = await api('GET', '/api/admin/affiliates');
+    var all = d.affiliates || [];
+    var affs = currentAffTab === 'pending'
+      ? all.filter(function(a){ return a.status === 'pending'; })
+      : all.filter(function(a){ return a.status !== 'pending'; });
+
+    if (!affs.length) {
+      document.getElementById('affsTable').innerHTML = 
+        '<div style="padding:20px;text-align:center;color:var(--muted)">' +
+        (currentAffTab === 'pending' ? '✅ لا يوجد طلبات انتساب جديدة' : 'لا يوجد مسوقون — اضغط + لإضافة') +
+        '</div>';
+      return;
+    }
+
+    var levelColors = {starter:'#888', silver:'#aaa', gold:'var(--orange)', vip:'#9b59b6'};
+    var html = '<table>';
+    if (currentAffTab === 'pending') {
+      html += '<tr><th>الاسم</th><th>الواتساب</th><th>الوظيفة</th><th>فيسبوك</th><th>التاريخ</th><th>إجراء</th></tr>';
+      affs.forEach(function(a, i) {
+        var date = a.createdAt ? new Date(a.createdAt).toLocaleDateString('ar-EG') : '-';
+        var fbLink = a.facebook ? '<a href="' + a.facebook + '" target="_blank" style="color:var(--orange);font-size:11px">🔗 الصفحة</a>' : '-';
+        html += '<tr>' +
+          '<td><strong>' + (a.name||'-') + '</strong></td>' +
+          '<td>' + (a.phone||'-') + '</td>' +
+          '<td>' + (a.job||'-') + '</td>' +
+          '<td>' + fbLink + '</td>' +
+          '<td>' + date + '</td>' +
+          '<td>' +
+            '<button class="btn btn-orange btn-sm" onclick="approveAffiliate(' + a.id + ')">✅ موافقة</button> ' +
+            '<button class="btn btn-red btn-sm" onclick="rejectAffiliate(' + a.id + ')">❌ رفض</button>' +
+          '</td></tr>';
+      });
+    } else {
+      html += '<tr><th>الاسم</th><th>الواتساب</th><th>الكود</th><th>العمولة</th><th>المستوى</th><th>المبيعات</th><th>إجراء</th></tr>';
+      affs.forEach(function(a, i) {
+        html += '<tr>' +
+          '<td><strong>' + (a.name||'-') + '</strong></td>' +
+          '<td>' + (a.phone||'-') + '</td>' +
+          '<td><span style="background:var(--orange-lt);color:var(--orange);padding:3px 10px;border-radius:10px;font-weight:800;font-size:12px">' + (a.code||'-') + '</span></td>' +
+          '<td>' + (a.commissionRate||10) + '%</td>' +
+          '<td><span style="color:' + (levelColors[a.level]||'#888') + ';font-weight:700">' + (a.level||'starter') + '</span></td>' +
+          '<td style="color:var(--orange);font-weight:700">$' + (a.totalSales||0) + '</td>' +
+          '<td>' +
+            '<button class="btn btn-gray btn-sm" data-id="' + a.id + '" onclick="editAffById(this.dataset.id)">✏️</button> ' +
+            '<button class="btn btn-gray btn-sm" data-code="' + (a.code||'') + '" onclick="copyAffCode(this)">📋</button>' +
+          '</td></tr>';
+      });
+    }
+    html += '</table>';
+    document.getElementById('affsTable').innerHTML = html;
+  } catch(e) {
+    document.getElementById('affsTable').innerHTML = '<div style="padding:20px;color:var(--red)">❌ ' + e.message + '</div>';
+  }
+}
+
+var allAffsCache = [];
+async function editAffById(id) {
+  try {
+    var d = await api('GET', '/api/admin/affiliates');
+    var a = (d.affiliates||[]).find(function(x){ return x.id == id; });
+    if (a) editAffiliate(a);
+  } catch(e) {}
+}
+
+async function approveAffiliate(id) {
+  try {
+    await api('PUT', '/api/admin/affiliates/' + id, { status:'active' });
+    toast('✅ تم قبول المسوق وإنشاء الكود', 'success');
+    loadAffiliates();
+  } catch(e) { toast('❌ ' + e.message, 'error'); }
+}
+
+async function rejectAffiliate(id) {
+  if (!confirm('رفض هذا الطلب وحذفه؟')) return;
+  try {
+    await api('DELETE', '/api/admin/affiliates/' + id);
+    toast('✅ تم الرفض', 'success');
+    loadAffiliates();
+  } catch(e) { toast('❌ ' + e.message, 'error'); }
+}
+
+function copyAffCode(btn) {
+  var code = btn.getAttribute('data-code');
+  navigator.clipboard.writeText(code);
+  toast('✅ تم نسخ الكود: ' + code, 'success');
+}
+
+function openAddAffiliate() {
+  editAffId = null;
+  document.getElementById('affModalTitle').textContent = '➕ إضافة مسوق جديد';
+  document.getElementById('aff_name').value = '';
+  document.getElementById('aff_phone').value = '';
+  document.getElementById('aff_comm').value = '10';
+  document.getElementById('aff_level').value = 'starter';
+  document.getElementById('aff_code_display').style.display = 'none';
+  document.getElementById('deleteAffBtn').style.display = 'none';
+  document.getElementById('saveAffBtn').style.display = 'inline-flex';
+  document.getElementById('saveAffBtn').textContent = '💾 حفظ وإنشاء كود';
+  document.getElementById('affModal').classList.add('open');
+}
+
+function editAffiliate(a) {
+  editAffId = a.id;
+  document.getElementById('affModalTitle').textContent = '✏️ تعديل مسوق';
+  document.getElementById('aff_name').value = a.name || '';
+  document.getElementById('aff_phone').value = a.phone || a.whatsapp || '';
+  document.getElementById('aff_comm').value = a.commissionRate || 10;
+  document.getElementById('aff_level').value = a.level || 'starter';
+  document.getElementById('deleteAffBtn').style.display = 'inline-flex';
+  document.getElementById('saveAffBtn').textContent = '💾 حفظ التعديل';
+  if (a.code) {
+    document.getElementById('aff_code_val').textContent = a.code;
+    document.getElementById('aff_code_display').style.display = 'block';
+  } else {
+    document.getElementById('aff_code_display').style.display = 'none';
+  }
+  document.getElementById('affModal').classList.add('open');
+}
+
+async function saveAffiliate() {
+  var name  = document.getElementById('aff_name').value.trim();
+  var phone = document.getElementById('aff_phone').value.trim();
+  if (!name || !phone) { toast('أدخل الاسم والواتساب', 'error'); return; }
+  var body = { name, phone, whatsapp:phone, commissionRate:parseFloat(document.getElementById('aff_comm').value)||10, level:document.getElementById('aff_level').value, status:'active' };
+  try {
+    if (editAffId) {
+      await api('PUT', '/api/admin/affiliates/' + editAffId, body);
+      toast('✅ تم التعديل', 'success');
+      closeAffModal();
+    } else {
+      var d = await api('POST', '/api/admin/affiliates', body);
+      var code = d.affiliate ? d.affiliate.code : '';
+      if (code) {
+        document.getElementById('aff_code_val').textContent = code;
+        document.getElementById('aff_code_display').style.display = 'block';
+        document.getElementById('saveAffBtn').style.display = 'none';
+        toast('✅ تم إنشاء المسوق — كود: ' + code, 'success');
+      }
+    }
+    loadAffiliates();
+  } catch(e) { toast('❌ ' + e.message, 'error'); }
+}
+
+async function deleteAffFromModal() {
+  if (!editAffId || !confirm('حذف هذا المسوق نهائياً؟')) return;
+  try {
+    await api('DELETE', '/api/admin/affiliates/' + editAffId);
+    toast('✅ تم الحذف', 'success');
+    closeAffModal();
+    loadAffiliates();
+  } catch(e) { toast('❌ ' + e.message, 'error'); }
+}
+
+function closeAffModal() {
+  document.getElementById('affModal').classList.remove('open');
+  editAffId = null;
+}
+
 // ── PORTFOLIO ──────────────────────────────────────────
 var editProjId = null;
 var projImgs = [];
@@ -1571,7 +1674,7 @@ function onProjImgSelect(files) {
     if (!file.type.startsWith('image/')) return;
     var reader = new FileReader();
     reader.onload = function(ev) {
-      compressImage(ev.target.result, 300, function(compressed) {
+      compressImage(ev.target.result, 80, function(compressed) {
         projImgs.push(compressed);
         renderProjImgPreviews();
       });

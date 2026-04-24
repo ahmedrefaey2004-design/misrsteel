@@ -107,11 +107,33 @@ tr:last-child td{border-bottom:none}
   <div class="login-box">
     <div class="login-logo">🤝</div>
     <div class="login-title">بوابة المسوقين</div>
-    <div class="login-sub">مصر ستيل — ادخل الكود الخاص بيك</div>
-    <input class="inp" id="loginCode" type="text" placeholder="كود المسوق (مثال: MS-AHMED)" oninput="this.value=this.value.toUpperCase()">
-    <input class="inp" id="loginPhone" type="tel" placeholder="رقم الواتساب المسجل">
-    <button class="login-btn" onclick="doLogin()">🚀 دخول</button>
-    <div class="login-err" id="loginErr">❌ الكود أو الرقم غير صحيح</div>
+
+    <!-- Tabs -->
+    <div style="display:flex;gap:8px;margin-bottom:20px">
+      <button id="tab-login" onclick="switchLoginTab('login')" style="flex:1;padding:9px;border-radius:8px;background:var(--orange);color:#fff;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">تسجيل دخول</button>
+      <button id="tab-register" onclick="switchLoginTab('register')" style="flex:1;padding:9px;border-radius:8px;background:#1a1a1a;color:#555;border:1px solid #333;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">انضم كمسوق</button>
+    </div>
+
+    <!-- Login Form -->
+    <div id="form-login">
+      <div class="login-sub">ادخل الكود ورقم واتساپك</div>
+      <input class="inp" id="loginCode" type="text" placeholder="كود المسوق (مثال: MS-AHMED)" oninput="this.value=this.value.toUpperCase()">
+      <input class="inp" id="loginPhone" type="tel" placeholder="رقم الواتساب المسجل">
+      <button class="login-btn" onclick="doLogin()">🚀 دخول</button>
+      <div class="login-err" id="loginErr"></div>
+    </div>
+
+    <!-- Register Form -->
+    <div id="form-register" style="display:none">
+      <div class="login-sub">سجل بياناتك وانتظر موافقة الإدارة</div>
+      <input class="inp" id="regName" type="text" placeholder="الاسم الكامل *">
+      <input class="inp" id="regPhone" type="tel" placeholder="رقم الواتساب *">
+      <input class="inp" id="regJob" type="text" placeholder="وظيفتك أو مجال عملك (مثال: مصمم ديكور، وسيط عقارات...)">
+      <input class="inp" id="regFacebook" type="url" placeholder="رابط صفحتك على فيسبوك (اختياري)">
+      <button class="login-btn" onclick="doRegister()">📝 إرسال الطلب</button>
+      <div class="login-err" id="regErr"></div>
+      <div id="regSuccess" style="display:none;color:#4ade80;font-size:13px;margin-top:10px;text-align:center"></div>
+    </div>
   </div>
 </div>
 
@@ -132,11 +154,13 @@ tr:last-child td{border-bottom:none}
       <p>داشبورد المسوق — تابع مبيعاتك وعمولاتك وارفع أوردرات عملائك</p>
     </div>
 
-    <!-- Stats -->
+
+
+    <!-- Stats Summary -->
     <div class="stats">
-      <div class="stat"><div class="stat-num" id="st-sales">0</div><div class="stat-label">إجمالي المبيعات $</div></div>
-      <div class="stat"><div class="stat-num" id="st-orders">0</div><div class="stat-label">عدد الأوردرات</div></div>
-      <div class="stat"><div class="stat-num" id="st-comm">0</div><div class="stat-label">العمولة المستحقة $</div></div>
+      <div class="stat"><div class="stat-num" id="st-sales">$0</div><div class="stat-label">إجمالي مبيعاتك</div></div>
+      <div class="stat"><div class="stat-num" id="st-orders">0</div><div class="stat-label">عدد الطلبات</div></div>
+      <div class="stat"><div class="stat-num" id="st-comm">$0</div><div class="stat-label">عمولتك المستحقة</div></div>
       <div class="stat"><div class="stat-num" id="st-level">-</div><div class="stat-label">المستوى</div></div>
     </div>
 
@@ -152,6 +176,29 @@ tr:last-child td{border-bottom:none}
         <button class="copy-btn" onclick="copyLink()">📋 نسخ الرابط</button>
       </div>
       <div class="commission-info" id="commInfo">جاري التحميل...</div>
+    </div>
+
+    <!-- Custom Price -->
+    <div class="upload-card">
+      <h3>💰 سعر البيع المخصص</h3>
+      <div class="upload-desc">
+        تقدر تحدد سعر بيع مختلف للعميل — هيظهرلك الفرق بينه وبين سعر المصنع كعمولة إضافية.
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+        <div style="flex:1;min-width:140px">
+          <label style="font-size:11px;font-weight:700;color:var(--muted);display:block;margin-bottom:5px">سعر المصنع $</label>
+          <input type="number" id="factory-price" placeholder="0" readonly style="width:100%;padding:9px;border:1.5px solid var(--border);border-radius:6px;font-family:inherit;font-size:13px;background:#f5f5f5">
+        </div>
+        <div style="flex:1;min-width:140px">
+          <label style="font-size:11px;font-weight:700;color:var(--muted);display:block;margin-bottom:5px">سعر بيعك $ <span style="color:var(--orange)">(اكتب هنا)</span></label>
+          <input type="number" id="sell-price" placeholder="0" oninput="calcMyProfit()" style="width:100%;padding:9px;border:1.5px solid var(--orange);border-radius:6px;font-family:inherit;font-size:13px">
+        </div>
+        <div style="flex:1;min-width:140px">
+          <label style="font-size:11px;font-weight:700;color:var(--muted);display:block;margin-bottom:5px">ربحك $</label>
+          <div id="my-profit" style="padding:9px;background:var(--orange-lt);border-radius:6px;font-size:15px;font-weight:800;color:var(--orange)">0</div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px">* سعر المصنع من آخر منتج شوفته — لما تفتح أي منتج هيتحدث تلقائي</div>
     </div>
 
     <!-- Upload Orders -->
@@ -201,21 +248,39 @@ var BACKEND = 'https://misrsteel-backend.vercel.app';
 var aff = null;
 var pendingOrders = [];
 
-function readLoginPrefill() {
-  var params = new URLSearchParams(location.search);
-  var code = (params.get('code') || '').trim();
-  var phone = (params.get('phone') || '').trim();
-  if (!code || !phone) {
-    try {
-      var saved = JSON.parse(localStorage.getItem('aff_login_prefill') || '{}');
-      code = code || (saved.code || '');
-      phone = phone || (saved.phone || '');
-    } catch (_e) {}
-  }
-  return { code: code, phone: phone };
+// ── LOGIN ──
+function switchLoginTab(tab) {
+  document.getElementById('form-login').style.display = tab==='login' ? 'block' : 'none';
+  document.getElementById('form-register').style.display = tab==='register' ? 'block' : 'none';
+  document.getElementById('tab-login').style.cssText = 'flex:1;padding:9px;border-radius:8px;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;background:' + (tab==='login'?'var(--orange);color:#fff':'#1a1a1a;color:#555;border:1px solid #333');
+  document.getElementById('tab-register').style.cssText = 'flex:1;padding:9px;border-radius:8px;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;background:' + (tab==='register'?'var(--orange);color:#fff':'#1a1a1a;color:#555;border:1px solid #333');
 }
 
-// ── LOGIN ──
+async function doRegister() {
+  var name  = document.getElementById('regName').value.trim();
+  var phone = document.getElementById('regPhone').value.trim();
+  if (!name || !phone) { document.getElementById('regErr').textContent = '❌ أدخل الاسم والرقم'; document.getElementById('regErr').style.display='block'; return; }
+  try {
+    var r = await fetch(BACKEND + '/api/affiliates/register', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        name, phone, whatsapp:phone,
+        job: document.getElementById('regJob').value.trim(),
+        facebook: document.getElementById('regFacebook').value.trim()
+      })
+    });
+    var d = await r.json();
+    if (!r.ok) { document.getElementById('regErr').textContent = '❌ ' + d.error; document.getElementById('regErr').style.display='block'; return; }
+    document.getElementById('regErr').style.display = 'none';
+    document.getElementById('regSuccess').textContent = '✅ ' + d.message;
+    document.getElementById('regSuccess').style.display = 'block';
+    document.getElementById('regName').value = '';
+    document.getElementById('regPhone').value = '';
+    document.getElementById('regJob').value = '';
+    document.getElementById('regFacebook').value = '';
+  } catch(e) { document.getElementById('regErr').textContent = '❌ خطأ في الاتصال'; document.getElementById('regErr').style.display='block'; }
+}
+
 async function doLogin() {
   var code  = document.getElementById('loginCode').value.trim();
   var phone = document.getElementById('loginPhone').value.trim();
@@ -232,7 +297,6 @@ async function doLogin() {
     
     aff = d.affiliate;
     localStorage.setItem('aff_session', JSON.stringify(aff));
-    localStorage.removeItem('aff_login_prefill');
     showDash();
   } catch(e) {
     showLoginErr('فشل الاتصال — تحقق من الإنترنت');
@@ -425,6 +489,20 @@ async function uploadOrders() {
 }
 
 // ── COPY ──
+function calcMyProfit() {
+  var factory = parseFloat(document.getElementById('factory-price').value) || 0;
+  var sell    = parseFloat(document.getElementById('sell-price').value) || 0;
+  var comm    = aff ? (aff.commissionRate || 10) : 10;
+  var commAmount = factory * comm / 100;
+  var extraProfit = sell - factory;
+  var total = commAmount + extraProfit;
+  var el = document.getElementById('my-profit');
+  if (el) {
+    el.textContent = total > 0 ? '$' + total.toFixed(2) : total < 0 ? '⚠️ أقل من السعر' : '0';
+    el.style.color = total > 0 ? 'var(--orange)' : total < 0 ? '#cc0000' : '#888';
+  }
+}
+
 function copyCode() {
   navigator.clipboard.writeText(aff.code||'');
   toast('✅ تم نسخ الكود', 'success');
@@ -448,13 +526,6 @@ function toast(msg, type) {
 var saved = localStorage.getItem('aff_session');
 if (saved) {
   try { aff = JSON.parse(saved); showDash(); } catch(e) {}
-} else {
-  var prefill = readLoginPrefill();
-  if (prefill.code) document.getElementById('loginCode').value = prefill.code;
-  if (prefill.phone) document.getElementById('loginPhone').value = prefill.phone;
-  if (prefill.code && prefill.phone) {
-    doLogin();
-  }
 }
 </script>
 </body>
