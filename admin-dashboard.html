@@ -294,7 +294,7 @@ tr:hover td{background:#fafafa}
   <div class="header-logo">⚙️ مصر ستيل — Admin</div>
   <div class="header-right">
     <div class="api-status"><div class="api-dot" id="apiDot"></div><span id="apiTxt">جاري الاتصال...</span></div>
-    <button class="header-btn" onclick="window.open('factory.html','_blank')" style="background:rgba(255,96,0,.15);border-color:var(--orange);color:var(--orange)">🏭 نظام ERP</button>
+    <button class="header-btn" onclick="localStorage.setItem('ms_admin_token',ADMIN_TOKEN);window.open('factory.html','_blank')" style="background:rgba(255,96,0,.15);border-color:var(--orange);color:var(--orange)">🏭 نظام ERP</button>
     <button class="header-btn" onclick="window.open('https://misrsteel.vercel.app','_blank')">🌐 الموقع</button>
   </div>
 </div>
@@ -315,7 +315,7 @@ tr:hover td{background:#fafafa}
     <div class="nav-item" onclick="go('inquiries',this)">📋 الاستفسارات</div>
     <div class="nav-item" onclick="go('ai_users',this)">🤖 مستخدمو AI</div>
     <div class="nav-item" onclick="go('partners',this)">🤝 الشركاء والـ API</div>
-    <div class="nav-item" onclick="window.open('factory.html','_blank')" style="color:var(--orange)">🏭 نظام ERP المصنع</div>
+    <div class="nav-item" onclick="localStorage.setItem('ms_admin_token',ADMIN_TOKEN);window.open('factory.html','_blank')" style="color:var(--orange)">🏭 نظام ERP المصنع</div>
     <div class="nav-item" onclick="go('portfolio',null)">🏆 معرض الأعمال</div>
     <div class="nav-section">الإعدادات</div>
     <div class="nav-item" onclick="go('settings',this)">⚙️ الإعدادات</div>
@@ -334,7 +334,7 @@ tr:hover td{background:#fafafa}
         <div class="qcard" onclick="go('sections',null)"><div class="qcard-icon">📂</div><div class="qcard-label">تعديل الأقسام</div></div>
         <div class="qcard" onclick="go('banners',null)"><div class="qcard-icon">🖼️</div><div class="qcard-label">تعديل البوسترات</div></div>
         <div class="qcard" onclick="go('orders',null)"><div class="qcard-icon">📦</div><div class="qcard-label">الطلبات الجديدة</div></div>
-        <div class="qcard" onclick="window.open('factory.html','_blank')" style="border-color:var(--orange)"><div class="qcard-icon">🏭</div><div class="qcard-label">نظام ERP المصنع</div></div>
+        <div class="qcard" onclick="localStorage.setItem('ms_admin_token',ADMIN_TOKEN);window.open('factory.html','_blank')" style="border-color:var(--orange)"><div class="qcard-icon">🏭</div><div class="qcard-label">نظام ERP المصنع</div></div>
       </div>
       <div class="table-wrap">
         <div class="table-head"><h3>📦 آخر الطلبات</h3></div>
@@ -578,6 +578,7 @@ tr:hover td{background:#fafafa}
 </div>
 
 </div><!-- /panel-portfolio -->
+
 
 <div class="panel" id="panel-partners">
       <div class="panel-title">
