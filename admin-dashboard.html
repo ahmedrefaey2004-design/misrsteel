@@ -125,7 +125,7 @@ tr:hover td{background:#fafafa}
 
 @media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar{display:none}.kpi-grid{grid-template-columns:repeat(2,1fr)}.quick-grid{grid-template-columns:repeat(2,1fr)}.sections-grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}}
 
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:400;display:none;align-items:center;justify-content:center;padding:16px}
+..modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:400;display:none;align-items:center;justify-content:center;padding:16px}
 .modal-overlay.open{display:flex}
 </style>
 </head>
@@ -535,9 +535,8 @@ tr:hover td{background:#fafafa}
   <div class="table-wrap">
     <div id="portfolioTable"><div style="padding:20px;text-align:center;color:var(--muted)">اضغط لتحميل المشاريع</div></div>
   </div>
-</div>
 
-<!-- PORTFOLIO MODAL -->
+  <!-- PORTFOLIO MODAL - inside panel so hidden with panel -->
 <div class="modal-overlay" id="projectModal">
   <div class="modal-box" style="max-width:560px">
     <div class="modal-header">
@@ -577,6 +576,8 @@ tr:hover td{background:#fafafa}
     </div>
   </div>
 </div>
+
+</div><!-- /panel-portfolio -->
 
 <div class="panel" id="panel-partners">
       <div class="panel-title">
