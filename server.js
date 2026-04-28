@@ -41,9 +41,7 @@ function createConfig(env = process.env) {
     maxPromptLength: toPositiveInt(env.MAX_PROMPT_LENGTH, 1200),
     usersStoreFile: env.USERS_STORE_FILE || path.join(process.cwd(), 'data', 'users.json'),
     siteConfigFile: env.SITE_CONFIG_FILE || path.join(process.cwd(), 'data', 'site-config.json'),
-    customersStoreFile: env.CUSTOMERS_STORE_FILE || path.join(process.cwd(), 'data', 'customers.json'),
-    ordersStoreFile: env.ORDERS_STORE_FILE || path.join(process.cwd(), 'data', 'orders.json'),
-    affiliatesStoreFile: env.AFFILIATES_STORE_FILE || path.join(process.cwd(), 'data', 'affiliates.json')
+    customersStoreFile: env.CUSTOMERS_STORE_FILE || path.join(process.cwd(), 'data', 'customers.json')
   };
 }
 
@@ -272,146 +270,6 @@ function createCustomersStore(filePath) {
   return { getByEmail, register, path: resolvedPath };
 }
 
-function createOrdersStore(filePath) {
-  const orders = [];
-  const resolvedPath = path.resolve(filePath);
-  let persistenceEnabled = true;
-
-  function persist() {
-    if (!persistenceEnabled) return;
-    try {
-      fs.mkdirSync(path.dirname(resolvedPath), { recursive: true });
-      const payload = JSON.stringify(orders, null, 2);
-      const tempPath = `${resolvedPath}.tmp`;
-      fs.writeFileSync(tempPath, payload, 'utf8');
-      fs.renameSync(tempPath, resolvedPath);
-    } catch (error) {
-      persistenceEnabled = false;
-      console.warn(`[orders-store] persistence disabled for ${resolvedPath}: ${error.message}`);
-    }
-  }
-
-  function load() {
-    try {
-      if (!fs.existsSync(resolvedPath)) return;
-      const raw = fs.readFileSync(resolvedPath, 'utf8');
-      if (!raw.trim()) return;
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) orders.push(...parsed);
-    } catch (error) {
-      console.warn(`[orders-store] load failed for ${resolvedPath}: ${error.message}`);
-    }
-  }
-
-  function add(payload) {
-    const orderId = crypto.randomUUID();
-    const ref = `MS-${new Date().getFullYear()}-${String(orders.length + 1).padStart(5, '0')}`;
-    const order = {
-      id: orderId,
-      orderId,
-      ref,
-      orderRef: ref,
-      createdAt: new Date().toISOString(),
-      customerName: payload.customerName || 'عميل',
-      customerEmail: payload.customerEmail || '',
-      customerPhone: payload.customerPhone || '',
-      customerCountry: payload.customerCountry || '',
-      items: Array.isArray(payload.items) ? payload.items : [],
-      totalUSD: Number.isFinite(Number(payload.totalUSD)) ? Number(payload.totalUSD) : 0,
-      depositUSD: Number.isFinite(Number(payload.depositUSD)) ? Number(payload.depositUSD) : 0,
-      notes: payload.notes || '',
-      affiliateCode: payload.affiliateCode || '',
-      source: payload.source || 'website'
-    };
-    orders.push(order);
-    persist();
-    return order;
-  }
-
-  function list() {
-    return [...orders];
-  }
-
-  load();
-  return { add, list, path: resolvedPath };
-}
-
-function createAffiliatesStore(filePath) {
-  const affiliates = [];
-  const resolvedPath = path.resolve(filePath);
-  let persistenceEnabled = true;
-
-  function persist() {
-    if (!persistenceEnabled) return;
-    try {
-      fs.mkdirSync(path.dirname(resolvedPath), { recursive: true });
-      const payload = JSON.stringify(affiliates, null, 2);
-      const tempPath = `${resolvedPath}.tmp`;
-      fs.writeFileSync(tempPath, payload, 'utf8');
-      fs.renameSync(tempPath, resolvedPath);
-    } catch (error) {
-      persistenceEnabled = false;
-      console.warn(`[affiliates-store] persistence disabled for ${resolvedPath}: ${error.message}`);
-    }
-  }
-
-  function load() {
-    try {
-      if (!fs.existsSync(resolvedPath)) return;
-      const raw = fs.readFileSync(resolvedPath, 'utf8');
-      if (!raw.trim()) return;
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) affiliates.push(...parsed);
-    } catch (error) {
-      console.warn(`[affiliates-store] load failed for ${resolvedPath}: ${error.message}`);
-    }
-  }
-
-  function generateCode(name) {
-    const slug = String(name || 'AFF').replace(/\s+/g, '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 3) || 'AFF';
-    let code = '';
-    do {
-      code = `${slug}${Math.floor(100 + Math.random() * 900)}`;
-    } while (affiliates.some((item) => item.code === code));
-    return code;
-  }
-
-  function register(payload) {
-    const phone = String(payload.phone || '').trim();
-    if (affiliates.some((item) => item.phone === phone)) return null;
-    const affiliate = {
-      id: crypto.randomUUID(),
-      code: generateCode(payload.name),
-      token: crypto.randomUUID(),
-      name: String(payload.name || '').trim(),
-      phone,
-      whatsapp: String(payload.whatsapp || phone).trim(),
-      job: String(payload.job || '').trim(),
-      facebook: String(payload.facebook || '').trim(),
-      commissionRate: 10,
-      level: 'starter',
-      createdAt: new Date().toISOString()
-    };
-    affiliates.push(affiliate);
-    persist();
-    return affiliate;
-  }
-
-  function findByCodeAndPhone(code, phone) {
-    const normalizedCode = String(code || '').trim().toUpperCase();
-    const normalizedPhone = String(phone || '').trim();
-    return affiliates.find((item) => item.code === normalizedCode && item.phone === normalizedPhone) || null;
-  }
-
-  function findByCode(code) {
-    const normalizedCode = String(code || '').trim().toUpperCase();
-    return affiliates.find((item) => item.code === normalizedCode) || null;
-  }
-
-  load();
-  return { register, findByCodeAndPhone, findByCode, path: resolvedPath };
-}
-
 function isValidUserToken(token) {
   return typeof token === 'string' && /^[a-zA-Z0-9._:-]{8,200}$/.test(token.trim());
 }
@@ -447,8 +305,6 @@ function createApp(config = createConfig()) {
   const userStore = createUserStore(config.usersStoreFile);
   const siteConfigStore = createSiteConfigStore(config.siteConfigFile);
   const customersStore = createCustomersStore(config.customersStoreFile);
-  const ordersStore = createOrdersStore(config.ordersStoreFile);
-  const affiliatesStore = createAffiliatesStore(config.affiliatesStoreFile);
 
   app.disable('x-powered-by');
   app.use(cors({ origin: config.allowedOrigins.includes('*') ? '*' : config.allowedOrigins }));
@@ -530,103 +386,6 @@ function createApp(config = createConfig()) {
     return res.json({ success: true, token, user });
   });
 
-  app.post('/api/orders', (req, res) => {
-    const customerName = typeof req.body?.customerName === 'string' ? req.body.customerName.trim() : '';
-    const items = Array.isArray(req.body?.items) ? req.body.items : [];
-
-    if (!customerName) return res.status(400).json({ error: 'customerName is required' });
-    if (!items.length) return res.status(400).json({ error: 'items are required' });
-
-    const order = ordersStore.add({
-      customerName,
-      customerEmail: typeof req.body?.customerEmail === 'string' ? req.body.customerEmail.trim() : '',
-      customerPhone: typeof req.body?.customerPhone === 'string' ? req.body.customerPhone.trim() : '',
-      customerCountry: typeof req.body?.customerCountry === 'string' ? req.body.customerCountry.trim() : '',
-      items,
-      totalUSD: req.body?.totalUSD,
-      depositUSD: req.body?.depositUSD,
-      notes: typeof req.body?.notes === 'string' ? req.body.notes.trim() : '',
-      affiliateCode: typeof req.body?.affiliateCode === 'string' ? req.body.affiliateCode.trim().toUpperCase() : '',
-      source: typeof req.body?.source === 'string' ? req.body.source.trim() : ''
-    });
-
-    return res.status(201).json({
-      success: true,
-      id: order.id,
-      orderId: order.orderId,
-      ref: order.ref,
-      orderRef: order.orderRef,
-      order
-    });
-  });
-
-  app.post('/api/affiliates/register', (req, res) => {
-    const name = typeof req.body?.name === 'string' ? req.body.name.trim() : '';
-    const phone = typeof req.body?.phone === 'string' ? req.body.phone.trim() : '';
-    if (!name || !phone) return res.status(400).json({ error: 'name and phone are required' });
-
-    const affiliate = affiliatesStore.register({
-      name,
-      phone,
-      whatsapp: req.body?.whatsapp,
-      job: req.body?.job,
-      facebook: req.body?.facebook
-    });
-    if (!affiliate) return res.status(409).json({ error: 'Phone already registered' });
-
-    return res.status(201).json({
-      success: true,
-      message: `تم تسجيلك بنجاح — كودك: ${affiliate.code}`,
-      affiliate: {
-        name: affiliate.name,
-        code: affiliate.code
-      }
-    });
-  });
-
-  app.post('/api/affiliates/login', (req, res) => {
-    const code = typeof req.body?.code === 'string' ? req.body.code.trim().toUpperCase() : '';
-    const phone = typeof req.body?.phone === 'string' ? req.body.phone.trim() : '';
-    if (!code || !phone) return res.status(400).json({ error: 'code and phone are required' });
-
-    const affiliate = affiliatesStore.findByCodeAndPhone(code, phone);
-    if (!affiliate) return res.status(401).json({ error: 'Invalid code or phone' });
-
-    const myOrders = ordersStore.list().filter((order) => String(order.affiliateCode || '').toUpperCase() === affiliate.code);
-    const totalSales = myOrders.reduce((sum, order) => sum + (Number(order.totalUSD) || 0), 0);
-    const totalOrders = myOrders.length;
-    const pendingCommission = totalSales * ((affiliate.commissionRate || 10) / 100);
-
-    return res.json({
-      success: true,
-      affiliate: {
-        id: affiliate.id,
-        name: affiliate.name,
-        phone: affiliate.phone,
-        code: affiliate.code,
-        token: affiliate.token,
-        commissionRate: affiliate.commissionRate || 10,
-        level: affiliate.level || 'starter',
-        totalSales,
-        totalOrders,
-        pendingCommission
-      }
-    });
-  });
-
-  app.get('/api/affiliates/orders', (req, res) => {
-    const code = typeof req.query?.code === 'string' ? req.query.code.trim().toUpperCase() : '';
-    const token = typeof req.headers['x-aff-token'] === 'string' ? req.headers['x-aff-token'].trim() : '';
-    if (!code) return res.status(400).json({ error: 'code is required' });
-
-    const affiliate = affiliatesStore.findByCode(code);
-    if (!affiliate) return res.status(404).json({ error: 'Affiliate not found' });
-    if (!token || token !== affiliate.token) return res.status(401).json({ error: 'Unauthorized affiliate token' });
-
-    const orders = ordersStore.list().filter((order) => String(order.affiliateCode || '').toUpperCase() === code);
-    return res.json({ success: true, total: orders.length, orders });
-  });
-
   app.post('/api/generate', async (req, res) => {
     const token = requireUserToken(req, res);
     if (!token) return;
@@ -658,20 +417,6 @@ function createApp(config = createConfig()) {
 
   app.get('/api/site-config', (req, res) => {
     res.json({ success: true, config: siteConfigStore.get() });
-  });
-
-  app.get('/api/settings/public', (req, res) => {
-    const siteConfig = siteConfigStore.get();
-    const configuredRate = toPositiveFloat(siteConfig?.usdRate, null)
-      || toPositiveFloat(siteConfig?.settings?.usdRate, null)
-      || toPositiveFloat(siteConfig?.settings?.exchangeRateUsdEgp, null)
-      || config.defaultUsdRate;
-
-    res.json({
-      success: true,
-      currency: 'EGP',
-      usdRate: configuredRate
-    });
   });
 
   app.get('/api/products', (req, res) => {
@@ -878,5 +623,3 @@ module.exports.createConfig = createConfig;
 module.exports.startServer = startServer;
 module.exports.createUserStore = createUserStore;
 module.exports.createCustomersStore = createCustomersStore;
-module.exports.createOrdersStore = createOrdersStore;
-module.exports.createAffiliatesStore = createAffiliatesStore;
