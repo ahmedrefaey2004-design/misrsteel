@@ -159,6 +159,53 @@ test('admin add credits works with valid token and payload', async () => {
   });
 });
 
+test('admin orders endpoints list and update orders', async () => {
+  await withServer({ adminToken: 'admin_orders_token' }, async (baseUrl) => {
+    const createRes = await fetch(`${baseUrl}/api/orders`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        customerName: 'Admin Orders Client',
+        customerPhone: '+201444444444',
+        items: [{ id: 'p-order', nameAr: 'منتج', qty: 1, priceUSD: 50 }],
+        totalUSD: 50
+      })
+    });
+    assert.equal(createRes.status, 201);
+    const createJson = await createRes.json();
+    const orderId = createJson.orderId;
+
+    const listRes = await fetch(`${baseUrl}/api/admin/orders`, {
+      headers: { 'x-admin-token': 'admin_orders_token' }
+    });
+    assert.equal(listRes.status, 200);
+    const listJson = await listRes.json();
+    assert.equal(listJson.success, true);
+    assert.equal(listJson.total, 1);
+    assert.equal(listJson.orders[0].id, orderId);
+
+    const updateRes = await fetch(`${baseUrl}/api/admin/orders/${orderId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-admin-token': 'admin_orders_token'
+      },
+      body: JSON.stringify({ status: 'confirmed' })
+    });
+    assert.equal(updateRes.status, 200);
+    const updateJson = await updateRes.json();
+    assert.equal(updateJson.success, true);
+    assert.equal(updateJson.order.status, 'confirmed');
+
+    const filteredRes = await fetch(`${baseUrl}/api/admin/orders?status=confirmed`, {
+      headers: { 'x-admin-token': 'admin_orders_token' }
+    });
+    assert.equal(filteredRes.status, 200);
+    const filteredJson = await filteredRes.json();
+    assert.equal(filteredJson.total, 1);
+  });
+});
+
 test('credits persist after app restart using the same store file', async () => {
   const temp = createTempStorePath();
   const adminToken = 'admin_token_12345';

@@ -795,6 +795,42 @@ function createApp(config = createConfig()) {
     return res.json({ success: true, newCredits: user.credits });
   });
 
+  app.get('/api/admin/orders', (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    const status = typeof req.query?.status === 'string' ? req.query.status.trim().toLowerCase() : '';
+    const limit = Number.parseInt(req.query?.limit, 10);
+    let orders = ordersStore.list();
+
+    if (status) {
+      orders = orders.filter((order) => String(order.status || 'new').toLowerCase() === status);
+    }
+    orders.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+    if (Number.isFinite(limit) && limit > 0) {
+      orders = orders.slice(0, limit);
+    }
+
+    return res.json({ success: true, total: orders.length, orders });
+  });
+
+  app.put('/api/admin/orders/:id', (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    const id = String(req.params?.id || '').trim();
+    if (!id) return res.status(400).json({ error: 'id is required' });
+    if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
+      return res.status(400).json({ error: 'Invalid order payload' });
+    }
+
+    const allowedFields = ['status', 'notes', 'depositUSD', 'totalUSD', 'affiliateCode'];
+    const patch = {};
+    for (const field of allowedFields) {
+      if (Object.prototype.hasOwnProperty.call(req.body, field)) patch[field] = req.body[field];
+    }
+
+    const updated = ordersStore.updateById(id, patch);
+    if (!updated) return res.status(404).json({ error: 'Order not found' });
+    return res.json({ success: true, order: updated });
+  });
+
   app.post('/api/admin/apply-plan', (req, res) => {
     if (!requireAdmin(req, res)) return;
     const userId = typeof req.body?.userId === 'string' ? req.body.userId.trim() : '';
