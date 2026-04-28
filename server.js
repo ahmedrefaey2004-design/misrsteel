@@ -135,7 +135,8 @@ function createSiteConfigStore(filePath) {
     categories: [],
     sections: [],
     posters: [],
-    buttons: []
+    buttons: [],
+    portfolio: []
   });
   let config = { ...DEFAULT_SITE_CONFIG };
 
@@ -147,7 +148,8 @@ function createSiteConfigStore(filePath) {
       categories: Array.isArray(value.categories) ? value.categories : [],
       sections: Array.isArray(value.sections) ? value.sections : [],
       posters: Array.isArray(value.posters) ? value.posters : [],
-      buttons: Array.isArray(value.buttons) ? value.buttons : []
+      buttons: Array.isArray(value.buttons) ? value.buttons : [],
+      portfolio: Array.isArray(value.portfolio) ? value.portfolio : []
     };
   }
 
@@ -192,9 +194,247 @@ function createSiteConfigStore(filePath) {
     return get();
   }
 
+  function addToCollection(collection, item) {
+    const current = Array.isArray(config[collection]) ? config[collection] : [];
+    config[collection] = [...current, item];
+    persist();
+    return get();
+  }
+
+  function updateInCollection(collection, id, patch) {
+    const current = Array.isArray(config[collection]) ? config[collection] : [];
+    const idx = current.findIndex((item) => item && String(item.id) === String(id));
+    if (idx < 0) return null;
+    current[idx] = { ...current[idx], ...patch };
+    config[collection] = current;
+    persist();
+    return get();
+  }
+
+  function removeFromCollection(collection, id) {
+    const current = Array.isArray(config[collection]) ? config[collection] : [];
+    const next = current.filter((item) => !item || String(item.id) !== String(id));
+    config[collection] = next;
+    persist();
+    return get();
+  }
+
   load();
 
-  return { get, replace, addProduct, path: resolvedPath };
+  return { get, replace, addProduct, addToCollection, updateInCollection, removeFromCollection, path: resolvedPath };
+}
+
+function hashPassword(password) {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hashed = crypto.scryptSync(password, salt, 64).toString('hex');
+  return `${salt}:${hashed}`;
+}
+
+function verifyPassword(password, passwordHash) {
+  if (typeof passwordHash !== 'string' || !passwordHash.includes(':')) return false;
+  const [salt, savedHash] = passwordHash.split(':');
+  if (!salt || !savedHash) return false;
+  const derived = crypto.scryptSync(password, salt, 64).toString('hex');
+  return crypto.timingSafeEqual(Buffer.from(savedHash, 'hex'), Buffer.from(derived, 'hex'));
+}
+
+function createCustomersStore(filePath) {
+  const customers = new Map();
+  const resolvedPath = path.resolve(filePath);
+  let persistenceEnabled = true;
+
+  function persist() {
+    if (!persistenceEnabled) return;
+    try {
+      fs.mkdirSync(path.dirname(resolvedPath), { recursive: true });
+      const payload = JSON.stringify(Object.fromEntries(customers.entries()), null, 2);
+      const tempPath = `${resolvedPath}.tmp`;
+      fs.writeFileSync(tempPath, payload, 'utf8');
+      fs.renameSync(tempPath, resolvedPath);
+    } catch (error) {
+      persistenceEnabled = false;
+      console.warn(`[customers-store] persistence disabled for ${resolvedPath}: ${error.message}`);
+    }
+  }
+
+  function load() {
+    try {
+      if (!fs.existsSync(resolvedPath)) return;
+      const raw = fs.readFileSync(resolvedPath, 'utf8');
+      if (!raw.trim()) return;
+      const parsed = JSON.parse(raw);
+      for (const [email, customer] of Object.entries(parsed)) {
+        customers.set(email.toLowerCase(), customer);
+      }
+    } catch (error) {
+      console.warn(`[customers-store] load failed for ${resolvedPath}: ${error.message}`);
+    }
+  }
+
+  function getByEmail(email) {
+    return customers.get(String(email || '').trim().toLowerCase()) || null;
+  }
+
+  function register(payload) {
+    const normalizedEmail = String(payload.email || '').trim().toLowerCase();
+    if (customers.has(normalizedEmail)) return null;
+
+    const customer = {
+      id: crypto.randomUUID(),
+      name: payload.name,
+      email: normalizedEmail,
+      phone: payload.phone || '',
+      country: payload.country || '',
+      passwordHash: hashPassword(payload.password),
+      createdAt: new Date().toISOString()
+    };
+    customers.set(normalizedEmail, customer);
+    persist();
+    return customer;
+  }
+
+  load();
+  return { getByEmail, register, path: resolvedPath };
+}
+
+function createOrdersStore(filePath) {
+  const orders = [];
+  const resolvedPath = path.resolve(filePath);
+  let persistenceEnabled = true;
+
+  function persist() {
+    if (!persistenceEnabled) return;
+    try {
+      fs.mkdirSync(path.dirname(resolvedPath), { recursive: true });
+      const payload = JSON.stringify(orders, null, 2);
+      const tempPath = `${resolvedPath}.tmp`;
+      fs.writeFileSync(tempPath, payload, 'utf8');
+      fs.renameSync(tempPath, resolvedPath);
+    } catch (error) {
+      persistenceEnabled = false;
+      console.warn(`[orders-store] persistence disabled for ${resolvedPath}: ${error.message}`);
+    }
+  }
+
+  function load() {
+    try {
+      if (!fs.existsSync(resolvedPath)) return;
+      const raw = fs.readFileSync(resolvedPath, 'utf8');
+      if (!raw.trim()) return;
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) orders.push(...parsed);
+    } catch (error) {
+      console.warn(`[orders-store] load failed for ${resolvedPath}: ${error.message}`);
+    }
+  }
+
+  function add(payload) {
+    const orderId = crypto.randomUUID();
+    const ref = `MS-${new Date().getFullYear()}-${String(orders.length + 1).padStart(5, '0')}`;
+    const order = {
+      id: orderId,
+      orderId,
+      ref,
+      orderRef: ref,
+      createdAt: new Date().toISOString(),
+      customerName: payload.customerName || 'عميل',
+      customerEmail: payload.customerEmail || '',
+      customerPhone: payload.customerPhone || '',
+      customerCountry: payload.customerCountry || '',
+      items: Array.isArray(payload.items) ? payload.items : [],
+      totalUSD: Number.isFinite(Number(payload.totalUSD)) ? Number(payload.totalUSD) : 0,
+      depositUSD: Number.isFinite(Number(payload.depositUSD)) ? Number(payload.depositUSD) : 0,
+      notes: payload.notes || '',
+      affiliateCode: payload.affiliateCode || '',
+      source: payload.source || 'website'
+    };
+    orders.push(order);
+    persist();
+    return order;
+  }
+
+  function list() {
+    return [...orders];
+  }
+
+  load();
+  return { add, list, path: resolvedPath };
+}
+
+function createAffiliatesStore(filePath) {
+  const affiliates = [];
+  const resolvedPath = path.resolve(filePath);
+  let persistenceEnabled = true;
+
+  function persist() {
+    if (!persistenceEnabled) return;
+    try {
+      fs.mkdirSync(path.dirname(resolvedPath), { recursive: true });
+      const payload = JSON.stringify(affiliates, null, 2);
+      const tempPath = `${resolvedPath}.tmp`;
+      fs.writeFileSync(tempPath, payload, 'utf8');
+      fs.renameSync(tempPath, resolvedPath);
+    } catch (error) {
+      persistenceEnabled = false;
+      console.warn(`[affiliates-store] persistence disabled for ${resolvedPath}: ${error.message}`);
+    }
+  }
+
+  function load() {
+    try {
+      if (!fs.existsSync(resolvedPath)) return;
+      const raw = fs.readFileSync(resolvedPath, 'utf8');
+      if (!raw.trim()) return;
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) affiliates.push(...parsed);
+    } catch (error) {
+      console.warn(`[affiliates-store] load failed for ${resolvedPath}: ${error.message}`);
+    }
+  }
+
+  function generateCode(name) {
+    const slug = String(name || 'AFF').replace(/\s+/g, '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 3) || 'AFF';
+    let code = '';
+    do {
+      code = `${slug}${Math.floor(100 + Math.random() * 900)}`;
+    } while (affiliates.some((item) => item.code === code));
+    return code;
+  }
+
+  function register(payload) {
+    const phone = String(payload.phone || '').trim();
+    if (affiliates.some((item) => item.phone === phone)) return null;
+    const affiliate = {
+      id: crypto.randomUUID(),
+      code: generateCode(payload.name),
+      token: crypto.randomUUID(),
+      name: String(payload.name || '').trim(),
+      phone,
+      whatsapp: String(payload.whatsapp || phone).trim(),
+      job: String(payload.job || '').trim(),
+      facebook: String(payload.facebook || '').trim(),
+      commissionRate: 10,
+      level: 'starter',
+      createdAt: new Date().toISOString()
+    };
+    affiliates.push(affiliate);
+    persist();
+    return affiliate;
+  }
+
+  function findByCodeAndPhone(code, phone) {
+    const normalizedCode = String(code || '').trim().toUpperCase();
+    const normalizedPhone = String(phone || '').trim();
+    return affiliates.find((item) => item.code === normalizedCode && item.phone === normalizedPhone) || null;
+  }
+
+  function findByCode(code) {
+    const normalizedCode = String(code || '').trim().toUpperCase();
+    return affiliates.find((item) => item.code === normalizedCode) || null;
+  }
+
+  load();
+  return { register, findByCodeAndPhone, findByCode, path: resolvedPath };
 }
 
 function hashPassword(password) {
@@ -589,6 +829,69 @@ function createApp(config = createConfig()) {
 
     const updated = siteConfigStore.addProduct(req.body);
     return res.json({ success: true, config: updated });
+  });
+
+  app.post('/api/admin/site-config/:collection', (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    const collection = String(req.params?.collection || '').trim();
+    const allowed = new Set(['products', 'categories', 'sections', 'posters', 'buttons', 'portfolio']);
+    if (!allowed.has(collection)) return res.status(400).json({ error: 'Unknown collection' });
+    if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
+      return res.status(400).json({ error: 'Invalid payload' });
+    }
+
+    const updated = siteConfigStore.addToCollection(collection, req.body);
+    return res.json({ success: true, config: updated });
+  });
+
+  app.delete('/api/admin/site-config/:collection/:id', (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    const collection = String(req.params?.collection || '').trim();
+    const itemId = String(req.params?.id || '').trim();
+    const allowed = new Set(['products', 'categories', 'sections', 'posters', 'buttons', 'portfolio']);
+    if (!allowed.has(collection)) return res.status(400).json({ error: 'Unknown collection' });
+    if (!itemId) return res.status(400).json({ error: 'id is required' });
+
+    const updated = siteConfigStore.removeFromCollection(collection, itemId);
+    return res.json({ success: true, config: updated });
+  });
+
+  app.get('/api/admin/portfolio', (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    const configValue = siteConfigStore.get();
+    const projects = Array.isArray(configValue.portfolio) ? configValue.portfolio : [];
+    return res.json({ success: true, total: projects.length, projects });
+  });
+
+  app.post('/api/admin/portfolio', (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
+      return res.status(400).json({ error: 'Invalid project payload' });
+    }
+    const payload = { ...req.body };
+    if (!payload.id) payload.id = crypto.randomUUID();
+    const updated = siteConfigStore.addToCollection('portfolio', payload);
+    return res.status(201).json({ success: true, projects: updated.portfolio || [] });
+  });
+
+  app.put('/api/admin/portfolio/:id', (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    const id = String(req.params?.id || '').trim();
+    if (!id) return res.status(400).json({ error: 'id is required' });
+    if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
+      return res.status(400).json({ error: 'Invalid project payload' });
+    }
+    const updated = siteConfigStore.updateInCollection('portfolio', id, req.body);
+    if (!updated) return res.status(404).json({ error: 'Project not found' });
+    return res.json({ success: true, projects: updated.portfolio || [] });
+  });
+
+  app.delete('/api/admin/portfolio/:id', (req, res) => {
+    if (!requireAdmin(req, res)) return;
+    const id = String(req.params?.id || '').trim();
+    if (!id) return res.status(400).json({ error: 'id is required' });
+    const updated = siteConfigStore.removeFromCollection('portfolio', id);
+    return res.json({ success: true, projects: updated.portfolio || [] });
   });
 
   return app;
