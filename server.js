@@ -41,9 +41,7 @@ function createConfig(env = process.env) {
     maxPromptLength: toPositiveInt(env.MAX_PROMPT_LENGTH, 1200),
     usersStoreFile: env.USERS_STORE_FILE || path.join(process.cwd(), 'data', 'users.json'),
     siteConfigFile: env.SITE_CONFIG_FILE || path.join(process.cwd(), 'data', 'site-config.json'),
-    customersStoreFile: env.CUSTOMERS_STORE_FILE || path.join(process.cwd(), 'data', 'customers.json'),
-    ordersStoreFile: env.ORDERS_STORE_FILE || path.join(process.cwd(), 'data', 'orders.json'),
-    affiliatesStoreFile: env.AFFILIATES_STORE_FILE || path.join(process.cwd(), 'data', 'affiliates.json')
+    customersStoreFile: env.CUSTOMERS_STORE_FILE || path.join(process.cwd(), 'data', 'customers.json')
   };
 }
 
@@ -359,16 +357,8 @@ function createOrdersStore(filePath) {
     return [...orders];
   }
 
-  function updateById(id, patch) {
-    const idx = orders.findIndex((order) => order && String(order.id) === String(id));
-    if (idx < 0) return null;
-    orders[idx] = { ...orders[idx], ...patch, updatedAt: new Date().toISOString() };
-    persist();
-    return orders[idx];
-  }
-
   load();
-  return { add, list, updateById, path: resolvedPath };
+  return { add, list, path: resolvedPath };
 }
 
 function createAffiliatesStore(filePath) {
@@ -447,6 +437,79 @@ function createAffiliatesStore(filePath) {
   return { register, findByCodeAndPhone, findByCode, path: resolvedPath };
 }
 
+function hashPassword(password) {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hashed = crypto.scryptSync(password, salt, 64).toString('hex');
+  return `${salt}:${hashed}`;
+}
+
+function verifyPassword(password, passwordHash) {
+  if (typeof passwordHash !== 'string' || !passwordHash.includes(':')) return false;
+  const [salt, savedHash] = passwordHash.split(':');
+  if (!salt || !savedHash) return false;
+  const derived = crypto.scryptSync(password, salt, 64).toString('hex');
+  return crypto.timingSafeEqual(Buffer.from(savedHash, 'hex'), Buffer.from(derived, 'hex'));
+}
+
+function createCustomersStore(filePath) {
+  const customers = new Map();
+  const resolvedPath = path.resolve(filePath);
+  let persistenceEnabled = true;
+
+  function persist() {
+    if (!persistenceEnabled) return;
+    try {
+      fs.mkdirSync(path.dirname(resolvedPath), { recursive: true });
+      const payload = JSON.stringify(Object.fromEntries(customers.entries()), null, 2);
+      const tempPath = `${resolvedPath}.tmp`;
+      fs.writeFileSync(tempPath, payload, 'utf8');
+      fs.renameSync(tempPath, resolvedPath);
+    } catch (error) {
+      persistenceEnabled = false;
+      console.warn(`[customers-store] persistence disabled for ${resolvedPath}: ${error.message}`);
+    }
+  }
+
+  function load() {
+    try {
+      if (!fs.existsSync(resolvedPath)) return;
+      const raw = fs.readFileSync(resolvedPath, 'utf8');
+      if (!raw.trim()) return;
+      const parsed = JSON.parse(raw);
+      for (const [email, customer] of Object.entries(parsed)) {
+        customers.set(email.toLowerCase(), customer);
+      }
+    } catch (error) {
+      console.warn(`[customers-store] load failed for ${resolvedPath}: ${error.message}`);
+    }
+  }
+
+  function getByEmail(email) {
+    return customers.get(String(email || '').trim().toLowerCase()) || null;
+  }
+
+  function register(payload) {
+    const normalizedEmail = String(payload.email || '').trim().toLowerCase();
+    if (customers.has(normalizedEmail)) return null;
+
+    const customer = {
+      id: crypto.randomUUID(),
+      name: payload.name,
+      email: normalizedEmail,
+      phone: payload.phone || '',
+      country: payload.country || '',
+      passwordHash: hashPassword(payload.password),
+      createdAt: new Date().toISOString()
+    };
+    customers.set(normalizedEmail, customer);
+    persist();
+    return customer;
+  }
+
+  load();
+  return { getByEmail, register, path: resolvedPath };
+}
+
 function isValidUserToken(token) {
   return typeof token === 'string' && /^[a-zA-Z0-9._:-]{8,200}$/.test(token.trim());
 }
@@ -482,8 +545,6 @@ function createApp(config = createConfig()) {
   const userStore = createUserStore(config.usersStoreFile);
   const siteConfigStore = createSiteConfigStore(config.siteConfigFile);
   const customersStore = createCustomersStore(config.customersStoreFile);
-  const ordersStore = createOrdersStore(config.ordersStoreFile);
-  const affiliatesStore = createAffiliatesStore(config.affiliatesStoreFile);
 
   app.disable('x-powered-by');
   app.use(cors({ origin: config.allowedOrigins.includes('*') ? '*' : config.allowedOrigins }));
@@ -565,103 +626,6 @@ function createApp(config = createConfig()) {
     return res.json({ success: true, token, user });
   });
 
-  app.post('/api/orders', (req, res) => {
-    const customerName = typeof req.body?.customerName === 'string' ? req.body.customerName.trim() : '';
-    const items = Array.isArray(req.body?.items) ? req.body.items : [];
-
-    if (!customerName) return res.status(400).json({ error: 'customerName is required' });
-    if (!items.length) return res.status(400).json({ error: 'items are required' });
-
-    const order = ordersStore.add({
-      customerName,
-      customerEmail: typeof req.body?.customerEmail === 'string' ? req.body.customerEmail.trim() : '',
-      customerPhone: typeof req.body?.customerPhone === 'string' ? req.body.customerPhone.trim() : '',
-      customerCountry: typeof req.body?.customerCountry === 'string' ? req.body.customerCountry.trim() : '',
-      items,
-      totalUSD: req.body?.totalUSD,
-      depositUSD: req.body?.depositUSD,
-      notes: typeof req.body?.notes === 'string' ? req.body.notes.trim() : '',
-      affiliateCode: typeof req.body?.affiliateCode === 'string' ? req.body.affiliateCode.trim().toUpperCase() : '',
-      source: typeof req.body?.source === 'string' ? req.body.source.trim() : ''
-    });
-
-    return res.status(201).json({
-      success: true,
-      id: order.id,
-      orderId: order.orderId,
-      ref: order.ref,
-      orderRef: order.orderRef,
-      order
-    });
-  });
-
-  app.post('/api/affiliates/register', (req, res) => {
-    const name = typeof req.body?.name === 'string' ? req.body.name.trim() : '';
-    const phone = typeof req.body?.phone === 'string' ? req.body.phone.trim() : '';
-    if (!name || !phone) return res.status(400).json({ error: 'name and phone are required' });
-
-    const affiliate = affiliatesStore.register({
-      name,
-      phone,
-      whatsapp: req.body?.whatsapp,
-      job: req.body?.job,
-      facebook: req.body?.facebook
-    });
-    if (!affiliate) return res.status(409).json({ error: 'Phone already registered' });
-
-    return res.status(201).json({
-      success: true,
-      message: `تم تسجيلك بنجاح — كودك: ${affiliate.code}`,
-      affiliate: {
-        name: affiliate.name,
-        code: affiliate.code
-      }
-    });
-  });
-
-  app.post('/api/affiliates/login', (req, res) => {
-    const code = typeof req.body?.code === 'string' ? req.body.code.trim().toUpperCase() : '';
-    const phone = typeof req.body?.phone === 'string' ? req.body.phone.trim() : '';
-    if (!code || !phone) return res.status(400).json({ error: 'code and phone are required' });
-
-    const affiliate = affiliatesStore.findByCodeAndPhone(code, phone);
-    if (!affiliate) return res.status(401).json({ error: 'Invalid code or phone' });
-
-    const myOrders = ordersStore.list().filter((order) => String(order.affiliateCode || '').toUpperCase() === affiliate.code);
-    const totalSales = myOrders.reduce((sum, order) => sum + (Number(order.totalUSD) || 0), 0);
-    const totalOrders = myOrders.length;
-    const pendingCommission = totalSales * ((affiliate.commissionRate || 10) / 100);
-
-    return res.json({
-      success: true,
-      affiliate: {
-        id: affiliate.id,
-        name: affiliate.name,
-        phone: affiliate.phone,
-        code: affiliate.code,
-        token: affiliate.token,
-        commissionRate: affiliate.commissionRate || 10,
-        level: affiliate.level || 'starter',
-        totalSales,
-        totalOrders,
-        pendingCommission
-      }
-    });
-  });
-
-  app.get('/api/affiliates/orders', (req, res) => {
-    const code = typeof req.query?.code === 'string' ? req.query.code.trim().toUpperCase() : '';
-    const token = typeof req.headers['x-aff-token'] === 'string' ? req.headers['x-aff-token'].trim() : '';
-    if (!code) return res.status(400).json({ error: 'code is required' });
-
-    const affiliate = affiliatesStore.findByCode(code);
-    if (!affiliate) return res.status(404).json({ error: 'Affiliate not found' });
-    if (!token || token !== affiliate.token) return res.status(401).json({ error: 'Unauthorized affiliate token' });
-
-    const orders = ordersStore.list().filter((order) => String(order.affiliateCode || '').toUpperCase() === code);
-    return res.json({ success: true, total: orders.length, orders });
-  });
-
   app.post('/api/generate', async (req, res) => {
     const token = requireUserToken(req, res);
     if (!token) return;
@@ -693,39 +657,6 @@ function createApp(config = createConfig()) {
 
   app.get('/api/site-config', (req, res) => {
     res.json({ success: true, config: siteConfigStore.get() });
-  });
-
-  app.get('/api/settings/public', (req, res) => {
-    const siteConfig = siteConfigStore.get();
-    const configuredRate = toPositiveFloat(siteConfig?.usdRate, null)
-      || toPositiveFloat(siteConfig?.settings?.usdRate, null)
-      || toPositiveFloat(siteConfig?.settings?.exchangeRateUsdEgp, null)
-      || config.defaultUsdRate;
-
-    res.json({
-      success: true,
-      currency: 'EGP',
-      usdRate: configuredRate
-    });
-  });
-
-  app.get('/api/portfolio', (req, res) => {
-    const siteConfig = siteConfigStore.get();
-    const allProjects = Array.isArray(siteConfig?.portfolio)
-      ? siteConfig.portfolio
-      : (Array.isArray(siteConfig?.projects) ? siteConfig.projects : []);
-    const category = typeof req.query?.category === 'string' ? req.query.category.trim().toLowerCase() : '';
-    const limit = Number.parseInt(req.query?.limit, 10);
-
-    let projects = allProjects.filter((item) => item && typeof item === 'object');
-    if (category) {
-      projects = projects.filter((item) => String(item.category || '').toLowerCase() === category);
-    }
-    if (Number.isFinite(limit) && limit > 0) {
-      projects = projects.slice(0, limit);
-    }
-
-    return res.json({ success: true, total: projects.length, projects });
   });
 
   app.get('/api/products', (req, res) => {
@@ -1031,5 +962,3 @@ module.exports.createConfig = createConfig;
 module.exports.startServer = startServer;
 module.exports.createUserStore = createUserStore;
 module.exports.createCustomersStore = createCustomersStore;
-module.exports.createOrdersStore = createOrdersStore;
-module.exports.createAffiliatesStore = createAffiliatesStore;
