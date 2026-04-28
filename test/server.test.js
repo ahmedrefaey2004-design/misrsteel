@@ -209,6 +209,43 @@ test('site config can be edited from admin API and read publicly', async () => {
   }
 });
 
+test('products endpoints expose list and item details from site config', async () => {
+  await withServer({ adminToken: 'admin_token_products' }, async (baseUrl) => {
+    const headers = {
+      'Content-Type': 'application/json',
+      'x-admin-token': 'admin_token_products'
+    };
+
+    const seedRes = await fetch(`${baseUrl}/api/admin/site-config`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({
+        products: [
+          { id: 'p-100', nameAr: 'كرسي قاعة فاخر', section: 'hall', category: 'chairs' },
+          { id: 'p-101', nameAr: 'كرسي مطعم', section: 'restaurant', category: 'chairs' }
+        ]
+      })
+    });
+    assert.equal(seedRes.status, 200);
+
+    const listRes = await fetch(`${baseUrl}/api/products?section=hall`);
+    assert.equal(listRes.status, 200);
+    const listJson = await listRes.json();
+    assert.equal(listJson.success, true);
+    assert.equal(listJson.total, 1);
+    assert.equal(listJson.products[0].id, 'p-100');
+
+    const itemRes = await fetch(`${baseUrl}/api/products/p-101`);
+    assert.equal(itemRes.status, 200);
+    const itemJson = await itemRes.json();
+    assert.equal(itemJson.success, true);
+    assert.equal(itemJson.product.id, 'p-101');
+
+    const missingRes = await fetch(`${baseUrl}/api/products/missing-id`);
+    assert.equal(missingRes.status, 404);
+  });
+});
+
 test('admin site-config endpoints support replace and validate payloads', async () => {
   await withServer({ adminToken: 'admin_token_site_config' }, async (baseUrl) => {
     const headers = {
