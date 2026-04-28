@@ -41,9 +41,7 @@ function createConfig(env = process.env) {
     maxPromptLength: toPositiveInt(env.MAX_PROMPT_LENGTH, 1200),
     usersStoreFile: env.USERS_STORE_FILE || path.join(process.cwd(), 'data', 'users.json'),
     siteConfigFile: env.SITE_CONFIG_FILE || path.join(process.cwd(), 'data', 'site-config.json'),
-    customersStoreFile: env.CUSTOMERS_STORE_FILE || path.join(process.cwd(), 'data', 'customers.json'),
-    ordersStoreFile: env.ORDERS_STORE_FILE || path.join(process.cwd(), 'data', 'orders.json'),
-    affiliatesStoreFile: env.AFFILIATES_STORE_FILE || path.join(process.cwd(), 'data', 'affiliates.json')
+    customersStoreFile: env.CUSTOMERS_STORE_FILE || path.join(process.cwd(), 'data', 'customers.json')
   };
 }
 
@@ -277,17 +275,6 @@ function createCustomersStore(filePath) {
     return customers.get(String(email || '').trim().toLowerCase()) || null;
   }
 
-  function list() {
-    return Array.from(customers.values()).map((item) => ({
-      id: item.id,
-      name: item.name,
-      email: item.email,
-      phone: item.phone || '',
-      country: item.country || '',
-      createdAt: item.createdAt
-    }));
-  }
-
   function register(payload) {
     const normalizedEmail = String(payload.email || '').trim().toLowerCase();
     if (customers.has(normalizedEmail)) return null;
@@ -307,7 +294,7 @@ function createCustomersStore(filePath) {
   }
 
   load();
-  return { getByEmail, register, list, path: resolvedPath };
+  return { getByEmail, register, path: resolvedPath };
 }
 
 function createOrdersStore(filePath) {
@@ -370,16 +357,8 @@ function createOrdersStore(filePath) {
     return [...orders];
   }
 
-  function updateById(id, patch) {
-    const idx = orders.findIndex((order) => order && String(order.id) === String(id));
-    if (idx < 0) return null;
-    orders[idx] = { ...orders[idx], ...patch, updatedAt: new Date().toISOString() };
-    persist();
-    return orders[idx];
-  }
-
   load();
-  return { add, list, updateById, path: resolvedPath };
+  return { add, list, path: resolvedPath };
 }
 
 function createAffiliatesStore(filePath) {
@@ -443,28 +422,6 @@ function createAffiliatesStore(filePath) {
     return affiliate;
   }
 
-  function create(payload) {
-    const phone = String(payload.phone || '').trim();
-    if (affiliates.some((item) => item.phone === phone)) return null;
-    const affiliate = {
-      id: crypto.randomUUID(),
-      code: String(payload.code || generateCode(payload.name)).trim().toUpperCase(),
-      token: crypto.randomUUID(),
-      name: String(payload.name || '').trim(),
-      phone,
-      whatsapp: String(payload.whatsapp || phone).trim(),
-      job: String(payload.job || '').trim(),
-      facebook: String(payload.facebook || '').trim(),
-      commissionRate: Number.isFinite(Number(payload.commissionRate)) ? Number(payload.commissionRate) : 10,
-      level: String(payload.level || 'starter').trim() || 'starter',
-      status: String(payload.status || 'active').trim() || 'active',
-      createdAt: new Date().toISOString()
-    };
-    affiliates.push(affiliate);
-    persist();
-    return affiliate;
-  }
-
   function findByCodeAndPhone(code, phone) {
     const normalizedCode = String(code || '').trim().toUpperCase();
     const normalizedPhone = String(phone || '').trim();
@@ -476,28 +433,81 @@ function createAffiliatesStore(filePath) {
     return affiliates.find((item) => item.code === normalizedCode) || null;
   }
 
-  function list() {
-    return affiliates.map((item) => ({ ...item }));
+  load();
+  return { register, findByCodeAndPhone, findByCode, path: resolvedPath };
+}
+
+function hashPassword(password) {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hashed = crypto.scryptSync(password, salt, 64).toString('hex');
+  return `${salt}:${hashed}`;
+}
+
+function verifyPassword(password, passwordHash) {
+  if (typeof passwordHash !== 'string' || !passwordHash.includes(':')) return false;
+  const [salt, savedHash] = passwordHash.split(':');
+  if (!salt || !savedHash) return false;
+  const derived = crypto.scryptSync(password, salt, 64).toString('hex');
+  return crypto.timingSafeEqual(Buffer.from(savedHash, 'hex'), Buffer.from(derived, 'hex'));
+}
+
+function createCustomersStore(filePath) {
+  const customers = new Map();
+  const resolvedPath = path.resolve(filePath);
+  let persistenceEnabled = true;
+
+  function persist() {
+    if (!persistenceEnabled) return;
+    try {
+      fs.mkdirSync(path.dirname(resolvedPath), { recursive: true });
+      const payload = JSON.stringify(Object.fromEntries(customers.entries()), null, 2);
+      const tempPath = `${resolvedPath}.tmp`;
+      fs.writeFileSync(tempPath, payload, 'utf8');
+      fs.renameSync(tempPath, resolvedPath);
+    } catch (error) {
+      persistenceEnabled = false;
+      console.warn(`[customers-store] persistence disabled for ${resolvedPath}: ${error.message}`);
+    }
   }
 
-  function updateById(id, patch) {
-    const idx = affiliates.findIndex((item) => item && String(item.id) === String(id));
-    if (idx < 0) return null;
-    affiliates[idx] = { ...affiliates[idx], ...patch, updatedAt: new Date().toISOString() };
-    persist();
-    return { ...affiliates[idx] };
+  function load() {
+    try {
+      if (!fs.existsSync(resolvedPath)) return;
+      const raw = fs.readFileSync(resolvedPath, 'utf8');
+      if (!raw.trim()) return;
+      const parsed = JSON.parse(raw);
+      for (const [email, customer] of Object.entries(parsed)) {
+        customers.set(email.toLowerCase(), customer);
+      }
+    } catch (error) {
+      console.warn(`[customers-store] load failed for ${resolvedPath}: ${error.message}`);
+    }
   }
 
-  function removeById(id) {
-    const idx = affiliates.findIndex((item) => item && String(item.id) === String(id));
-    if (idx < 0) return false;
-    affiliates.splice(idx, 1);
+  function getByEmail(email) {
+    return customers.get(String(email || '').trim().toLowerCase()) || null;
+  }
+
+  function register(payload) {
+    const normalizedEmail = String(payload.email || '').trim().toLowerCase();
+    if (customers.has(normalizedEmail)) return null;
+
+    const customer = {
+      id: crypto.randomUUID(),
+      name: payload.name,
+      email: normalizedEmail,
+      phone: payload.phone || '',
+      country: payload.country || '',
+      passwordHash: hashPassword(payload.password),
+      createdAt: new Date().toISOString()
+    };
+    customers.set(normalizedEmail, customer);
     persist();
-    return true;
+    return customer;
   }
 
   load();
-  return { register, create, findByCodeAndPhone, findByCode, list, updateById, removeById, path: resolvedPath };
+  return { getByEmail, register, path: resolvedPath };
 }
 
 function isValidUserToken(token) {
@@ -535,8 +545,6 @@ function createApp(config = createConfig()) {
   const userStore = createUserStore(config.usersStoreFile);
   const siteConfigStore = createSiteConfigStore(config.siteConfigFile);
   const customersStore = createCustomersStore(config.customersStoreFile);
-  const ordersStore = createOrdersStore(config.ordersStoreFile);
-  const affiliatesStore = createAffiliatesStore(config.affiliatesStoreFile);
 
   app.disable('x-powered-by');
   app.use(cors({ origin: config.allowedOrigins.includes('*') ? '*' : config.allowedOrigins }));
@@ -618,103 +626,6 @@ function createApp(config = createConfig()) {
     return res.json({ success: true, token, user });
   });
 
-  app.post('/api/orders', (req, res) => {
-    const customerName = typeof req.body?.customerName === 'string' ? req.body.customerName.trim() : '';
-    const items = Array.isArray(req.body?.items) ? req.body.items : [];
-
-    if (!customerName) return res.status(400).json({ error: 'customerName is required' });
-    if (!items.length) return res.status(400).json({ error: 'items are required' });
-
-    const order = ordersStore.add({
-      customerName,
-      customerEmail: typeof req.body?.customerEmail === 'string' ? req.body.customerEmail.trim() : '',
-      customerPhone: typeof req.body?.customerPhone === 'string' ? req.body.customerPhone.trim() : '',
-      customerCountry: typeof req.body?.customerCountry === 'string' ? req.body.customerCountry.trim() : '',
-      items,
-      totalUSD: req.body?.totalUSD,
-      depositUSD: req.body?.depositUSD,
-      notes: typeof req.body?.notes === 'string' ? req.body.notes.trim() : '',
-      affiliateCode: typeof req.body?.affiliateCode === 'string' ? req.body.affiliateCode.trim().toUpperCase() : '',
-      source: typeof req.body?.source === 'string' ? req.body.source.trim() : ''
-    });
-
-    return res.status(201).json({
-      success: true,
-      id: order.id,
-      orderId: order.orderId,
-      ref: order.ref,
-      orderRef: order.orderRef,
-      order
-    });
-  });
-
-  app.post('/api/affiliates/register', (req, res) => {
-    const name = typeof req.body?.name === 'string' ? req.body.name.trim() : '';
-    const phone = typeof req.body?.phone === 'string' ? req.body.phone.trim() : '';
-    if (!name || !phone) return res.status(400).json({ error: 'name and phone are required' });
-
-    const affiliate = affiliatesStore.register({
-      name,
-      phone,
-      whatsapp: req.body?.whatsapp,
-      job: req.body?.job,
-      facebook: req.body?.facebook
-    });
-    if (!affiliate) return res.status(409).json({ error: 'Phone already registered' });
-
-    return res.status(201).json({
-      success: true,
-      message: `تم تسجيلك بنجاح — كودك: ${affiliate.code}`,
-      affiliate: {
-        name: affiliate.name,
-        code: affiliate.code
-      }
-    });
-  });
-
-  app.post('/api/affiliates/login', (req, res) => {
-    const code = typeof req.body?.code === 'string' ? req.body.code.trim().toUpperCase() : '';
-    const phone = typeof req.body?.phone === 'string' ? req.body.phone.trim() : '';
-    if (!code || !phone) return res.status(400).json({ error: 'code and phone are required' });
-
-    const affiliate = affiliatesStore.findByCodeAndPhone(code, phone);
-    if (!affiliate) return res.status(401).json({ error: 'Invalid code or phone' });
-
-    const myOrders = ordersStore.list().filter((order) => String(order.affiliateCode || '').toUpperCase() === affiliate.code);
-    const totalSales = myOrders.reduce((sum, order) => sum + (Number(order.totalUSD) || 0), 0);
-    const totalOrders = myOrders.length;
-    const pendingCommission = totalSales * ((affiliate.commissionRate || 10) / 100);
-
-    return res.json({
-      success: true,
-      affiliate: {
-        id: affiliate.id,
-        name: affiliate.name,
-        phone: affiliate.phone,
-        code: affiliate.code,
-        token: affiliate.token,
-        commissionRate: affiliate.commissionRate || 10,
-        level: affiliate.level || 'starter',
-        totalSales,
-        totalOrders,
-        pendingCommission
-      }
-    });
-  });
-
-  app.get('/api/affiliates/orders', (req, res) => {
-    const code = typeof req.query?.code === 'string' ? req.query.code.trim().toUpperCase() : '';
-    const token = typeof req.headers['x-aff-token'] === 'string' ? req.headers['x-aff-token'].trim() : '';
-    if (!code) return res.status(400).json({ error: 'code is required' });
-
-    const affiliate = affiliatesStore.findByCode(code);
-    if (!affiliate) return res.status(404).json({ error: 'Affiliate not found' });
-    if (!token || token !== affiliate.token) return res.status(401).json({ error: 'Unauthorized affiliate token' });
-
-    const orders = ordersStore.list().filter((order) => String(order.affiliateCode || '').toUpperCase() === code);
-    return res.json({ success: true, total: orders.length, orders });
-  });
-
   app.post('/api/generate', async (req, res) => {
     const token = requireUserToken(req, res);
     if (!token) return;
@@ -746,39 +657,6 @@ function createApp(config = createConfig()) {
 
   app.get('/api/site-config', (req, res) => {
     res.json({ success: true, config: siteConfigStore.get() });
-  });
-
-  app.get('/api/settings/public', (req, res) => {
-    const siteConfig = siteConfigStore.get();
-    const configuredRate = toPositiveFloat(siteConfig?.usdRate, null)
-      || toPositiveFloat(siteConfig?.settings?.usdRate, null)
-      || toPositiveFloat(siteConfig?.settings?.exchangeRateUsdEgp, null)
-      || config.defaultUsdRate;
-
-    res.json({
-      success: true,
-      currency: 'EGP',
-      usdRate: configuredRate
-    });
-  });
-
-  app.get('/api/portfolio', (req, res) => {
-    const siteConfig = siteConfigStore.get();
-    const allProjects = Array.isArray(siteConfig?.portfolio)
-      ? siteConfig.portfolio
-      : (Array.isArray(siteConfig?.projects) ? siteConfig.projects : []);
-    const category = typeof req.query?.category === 'string' ? req.query.category.trim().toLowerCase() : '';
-    const limit = Number.parseInt(req.query?.limit, 10);
-
-    let projects = allProjects.filter((item) => item && typeof item === 'object');
-    if (category) {
-      projects = projects.filter((item) => String(item.category || '').toLowerCase() === category);
-    }
-    if (Number.isFinite(limit) && limit > 0) {
-      projects = projects.slice(0, limit);
-    }
-
-    return res.json({ success: true, total: projects.length, projects });
   });
 
   app.get('/api/products', (req, res) => {
@@ -917,36 +795,6 @@ function createApp(config = createConfig()) {
     return res.json({ success: true, newCredits: user.credits });
   });
 
-  app.get('/api/admin/stats', (req, res) => {
-    if (!requireAdmin(req, res)) return;
-    const orders = ordersStore.list();
-    const customers = customersStore.list();
-    const affiliates = affiliatesStore.list();
-
-    const totalRevenue = orders.reduce((sum, order) => sum + (Number(order.totalUSD) || 0), 0);
-    const newOrders = orders.filter((order) => String(order.status || 'new').toLowerCase() === 'new').length;
-    const totalCustomers = customers.length;
-    const commissionByCode = new Map(
-      affiliates.map((affiliate) => [affiliate.code, Number(affiliate.commissionRate) || 10])
-    );
-    const pendingCommissions = orders.reduce((sum, order) => {
-      const code = String(order.affiliateCode || '').toUpperCase();
-      if (!code || !commissionByCode.has(code)) return sum;
-      const rate = commissionByCode.get(code);
-      return sum + ((Number(order.totalUSD) || 0) * rate / 100);
-    }, 0);
-
-    return res.json({
-      success: true,
-      stats: {
-        totalRevenue,
-        newOrders,
-        totalCustomers,
-        pendingCommissions
-      }
-    });
-  });
-
   app.get('/api/admin/orders', (req, res) => {
     if (!requireAdmin(req, res)) return;
     const status = typeof req.query?.status === 'string' ? req.query.status.trim().toLowerCase() : '';
@@ -981,77 +829,6 @@ function createApp(config = createConfig()) {
     const updated = ordersStore.updateById(id, patch);
     if (!updated) return res.status(404).json({ error: 'Order not found' });
     return res.json({ success: true, order: updated });
-  });
-
-  app.get('/api/admin/affiliates', (req, res) => {
-    if (!requireAdmin(req, res)) return;
-    const orders = ordersStore.list();
-    const affiliates = affiliatesStore.list().map((affiliate) => {
-      const related = orders.filter((order) => String(order.affiliateCode || '').toUpperCase() === String(affiliate.code || '').toUpperCase());
-      const totalSales = related.reduce((sum, order) => sum + (Number(order.totalUSD) || 0), 0);
-      const totalOrders = related.length;
-      const pendingCommission = totalSales * ((Number(affiliate.commissionRate) || 10) / 100);
-      return {
-        ...affiliate,
-        totalSales,
-        totalOrders,
-        pendingCommission
-      };
-    });
-    return res.json({ success: true, total: affiliates.length, affiliates });
-  });
-
-  app.post('/api/admin/affiliates', (req, res) => {
-    if (!requireAdmin(req, res)) return;
-    if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
-      return res.status(400).json({ error: 'Invalid affiliate payload' });
-    }
-    const name = typeof req.body?.name === 'string' ? req.body.name.trim() : '';
-    const phone = typeof req.body?.phone === 'string' ? req.body.phone.trim() : '';
-    if (!name || !phone) return res.status(400).json({ error: 'name and phone are required' });
-
-    const affiliate = affiliatesStore.create(req.body);
-    if (!affiliate) return res.status(409).json({ error: 'Phone already registered' });
-    return res.status(201).json({ success: true, affiliate });
-  });
-
-  app.put('/api/admin/affiliates/:id', (req, res) => {
-    if (!requireAdmin(req, res)) return;
-    const id = String(req.params?.id || '').trim();
-    if (!id) return res.status(400).json({ error: 'id is required' });
-    if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
-      return res.status(400).json({ error: 'Invalid affiliate payload' });
-    }
-
-    const allowed = ['name', 'phone', 'whatsapp', 'job', 'facebook', 'commissionRate', 'level', 'status', 'code'];
-    const patch = {};
-    for (const key of allowed) {
-      if (Object.prototype.hasOwnProperty.call(req.body, key)) patch[key] = req.body[key];
-    }
-    if (typeof patch.code === 'string') patch.code = patch.code.trim().toUpperCase();
-    const updated = affiliatesStore.updateById(id, patch);
-    if (!updated) return res.status(404).json({ error: 'Affiliate not found' });
-    return res.json({ success: true, affiliate: updated });
-  });
-
-  app.delete('/api/admin/affiliates/:id', (req, res) => {
-    if (!requireAdmin(req, res)) return;
-    const id = String(req.params?.id || '').trim();
-    if (!id) return res.status(400).json({ error: 'id is required' });
-    const removed = affiliatesStore.removeById(id);
-    if (!removed) return res.status(404).json({ error: 'Affiliate not found' });
-    return res.json({ success: true });
-  });
-
-  app.put('/api/admin/affiliates/:id/commission', (req, res) => {
-    if (!requireAdmin(req, res)) return;
-    const id = String(req.params?.id || '').trim();
-    if (!id) return res.status(400).json({ error: 'id is required' });
-    const amount = Number(req.body?.amount);
-    if (!Number.isFinite(amount) || amount < 0) return res.status(400).json({ error: 'Invalid amount' });
-    const updated = affiliatesStore.updateById(id, { lastCommissionPayout: amount, lastCommissionPayoutAt: new Date().toISOString() });
-    if (!updated) return res.status(404).json({ error: 'Affiliate not found' });
-    return res.json({ success: true, affiliate: updated });
   });
 
   app.post('/api/admin/apply-plan', (req, res) => {
@@ -1185,5 +962,3 @@ module.exports.createConfig = createConfig;
 module.exports.startServer = startServer;
 module.exports.createUserStore = createUserStore;
 module.exports.createCustomersStore = createCustomersStore;
-module.exports.createOrdersStore = createOrdersStore;
-module.exports.createAffiliatesStore = createAffiliatesStore;
