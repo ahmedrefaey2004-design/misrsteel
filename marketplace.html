@@ -263,7 +263,7 @@ function mpLoadMore() {
       e.preventDefault();
       var i = parseInt(btn.getAttribute('data-product-index'), 10);
       var p = mpAllProds[i];
-      if (p) waOrder(p);
+      if (p) orderNow(p);
     });
   });
   div.querySelectorAll('.js-wa-btn').forEach(function(btn){
@@ -328,6 +328,24 @@ function doSearch() {
 function waOrder(p) {
   var msg='مرحباً مصر ستيل 🎉\n\nأريد الطلب:\n\nالمنتج: '+p.nameAr+'\nالسعر: $'+p.price+' للقطعة\n\nأرجو التواصل لتأكيد الطلب.';
   window.open('https://wa.me/201050595250?text='+encodeURIComponent(msg),'_blank');
+}
+
+function orderNow(p) {
+  try {
+    var item = {
+      id: p.id || Date.now(),
+      name: p.nameEn || p.nameAr || 'Product',
+      nameAr: p.nameAr || p.nameEn || 'منتج',
+      price: Number(p.price) || 0,
+      img: (p.imgs && p.imgs[0]) ? p.imgs[0] : '',
+      qty: 1
+    };
+    localStorage.setItem('ms_checkout_cart', JSON.stringify([item]));
+    localStorage.setItem('ms_cart', JSON.stringify([item]));
+    window.location.href = 'shop.html#checkout';
+  } catch (_e) {
+    waOrder(p);
+  }
 }
 
 function waProduct(p) {
