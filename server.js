@@ -295,6 +295,56 @@ function createApp(config = createConfig()) {
     res.json({ success: true, config: siteConfigStore.get() });
   });
 
+  app.get('/api/products', (req, res) => {
+    const siteConfig = siteConfigStore.get();
+    const allProducts = Array.isArray(siteConfig.products) ? siteConfig.products : [];
+    const section = typeof req.query?.section === 'string' ? req.query.section.trim().toLowerCase() : '';
+    const category = typeof req.query?.category === 'string' ? req.query.category.trim().toLowerCase() : '';
+    const search = typeof req.query?.q === 'string' ? req.query.q.trim().toLowerCase() : '';
+    const limit = Number.parseInt(req.query?.limit, 10);
+
+    let products = allProducts.filter((product) => product && typeof product === 'object');
+
+    if (section) {
+      products = products.filter((product) => String(product.section || '').toLowerCase() === section);
+    }
+
+    if (category) {
+      products = products.filter((product) => String(product.category || '').toLowerCase() === category);
+    }
+
+    if (search) {
+      products = products.filter((product) => {
+        const haystack = [
+          product.id,
+          product.nameAr,
+          product.nameEn,
+          product.name,
+          product.desc,
+          product.description
+        ].join(' ').toLowerCase();
+        return haystack.includes(search);
+      });
+    }
+
+    if (Number.isFinite(limit) && limit > 0) {
+      products = products.slice(0, limit);
+    }
+
+    res.json({ success: true, total: products.length, products });
+  });
+
+  app.get('/api/products/:id', (req, res) => {
+    const siteConfig = siteConfigStore.get();
+    const products = Array.isArray(siteConfig.products) ? siteConfig.products : [];
+    const targetId = String(req.params?.id || '').trim();
+
+    const product = products.find((item) => item && String(item.id) === targetId);
+    if (!product) return res.status(404).json({ success: false, error: 'Product not found' });
+
+    return res.json({ success: true, product });
+  });
+
   app.get('/api/meta/catalog.csv', (req, res) => {
     const siteConfig = siteConfigStore.get();
     const products = Array.isArray(siteConfig.products) ? siteConfig.products : [];
