@@ -19,7 +19,8 @@ async function withServer(configOverrides, run) {
     ...createConfig({}),
     ...configOverrides,
     usersStoreFile: temp.file,
-    siteConfigFile: path.join(temp.dir, 'site-config.json')
+    siteConfigFile: path.join(temp.dir, 'site-config.json'),
+    customersStoreFile: path.join(temp.dir, 'customers.json')
   };
   const app = createApp(config);
   const server = app.listen(0);
@@ -58,6 +59,62 @@ test('POST /api/generate rejects missing token', async () => {
     assert.equal(res.status, 401);
     const json = await res.json();
     assert.match(json.error, /Invalid or missing user token/i);
+  });
+});
+
+test('auth register and login endpoints support customer accounts', async () => {
+  await withServer({}, async (baseUrl) => {
+    const registerRes = await fetch(`${baseUrl}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: 'Ahmed Ali',
+        email: 'ahmed@example.com',
+        phone: '+201000000000',
+        country: 'EG',
+        password: 'secret123'
+      })
+    });
+
+    assert.equal(registerRes.status, 201);
+    const registerJson = await registerRes.json();
+    assert.equal(registerJson.success, true);
+    assert.ok(registerJson.token);
+    assert.equal(registerJson.user.email, 'ahmed@example.com');
+
+    const duplicateRes = await fetch(`${baseUrl}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: 'Ahmed Ali',
+        email: 'ahmed@example.com',
+        password: 'secret123'
+      })
+    });
+    assert.equal(duplicateRes.status, 409);
+
+    const loginRes = await fetch(`${baseUrl}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: 'ahmed@example.com',
+        password: 'secret123'
+      })
+    });
+    assert.equal(loginRes.status, 200);
+    const loginJson = await loginRes.json();
+    assert.equal(loginJson.success, true);
+    assert.equal(loginJson.user.name, 'Ahmed Ali');
+
+    const badLoginRes = await fetch(`${baseUrl}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: 'ahmed@example.com',
+        password: 'wrong-password'
+      })
+    });
+    assert.equal(badLoginRes.status, 401);
   });
 });
 
@@ -207,6 +264,74 @@ test('site config can be edited from admin API and read publicly', async () => {
   } finally {
     fs.rmSync(temp.dir, { recursive: true, force: true });
   }
+});
+
+test('products endpoints expose list and item details from site config', async () => {
+  await withServer({ adminToken: 'admin_token_products' }, async (baseUrl) => {
+    const headers = {
+      'Content-Type': 'application/json',
+      'x-admin-token': 'admin_token_products'
+    };
+
+    const seedRes = await fetch(`${baseUrl}/api/admin/site-config`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({
+        products: [
+          { id: 'p-100', nameAr: 'كرسي قاعة فاخر', section: 'hall', category: 'chairs' },
+          { id: 'p-101', nameAr: 'كرسي مطعم', section: 'restaurant', category: 'chairs' }
+        ]
+      })
+    });
+    assert.equal(seedRes.status, 200);
+
+    const listRes = await fetch(`${baseUrl}/api/products?section=hall`);
+    assert.equal(listRes.status, 200);
+    const listJson = await listRes.json();
+    assert.equal(listJson.success, true);
+    assert.equal(listJson.total, 1);
+    assert.equal(listJson.products[0].id, 'p-100');
+
+    const itemRes = await fetch(`${baseUrl}/api/products/p-101`);
+    assert.equal(itemRes.status, 200);
+    const itemJson = await itemRes.json();
+    assert.equal(itemJson.success, true);
+    assert.equal(itemJson.product.id, 'p-101');
+
+    const missingRes = await fetch(`${baseUrl}/api/products/missing-id`);
+    assert.equal(missingRes.status, 404);
+  });
+});
+
+test('public settings endpoint returns USD rate with configured fallback', async () => {
+  await withServer({ adminToken: 'admin_token_settings', defaultUsdRate: 51.25 }, async (baseUrl) => {
+    const headers = {
+      'Content-Type': 'application/json',
+      'x-admin-token': 'admin_token_settings'
+    };
+
+    const fallbackRes = await fetch(`${baseUrl}/api/settings/public`);
+    assert.equal(fallbackRes.status, 200);
+    const fallbackJson = await fallbackRes.json();
+    assert.equal(fallbackJson.success, true);
+    assert.equal(fallbackJson.usdRate, 51.25);
+
+    const seedRes = await fetch(`${baseUrl}/api/admin/site-config`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({
+        settings: { usdRate: 49.9 }
+      })
+    });
+    assert.equal(seedRes.status, 200);
+
+    const configuredRes = await fetch(`${baseUrl}/api/settings/public`);
+    assert.equal(configuredRes.status, 200);
+    const configuredJson = await configuredRes.json();
+    assert.equal(configuredJson.success, true);
+    assert.equal(configuredJson.currency, 'EGP');
+    assert.equal(configuredJson.usdRate, 49.9);
+  });
 });
 
 test('admin site-config endpoints support replace and validate payloads', async () => {
