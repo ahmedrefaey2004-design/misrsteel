@@ -246,37 +246,6 @@ test('products endpoints expose list and item details from site config', async (
   });
 });
 
-test('public settings endpoint returns USD rate with configured fallback', async () => {
-  await withServer({ adminToken: 'admin_token_settings', defaultUsdRate: 51.25 }, async (baseUrl) => {
-    const headers = {
-      'Content-Type': 'application/json',
-      'x-admin-token': 'admin_token_settings'
-    };
-
-    const fallbackRes = await fetch(`${baseUrl}/api/settings/public`);
-    assert.equal(fallbackRes.status, 200);
-    const fallbackJson = await fallbackRes.json();
-    assert.equal(fallbackJson.success, true);
-    assert.equal(fallbackJson.usdRate, 51.25);
-
-    const seedRes = await fetch(`${baseUrl}/api/admin/site-config`, {
-      method: 'PUT',
-      headers,
-      body: JSON.stringify({
-        settings: { usdRate: 49.9 }
-      })
-    });
-    assert.equal(seedRes.status, 200);
-
-    const configuredRes = await fetch(`${baseUrl}/api/settings/public`);
-    assert.equal(configuredRes.status, 200);
-    const configuredJson = await configuredRes.json();
-    assert.equal(configuredJson.success, true);
-    assert.equal(configuredJson.currency, 'EGP');
-    assert.equal(configuredJson.usdRate, 49.9);
-  });
-});
-
 test('admin site-config endpoints support replace and validate payloads', async () => {
   await withServer({ adminToken: 'admin_token_site_config' }, async (baseUrl) => {
     const headers = {

@@ -301,20 +301,6 @@ function createApp(config = createConfig()) {
     res.json({ success: true, config: siteConfigStore.get() });
   });
 
-  app.get('/api/settings/public', (req, res) => {
-    const siteConfig = siteConfigStore.get();
-    const configuredRate = toPositiveFloat(siteConfig?.usdRate, null)
-      || toPositiveFloat(siteConfig?.settings?.usdRate, null)
-      || toPositiveFloat(siteConfig?.settings?.exchangeRateUsdEgp, null)
-      || config.defaultUsdRate;
-
-    res.json({
-      success: true,
-      currency: 'EGP',
-      usdRate: configuredRate
-    });
-  });
-
   app.get('/api/products', (req, res) => {
     const siteConfig = siteConfigStore.get();
     const allProducts = Array.isArray(siteConfig.products) ? siteConfig.products : [];
