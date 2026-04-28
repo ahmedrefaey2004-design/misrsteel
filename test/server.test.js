@@ -19,7 +19,8 @@ async function withServer(configOverrides, run) {
     ...createConfig({}),
     ...configOverrides,
     usersStoreFile: temp.file,
-    siteConfigFile: path.join(temp.dir, 'site-config.json')
+    siteConfigFile: path.join(temp.dir, 'site-config.json'),
+    customersStoreFile: path.join(temp.dir, 'customers.json')
   };
   const app = createApp(config);
   const server = app.listen(0);
@@ -58,6 +59,62 @@ test('POST /api/generate rejects missing token', async () => {
     assert.equal(res.status, 401);
     const json = await res.json();
     assert.match(json.error, /Invalid or missing user token/i);
+  });
+});
+
+test('auth register and login endpoints support customer accounts', async () => {
+  await withServer({}, async (baseUrl) => {
+    const registerRes = await fetch(`${baseUrl}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: 'Ahmed Ali',
+        email: 'ahmed@example.com',
+        phone: '+201000000000',
+        country: 'EG',
+        password: 'secret123'
+      })
+    });
+
+    assert.equal(registerRes.status, 201);
+    const registerJson = await registerRes.json();
+    assert.equal(registerJson.success, true);
+    assert.ok(registerJson.token);
+    assert.equal(registerJson.user.email, 'ahmed@example.com');
+
+    const duplicateRes = await fetch(`${baseUrl}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: 'Ahmed Ali',
+        email: 'ahmed@example.com',
+        password: 'secret123'
+      })
+    });
+    assert.equal(duplicateRes.status, 409);
+
+    const loginRes = await fetch(`${baseUrl}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: 'ahmed@example.com',
+        password: 'secret123'
+      })
+    });
+    assert.equal(loginRes.status, 200);
+    const loginJson = await loginRes.json();
+    assert.equal(loginJson.success, true);
+    assert.equal(loginJson.user.name, 'Ahmed Ali');
+
+    const badLoginRes = await fetch(`${baseUrl}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: 'ahmed@example.com',
+        password: 'wrong-password'
+      })
+    });
+    assert.equal(badLoginRes.status, 401);
   });
 });
 

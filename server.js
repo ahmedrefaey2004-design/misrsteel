@@ -2,6 +2,7 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const crypto = require('node:crypto');
 const express = require('express');
 const cors = require('cors');
 const fetch = require('node-fetch');
@@ -39,7 +40,8 @@ function createConfig(env = process.env) {
     defaultUsdRate: toPositiveFloat(env.DEFAULT_USD_RATE, 50.85),
     maxPromptLength: toPositiveInt(env.MAX_PROMPT_LENGTH, 1200),
     usersStoreFile: env.USERS_STORE_FILE || path.join(process.cwd(), 'data', 'users.json'),
-    siteConfigFile: env.SITE_CONFIG_FILE || path.join(process.cwd(), 'data', 'site-config.json')
+    siteConfigFile: env.SITE_CONFIG_FILE || path.join(process.cwd(), 'data', 'site-config.json'),
+    customersStoreFile: env.CUSTOMERS_STORE_FILE || path.join(process.cwd(), 'data', 'customers.json')
   };
 }
 
@@ -195,6 +197,79 @@ function createSiteConfigStore(filePath) {
   return { get, replace, addProduct, path: resolvedPath };
 }
 
+function hashPassword(password) {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hashed = crypto.scryptSync(password, salt, 64).toString('hex');
+  return `${salt}:${hashed}`;
+}
+
+function verifyPassword(password, passwordHash) {
+  if (typeof passwordHash !== 'string' || !passwordHash.includes(':')) return false;
+  const [salt, savedHash] = passwordHash.split(':');
+  if (!salt || !savedHash) return false;
+  const derived = crypto.scryptSync(password, salt, 64).toString('hex');
+  return crypto.timingSafeEqual(Buffer.from(savedHash, 'hex'), Buffer.from(derived, 'hex'));
+}
+
+function createCustomersStore(filePath) {
+  const customers = new Map();
+  const resolvedPath = path.resolve(filePath);
+  let persistenceEnabled = true;
+
+  function persist() {
+    if (!persistenceEnabled) return;
+    try {
+      fs.mkdirSync(path.dirname(resolvedPath), { recursive: true });
+      const payload = JSON.stringify(Object.fromEntries(customers.entries()), null, 2);
+      const tempPath = `${resolvedPath}.tmp`;
+      fs.writeFileSync(tempPath, payload, 'utf8');
+      fs.renameSync(tempPath, resolvedPath);
+    } catch (error) {
+      persistenceEnabled = false;
+      console.warn(`[customers-store] persistence disabled for ${resolvedPath}: ${error.message}`);
+    }
+  }
+
+  function load() {
+    try {
+      if (!fs.existsSync(resolvedPath)) return;
+      const raw = fs.readFileSync(resolvedPath, 'utf8');
+      if (!raw.trim()) return;
+      const parsed = JSON.parse(raw);
+      for (const [email, customer] of Object.entries(parsed)) {
+        customers.set(email.toLowerCase(), customer);
+      }
+    } catch (error) {
+      console.warn(`[customers-store] load failed for ${resolvedPath}: ${error.message}`);
+    }
+  }
+
+  function getByEmail(email) {
+    return customers.get(String(email || '').trim().toLowerCase()) || null;
+  }
+
+  function register(payload) {
+    const normalizedEmail = String(payload.email || '').trim().toLowerCase();
+    if (customers.has(normalizedEmail)) return null;
+
+    const customer = {
+      id: crypto.randomUUID(),
+      name: payload.name,
+      email: normalizedEmail,
+      phone: payload.phone || '',
+      country: payload.country || '',
+      passwordHash: hashPassword(payload.password),
+      createdAt: new Date().toISOString()
+    };
+    customers.set(normalizedEmail, customer);
+    persist();
+    return customer;
+  }
+
+  load();
+  return { getByEmail, register, path: resolvedPath };
+}
+
 function isValidUserToken(token) {
   return typeof token === 'string' && /^[a-zA-Z0-9._:-]{8,200}$/.test(token.trim());
 }
@@ -229,6 +304,7 @@ function createApp(config = createConfig()) {
   const app = express();
   const userStore = createUserStore(config.usersStoreFile);
   const siteConfigStore = createSiteConfigStore(config.siteConfigFile);
+  const customersStore = createCustomersStore(config.customersStoreFile);
 
   app.disable('x-powered-by');
   app.use(cors({ origin: config.allowedOrigins.includes('*') ? '*' : config.allowedOrigins }));
@@ -266,6 +342,48 @@ function createApp(config = createConfig()) {
     if (!token) return;
     const user = userStore.getOrCreate(token);
     res.json({ success: true, credits: user.credits, used: user.used, plan: user.plan, canGenerate: user.credits > 0 });
+  });
+
+  app.post('/api/auth/register', (req, res) => {
+    const name = typeof req.body?.name === 'string' ? req.body.name.trim() : '';
+    const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
+    const password = typeof req.body?.password === 'string' ? req.body.password : '';
+    const phone = typeof req.body?.phone === 'string' ? req.body.phone.trim() : '';
+    const country = typeof req.body?.country === 'string' ? req.body.country.trim() : '';
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: 'Missing required fields: name, email, password' });
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ error: 'Invalid email' });
+    if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
+
+    const created = customersStore.register({ name, email, password, phone, country });
+    if (!created) return res.status(409).json({ error: 'Email already registered' });
+
+    const token = crypto.randomUUID();
+    const user = { id: created.id, name: created.name, email: created.email, phone: created.phone, country: created.country };
+    return res.status(201).json({ success: true, token, user });
+  });
+
+  app.post('/api/auth/login', (req, res) => {
+    const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
+    const password = typeof req.body?.password === 'string' ? req.body.password : '';
+    if (!email || !password) return res.status(400).json({ error: 'Missing email or password' });
+
+    const customer = customersStore.getByEmail(email);
+    if (!customer || !verifyPassword(password, customer.passwordHash)) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    const token = crypto.randomUUID();
+    const user = {
+      id: customer.id,
+      name: customer.name,
+      email: customer.email,
+      phone: customer.phone || '',
+      country: customer.country || ''
+    };
+    return res.json({ success: true, token, user });
   });
 
   app.post('/api/generate', async (req, res) => {
@@ -504,3 +622,4 @@ module.exports.createApp = createApp;
 module.exports.createConfig = createConfig;
 module.exports.startServer = startServer;
 module.exports.createUserStore = createUserStore;
+module.exports.createCustomersStore = createCustomersStore;
