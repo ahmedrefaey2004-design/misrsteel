@@ -2,6 +2,7 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const crypto = require('node:crypto');
 const express = require('express');
 const cors = require('cors');
 const fetch = require('node-fetch');
@@ -21,6 +22,11 @@ function toPositiveInt(value, fallback) {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
 
+function toPositiveFloat(value, fallback) {
+  const parsed = Number.parseFloat(String(value));
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
 function createConfig(env = process.env) {
   return {
     port: toPositiveInt(env.PORT, 3000),
@@ -31,9 +37,13 @@ function createConfig(env = process.env) {
     allowedOrigins: env.ALLOWED_ORIGINS
       ? env.ALLOWED_ORIGINS.split(',').map((item) => item.trim()).filter(Boolean)
       : ['*'],
+    defaultUsdRate: toPositiveFloat(env.DEFAULT_USD_RATE, 50.85),
     maxPromptLength: toPositiveInt(env.MAX_PROMPT_LENGTH, 1200),
     usersStoreFile: env.USERS_STORE_FILE || path.join(process.cwd(), 'data', 'users.json'),
-    siteConfigFile: env.SITE_CONFIG_FILE || path.join(process.cwd(), 'data', 'site-config.json')
+    siteConfigFile: env.SITE_CONFIG_FILE || path.join(process.cwd(), 'data', 'site-config.json'),
+    customersStoreFile: env.CUSTOMERS_STORE_FILE || path.join(process.cwd(), 'data', 'customers.json'),
+    ordersStoreFile: env.ORDERS_STORE_FILE || path.join(process.cwd(), 'data', 'orders.json'),
+    affiliatesStoreFile: env.AFFILIATES_STORE_FILE || path.join(process.cwd(), 'data', 'affiliates.json')
   };
 }
 
@@ -189,6 +199,219 @@ function createSiteConfigStore(filePath) {
   return { get, replace, addProduct, path: resolvedPath };
 }
 
+function hashPassword(password) {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hashed = crypto.scryptSync(password, salt, 64).toString('hex');
+  return `${salt}:${hashed}`;
+}
+
+function verifyPassword(password, passwordHash) {
+  if (typeof passwordHash !== 'string' || !passwordHash.includes(':')) return false;
+  const [salt, savedHash] = passwordHash.split(':');
+  if (!salt || !savedHash) return false;
+  const derived = crypto.scryptSync(password, salt, 64).toString('hex');
+  return crypto.timingSafeEqual(Buffer.from(savedHash, 'hex'), Buffer.from(derived, 'hex'));
+}
+
+function createCustomersStore(filePath) {
+  const customers = new Map();
+  const resolvedPath = path.resolve(filePath);
+  let persistenceEnabled = true;
+
+  function persist() {
+    if (!persistenceEnabled) return;
+    try {
+      fs.mkdirSync(path.dirname(resolvedPath), { recursive: true });
+      const payload = JSON.stringify(Object.fromEntries(customers.entries()), null, 2);
+      const tempPath = `${resolvedPath}.tmp`;
+      fs.writeFileSync(tempPath, payload, 'utf8');
+      fs.renameSync(tempPath, resolvedPath);
+    } catch (error) {
+      persistenceEnabled = false;
+      console.warn(`[customers-store] persistence disabled for ${resolvedPath}: ${error.message}`);
+    }
+  }
+
+  function load() {
+    try {
+      if (!fs.existsSync(resolvedPath)) return;
+      const raw = fs.readFileSync(resolvedPath, 'utf8');
+      if (!raw.trim()) return;
+      const parsed = JSON.parse(raw);
+      for (const [email, customer] of Object.entries(parsed)) {
+        customers.set(email.toLowerCase(), customer);
+      }
+    } catch (error) {
+      console.warn(`[customers-store] load failed for ${resolvedPath}: ${error.message}`);
+    }
+  }
+
+  function getByEmail(email) {
+    return customers.get(String(email || '').trim().toLowerCase()) || null;
+  }
+
+  function register(payload) {
+    const normalizedEmail = String(payload.email || '').trim().toLowerCase();
+    if (customers.has(normalizedEmail)) return null;
+
+    const customer = {
+      id: crypto.randomUUID(),
+      name: payload.name,
+      email: normalizedEmail,
+      phone: payload.phone || '',
+      country: payload.country || '',
+      passwordHash: hashPassword(payload.password),
+      createdAt: new Date().toISOString()
+    };
+    customers.set(normalizedEmail, customer);
+    persist();
+    return customer;
+  }
+
+  load();
+  return { getByEmail, register, path: resolvedPath };
+}
+
+function createOrdersStore(filePath) {
+  const orders = [];
+  const resolvedPath = path.resolve(filePath);
+  let persistenceEnabled = true;
+
+  function persist() {
+    if (!persistenceEnabled) return;
+    try {
+      fs.mkdirSync(path.dirname(resolvedPath), { recursive: true });
+      const payload = JSON.stringify(orders, null, 2);
+      const tempPath = `${resolvedPath}.tmp`;
+      fs.writeFileSync(tempPath, payload, 'utf8');
+      fs.renameSync(tempPath, resolvedPath);
+    } catch (error) {
+      persistenceEnabled = false;
+      console.warn(`[orders-store] persistence disabled for ${resolvedPath}: ${error.message}`);
+    }
+  }
+
+  function load() {
+    try {
+      if (!fs.existsSync(resolvedPath)) return;
+      const raw = fs.readFileSync(resolvedPath, 'utf8');
+      if (!raw.trim()) return;
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) orders.push(...parsed);
+    } catch (error) {
+      console.warn(`[orders-store] load failed for ${resolvedPath}: ${error.message}`);
+    }
+  }
+
+  function add(payload) {
+    const orderId = crypto.randomUUID();
+    const ref = `MS-${new Date().getFullYear()}-${String(orders.length + 1).padStart(5, '0')}`;
+    const order = {
+      id: orderId,
+      orderId,
+      ref,
+      orderRef: ref,
+      createdAt: new Date().toISOString(),
+      customerName: payload.customerName || 'عميل',
+      customerEmail: payload.customerEmail || '',
+      customerPhone: payload.customerPhone || '',
+      customerCountry: payload.customerCountry || '',
+      items: Array.isArray(payload.items) ? payload.items : [],
+      totalUSD: Number.isFinite(Number(payload.totalUSD)) ? Number(payload.totalUSD) : 0,
+      depositUSD: Number.isFinite(Number(payload.depositUSD)) ? Number(payload.depositUSD) : 0,
+      notes: payload.notes || '',
+      affiliateCode: payload.affiliateCode || '',
+      source: payload.source || 'website'
+    };
+    orders.push(order);
+    persist();
+    return order;
+  }
+
+  function list() {
+    return [...orders];
+  }
+
+  load();
+  return { add, list, path: resolvedPath };
+}
+
+function createAffiliatesStore(filePath) {
+  const affiliates = [];
+  const resolvedPath = path.resolve(filePath);
+  let persistenceEnabled = true;
+
+  function persist() {
+    if (!persistenceEnabled) return;
+    try {
+      fs.mkdirSync(path.dirname(resolvedPath), { recursive: true });
+      const payload = JSON.stringify(affiliates, null, 2);
+      const tempPath = `${resolvedPath}.tmp`;
+      fs.writeFileSync(tempPath, payload, 'utf8');
+      fs.renameSync(tempPath, resolvedPath);
+    } catch (error) {
+      persistenceEnabled = false;
+      console.warn(`[affiliates-store] persistence disabled for ${resolvedPath}: ${error.message}`);
+    }
+  }
+
+  function load() {
+    try {
+      if (!fs.existsSync(resolvedPath)) return;
+      const raw = fs.readFileSync(resolvedPath, 'utf8');
+      if (!raw.trim()) return;
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) affiliates.push(...parsed);
+    } catch (error) {
+      console.warn(`[affiliates-store] load failed for ${resolvedPath}: ${error.message}`);
+    }
+  }
+
+  function generateCode(name) {
+    const slug = String(name || 'AFF').replace(/\s+/g, '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 3) || 'AFF';
+    let code = '';
+    do {
+      code = `${slug}${Math.floor(100 + Math.random() * 900)}`;
+    } while (affiliates.some((item) => item.code === code));
+    return code;
+  }
+
+  function register(payload) {
+    const phone = String(payload.phone || '').trim();
+    if (affiliates.some((item) => item.phone === phone)) return null;
+    const affiliate = {
+      id: crypto.randomUUID(),
+      code: generateCode(payload.name),
+      token: crypto.randomUUID(),
+      name: String(payload.name || '').trim(),
+      phone,
+      whatsapp: String(payload.whatsapp || phone).trim(),
+      job: String(payload.job || '').trim(),
+      facebook: String(payload.facebook || '').trim(),
+      commissionRate: 10,
+      level: 'starter',
+      createdAt: new Date().toISOString()
+    };
+    affiliates.push(affiliate);
+    persist();
+    return affiliate;
+  }
+
+  function findByCodeAndPhone(code, phone) {
+    const normalizedCode = String(code || '').trim().toUpperCase();
+    const normalizedPhone = String(phone || '').trim();
+    return affiliates.find((item) => item.code === normalizedCode && item.phone === normalizedPhone) || null;
+  }
+
+  function findByCode(code) {
+    const normalizedCode = String(code || '').trim().toUpperCase();
+    return affiliates.find((item) => item.code === normalizedCode) || null;
+  }
+
+  load();
+  return { register, findByCodeAndPhone, findByCode, path: resolvedPath };
+}
+
 function isValidUserToken(token) {
   return typeof token === 'string' && /^[a-zA-Z0-9._:-]{8,200}$/.test(token.trim());
 }
@@ -223,6 +446,9 @@ function createApp(config = createConfig()) {
   const app = express();
   const userStore = createUserStore(config.usersStoreFile);
   const siteConfigStore = createSiteConfigStore(config.siteConfigFile);
+  const customersStore = createCustomersStore(config.customersStoreFile);
+  const ordersStore = createOrdersStore(config.ordersStoreFile);
+  const affiliatesStore = createAffiliatesStore(config.affiliatesStoreFile);
 
   app.disable('x-powered-by');
   app.use(cors({ origin: config.allowedOrigins.includes('*') ? '*' : config.allowedOrigins }));
@@ -262,6 +488,145 @@ function createApp(config = createConfig()) {
     res.json({ success: true, credits: user.credits, used: user.used, plan: user.plan, canGenerate: user.credits > 0 });
   });
 
+  app.post('/api/auth/register', (req, res) => {
+    const name = typeof req.body?.name === 'string' ? req.body.name.trim() : '';
+    const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
+    const password = typeof req.body?.password === 'string' ? req.body.password : '';
+    const phone = typeof req.body?.phone === 'string' ? req.body.phone.trim() : '';
+    const country = typeof req.body?.country === 'string' ? req.body.country.trim() : '';
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: 'Missing required fields: name, email, password' });
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ error: 'Invalid email' });
+    if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
+
+    const created = customersStore.register({ name, email, password, phone, country });
+    if (!created) return res.status(409).json({ error: 'Email already registered' });
+
+    const token = crypto.randomUUID();
+    const user = { id: created.id, name: created.name, email: created.email, phone: created.phone, country: created.country };
+    return res.status(201).json({ success: true, token, user });
+  });
+
+  app.post('/api/auth/login', (req, res) => {
+    const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
+    const password = typeof req.body?.password === 'string' ? req.body.password : '';
+    if (!email || !password) return res.status(400).json({ error: 'Missing email or password' });
+
+    const customer = customersStore.getByEmail(email);
+    if (!customer || !verifyPassword(password, customer.passwordHash)) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    const token = crypto.randomUUID();
+    const user = {
+      id: customer.id,
+      name: customer.name,
+      email: customer.email,
+      phone: customer.phone || '',
+      country: customer.country || ''
+    };
+    return res.json({ success: true, token, user });
+  });
+
+  app.post('/api/orders', (req, res) => {
+    const customerName = typeof req.body?.customerName === 'string' ? req.body.customerName.trim() : '';
+    const items = Array.isArray(req.body?.items) ? req.body.items : [];
+
+    if (!customerName) return res.status(400).json({ error: 'customerName is required' });
+    if (!items.length) return res.status(400).json({ error: 'items are required' });
+
+    const order = ordersStore.add({
+      customerName,
+      customerEmail: typeof req.body?.customerEmail === 'string' ? req.body.customerEmail.trim() : '',
+      customerPhone: typeof req.body?.customerPhone === 'string' ? req.body.customerPhone.trim() : '',
+      customerCountry: typeof req.body?.customerCountry === 'string' ? req.body.customerCountry.trim() : '',
+      items,
+      totalUSD: req.body?.totalUSD,
+      depositUSD: req.body?.depositUSD,
+      notes: typeof req.body?.notes === 'string' ? req.body.notes.trim() : '',
+      affiliateCode: typeof req.body?.affiliateCode === 'string' ? req.body.affiliateCode.trim().toUpperCase() : '',
+      source: typeof req.body?.source === 'string' ? req.body.source.trim() : ''
+    });
+
+    return res.status(201).json({
+      success: true,
+      id: order.id,
+      orderId: order.orderId,
+      ref: order.ref,
+      orderRef: order.orderRef,
+      order
+    });
+  });
+
+  app.post('/api/affiliates/register', (req, res) => {
+    const name = typeof req.body?.name === 'string' ? req.body.name.trim() : '';
+    const phone = typeof req.body?.phone === 'string' ? req.body.phone.trim() : '';
+    if (!name || !phone) return res.status(400).json({ error: 'name and phone are required' });
+
+    const affiliate = affiliatesStore.register({
+      name,
+      phone,
+      whatsapp: req.body?.whatsapp,
+      job: req.body?.job,
+      facebook: req.body?.facebook
+    });
+    if (!affiliate) return res.status(409).json({ error: 'Phone already registered' });
+
+    return res.status(201).json({
+      success: true,
+      message: `تم تسجيلك بنجاح — كودك: ${affiliate.code}`,
+      affiliate: {
+        name: affiliate.name,
+        code: affiliate.code
+      }
+    });
+  });
+
+  app.post('/api/affiliates/login', (req, res) => {
+    const code = typeof req.body?.code === 'string' ? req.body.code.trim().toUpperCase() : '';
+    const phone = typeof req.body?.phone === 'string' ? req.body.phone.trim() : '';
+    if (!code || !phone) return res.status(400).json({ error: 'code and phone are required' });
+
+    const affiliate = affiliatesStore.findByCodeAndPhone(code, phone);
+    if (!affiliate) return res.status(401).json({ error: 'Invalid code or phone' });
+
+    const myOrders = ordersStore.list().filter((order) => String(order.affiliateCode || '').toUpperCase() === affiliate.code);
+    const totalSales = myOrders.reduce((sum, order) => sum + (Number(order.totalUSD) || 0), 0);
+    const totalOrders = myOrders.length;
+    const pendingCommission = totalSales * ((affiliate.commissionRate || 10) / 100);
+
+    return res.json({
+      success: true,
+      affiliate: {
+        id: affiliate.id,
+        name: affiliate.name,
+        phone: affiliate.phone,
+        code: affiliate.code,
+        token: affiliate.token,
+        commissionRate: affiliate.commissionRate || 10,
+        level: affiliate.level || 'starter',
+        totalSales,
+        totalOrders,
+        pendingCommission
+      }
+    });
+  });
+
+  app.get('/api/affiliates/orders', (req, res) => {
+    const code = typeof req.query?.code === 'string' ? req.query.code.trim().toUpperCase() : '';
+    const token = typeof req.headers['x-aff-token'] === 'string' ? req.headers['x-aff-token'].trim() : '';
+    if (!code) return res.status(400).json({ error: 'code is required' });
+
+    const affiliate = affiliatesStore.findByCode(code);
+    if (!affiliate) return res.status(404).json({ error: 'Affiliate not found' });
+    if (!token || token !== affiliate.token) return res.status(401).json({ error: 'Unauthorized affiliate token' });
+
+    const orders = ordersStore.list().filter((order) => String(order.affiliateCode || '').toUpperCase() === code);
+    return res.json({ success: true, total: orders.length, orders });
+  });
+
   app.post('/api/generate', async (req, res) => {
     const token = requireUserToken(req, res);
     if (!token) return;
@@ -293,6 +658,89 @@ function createApp(config = createConfig()) {
 
   app.get('/api/site-config', (req, res) => {
     res.json({ success: true, config: siteConfigStore.get() });
+  });
+
+  app.get('/api/settings/public', (req, res) => {
+    const siteConfig = siteConfigStore.get();
+    const configuredRate = toPositiveFloat(siteConfig?.usdRate, null)
+      || toPositiveFloat(siteConfig?.settings?.usdRate, null)
+      || toPositiveFloat(siteConfig?.settings?.exchangeRateUsdEgp, null)
+      || config.defaultUsdRate;
+
+    res.json({
+      success: true,
+      currency: 'EGP',
+      usdRate: configuredRate
+    });
+  });
+
+  app.get('/api/portfolio', (req, res) => {
+    const siteConfig = siteConfigStore.get();
+    const allProjects = Array.isArray(siteConfig?.portfolio)
+      ? siteConfig.portfolio
+      : (Array.isArray(siteConfig?.projects) ? siteConfig.projects : []);
+    const category = typeof req.query?.category === 'string' ? req.query.category.trim().toLowerCase() : '';
+    const limit = Number.parseInt(req.query?.limit, 10);
+
+    let projects = allProjects.filter((item) => item && typeof item === 'object');
+    if (category) {
+      projects = projects.filter((item) => String(item.category || '').toLowerCase() === category);
+    }
+    if (Number.isFinite(limit) && limit > 0) {
+      projects = projects.slice(0, limit);
+    }
+
+    return res.json({ success: true, total: projects.length, projects });
+  });
+
+  app.get('/api/products', (req, res) => {
+    const siteConfig = siteConfigStore.get();
+    const allProducts = Array.isArray(siteConfig.products) ? siteConfig.products : [];
+    const section = typeof req.query?.section === 'string' ? req.query.section.trim().toLowerCase() : '';
+    const category = typeof req.query?.category === 'string' ? req.query.category.trim().toLowerCase() : '';
+    const search = typeof req.query?.q === 'string' ? req.query.q.trim().toLowerCase() : '';
+    const limit = Number.parseInt(req.query?.limit, 10);
+
+    let products = allProducts.filter((product) => product && typeof product === 'object');
+
+    if (section) {
+      products = products.filter((product) => String(product.section || '').toLowerCase() === section);
+    }
+
+    if (category) {
+      products = products.filter((product) => String(product.category || '').toLowerCase() === category);
+    }
+
+    if (search) {
+      products = products.filter((product) => {
+        const haystack = [
+          product.id,
+          product.nameAr,
+          product.nameEn,
+          product.name,
+          product.desc,
+          product.description
+        ].join(' ').toLowerCase();
+        return haystack.includes(search);
+      });
+    }
+
+    if (Number.isFinite(limit) && limit > 0) {
+      products = products.slice(0, limit);
+    }
+
+    res.json({ success: true, total: products.length, products });
+  });
+
+  app.get('/api/products/:id', (req, res) => {
+    const siteConfig = siteConfigStore.get();
+    const products = Array.isArray(siteConfig.products) ? siteConfig.products : [];
+    const targetId = String(req.params?.id || '').trim();
+
+    const product = products.find((item) => item && String(item.id) === targetId);
+    if (!product) return res.status(404).json({ success: false, error: 'Product not found' });
+
+    return res.json({ success: true, product });
   });
 
   app.get('/api/meta/catalog.csv', (req, res) => {
@@ -448,3 +896,6 @@ module.exports.createApp = createApp;
 module.exports.createConfig = createConfig;
 module.exports.startServer = startServer;
 module.exports.createUserStore = createUserStore;
+module.exports.createCustomersStore = createCustomersStore;
+module.exports.createOrdersStore = createOrdersStore;
+module.exports.createAffiliatesStore = createAffiliatesStore;

@@ -19,7 +19,10 @@ async function withServer(configOverrides, run) {
     ...createConfig({}),
     ...configOverrides,
     usersStoreFile: temp.file,
-    siteConfigFile: path.join(temp.dir, 'site-config.json')
+    siteConfigFile: path.join(temp.dir, 'site-config.json'),
+    customersStoreFile: path.join(temp.dir, 'customers.json'),
+    ordersStoreFile: path.join(temp.dir, 'orders.json'),
+    affiliatesStoreFile: path.join(temp.dir, 'affiliates.json')
   };
   const app = createApp(config);
   const server = app.listen(0);
@@ -58,6 +61,185 @@ test('POST /api/generate rejects missing token', async () => {
     assert.equal(res.status, 401);
     const json = await res.json();
     assert.match(json.error, /Invalid or missing user token/i);
+  });
+});
+
+test('auth register and login endpoints support customer accounts', async () => {
+  await withServer({}, async (baseUrl) => {
+    const registerRes = await fetch(`${baseUrl}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: 'Ahmed Ali',
+        email: 'ahmed@example.com',
+        phone: '+201000000000',
+        country: 'EG',
+        password: 'secret123'
+      })
+    });
+
+    assert.equal(registerRes.status, 201);
+    const registerJson = await registerRes.json();
+    assert.equal(registerJson.success, true);
+    assert.ok(registerJson.token);
+    assert.equal(registerJson.user.email, 'ahmed@example.com');
+
+    const duplicateRes = await fetch(`${baseUrl}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: 'Ahmed Ali',
+        email: 'ahmed@example.com',
+        password: 'secret123'
+      })
+    });
+    assert.equal(duplicateRes.status, 409);
+
+    const loginRes = await fetch(`${baseUrl}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: 'ahmed@example.com',
+        password: 'secret123'
+      })
+    });
+    assert.equal(loginRes.status, 200);
+    const loginJson = await loginRes.json();
+    assert.equal(loginJson.success, true);
+    assert.equal(loginJson.user.name, 'Ahmed Ali');
+
+    const badLoginRes = await fetch(`${baseUrl}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: 'ahmed@example.com',
+        password: 'wrong-password'
+      })
+    });
+    assert.equal(badLoginRes.status, 401);
+  });
+});
+
+test('orders endpoint creates orders and returns references', async () => {
+  await withServer({}, async (baseUrl) => {
+    const createRes = await fetch(`${baseUrl}/api/orders`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        customerName: 'Client One',
+        customerPhone: '+201111111111',
+        customerCountry: 'EG',
+        items: [{ id: 'p-1', nameAr: 'منتج', qty: 2, priceUSD: 100 }],
+        totalUSD: 200,
+        depositUSD: 100,
+        affiliateCode: 'MSA100'
+      })
+    });
+
+    assert.equal(createRes.status, 201);
+    const createJson = await createRes.json();
+    assert.equal(createJson.success, true);
+    assert.ok(createJson.orderId);
+    assert.ok(createJson.ref);
+    assert.equal(createJson.order.affiliateCode, 'MSA100');
+
+    const badRes = await fetch(`${baseUrl}/api/orders`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ customerName: '', items: [] })
+    });
+    assert.equal(badRes.status, 400);
+  });
+});
+
+test('affiliate register/login/orders endpoints work with affiliate-linked orders', async () => {
+  await withServer({}, async (baseUrl) => {
+    const registerRes = await fetch(`${baseUrl}/api/affiliates/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: 'Affiliate One',
+        phone: '+201222222222',
+        whatsapp: '+201222222222'
+      })
+    });
+    assert.equal(registerRes.status, 201);
+    const registerJson = await registerRes.json();
+    assert.equal(registerJson.success, true);
+    const code = registerJson.affiliate.code;
+    assert.ok(code);
+
+    const loginRes = await fetch(`${baseUrl}/api/affiliates/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, phone: '+201222222222' })
+    });
+    assert.equal(loginRes.status, 200);
+    const loginJson = await loginRes.json();
+    assert.equal(loginJson.success, true);
+    assert.equal(loginJson.affiliate.code, code);
+    const token = loginJson.affiliate.token;
+    assert.ok(token);
+
+    const orderRes = await fetch(`${baseUrl}/api/orders`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        customerName: 'Order Client',
+        customerPhone: '+201333333333',
+        items: [{ id: 'p-aff', nameAr: 'منتج مسوق', qty: 1, priceUSD: 80 }],
+        totalUSD: 80,
+        affiliateCode: code
+      })
+    });
+    assert.equal(orderRes.status, 201);
+
+    const myOrdersRes = await fetch(`${baseUrl}/api/affiliates/orders?code=${code}`, {
+      headers: { 'x-aff-token': token }
+    });
+    assert.equal(myOrdersRes.status, 200);
+    const myOrdersJson = await myOrdersRes.json();
+    assert.equal(myOrdersJson.success, true);
+    assert.equal(myOrdersJson.total, 1);
+    assert.equal(myOrdersJson.orders[0].affiliateCode, code);
+
+    const unauthorizedRes = await fetch(`${baseUrl}/api/affiliates/orders?code=${code}`, {
+      headers: { 'x-aff-token': 'wrong-token' }
+    });
+    assert.equal(unauthorizedRes.status, 401);
+  });
+});
+
+test('portfolio endpoint returns projects and supports category filters', async () => {
+  await withServer({ adminToken: 'admin_portfolio' }, async (baseUrl) => {
+    const headers = {
+      'Content-Type': 'application/json',
+      'x-admin-token': 'admin_portfolio'
+    };
+
+    const seedRes = await fetch(`${baseUrl}/api/admin/site-config`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({
+        portfolio: [
+          { id: 1, name: 'Hotel Nile', category: 'hotel', location: 'Cairo' },
+          { id: 2, name: 'Royal Hall', category: 'hall', location: 'Alex' }
+        ]
+      })
+    });
+    assert.equal(seedRes.status, 200);
+
+    const allRes = await fetch(`${baseUrl}/api/portfolio`);
+    assert.equal(allRes.status, 200);
+    const allJson = await allRes.json();
+    assert.equal(allJson.success, true);
+    assert.equal(allJson.total, 2);
+
+    const filteredRes = await fetch(`${baseUrl}/api/portfolio?category=hall`);
+    assert.equal(filteredRes.status, 200);
+    const filteredJson = await filteredRes.json();
+    assert.equal(filteredJson.total, 1);
+    assert.equal(filteredJson.projects[0].name, 'Royal Hall');
   });
 });
 
@@ -207,6 +389,74 @@ test('site config can be edited from admin API and read publicly', async () => {
   } finally {
     fs.rmSync(temp.dir, { recursive: true, force: true });
   }
+});
+
+test('products endpoints expose list and item details from site config', async () => {
+  await withServer({ adminToken: 'admin_token_products' }, async (baseUrl) => {
+    const headers = {
+      'Content-Type': 'application/json',
+      'x-admin-token': 'admin_token_products'
+    };
+
+    const seedRes = await fetch(`${baseUrl}/api/admin/site-config`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({
+        products: [
+          { id: 'p-100', nameAr: 'كرسي قاعة فاخر', section: 'hall', category: 'chairs' },
+          { id: 'p-101', nameAr: 'كرسي مطعم', section: 'restaurant', category: 'chairs' }
+        ]
+      })
+    });
+    assert.equal(seedRes.status, 200);
+
+    const listRes = await fetch(`${baseUrl}/api/products?section=hall`);
+    assert.equal(listRes.status, 200);
+    const listJson = await listRes.json();
+    assert.equal(listJson.success, true);
+    assert.equal(listJson.total, 1);
+    assert.equal(listJson.products[0].id, 'p-100');
+
+    const itemRes = await fetch(`${baseUrl}/api/products/p-101`);
+    assert.equal(itemRes.status, 200);
+    const itemJson = await itemRes.json();
+    assert.equal(itemJson.success, true);
+    assert.equal(itemJson.product.id, 'p-101');
+
+    const missingRes = await fetch(`${baseUrl}/api/products/missing-id`);
+    assert.equal(missingRes.status, 404);
+  });
+});
+
+test('public settings endpoint returns USD rate with configured fallback', async () => {
+  await withServer({ adminToken: 'admin_token_settings', defaultUsdRate: 51.25 }, async (baseUrl) => {
+    const headers = {
+      'Content-Type': 'application/json',
+      'x-admin-token': 'admin_token_settings'
+    };
+
+    const fallbackRes = await fetch(`${baseUrl}/api/settings/public`);
+    assert.equal(fallbackRes.status, 200);
+    const fallbackJson = await fallbackRes.json();
+    assert.equal(fallbackJson.success, true);
+    assert.equal(fallbackJson.usdRate, 51.25);
+
+    const seedRes = await fetch(`${baseUrl}/api/admin/site-config`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({
+        settings: { usdRate: 49.9 }
+      })
+    });
+    assert.equal(seedRes.status, 200);
+
+    const configuredRes = await fetch(`${baseUrl}/api/settings/public`);
+    assert.equal(configuredRes.status, 200);
+    const configuredJson = await configuredRes.json();
+    assert.equal(configuredJson.success, true);
+    assert.equal(configuredJson.currency, 'EGP');
+    assert.equal(configuredJson.usdRate, 49.9);
+  });
 });
 
 test('admin site-config endpoints support replace and validate payloads', async () => {
