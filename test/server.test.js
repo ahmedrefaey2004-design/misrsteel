@@ -20,8 +20,7 @@ async function withServer(configOverrides, run) {
     ...configOverrides,
     usersStoreFile: temp.file,
     siteConfigFile: path.join(temp.dir, 'site-config.json'),
-    customersStoreFile: path.join(temp.dir, 'customers.json'),
-    ordersStoreFile: path.join(temp.dir, 'orders.json')
+    customersStoreFile: path.join(temp.dir, 'customers.json')
   };
   const app = createApp(config);
   const server = app.listen(0);
@@ -116,38 +115,6 @@ test('auth register and login endpoints support customer accounts', async () => 
       })
     });
     assert.equal(badLoginRes.status, 401);
-  });
-});
-
-test('orders endpoint creates orders and returns references', async () => {
-  await withServer({}, async (baseUrl) => {
-    const createRes = await fetch(`${baseUrl}/api/orders`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        customerName: 'Client One',
-        customerPhone: '+201111111111',
-        customerCountry: 'EG',
-        items: [{ id: 'p-1', nameAr: 'منتج', qty: 2, priceUSD: 100 }],
-        totalUSD: 200,
-        depositUSD: 100,
-        affiliateCode: 'MSA100'
-      })
-    });
-
-    assert.equal(createRes.status, 201);
-    const createJson = await createRes.json();
-    assert.equal(createJson.success, true);
-    assert.ok(createJson.orderId);
-    assert.ok(createJson.ref);
-    assert.equal(createJson.order.affiliateCode, 'MSA100');
-
-    const badRes = await fetch(`${baseUrl}/api/orders`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ customerName: '', items: [] })
-    });
-    assert.equal(badRes.status, 400);
   });
 });
 
@@ -333,37 +300,6 @@ test('products endpoints expose list and item details from site config', async (
 
     const missingRes = await fetch(`${baseUrl}/api/products/missing-id`);
     assert.equal(missingRes.status, 404);
-  });
-});
-
-test('public settings endpoint returns USD rate with configured fallback', async () => {
-  await withServer({ adminToken: 'admin_token_settings', defaultUsdRate: 51.25 }, async (baseUrl) => {
-    const headers = {
-      'Content-Type': 'application/json',
-      'x-admin-token': 'admin_token_settings'
-    };
-
-    const fallbackRes = await fetch(`${baseUrl}/api/settings/public`);
-    assert.equal(fallbackRes.status, 200);
-    const fallbackJson = await fallbackRes.json();
-    assert.equal(fallbackJson.success, true);
-    assert.equal(fallbackJson.usdRate, 51.25);
-
-    const seedRes = await fetch(`${baseUrl}/api/admin/site-config`, {
-      method: 'PUT',
-      headers,
-      body: JSON.stringify({
-        settings: { usdRate: 49.9 }
-      })
-    });
-    assert.equal(seedRes.status, 200);
-
-    const configuredRes = await fetch(`${baseUrl}/api/settings/public`);
-    assert.equal(configuredRes.status, 200);
-    const configuredJson = await configuredRes.json();
-    assert.equal(configuredJson.success, true);
-    assert.equal(configuredJson.currency, 'EGP');
-    assert.equal(configuredJson.usdRate, 49.9);
   });
 });
 
