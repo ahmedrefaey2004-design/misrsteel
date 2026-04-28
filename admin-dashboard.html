@@ -346,7 +346,13 @@ tr:hover td{background:#fafafa}
     <div class="panel" id="panel-products">
       <div class="panel-title">
         <span>🪑 إدارة المنتجات</span>
-        <button class="btn btn-orange" onclick="openAddProd()">➕ إضافة منتج جديد</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <button class="btn btn-orange" onclick="openAddProd()">➕ إضافة منتج</button>
+          <button class="btn btn-gray btn-sm" onclick="toggleSelectAll()" id="selectAllBtn">☑️ تحديد الكل</button>
+          <button class="btn btn-red btn-sm" id="bulkDeleteBtn" onclick="bulkDelete()" style="display:none">🗑️ حذف المحدد</button>
+          <button class="btn btn-gray btn-sm" onclick="window.open('export-products.html','_blank')">⬇️ Export Excel</button>
+          <button class="btn btn-red btn-sm" onclick="deleteAllProducts()" style="background:#cc0000">⚠️ حذف الكل</button>
+        </div>
       </div>
       <!-- EXCEL UPLOAD -->
       <div class="settings-card" style="margin-bottom:14px">
@@ -796,7 +802,7 @@ function filterProds() {
 var secMap={home:'🏠 منزل',hall:'🎪 قاعة',museum:'🏛️ لوبي',restaurant:'🍽️ مطعم'};
 function renderProds(prods) {
   if (!prods.length) { document.getElementById('prodsTable').innerHTML='<div style="padding:20px;text-align:center;color:var(--muted)">لا توجد منتجات</div>'; return; }
-  document.getElementById('prodsTable').innerHTML='<table><tr><th>#</th><th>الصورة</th><th>الاسم</th><th>القسم</th><th>السعر</th><th>الحالة</th><th>إجراءات</th></tr>'+
+  document.getElementById('prodsTable').innerHTML='<table><tr><th><input type="checkbox" id="chk-all" onchange="checkAll(this)"></th><th>الصورة</th><th>الاسم</th><th>القسم</th><th>السعر</th><th>الحالة</th><th>إجراءات</th></tr>'+
     prods.map(p=>{
       var img = p.imgs&&p.imgs[0] ? '<img src="https://misrsteel.vercel.app/'+p.imgs[0]+'" style="width:44px;height:44px;object-fit:cover;border-radius:4px" onerror="this.outerHTML=\'🪑\'">' : '<span style="font-size:24px">🪑</span>';
       return '<tr><td>'+p.id+'</td><td>'+img+'</td><td><strong>'+p.nameAr+'</strong><div style="font-size:10px;color:var(--muted)">'+(p.nameEn||'')+'</div></td>'+
@@ -1738,6 +1744,59 @@ async function refreshLiveRate() {
     var d = await api('POST', '/api/admin/update-rate', {});
     document.getElementById('curRate').textContent = d.usdRate + ' (الآن)';
     toast('✅ ' + d.message, 'success');
+  } catch(e) { toast('❌ ' + e.message, 'error'); }
+}
+
+// ── BULK ACTIONS ───────────────────────────────────────
+function checkAll(cb) {
+  document.querySelectorAll('.prod-chk').forEach(function(c){ c.checked = cb.checked; });
+  updateBulkBtn();
+}
+
+function toggleSelectAll() {
+  var chks = document.querySelectorAll('.prod-chk');
+  var allChecked = Array.from(chks).every(function(c){ return c.checked; });
+  chks.forEach(function(c){ c.checked = !allChecked; });
+  var chkAll = document.getElementById('chk-all');
+  if (chkAll) chkAll.checked = !allChecked;
+  updateBulkBtn();
+  document.getElementById('selectAllBtn').textContent = allChecked ? '☑️ تحديد الكل' : '✅ إلغاء التحديد';
+}
+
+function updateBulkBtn() {
+  var checked = document.querySelectorAll('.prod-chk:checked').length;
+  var btn = document.getElementById('bulkDeleteBtn');
+  if (btn) {
+    btn.style.display = checked > 0 ? 'inline-flex' : 'none';
+    btn.textContent = '🗑️ حذف المحدد (' + checked + ')';
+  }
+}
+
+async function bulkDelete() {
+  var ids = Array.from(document.querySelectorAll('.prod-chk:checked')).map(function(c){ return c.getAttribute('data-id'); });
+  if (!ids.length) return;
+  if (!confirm('حذف ' + ids.length + ' منتج؟')) return;
+  var done = 0;
+  for (var i = 0; i < ids.length; i++) {
+    try { await api('DELETE', '/api/admin/products/' + ids[i]); done++; } catch(e) {}
+  }
+  toast('✅ تم حذف ' + done + ' منتج', 'success');
+  loadProducts();
+}
+
+async function deleteAllProducts() {
+  if (!confirm('⚠️ حذف كل المنتجات نهائياً؟ هذا الإجراء لا يمكن التراجع عنه!')) return;
+  if (!confirm('تأكيد ثاني — هتمسح كل المنتجات؟')) return;
+  try {
+    var d = await api('GET', '/api/admin/products?limit=2000');
+    var prods = d.products || [];
+    var done = 0;
+    for (var i = 0; i < prods.length; i++) {
+      try { await api('DELETE', '/api/admin/products/' + prods[i].id); done++; } catch(e) {}
+      if (i % 10 === 0) toast('جاري الحذف... ' + done + '/' + prods.length, '');
+    }
+    toast('✅ تم حذف ' + done + ' منتج', 'success');
+    loadProducts();
   } catch(e) { toast('❌ ' + e.message, 'error'); }
 }
 
