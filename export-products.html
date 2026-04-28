@@ -102,19 +102,24 @@ async function exportProducts() {
       var img2 = imgs[1] || '';
       var img3 = imgs[2] || '';
 
+      // Truncate long fields to avoid Excel limit (32767 chars)
+      var desc = (p.desc || '').substring(0, 500);
+      var img1t = img1.startsWith('data:') ? '' : img1.substring(0, 500);
+      var img2t = img2.startsWith('data:') ? '' : img2.substring(0, 500);
+      var img3t = img3.startsWith('data:') ? '' : img3.substring(0, 500);
       rows.push([
-        p.nameAr || '',
-        p.nameEn || '',
+        (p.nameAr || '').substring(0, 200),
+        (p.nameEn || '').substring(0, 200),
         p.price || 0,
         p.section || 'home',
         p.finish || 'gold',
         p.badge || '',
-        p.desc || '',
-        img1,
-        img2,
-        img3,
-        (p.frameColors || []).join(','),
-        (p.fabricColors || []).join(','),
+        desc,
+        img1t,
+        img2t,
+        img3t,
+        (p.frameColors || []).join(',').substring(0, 300),
+        (p.fabricColors || []).join(',').substring(0, 300),
       ]);
 
       if (i % 50 === 0) {
