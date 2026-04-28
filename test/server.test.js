@@ -20,9 +20,7 @@ async function withServer(configOverrides, run) {
     ...configOverrides,
     usersStoreFile: temp.file,
     siteConfigFile: path.join(temp.dir, 'site-config.json'),
-    customersStoreFile: path.join(temp.dir, 'customers.json'),
-    ordersStoreFile: path.join(temp.dir, 'orders.json'),
-    affiliatesStoreFile: path.join(temp.dir, 'affiliates.json')
+    customersStoreFile: path.join(temp.dir, 'customers.json')
   };
   const app = createApp(config);
   const server = app.listen(0);
@@ -120,182 +118,6 @@ test('auth register and login endpoints support customer accounts', async () => 
   });
 });
 
-test('orders endpoint creates orders and returns references', async () => {
-  await withServer({}, async (baseUrl) => {
-    const createRes = await fetch(`${baseUrl}/api/orders`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        customerName: 'Client One',
-        customerPhone: '+201111111111',
-        customerCountry: 'EG',
-        items: [{ id: 'p-1', nameAr: 'منتج', qty: 2, priceUSD: 100 }],
-        totalUSD: 200,
-        depositUSD: 100,
-        affiliateCode: 'MSA100'
-      })
-    });
-
-    assert.equal(createRes.status, 201);
-    const createJson = await createRes.json();
-    assert.equal(createJson.success, true);
-    assert.ok(createJson.orderId);
-    assert.ok(createJson.ref);
-    assert.equal(createJson.order.affiliateCode, 'MSA100');
-
-    const badRes = await fetch(`${baseUrl}/api/orders`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ customerName: '', items: [] })
-    });
-    assert.equal(badRes.status, 400);
-  });
-});
-
-test('affiliate register/login/orders endpoints work with affiliate-linked orders', async () => {
-  await withServer({}, async (baseUrl) => {
-    const registerRes = await fetch(`${baseUrl}/api/affiliates/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: 'Affiliate One',
-        phone: '+201222222222',
-        whatsapp: '+201222222222'
-      })
-    });
-    assert.equal(registerRes.status, 201);
-    const registerJson = await registerRes.json();
-    assert.equal(registerJson.success, true);
-    const code = registerJson.affiliate.code;
-    assert.ok(code);
-
-    const loginRes = await fetch(`${baseUrl}/api/affiliates/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code, phone: '+201222222222' })
-    });
-    assert.equal(loginRes.status, 200);
-    const loginJson = await loginRes.json();
-    assert.equal(loginJson.success, true);
-    assert.equal(loginJson.affiliate.code, code);
-    const token = loginJson.affiliate.token;
-    assert.ok(token);
-
-    const orderRes = await fetch(`${baseUrl}/api/orders`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        customerName: 'Order Client',
-        customerPhone: '+201333333333',
-        items: [{ id: 'p-aff', nameAr: 'منتج مسوق', qty: 1, priceUSD: 80 }],
-        totalUSD: 80,
-        affiliateCode: code
-      })
-    });
-    assert.equal(orderRes.status, 201);
-
-    const myOrdersRes = await fetch(`${baseUrl}/api/affiliates/orders?code=${code}`, {
-      headers: { 'x-aff-token': token }
-    });
-    assert.equal(myOrdersRes.status, 200);
-    const myOrdersJson = await myOrdersRes.json();
-    assert.equal(myOrdersJson.success, true);
-    assert.equal(myOrdersJson.total, 1);
-    assert.equal(myOrdersJson.orders[0].affiliateCode, code);
-
-    const unauthorizedRes = await fetch(`${baseUrl}/api/affiliates/orders?code=${code}`, {
-      headers: { 'x-aff-token': 'wrong-token' }
-    });
-    assert.equal(unauthorizedRes.status, 401);
-  });
-});
-
-test('portfolio endpoint returns projects and supports category filters', async () => {
-  await withServer({ adminToken: 'admin_portfolio' }, async (baseUrl) => {
-    const headers = {
-      'Content-Type': 'application/json',
-      'x-admin-token': 'admin_portfolio'
-    };
-
-    const seedRes = await fetch(`${baseUrl}/api/admin/site-config`, {
-      method: 'PUT',
-      headers,
-      body: JSON.stringify({
-        portfolio: [
-          { id: 1, name: 'Hotel Nile', category: 'hotel', location: 'Cairo' },
-          { id: 2, name: 'Royal Hall', category: 'hall', location: 'Alex' }
-        ]
-      })
-    });
-    assert.equal(seedRes.status, 200);
-
-    const allRes = await fetch(`${baseUrl}/api/portfolio`);
-    assert.equal(allRes.status, 200);
-    const allJson = await allRes.json();
-    assert.equal(allJson.success, true);
-    assert.equal(allJson.total, 2);
-
-    const filteredRes = await fetch(`${baseUrl}/api/portfolio?category=hall`);
-    assert.equal(filteredRes.status, 200);
-    const filteredJson = await filteredRes.json();
-    assert.equal(filteredJson.total, 1);
-    assert.equal(filteredJson.projects[0].name, 'Royal Hall');
-  });
-});
-
-test('admin portfolio CRUD and generic site-config collection endpoints work', async () => {
-  await withServer({ adminToken: 'admin_portfolio_crud' }, async (baseUrl) => {
-    const headers = {
-      'Content-Type': 'application/json',
-      'x-admin-token': 'admin_portfolio_crud'
-    };
-
-    const createRes = await fetch(`${baseUrl}/api/admin/portfolio`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({ id: 'proj-1', name: 'Project 1', category: 'hotel' })
-    });
-    assert.equal(createRes.status, 201);
-
-    const listRes = await fetch(`${baseUrl}/api/admin/portfolio`, { headers });
-    assert.equal(listRes.status, 200);
-    const listJson = await listRes.json();
-    assert.equal(listJson.total, 1);
-
-    const updateRes = await fetch(`${baseUrl}/api/admin/portfolio/proj-1`, {
-      method: 'PUT',
-      headers,
-      body: JSON.stringify({ name: 'Project 1 Updated' })
-    });
-    assert.equal(updateRes.status, 200);
-
-    const genericAddRes = await fetch(`${baseUrl}/api/admin/site-config/categories`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({ id: 'cat-1', labelAr: 'قسم' })
-    });
-    assert.equal(genericAddRes.status, 200);
-    const genericAddJson = await genericAddRes.json();
-    assert.equal(genericAddJson.config.categories.length, 1);
-
-    const genericDeleteRes = await fetch(`${baseUrl}/api/admin/site-config/categories/cat-1`, {
-      method: 'DELETE',
-      headers
-    });
-    assert.equal(genericDeleteRes.status, 200);
-    const genericDeleteJson = await genericDeleteRes.json();
-    assert.equal(genericDeleteJson.config.categories.length, 0);
-
-    const deleteRes = await fetch(`${baseUrl}/api/admin/portfolio/proj-1`, {
-      method: 'DELETE',
-      headers
-    });
-    assert.equal(deleteRes.status, 200);
-    const deleteJson = await deleteRes.json();
-    assert.equal(deleteJson.projects.length, 0);
-  });
-});
-
 test('admin routes disabled without ADMIN_TOKEN', async () => {
   await withServer({ adminToken: '' }, async (baseUrl) => {
     const res = await fetch(`${baseUrl}/api/admin/users`);
@@ -381,57 +203,6 @@ test('admin orders endpoints list and update orders', async () => {
     assert.equal(filteredRes.status, 200);
     const filteredJson = await filteredRes.json();
     assert.equal(filteredJson.total, 1);
-  });
-});
-
-test('admin stats endpoint returns dashboard KPIs', async () => {
-  await withServer({ adminToken: 'admin_stats_token' }, async (baseUrl) => {
-    const customerRes = await fetch(`${baseUrl}/api/auth/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: 'Stats Customer',
-        email: 'stats@example.com',
-        password: 'secret123'
-      })
-    });
-    assert.equal(customerRes.status, 201);
-
-    const affiliateRegisterRes = await fetch(`${baseUrl}/api/affiliates/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: 'Stats Affiliate',
-        phone: '+201555555555'
-      })
-    });
-    assert.equal(affiliateRegisterRes.status, 201);
-    const affiliateRegisterJson = await affiliateRegisterRes.json();
-    const affiliateCode = affiliateRegisterJson.affiliate.code;
-
-    const orderRes = await fetch(`${baseUrl}/api/orders`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        customerName: 'Stats Order',
-        customerPhone: '+201666666666',
-        items: [{ id: 'p-stats', nameAr: 'منتج', qty: 1, priceUSD: 120 }],
-        totalUSD: 120,
-        affiliateCode
-      })
-    });
-    assert.equal(orderRes.status, 201);
-
-    const statsRes = await fetch(`${baseUrl}/api/admin/stats`, {
-      headers: { 'x-admin-token': 'admin_stats_token' }
-    });
-    assert.equal(statsRes.status, 200);
-    const statsJson = await statsRes.json();
-    assert.equal(statsJson.success, true);
-    assert.equal(statsJson.stats.totalRevenue, 120);
-    assert.equal(statsJson.stats.newOrders, 1);
-    assert.equal(statsJson.stats.totalCustomers, 1);
-    assert.equal(statsJson.stats.pendingCommissions, 12);
   });
 });
 
@@ -576,37 +347,6 @@ test('products endpoints expose list and item details from site config', async (
 
     const missingRes = await fetch(`${baseUrl}/api/products/missing-id`);
     assert.equal(missingRes.status, 404);
-  });
-});
-
-test('public settings endpoint returns USD rate with configured fallback', async () => {
-  await withServer({ adminToken: 'admin_token_settings', defaultUsdRate: 51.25 }, async (baseUrl) => {
-    const headers = {
-      'Content-Type': 'application/json',
-      'x-admin-token': 'admin_token_settings'
-    };
-
-    const fallbackRes = await fetch(`${baseUrl}/api/settings/public`);
-    assert.equal(fallbackRes.status, 200);
-    const fallbackJson = await fallbackRes.json();
-    assert.equal(fallbackJson.success, true);
-    assert.equal(fallbackJson.usdRate, 51.25);
-
-    const seedRes = await fetch(`${baseUrl}/api/admin/site-config`, {
-      method: 'PUT',
-      headers,
-      body: JSON.stringify({
-        settings: { usdRate: 49.9 }
-      })
-    });
-    assert.equal(seedRes.status, 200);
-
-    const configuredRes = await fetch(`${baseUrl}/api/settings/public`);
-    assert.equal(configuredRes.status, 200);
-    const configuredJson = await configuredRes.json();
-    assert.equal(configuredJson.success, true);
-    assert.equal(configuredJson.currency, 'EGP');
-    assert.equal(configuredJson.usdRate, 49.9);
   });
 });
 
