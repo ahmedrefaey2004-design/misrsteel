@@ -21,6 +21,11 @@ function toPositiveInt(value, fallback) {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
 
+function toPositiveFloat(value, fallback) {
+  const parsed = Number.parseFloat(String(value));
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
 function createConfig(env = process.env) {
   return {
     port: toPositiveInt(env.PORT, 3000),
@@ -31,6 +36,7 @@ function createConfig(env = process.env) {
     allowedOrigins: env.ALLOWED_ORIGINS
       ? env.ALLOWED_ORIGINS.split(',').map((item) => item.trim()).filter(Boolean)
       : ['*'],
+    defaultUsdRate: toPositiveFloat(env.DEFAULT_USD_RATE, 50.85),
     maxPromptLength: toPositiveInt(env.MAX_PROMPT_LENGTH, 1200),
     usersStoreFile: env.USERS_STORE_FILE || path.join(process.cwd(), 'data', 'users.json'),
     siteConfigFile: env.SITE_CONFIG_FILE || path.join(process.cwd(), 'data', 'site-config.json')
