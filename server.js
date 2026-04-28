@@ -21,6 +21,11 @@ function toPositiveInt(value, fallback) {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
 
+function toPositiveFloat(value, fallback) {
+  const parsed = Number.parseFloat(String(value));
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
 function createConfig(env = process.env) {
   return {
     port: toPositiveInt(env.PORT, 3000),
@@ -31,6 +36,7 @@ function createConfig(env = process.env) {
     allowedOrigins: env.ALLOWED_ORIGINS
       ? env.ALLOWED_ORIGINS.split(',').map((item) => item.trim()).filter(Boolean)
       : ['*'],
+    defaultUsdRate: toPositiveFloat(env.DEFAULT_USD_RATE, 50.85),
     maxPromptLength: toPositiveInt(env.MAX_PROMPT_LENGTH, 1200),
     usersStoreFile: env.USERS_STORE_FILE || path.join(process.cwd(), 'data', 'users.json'),
     siteConfigFile: env.SITE_CONFIG_FILE || path.join(process.cwd(), 'data', 'site-config.json')
@@ -293,6 +299,70 @@ function createApp(config = createConfig()) {
 
   app.get('/api/site-config', (req, res) => {
     res.json({ success: true, config: siteConfigStore.get() });
+  });
+
+  app.get('/api/settings/public', (req, res) => {
+    const siteConfig = siteConfigStore.get();
+    const configuredRate = toPositiveFloat(siteConfig?.usdRate, null)
+      || toPositiveFloat(siteConfig?.settings?.usdRate, null)
+      || toPositiveFloat(siteConfig?.settings?.exchangeRateUsdEgp, null)
+      || config.defaultUsdRate;
+
+    res.json({
+      success: true,
+      currency: 'EGP',
+      usdRate: configuredRate
+    });
+  });
+
+  app.get('/api/products', (req, res) => {
+    const siteConfig = siteConfigStore.get();
+    const allProducts = Array.isArray(siteConfig.products) ? siteConfig.products : [];
+    const section = typeof req.query?.section === 'string' ? req.query.section.trim().toLowerCase() : '';
+    const category = typeof req.query?.category === 'string' ? req.query.category.trim().toLowerCase() : '';
+    const search = typeof req.query?.q === 'string' ? req.query.q.trim().toLowerCase() : '';
+    const limit = Number.parseInt(req.query?.limit, 10);
+
+    let products = allProducts.filter((product) => product && typeof product === 'object');
+
+    if (section) {
+      products = products.filter((product) => String(product.section || '').toLowerCase() === section);
+    }
+
+    if (category) {
+      products = products.filter((product) => String(product.category || '').toLowerCase() === category);
+    }
+
+    if (search) {
+      products = products.filter((product) => {
+        const haystack = [
+          product.id,
+          product.nameAr,
+          product.nameEn,
+          product.name,
+          product.desc,
+          product.description
+        ].join(' ').toLowerCase();
+        return haystack.includes(search);
+      });
+    }
+
+    if (Number.isFinite(limit) && limit > 0) {
+      products = products.slice(0, limit);
+    }
+
+    res.json({ success: true, total: products.length, products });
+  });
+
+  app.get('/api/products/:id', (req, res) => {
+    const siteConfig = siteConfigStore.get();
+    const products = Array.isArray(siteConfig.products) ? siteConfig.products : [];
+    const targetId = String(req.params?.id || '').trim();
+
+    const product = products.find((item) => item && String(item.id) === targetId);
+    if (!product) return res.status(404).json({ success: false, error: 'Product not found' });
+
+    return res.json({ success: true, product });
   });
 
   app.get('/api/meta/catalog.csv', (req, res) => {
