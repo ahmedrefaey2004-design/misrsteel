@@ -2,4 +2,10 @@ node_modules/
 npm-debug.log*
 .env
 .DS_Store
-data/
+
+data/*
+!data/orders.json
+!data/customers.json
+!data/affiliates.json
+!data/portfolio.json
+!data/settings.json
