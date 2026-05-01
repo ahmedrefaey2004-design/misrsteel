@@ -164,10 +164,18 @@ button{cursor:pointer;font-family:inherit}
 <!-- HERO SLIDER -->
 <div class="hero-slider">
   <div class="slides" id="slides">
-    <div class="slide"><img class="slide-bg" src="images/showroom-lounge.jpg" alt=""><div class="slide-overlay"></div><div class="slide-content"><div class="slide-tag">🏭 مباشرة من المصنع</div><div class="slide-title">أثاث <span>استانلس فاخر</span><br>لكل مكان</div><div class="slide-sub">كراسي وترابيزات استانلس 304 للمنازل والقاعات والفنادق</div><a class="slide-btn" href="marketplace.html">تسوق الآن</a></div></div>
-    <div class="slide"><img class="slide-bg" src="images/p04-medallion-silver-2.jpg" alt=""><div class="slide-overlay"></div><div class="slide-content"><div class="slide-tag">✨ الأكثر طلباً</div><div class="slide-title">كرسي <span>ميداليون فضي</span></div><div class="slide-sub">إطار استانلس فضي · مخمل رمادي راقي</div><a class="slide-btn" href="marketplace.html">اطلب الآن</a></div></div>
-    <div class="slide"><img class="slide-bg" src="images/showroom-cage.jpg" alt=""><div class="slide-overlay"></div><div class="slide-content"><div class="slide-tag">🤖 AI مصمم</div><div class="slide-title">صمّم <span>غرفتك</span><br>قبل الشراء</div><div class="slide-sub">ارفع صورة مكانك واختار من منتجاتنا</div><a class="slide-btn" href="ai-designer.html">جرّب مجاناً</a></div></div>
-    <div class="slide"><img class="slide-bg" src="images/sections/S.S.-Gold-Fashion-Chairs.jpg" alt=""><div class="slide-overlay"></div><div class="slide-content"><div class="slide-tag">👑 VIP</div><div class="slide-title">كرسي <span>هوبي الذهبي</span></div><div class="slide-sub">إطار ذهبي حلقي فريد · مثالي لقاعات الأفراح</div><a class="slide-btn" href="marketplace.html">اكتشف الآن</a></div></div>
+    <div class="slide">
+      <div class="slide-overlay"></div>
+      <div class="slide-content">
+        <div class="slide-tag">🏭 مباشرة من المصنع</div>
+        <div class="slide-title">أثاث <span>استانلس فاخر</span><br>لكل مكان</div>
+        <div class="slide-sub">كراسي وترابيزات استانلس 304 للمنازل والقاعات والفنادق</div>
+        <a class="slide-btn" href="marketplace.html">تسوق الآن</a>
+      </div>
+    </div>
+  </div><div class="slide-title">كرسي <span>ميداليون فضي</span></div><div class="slide-sub">إطار استانلس فضي · مخمل رمادي راقي</div><a class="slide-btn" href="marketplace.html">اطلب الآن</a></div></div>
+    <div class="slide"><img class="slide-bg" src="images/images/placeholder.jpg" alt=""><div class="slide-overlay"></div><div class="slide-content"><div class="slide-tag">🤖 AI مصمم</div><div class="slide-title">صمّم <span>غرفتك</span><br>قبل الشراء</div><div class="slide-sub">ارفع صورة مكانك واختار من منتجاتنا</div><a class="slide-btn" href="ai-designer.html">جرّب مجاناً</a></div></div>
+    <div class="slide"><img class="slide-bg" src="images/p15-new-e-2.jpg" alt=""><div class="slide-overlay"></div><div class="slide-content"><div class="slide-tag">👑 VIP</div><div class="slide-title">كرسي <span>هوبي الذهبي</span></div><div class="slide-sub">إطار ذهبي حلقي فريد · مثالي لقاعات الأفراح</div><a class="slide-btn" href="marketplace.html">اكتشف الآن</a></div></div>
   </div>
   <button class="slider-prev" onclick="slide(-1)">‹</button>
   <button class="slider-next" onclick="slide(1)">›</button>
@@ -176,8 +184,8 @@ button{cursor:pointer;font-family:inherit}
 
 <!-- PROMO BANNERS -->
 <div class="promo-strip">
-  <div class="promo-card"><img src="images/sections/Round-Back-Chair-with-Gold-Trim-480x402.jpg" alt=""><div class="promo-overlay"><div class="promo-title">قاعات الأفراح</div><div class="promo-sub">كراسي VIP بإطار ذهبي وفضي</div><a href="section-hall.html" class="promo-link">تسوق الآن ←</a></div></div>
-  <div class="promo-card"><img src="images/sections/Formal-Ballroom-480x402.jpg" alt=""><div class="promo-overlay"><div class="promo-title">لاونج فاخر</div><div class="promo-sub">كراسي لاونج دائرية وعصرية</div><a href="section-museum.html" class="promo-link">اكتشف ←</a></div></div>
+  <div class="promo-card"><img src="images/p03-barrel-gold-1.jpg" alt=""><div class="promo-overlay"><div class="promo-title">قاعات الأفراح</div><div class="promo-sub">كراسي VIP بإطار ذهبي وفضي</div><a href="section-hall.html" class="promo-link">تسوق الآن ←</a></div></div>
+  <div class="promo-card"><img src="images/p11-new-a-3.jpg" alt=""><div class="promo-overlay"><div class="promo-title">لاونج فاخر</div><div class="promo-sub">كراسي لاونج دائرية وعصرية</div><a href="section-museum.html" class="promo-link">اكتشف ←</a></div></div>
 </div>
 
 <!-- DEPT -->
@@ -253,8 +261,6 @@ function slide(dir){ slideIdx=(slideIdx+dir+slideCount)%slideCount; document.get
 function goSlide(i){ slideIdx=i; document.getElementById('slides').style.transform='translateX('+(i*100)+'%)'; updateDots(); }
 function updateDots(){ document.querySelectorAll('.sdot').forEach(function(d,i){d.classList.toggle('active',i===slideIdx)}); }
 function initSlider(){
-  clearInterval(slideAuto);
-  if (!slideCount) return;
   var dots=''; for(var i=0;i<slideCount;i++) dots+='<div class="sdot'+(i===0?' active':'')+'" onclick="goSlide('+i+')"></div>';
   document.getElementById('sliderDots').innerHTML=dots;
   slideAuto=setInterval(function(){slide(1)},4500);
@@ -273,14 +279,14 @@ async function loadDeptImages() {
     });
 
     var cats = [
-      { name:'انتريه',       folder:'Seating_Sets', section:'home' },
-      { name:'غرفة نوم',     folder:'Bedroom_Sets', section:'home' },
-      { name:'غرفة سفرة',   folder:'سفره',          section:'home' },
-      { name:'كنبة ركنية',   folder:'corner',        section:'home' },
-      { name:'وحدة تلفزيون', folder:'TV_Units',      section:'home' },
-      { name:'ترابيزة',      folder:'ترابيزة',       section:'home' },
-      { name:'قاعة أفراح',  folder:'hall',           section:'hall' },
-      { name:'مطعم وفندق',  folder:'hotel',          section:'restaurant' },
+      { name:'انتريه',       folder:'Seating_Sets', section:'home',       link:'marketplace.html?section=home' },
+      { name:'غرفة نوم',     folder:'Bedroom_Sets', section:'home',       link:'marketplace.html?section=home' },
+      { name:'غرفة سفرة',   folder:'سفره',          section:'home',       link:'marketplace.html?section=home' },
+      { name:'كنبة ركنية',   folder:'corner',        section:'home',       link:'marketplace.html?section=home' },
+      { name:'وحدة تلفزيون', folder:'TV_Units',      section:'home',       link:'marketplace.html?section=home' },
+      { name:'ترابيزة',      folder:'ترابيزة',       section:'home',       link:'marketplace.html?section=home' },
+      { name:'قاعة أفراح',  folder:'hall',           section:'hall',       link:'marketplace.html?section=hall' },
+      { name:'مطعم وفندق',  folder:'hotel',           section:'restaurant', link:'marketplace.html?section=restaurant' },
     ];
 
     // Collect images per folder from product URLs
@@ -307,8 +313,7 @@ async function loadDeptImages() {
     cats.forEach(function(cat, i) {
       var imgs = folderImgs[cat.folder] || folderImgs['_s_' + cat.section] || [];
       var src = imgs.length ? imgs[(day + i * 7) % imgs.length] : '';
-      var link = 'marketplace.html?section=' + encodeURIComponent(cat.section) + '&folder=' + encodeURIComponent(cat.folder);
-      html += '<a class="dept-card" href="' + link + '">';
+      html += '<a class="dept-card" href="' + cat.link + '">';
       html += '<div class="dept-img">';
       if (src) {
         html += '<img src="' + src + '" alt="' + cat.name + '" loading="lazy" style="width:100%;height:100%;object-fit:cover;transition:transform .4s">';
@@ -328,59 +333,43 @@ async function loadDeptImages() {
 
 async function loadDynamicSlides() {
   try {
-    var r = await fetch(BACKEND + '/api/products?limit=1000');
+    var r = await fetch(BACKEND + '/api/products?limit=100');
     var d = await r.json();
-    var prods = (d.products || []);
+    var prods = (d.products || []).filter(function(p){ return p.imgs && p.imgs[0]; });
     if (!prods.length) return;
 
-    // Select only images that come from /images folder and are suitable for hero display.
-    var candidates = prods.map(function(p){
-      var imgs = p.imgs || [];
-      var pick = imgs.find(function(img){
-        if (!img || (typeof img !== 'string')) return false;
-        if (img.startsWith('data:')) return false;
-        if (img.startsWith('http')) return /\/images\//.test(img);
-        return img.indexOf('images/') === 0;
-      });
-      if (!pick) return null;
-      var src = pick.startsWith('http') ? pick : ('https://misrsteel.vercel.app/' + pick);
-      return { p:p, src:src };
-    }).filter(Boolean);
-    if (!candidates.length) return;
-
-    // Change every 2 days.
-    var seed2Days = Math.floor(Date.now() / (2 * 86400000));
-    var count = Math.min(4, candidates.length);
+    // Pick 3 different products daily using date seed
+    var today = new Date();
+    var seed = today.getFullYear() * 10000 + (today.getMonth()+1) * 100 + today.getDate();
     var selected = [];
-    for (var i = 0; i < count; i++) {
-      var idx = (seed2Days * 17 + i * 23) % candidates.length;
-      selected.push(candidates[idx]);
+    for (var i = 0; i < 3 && i < prods.length; i++) {
+      var idx = (seed + i * 37) % prods.length;
+      selected.push(prods[idx]);
     }
 
     var slidesEl = document.getElementById('slides');
     if (!slidesEl) return;
 
-    slidesEl.innerHTML = selected.map(function(item){
-      var p = item.p;
-      return '<div class="slide" style="cursor:pointer" onclick="window.location=\'product.html?id=' + p.id + '\'">' +
-        '<img class="slide-bg" src="' + item.src + '" alt="' + (p.nameAr || 'منتج') + '" loading="lazy">' +
-        '<div class="slide-overlay"></div>' +
-        '<div class="slide-content"><div class="slide-tag">✨ صورة متجددة كل يومين</div>' +
-        '<div class="slide-title">' + (p.nameAr || 'منتج') + '</div>' +
-        '<div class="slide-sub">' + (p.desc ? p.desc.substring(0,70)+'...' : 'اضغط لمعرفة التفاصيل') + '</div>' +
-        '<a class="slide-btn">اعرف أكتر</a></div></div>';
-    }).join('');
+     // Keep first default slide, add product slides
+     selected.forEach(function(p) {
+       var img = p.imgs[0];
+       var src = img.startsWith('http') || img.startsWith('data:') ? img : 'https://misrsteel.vercel.app/' + img;
+       var slide = document.createElement('div');
+       slide.className = 'slide';
+       slide.style.cursor = 'pointer';
+       var pid = p.id;
+       slide.addEventListener('click', function() { window.location = 'product.html?id=' + pid; });
+       var bg = document.createElement('img');
+       bg.className = 'slide-bg';
+       bg.src = src;
+       bg.alt = p.nameAr;
+       bg.loading = 'lazy';
+       slide.appendChild(bg);
+       slide.innerHTML += '<div class="slide-overlay"></div><div class="slide-content"><div class="slide-tag">✨ منتج مميز</div><div class="slide-title">' + p.nameAr + '</div><div class="slide-sub">' + (p.desc ? p.desc.substring(0,60)+'...' : 'اضغط لمعرفة التفاصيل') + '</div><a class="slide-btn">اعرف أكتر</a></div>';
+       if (slidesEl) slidesEl.appendChild(slide);
+     });
 
-    slideCount = selected.length;
-    slideIdx = 0;
-    initSlider();
-    goSlide(0);
-
-  } catch(e) {
-    // fallback to static slides already in HTML
-    slideCount = document.querySelectorAll('#slides .slide').length || 4;
-    initSlider();
-  }
+  } catch(e) {}
 }
 
 async function loadProducts() {
@@ -503,6 +492,7 @@ document.getElementById('searchInp').addEventListener('keydown',function(e){if(e
 
 
 // ══ INIT ══
+initSlider();
 loadProducts();
 loadDynamicSlides();
 loadDeptImages();
