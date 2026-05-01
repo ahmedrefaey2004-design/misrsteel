@@ -80,7 +80,11 @@ a{text-decoration:none;color:inherit}button{cursor:pointer;font-family:inherit}
   <a class="nav-logo" href="index.html"><div class="logo-ar">مصر ستيل</div><div class="logo-en">MISR STEEL</div></a>
   <div class="nav-search"><input type="text" id="searchInp" placeholder="ابحث..."><button class="nav-search-btn" onclick="doSearch()">🔍</button></div>
   <div class="nav-actions"><button class="nav-btn" onclick="window.location='index.html'">← الرئيسية</button></div>
-</div></nav>
+</div><a href="cart.html" style="position:relative;color:rgba(255,255,255,.7);text-decoration:none;font-size:13px;display:flex;align-items:center;gap:4px">
+          🛒 <span>السلة</span>
+          <span class="cart-badge" style="display:none;position:absolute;top:-6px;right:-10px;background:var(--orange);color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:800;align-items:center;justify-content:center">0</span>
+        </a>
+</nav>
 
 <div class="mp-hero"><h1>🏭 متجر مصر ستيل</h1><p>أثاث استانلس فاخر مباشرة من المصنع — بدون حد أدنى للطلب</p></div>
 
@@ -226,7 +230,7 @@ function mpLoadMore() {
     html += '<div class="mp-name">' + p.nameAr + '</div>';
     html += p.price > 0 ? '<div class="mp-egp">≈ ' + egp + ' ج.م للقطعة</div>' : '<div class="mp-egp" style="color:var(--orange)">السعر عند الطلب</div>';
     html += '<div class="mp-actions">';
-    html += '<button class="btn-mp">🛒 اطلب الآن</button>';
+    html += '<button class="btn-mp">🛒 أضف للسلة</button>';
     html += '<button class="btn-mp-wa">💬</button>';
     html += '</div></div>';
     
@@ -235,7 +239,8 @@ function mpLoadMore() {
     // Add button events
     card.querySelector('.btn-mp').addEventListener('click', function(e) {
       e.stopPropagation();
-      window.location = 'product.html?id=' + p.id;
+      Cart.add(p, 1, '', '', p.price);
+      // Show mini cart count update
     });
     card.querySelector('.btn-mp-wa').addEventListener('click', function(e) {
       e.stopPropagation();
@@ -308,5 +313,6 @@ function waProduct(p) {
 document.getElementById('searchInp').addEventListener('keydown',function(e){if(e.key==='Enter')doSearch()});
 loadProducts();
 </script>
+<script src="cart.js"></script>
 </body>
 </html>

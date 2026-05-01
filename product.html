@@ -64,6 +64,7 @@ button{cursor:pointer;font-family:inherit}
 
 /* ACTION BUTTONS */
 .action-btns{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.btn-add-cart{width:100%;padding:14px;background:#1a1a1a;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;margin-bottom:8px}
 .btn-order{width:100%;padding:14px;background:var(--orange);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:800;font-family:inherit;transition:background .2s}
 .btn-order:hover{background:var(--orange-dk)}
 .btn-wa{width:100%;padding:13px;background:#25D366;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px}
@@ -291,7 +292,8 @@ function renderProduct(p) {
     priceHtml +
     colorsHtml +
     '<div class="action-btns">' +
-    '<button class="btn-order" onclick="scrollToOrder()">📋 أكمل الطلب</button>' +
+    '<button class="btn-order" onclick="addToCartAndGo()">🛒 أضف للسلة</button>' +
+    '<button class="btn-order" onclick="scrollToOrder()" style="background:#222">📋 اطلب مباشرة</button>' +
     '<button class="btn-wa" onclick="quickWA()">💬 تواصل واتساب</button>' +
     '</div>' +
     '</div></div>' +
@@ -403,6 +405,22 @@ function selectFabric(color, btn) {
   if (el) el.textContent = '— ' + color;
 }
 
+function addToCartAndGo() {
+  if (!currentProduct) return;
+  var frameColor = document.querySelector('.color-opt.active[data-type="frame"]');
+  var fabricColor = document.querySelector('.color-opt.active[data-type="fabric"]');
+  var selectedTier = document.querySelector('.price-tier.selected');
+  var tierPrice = selectedTier ? parseFloat(selectedTier.dataset.price) : (currentProduct.price || 0);
+  Cart.add(
+    currentProduct,
+    1,
+    frameColor ? frameColor.dataset.color : '',
+    fabricColor ? fabricColor.dataset.color : '',
+    tierPrice
+  );
+  window.location.href = 'cart.html';
+}
+
 function scrollToOrder() {
   if (!selectedTier && product && product.price > 0) {
     // Auto-select tier 2 if none selected
@@ -509,5 +527,6 @@ function toast(msg, type) {
 // ── INIT ──
 loadProduct();
 </script>
+<script src="cart.js"></script>
 </body>
 </html>

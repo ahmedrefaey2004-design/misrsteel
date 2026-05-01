@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>سلة الطلبات — مصر ستيل</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--orange:#ff6000;--orange-dk:#d94f00;--orange-lt:#fff3eb;--black:#111;--bg:#f5f5f5;--border:#e5e5e5;--green:#00a650;--muted:#888}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Cairo',sans-serif;background:var(--bg);direction:rtl;min-height:100vh}
+.nav{background:var(--black);padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--orange);position:sticky;top:0;z-index:100}
+.nav-logo{font-size:18px;font-weight:800;color:var(--orange);text-decoration:none}
+.nav-links{display:flex;gap:16px;align-items:center}
+.nav-links a{color:rgba(255,255,255,.6);font-size:13px;text-decoration:none}
+.nav-links a:hover{color:var(--orange)}
+.page{max-width:900px;margin:0 auto;padding:20px}
+h1{font-size:20px;font-weight:800;margin-bottom:20px}
+
+/* CART ITEMS */
+.cart-empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.cart-empty-icon{font-size:64px;margin-bottom:16px}
+.cart-item{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;display:flex;gap:14px;align-items:flex-start}
+.ci-img{width:80px;height:80px;border-radius:8px;overflow:hidden;flex-shrink:0;background:#f0f0f0}
+.ci-img img{width:100%;height:100%;object-fit:cover}
+.ci-body{flex:1}
+.ci-name{font-size:14px;font-weight:800;margin-bottom:4px}
+.ci-colors{font-size:11px;color:var(--muted);margin-bottom:8px}
+.ci-price{font-size:13px;font-weight:700;color:var(--orange)}
+.ci-actions{display:flex;align-items:center;gap:10px;margin-top:8px}
+.qty-btn{width:28px;height:28px;border:1.5px solid var(--border);border-radius:6px;background:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700}
+.qty-input{width:50px;height:28px;border:1.5px solid var(--border);border-radius:6px;text-align:center;font-size:13px;font-weight:700;font-family:inherit}
+.ci-remove{color:#cc0000;font-size:12px;cursor:pointer;border:none;background:none;font-family:inherit;margin-right:auto}
+.ci-total{font-size:13px;font-weight:800;color:var(--black)}
+
+/* SUMMARY */
+.summary-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px}
+.summary-card h3{font-size:14px;font-weight:800;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--orange)}
+.summary-row{display:flex;justify-content:space-between;padding:6px 0;font-size:13px}
+.summary-row.total{font-size:16px;font-weight:800;color:var(--orange);border-top:1px solid var(--border);margin-top:6px;padding-top:10px}
+.payment-terms{background:var(--orange-lt);border-radius:8px;padding:12px;margin-top:12px;font-size:12px}
+.payment-terms .pt-row{display:flex;justify-content:space-between;padding:3px 0}
+
+/* ORDER FORM */
+.order-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px}
+.order-card h3{font-size:14px;font-weight:800;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--orange)}
+.fg{margin-bottom:12px}
+.fg label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:5px}
+.fg input,.fg select,.fg textarea{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--orange)}
+.fg-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* BUTTONS */
+.action-btns{display:flex;flex-direction:column;gap:10px}
+.btn-submit{width:100%;padding:15px;background:var(--orange);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;transition:.2s}
+.btn-submit:hover{background:var(--orange-dk)}
+.btn-submit:disabled{opacity:.5;cursor:not-allowed}
+.btn-wa{width:100%;padding:14px;background:#25D366;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-clear{width:100%;padding:10px;background:#f5f5f5;color:#888;border:1px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit}
+
+/* SUCCESS */
+.success-card{display:none;background:#e8f5ec;border:2px solid var(--green);border-radius:12px;padding:24px;text-align:center;margin-bottom:16px}
+.success-card h2{color:var(--green);font-size:20px;margin-bottom:8px}
+
+/* TOAST */
+.toast{position:fixed;top:65px;left:50%;transform:translateX(-50%) translateY(-20px);background:#111;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:.3s;pointer-events:none;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.success{background:var(--green)}
+.toast.error{background:#cc0000}
+
+@media(max-width:600px){
+  .cart-item{flex-wrap:wrap}
+  .fg-2{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<div class="nav">
+  <a class="nav-logo" href="index.html">مصر ستيل</a>
+  <div class="nav-links">
+    <a href="marketplace.html">المتجر</a>
+    <a href="cart.html" style="color:var(--orange)">🛒 السلة</a>
+  </div>
+</div>
+
+<div class="page">
+  <h1>🛒 سلة الطلبات</h1>
+
+  <!-- Success Message -->
+  <div class="success-card" id="successCard">
+    <div style="font-size:48px;margin-bottom:8px">✅</div>
+    <h2>تم إرسال طلبك!</h2>
+    <p style="font-size:13px;color:#444;margin-bottom:16px">سيتواصل معك فريقنا على واتساپ لتأكيد الطلب</p>
+    <a href="marketplace.html" style="display:inline-block;padding:12px 24px;background:var(--orange);color:#fff;border-radius:8px;font-weight:700;text-decoration:none">تسوق المزيد</a>
+  </div>
+
+  <div id="cartContent">
+    <!-- Cart Items -->
+    <div id="cartItems"></div>
+
+    <!-- Order Form + Summary -->
+    <div id="orderSection" style="display:none">
+      <!-- Summary -->
+      <div class="summary-card">
+        <h3>📋 ملخص الطلب</h3>
+        <div id="summaryItems"></div>
+        <div class="summary-row total">
+          <span>الإجمالي</span>
+          <span id="summaryTotal">$0</span>
+        </div>
+        <div class="payment-terms">
+          <div style="font-weight:700;margin-bottom:6px;color:#cc4400">💳 شروط الدفع:</div>
+          <div class="pt-row"><span>مقدم عند الطلب (75%)</span><span id="deposit" style="font-weight:700;color:var(--orange)">$0</span></div>
+          <div class="pt-row"><span>قبل التسليم (25%)</span><span id="remaining" style="font-weight:700">$0</span></div>
+        </div>
+      </div>
+
+      <!-- Customer Info -->
+      <div class="order-card">
+        <h3>👤 بياناتك</h3>
+        <div class="fg-2">
+          <div class="fg"><label>الاسم الكامل *</label><input type="text" id="of-name" placeholder="أحمد محمد"></div>
+          <div class="fg"><label>واتساب *</label><input type="tel" id="of-phone" placeholder="+201..."></div>
+        </div>
+        <div class="fg"><label>الدولة</label>
+          <select id="of-country">
+            <option value="EG">🇪🇬 مصر</option>
+            <option value="AE">🇦🇪 الإمارات</option>
+            <option value="SA">🇸🇦 السعودية</option>
+            <option value="IQ">🇮🇶 العراق</option>
+            <option value="KW">🇰🇼 الكويت</option>
+            <option value="JO">🇯🇴 الأردن</option>
+            <option value="LY">🇱🇾 ليبيا</option>
+            <option value="OTHER">🌍 أخرى</option>
+          </select>
+        </div>
+        <div class="fg"><label>ملاحظات (اختياري)</label><textarea id="of-notes" rows="2" placeholder="أي تفاصيل إضافية..."></textarea></div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-btns">
+        <button class="btn-submit" id="submitBtn" onclick="submitOrder()">✅ تأكيد الطلب وإرساله</button>
+        <button class="btn-wa" onclick="sendWhatsApp()">💬 إرسال عبر واتساب مباشرة</button>
+        <button class="btn-clear" onclick="clearCart()">🗑️ مسح السلة</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="cart.js"></script>
+<script>
+var BACKEND = 'https://misrsteel-backend.vercel.app';
+var USD_EGP = parseFloat(localStorage.getItem('ms_rate') || '51');
+
+function renderCart() {
+  var items = Cart.get();
+  var cartDiv = document.getElementById('cartItems');
+  var orderSection = document.getElementById('orderSection');
+
+  if (!items.length) {
+    cartDiv.innerHTML = '<div class="cart-empty"><div class="cart-empty-icon">🛒</div><p style="font-size:16px;font-weight:700;margin-bottom:8px">السلة فاضية</p><p style="color:var(--muted);margin-bottom:20px">أضف منتجات من المتجر</p><a href="marketplace.html" style="display:inline-block;padding:12px 24px;background:var(--orange);color:#fff;border-radius:8px;font-weight:700;text-decoration:none">تسوق الآن</a></div>';
+    orderSection.style.display = 'none';
+    return;
+  }
+
+  // Render items
+  cartDiv.innerHTML = items.map(function(item, idx) {
+    var imgSrc = item.img ? (item.img.startsWith('http') || item.img.startsWith('data:') ? item.img : 'https://misrsteel.vercel.app/' + item.img) : '';
+    var egp = Math.round(item.total * USD_EGP).toLocaleString();
+    return '<div class="cart-item">' +
+      '<div class="ci-img">' + (imgSrc ? '<img src="'+imgSrc+'" loading="lazy">' : '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:32px">🪑</div>') + '</div>' +
+      '<div class="ci-body">' +
+        '<div class="ci-name">' + item.nameAr + '</div>' +
+        '<div class="ci-colors">' + (item.frameColor ? '🎨 ' + item.frameColor : '') + (item.fabricColor ? ' | 🪑 ' + item.fabricColor : '') + '</div>' +
+        '<div class="ci-price">$' + item.price + ' للقطعة</div>' +
+        '<div class="ci-actions">' +
+          '<button class="qty-btn" onclick="changeQty(' + idx + ',-1)">−</button>' +
+          '<input class="qty-input" type="number" value="' + item.qty + '" min="1" onchange="setQty(' + idx + ',this.value)">' +
+          '<button class="qty-btn" onclick="changeQty(' + idx + ',1)">+</button>' +
+          '<span class="ci-total">$' + item.total + ' (≈'+egp+' ج.م)</span>' +
+          '<button class="ci-remove" onclick="removeItem(' + idx + ')">✕ حذف</button>' +
+        '</div>' +
+      '</div></div>';
+  }).join('');
+
+  // Render summary
+  var total = Cart.total();
+  var deposit = Math.round(total * 0.75);
+  var rem = total - deposit;
+  document.getElementById('summaryItems').innerHTML = items.map(function(i) {
+    return '<div class="summary-row"><span>' + i.nameAr + ' × ' + i.qty + '</span><span>$' + i.total + '</span></div>';
+  }).join('');
+  document.getElementById('summaryTotal').textContent = '$' + total + ' (≈' + Math.round(total*USD_EGP).toLocaleString() + ' ج.م)';
+  document.getElementById('deposit').textContent = '$' + deposit;
+  document.getElementById('remaining').textContent = '$' + rem;
+  orderSection.style.display = 'block';
+}
+
+function changeQty(idx, delta) {
+  var items = Cart.get();
+  var newQty = (items[idx].qty || 1) + delta;
+  if (newQty < 1) return;
+  Cart.updateQty(idx, newQty);
+  renderCart();
+}
+
+function setQty(idx, val) {
+  Cart.updateQty(idx, parseInt(val) || 1);
+  renderCart();
+}
+
+function removeItem(idx) {
+  Cart.remove(idx);
+  renderCart();
+}
+
+function clearCart() {
+  if (!confirm('مسح كل منتجات السلة؟')) return;
+  Cart.clear();
+  renderCart();
+}
+
+function getFormData() {
+  var name  = document.getElementById('of-name').value.trim();
+  var phone = document.getElementById('of-phone').value.trim();
+  if (!name || !phone) { toast('أدخل الاسم ورقم الواتساب', 'error'); return null; }
+  return {
+    name, phone,
+    country: document.getElementById('of-country').value,
+    notes: document.getElementById('of-notes').value.trim(),
+  };
+}
+
+function toast(msg, type) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + (type||'') + ' show';
+  clearTimeout(t._t);
+  t._t = setTimeout(function(){ t.classList.remove('show'); }, 3000);
+}
+
+async function submitOrder() {
+  var form = getFormData();
+  if (!form) return;
+  var btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ جاري الإرسال...';
+
+  // Save to DB
+  var result = await Cart.submitOrder(form.name, form.phone, form.country, form.notes, '');
+  
+  if (result.success) {
+    // Also send WhatsApp
+    var msg = Cart.buildWAMessage(form.name, form.phone, form.country, form.notes);
+    window.open('https://wa.me/201050595250?text=' + encodeURIComponent(msg), '_blank');
+    
+    Cart.clear();
+    document.getElementById('cartContent').style.display = 'none';
+    document.getElementById('successCard').style.display = 'block';
+  } else {
+    toast('❌ ' + (result.error || 'حدث خطأ'), 'error');
+    btn.disabled = false;
+    btn.textContent = '✅ تأكيد الطلب وإرساله';
+  }
+}
+
+function sendWhatsApp() {
+  var form = getFormData();
+  if (!form) return;
+  var msg = Cart.buildWAMessage(form.name, form.phone, form.country, form.notes);
+  // Save to DB too
+  Cart.submitOrder(form.name, form.phone, form.country, form.notes, '');
+  window.open('https://wa.me/201050595250?text=' + encodeURIComponent(msg), '_blank');
+}
+
+// Get live rate
+fetch(BACKEND + '/api/settings/public').then(function(r){return r.json();}).then(function(d){
+  if(d.usdRate){ USD_EGP = d.usdRate; localStorage.setItem('ms_rate', USD_EGP); }
+  renderCart();
+}).catch(function(){ renderCart(); });
+</script>
+</body>
+</html>
