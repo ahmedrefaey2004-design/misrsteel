@@ -64,17 +64,6 @@ var Cart = {
     return this.items;
   },
 
-  save: function(){
-    localStorage.setItem('ms_cart', JSON.stringify(this.items));
-    this.updateBadge();
-    return this.items;
-  },
-
-  save: function(){
-    localStorage.setItem('ms_cart', JSON.stringify(this.items));
-    this.updateBadge();
-  },
-
   add: function(productOrId, qtyOrName, price, img){
     var nextItem;
 
@@ -83,96 +72,13 @@ var Cart = {
       var p = productOrId;
       var qty = parseInt(qtyOrName, 10);
       qty = Number.isFinite(qty) && qty > 0 ? qty : 1;
+      var normalizedId = p.id || p._id || p.sku || p.slug || (p.nameAr || p.name || '');
       nextItem = {
-        id: p.id,
-        name: p.name || p.nameAr || 'منتج',
-        nameAr: p.nameAr || p.name || 'منتج',
-        price: Number(p.price || 0),
-        img: p.img || p.image || '',
-        qty: qty
-      };
-    } else {
-      // Signature 2 (legacy): add(id, name, price, img)
-      nextItem = {
-        id: productOrId,
-        name: qtyOrName || 'منتج',
-        nameAr: qtyOrName || 'منتج',
-        price: Number(price || 0),
-        img: img || '',
-        qty: 1
-      };
-    }
-
-    var ex = this.items.find(function(i){ return String(i.id) === String(nextItem.id); });
-    if(ex){
-      ex.qty = (parseInt(ex.qty, 10) || 0) + nextItem.qty;
-      if(!ex.nameAr) ex.nameAr = ex.name || nextItem.nameAr;
-      if(!ex.name) ex.name = ex.nameAr || nextItem.name;
-      if(!ex.price && nextItem.price) ex.price = nextItem.price;
-      if(!ex.img && nextItem.img) ex.img = nextItem.img;
-    } else {
-      this.items.push(nextItem);
-    }
-
-    this.save();
-  },
-
-  add: function(productOrId, qtyOrName, price, img){
-    var nextItem;
-
-    // Signature 1 (new): add(productObj, qty)
-    if(productOrId && typeof productOrId === 'object'){
-      var p = productOrId;
-      var qty = parseInt(qtyOrName, 10);
-      qty = Number.isFinite(qty) && qty > 0 ? qty : 1;
-      nextItem = {
-        id: p.id,
-        name: p.name || p.nameAr || 'منتج',
-        nameAr: p.nameAr || p.name || 'منتج',
-        price: Number(p.price || 0),
-        img: p.img || p.image || '',
-        qty: qty
-      };
-    } else {
-      // Signature 2 (legacy): add(id, name, price, img)
-      nextItem = {
-        id: productOrId,
-        name: qtyOrName || 'منتج',
-        nameAr: qtyOrName || 'منتج',
-        price: Number(price || 0),
-        img: img || '',
-        qty: 1
-      };
-    }
-
-    var ex = this.items.find(function(i){ return String(i.id) === String(nextItem.id); });
-    if(ex){
-      ex.qty = (parseInt(ex.qty, 10) || 0) + nextItem.qty;
-      if(!ex.nameAr) ex.nameAr = ex.name || nextItem.nameAr;
-      if(!ex.name) ex.name = ex.nameAr || nextItem.name;
-      if(!ex.price && nextItem.price) ex.price = nextItem.price;
-      if(!ex.img && nextItem.img) ex.img = nextItem.img;
-    } else {
-      this.items.push(nextItem);
-    }
-
-    this.save();
-  },
-
-  add: function(productOrId, qtyOrName, price, img){
-    var nextItem;
-
-    // Signature 1 (new): add(productObj, qty)
-    if(productOrId && typeof productOrId === 'object'){
-      var p = productOrId;
-      var qty = parseInt(qtyOrName, 10);
-      qty = Number.isFinite(qty) && qty > 0 ? qty : 1;
-      nextItem = {
-        id: p.id,
-        name: p.name || p.nameAr || 'منتج',
-        nameAr: p.nameAr || p.name || 'منتج',
-        price: Number(p.price || 0),
-        img: p.img || p.image || '',
+        id: normalizedId,
+        name: p.name || p.nameEn || p.nameAr || 'منتج',
+        nameAr: p.nameAr || p.name || p.nameEn || 'منتج',
+        price: Number(p.price || p.priceUSD || 0),
+        img: p.img || p.image || (Array.isArray(p.imgs) ? p.imgs[0] : '') || '',
         qty: qty
       };
     } else {
