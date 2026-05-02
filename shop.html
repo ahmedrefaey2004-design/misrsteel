@@ -25,7 +25,7 @@ body.en .shop-hero h1{font-family:'DM Sans',sans-serif}
 .shop-prod-img{width:140px;height:110px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;border-radius:var(--radius);flex-shrink:0;position:relative;overflow:hidden}
 .shop-prod-badge{position:absolute;top:6px;inset-inline-start:6px;font-size:9px;font-weight:700;padding:2px 7px;border-radius:2px;text-transform:uppercase;letter-spacing:.04em}
 .badge-bs{background:var(--orange);color:#fff}
-.badge-new{background:var(--green-dk);color:#fff}
+.badge-new{background:var(--green-dk,#067a3a);color:#fff}
 .shop-prod-info{}
 .shop-prod-name{font-size:16px;font-weight:700;margin-bottom:4px}
 body.en .shop-prod-name{font-family:'DM Sans',sans-serif}
@@ -677,9 +677,12 @@ document.addEventListener('DOMContentLoaded', function(){
     document.getElementById('affCodeInp').value = savedRef;
     if (savedRef.length >= 4) document.getElementById('affCodeOk').style.display = 'inline';
   }
-  Cart.load();
-  loadProductsFromApi().then(function(){ renderShopProducts(); updateCheckoutSummary(); });
-  updateCheckoutSummary();
+  Promise.resolve((Cart && typeof Cart.load === 'function') ? Cart.load() : null).then(function(){
+    return loadProductsFromApi();
+  }).then(function(){
+    renderShopProducts();
+    updateCheckoutSummary();
+  });
   // Override cart render to also update checkout summary
   var origSave = Cart.save.bind(Cart);
   Cart.save = function(){ origSave(); updateCheckoutSummary(); };

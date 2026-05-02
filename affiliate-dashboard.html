@@ -174,7 +174,7 @@
           <div style="font-size:32px;margin-bottom:8px">🖼️</div>
           <div style="font-size:13px;font-weight:700;margin-bottom:4px">بوستر منتجاتنا</div>
           <div style="font-size:11px;color:var(--muted);margin-bottom:10px">صور جاهزة للنشر على الشبكات</div>
-          <button style="padding:8px 16px;background:var(--orange);color:#fff;border:none;border-radius:4px;font-size:12px;font-weight:700;cursor:pointer" onclick="showToast('جاري التحميل...','')">⬇️ تحميل</button>
+          <button style="padding:8px 16px;background:var(--orange);color:#fff;border:none;border-radius:4px;font-size:12px;font-weight:700;cursor:pointer" onclick="downloadMarketingPack()">⬇️ تحميل</button>
         </div>
         <div style="background:#fafafa;border:1px solid var(--border);border-radius:8px;padding:16px;text-align:center">
           <div style="font-size:32px;margin-bottom:8px">📝</div>
@@ -212,6 +212,16 @@ function copyLink(id){
 function requestWithdraw(method){
   var labels={bank:'تحويل بنكي',wallet:'محفظة إلكترونية',instapay:'انستاباي'};
   showToast('✅ تم إرسال طلب السحب عبر '+labels[method],'success');
+}
+
+function downloadMarketingPack(){
+  var a = document.createElement('a');
+  a.href = 'affiliate_orders_template.xlsx';
+  a.download = 'affiliate_orders_template.xlsx';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  showToast('✅ تم تحميل قالب Excel','success');
 }
 function copyScript(){
   document.getElementById('scriptBox').style.display='block';
