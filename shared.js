@@ -146,7 +146,31 @@ function buildNav(active){
 }
 
 function buildCartDrawer(){
-  return '<aside id="cartDrawer" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1300"><div style="margin-inline-start:auto;width:min(420px,92vw);height:100%;background:#fff;padding:16px;overflow:auto"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><strong>السلة</strong><button onclick="document.getElementById(\'cartDrawer\').style.display=\'none\'">✕</button></div><div id="drawerItems" style="color:#666;font-size:13px">يمكنك متابعة السلة من صفحة المتجر.</div><a href="cart.html" style="display:inline-block;margin-top:12px;background:var(--orange);color:#fff;padding:8px 12px;border-radius:8px">الذهاب للسلة</a></div></aside>';}
+  var itemsHtml = '';
+  if (Cart && Array.isArray(Cart.items) && Cart.items.length) {
+    itemsHtml = Cart.items.map(function(i){
+      var qty = parseInt(i.qty, 10) || 1;
+      var price = Number(i.price) || 0;
+      var line = (price * qty).toLocaleString();
+      return '<div style="display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid #eee"><span style="font-size:13px;color:#222">'+(i.nameAr || i.name || 'منتج')+' × '+qty+'</span><strong style="font-size:13px">$'+line+'</strong></div>';
+    }).join('');
+  } else {
+    itemsHtml = '<div style="color:#666;font-size:13px">السلة فارغة حالياً.</div>';
+  }
+
+  return '' +
+    '<aside id="cartDrawer" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1300">' +
+      '<div style="margin-inline-start:auto;width:min(420px,92vw);height:100%;background:#fff;padding:16px;overflow:auto">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">' +
+          '<strong>السلة</strong>' +
+          '<button onclick="document.getElementById(\'cartDrawer\').style.display=\'none\'">✕</button>' +
+        '</div>' +
+        '<div id="drawerItems">'+itemsHtml+'</div>' +
+        '<a href="cart.html" style="display:inline-block;margin-top:12px;background:var(--orange);color:#fff;padding:8px 12px;border-radius:8px">الذهاب للسلة</a>' +
+      '</div>' +
+    '</aside>';
+}
+
 
 function buildFooter(){
   return '' +
