@@ -92,7 +92,7 @@ h1{font-size:20px;font-weight:800;margin-bottom:20px}
   <div class="success-card" id="successCard">
     <div style="font-size:48px;margin-bottom:8px">✅</div>
     <h2>تم إرسال طلبك!</h2>
-    <p style="font-size:13px;color:#444;margin-bottom:16px">سيتواصل معك فريقنا على واتساپ لتأكيد الطلب</p>
+    <p style="font-size:13px;color:#444;margin-bottom:16px">سيتواصل معك فريقنا على واتساب لتأكيد الطلب</p>
     <a href="marketplace.html" style="display:inline-block;padding:12px 24px;background:var(--orange);color:#fff;border-radius:8px;font-weight:700;text-decoration:none">تسوق المزيد</a>
   </div>
 
@@ -277,10 +277,15 @@ function sendWhatsApp() {
 }
 
 // Get live rate
-fetch(BACKEND + '/api/settings/public').then(function(r){return r.json();}).then(function(d){
-  if(d.usdRate){ USD_EGP = d.usdRate; localStorage.setItem('ms_rate', USD_EGP); }
+(async function(){
+  Cart.load();
+  try{
+    var r = await fetch(BACKEND + '/api/settings/public');
+    var d = await r.json();
+    if(d.usdRate){ USD_EGP = d.usdRate; localStorage.setItem('ms_rate', USD_EGP); }
+  }catch(_e){}
   renderCart();
-}).catch(function(){ renderCart(); });
+})();
 </script>
 </body>
 </html>

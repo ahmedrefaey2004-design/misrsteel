@@ -450,7 +450,7 @@ function showError(msg) {
 
 function setLoading(on) {
   var btn = document.getElementById('payBtn');
-  btn.disabled = on || !contractsApproved;
+  btn.disabled = on && !contractsApproved;
   btn.innerHTML = on ? '<div class="pay-spinner"></div>' : '🔒 إكمال الطلب والدفع';
 }
 

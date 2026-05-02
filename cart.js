@@ -1,7 +1,8 @@
 // ══ MISR STEEL — CART SYSTEM ══════════════════════════
 var CART_KEY = 'ms_cart';
 
-var Cart = {
+var Cart = window.Cart || {};
+Object.assign(Cart, {
   // Get cart from localStorage
   get: function() {
     try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; }
@@ -151,7 +152,8 @@ var Cart = {
       return { success:false, error:e.message };
     }
   }
-};
+});
+window.Cart = Cart;
 
 // Auto-update badge on page load
 document.addEventListener('DOMContentLoaded', function() {
