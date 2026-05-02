@@ -528,12 +528,25 @@ function mapApiProductToShopItem(item, idx){
 
 async function loadProductsFromApi(){
   try{
-    var res = await fetch(BACKEND + '/api/settings/public');
-    if(!res.ok) return;
-    var data = await res.json();
-    var items = Array.isArray(data && data.config && data.config.products) ? data.config.products : [];
-    if(items.length === 0) return;
-    PRODUCTS = items.map(mapApiProductToShopItem);
+    var resProducts = await fetch(BACKEND + '/api/products');
+    if(resProducts.ok){
+      var productsData = await resProducts.json();
+      var directProducts = Array.isArray(productsData && productsData.products) ? productsData.products : [];
+      if(directProducts.length){
+        PRODUCTS = directProducts.map(mapApiProductToShopItem);
+        return;
+      }
+    }
+
+    var resSite = await fetch(BACKEND + '/api/site-config');
+    if(resSite.ok){
+      var siteData = await resSite.json();
+      var siteProducts = Array.isArray(siteData && siteData.config && siteData.config.products) ? siteData.config.products : [];
+      if(siteProducts.length){
+        PRODUCTS = siteProducts.map(mapApiProductToShopItem);
+        return;
+      }
+    }
   }catch(_err){
     // fallback to built-in catalog when API is not available
   }
