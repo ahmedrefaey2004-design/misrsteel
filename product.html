@@ -162,7 +162,6 @@ async function loadProduct() {
     if (!r.ok || !d.product) { showError('المنتج غير موجود'); return; }
     product = d.product;
     document.title = product.nameAr + ' — مصر ستيل';
-  basePrice = product.price || 0;
     renderProduct(product);
     loadRelated(product.section, product.id);
   } catch(e) {
@@ -411,8 +410,8 @@ function selectFabric(color, btn) {
 
 function addToCartAndGo() {
   if (!currentProduct) return;
-  var frameColor = document.querySelector('.color-opt.active[data-type="frame"]');
-  var fabricColor = document.querySelector('.color-opt.active[data-type="fabric"]');
+  var frameColor = document.querySelector('.color-btn.active[data-type="frame"]');
+  var fabricColor = document.querySelector('.color-btn.active[data-type="fabric"]');
   var selectedTier = document.querySelector('.price-tier.selected');
   var tierPrice = selectedTier ? parseFloat(selectedTier.dataset.price) : (currentProduct.price || 0);
   Cart.add(

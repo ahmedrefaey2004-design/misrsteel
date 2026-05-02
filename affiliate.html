@@ -116,7 +116,7 @@ tr:last-child td{border-bottom:none}
 
     <!-- Login Form -->
     <div id="form-login">
-      <div class="login-sub">ادخل الكود ورقم واتساپك</div>
+      <div class="login-sub">ادخل الكود ورقم واتسابك</div>
       <input class="inp" id="loginCode" type="text" placeholder="كود المسوق (مثال: MS-AHMED)" oninput="this.value=this.value.toUpperCase()">
       <input class="inp" id="loginPhone" type="tel" placeholder="رقم الواتساب المسجل">
       <button class="login-btn" onclick="doLogin()">🚀 دخول</button>
@@ -437,7 +437,7 @@ function handleExcel(input) {
       document.getElementById('xlsxStatus').textContent = '❌ خطأ في قراءة الملف';
     }
   };
-  reader.readAsBinaryString(file);
+  reader.readAsArrayBuffer(file);
 }
 
 function cancelPreview() {

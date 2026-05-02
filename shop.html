@@ -528,7 +528,7 @@ function mapApiProductToShopItem(item, idx){
 
 async function loadProductsFromApi(){
   try{
-    var res = await fetch('/api/site-config');
+    var res = await fetch(BACKEND + '/api/settings/public');
     if(!res.ok) return;
     var data = await res.json();
     var items = Array.isArray(data && data.config && data.config.products) ? data.config.products : [];
@@ -677,8 +677,8 @@ document.addEventListener('DOMContentLoaded', function(){
     document.getElementById('affCodeInp').value = savedRef;
     if (savedRef.length >= 4) document.getElementById('affCodeOk').style.display = 'inline';
   }
-  loadProductsFromApi().then(function(){ renderShopProducts(); });
   Cart.load();
+  loadProductsFromApi().then(function(){ renderShopProducts(); updateCheckoutSummary(); });
   updateCheckoutSummary();
   // Override cart render to also update checkout summary
   var origSave = Cart.save.bind(Cart);

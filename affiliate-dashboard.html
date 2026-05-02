@@ -56,7 +56,7 @@
 <div class="aff-header">
   <div class="logo">مصر ستيل — لوحة المسوّق</div>
   <div class="aff-user">
-    <span>👤 أحمد المسوّق</span>
+    <span>👤 <span id="affUserName">المسوّق</span></span>
     <span style="background:var(--orange);color:#fff;font-size:10px;padding:3px 10px;border-radius:20px;font-weight:700">Pro 5%</span>
     <button onclick="window.location='index.html'" style="padding:6px 14px;background:transparent;border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:4px;font-size:11px;cursor:pointer;font-family:inherit">خروج</button>
   </div>
@@ -222,6 +222,8 @@ function showToast(msg,type){
   t.textContent=msg;t.className='toast '+(type||'');t.classList.add('show');
   clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},3000);
 }
+
+(function(){try{var u=JSON.parse(localStorage.getItem('aff_session')||'{}');var n=u.name||u.fullName||u.username||'المسوّق';var el=document.getElementById('affUserName');if(el)el.textContent=n;}catch(_e){}})();
 </script>
 </body>
 </html>
