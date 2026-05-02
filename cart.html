@@ -226,7 +226,7 @@ function clearCart() {
 function getFormData() {
   var name  = document.getElementById('of-name').value.trim();
   var phone = document.getElementById('of-phone').value.trim();
-  if (!name || !phone) { toast('أدخل الاسم ورقم الواتساب', 'error'); return null; }
+  if (!name || !phone) { toast('أدخل الاسم ورقم واتساب', 'error'); return null; }
   return {
     name, phone,
     country: document.getElementById('of-country').value,
