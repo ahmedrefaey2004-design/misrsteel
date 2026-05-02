@@ -137,7 +137,7 @@ function buildNav(active){
           '<a href="shop.html"' + isActive('shop') + '>المتجر</a>' +
           '<a href="contracts.html"' + isActive('contracts') + '>العقود</a>' +
           '<button onclick="toggleLang()" style="border:1px solid #ddd;background:#fff;border-radius:8px;padding:6px 10px;cursor:pointer">AR/EN</button>' +
-          '<a href="cart.html" aria-label="السلة" title="السلة" style="position:relative;text-decoration:none;background:var(--orange);color:#fff;border:1px solid var(--orange);border-radius:8px;padding:6px 12px;font-weight:700;display:inline-flex;align-items:center;gap:6px">' +
+          '<a href="shop.html#checkout" style="position:relative;text-decoration:none;background:var(--orange);color:#fff;border:1px solid var(--orange);border-radius:8px;padding:6px 12px;font-weight:700;display:inline-flex;align-items:center;gap:6px">' +
             '🛒 السلة <span class="cart-badge" style="display:none;position:absolute;top:-8px;right:-8px;min-width:18px;height:18px;border-radius:999px;background:#fff;color:#ff6a00;font-size:11px;font-weight:800;align-items:center;justify-content:center;padding:0 4px">0</span>' +
           '</a>' +
         '</nav>' +
