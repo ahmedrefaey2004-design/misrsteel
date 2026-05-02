@@ -1,6 +1,9 @@
 /* MISR STEEL — shared.js v2 */
 
-var USD_EGP = parseFloat(localStorage.getItem('ms_rate') || '50.85');
+var STORAGE_KEYS = window.STORAGE_KEYS || { cart:'ms_cart', lang:'ms_lang', rate:'ms_rate', affiliateRef:'ms_aff_ref', checkoutCart:'ms_checkout_cart', affiliateSession:'aff_session' };
+window.STORAGE_KEYS = STORAGE_KEYS;
+
+var USD_EGP = parseFloat(localStorage.getItem(STORAGE_KEYS.rate) || '50.85');
 
 function fetchRate(){
   fetch('https://api.exchangerate-api.com/v4/latest/USD')
@@ -8,7 +11,7 @@ function fetchRate(){
     .then(function(d){
       if(d.rates && d.rates.EGP){
         USD_EGP = parseFloat(d.rates.EGP.toFixed(2));
-        localStorage.setItem('ms_rate', USD_EGP);
+        localStorage.setItem(STORAGE_KEYS.rate, USD_EGP);
         document.querySelectorAll('.rate-display').forEach(function(el){ el.textContent = USD_EGP.toFixed(2); });
         document.querySelectorAll('[data-usd]').forEach(function(el){
           var usd = parseFloat(el.getAttribute('data-usd'));
@@ -23,7 +26,7 @@ function fetchRate(){
 function toggleLang(){
   document.body.classList.toggle('en');
   document.documentElement.dir = document.body.classList.contains('en') ? 'ltr' : 'rtl';
-  localStorage.setItem('ms_lang', document.body.classList.contains('en') ? 'en' : 'ar');
+  localStorage.setItem(STORAGE_KEYS.lang, document.body.classList.contains('en') ? 'en' : 'ar');
 }
 
 function showToast(msg, type){
@@ -40,7 +43,7 @@ var Cart = {
   items: [],
 
   load: function(){
-    var raw = localStorage.getItem('ms_cart');
+    var raw = localStorage.getItem(STORAGE_KEYS.cart);
     if(!raw){
       this.items = [];
       this.updateBadge();
@@ -59,7 +62,7 @@ var Cart = {
   },
 
   save: function(){
-    localStorage.setItem('ms_cart', JSON.stringify(this.items));
+    localStorage.setItem(STORAGE_KEYS.cart, JSON.stringify(this.items));
     this.updateBadge();
     return this.items;
   },
@@ -146,7 +149,31 @@ function buildNav(active){
 }
 
 function buildCartDrawer(){
-  return '<aside id="cartDrawer" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1300"><div style="margin-inline-start:auto;width:min(420px,92vw);height:100%;background:#fff;padding:16px;overflow:auto"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><strong>السلة</strong><button onclick="document.getElementById(\'cartDrawer\').style.display=\'none\'">✕</button></div><div id="drawerItems" style="color:#666;font-size:13px">يمكنك متابعة السلة من صفحة المتجر.</div><a href="cart.html" style="display:inline-block;margin-top:12px;background:var(--orange);color:#fff;padding:8px 12px;border-radius:8px">الذهاب للسلة</a></div></aside>';}
+  var itemsHtml = '';
+  if (Cart && Array.isArray(Cart.items) && Cart.items.length) {
+    itemsHtml = Cart.items.map(function(i){
+      var qty = parseInt(i.qty, 10) || 1;
+      var price = Number(i.price) || 0;
+      var line = (price * qty).toLocaleString();
+      return '<div style="display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid #eee"><span style="font-size:13px;color:#222">'+(i.nameAr || i.name || 'منتج')+' × '+qty+'</span><strong style="font-size:13px">$'+line+'</strong></div>';
+    }).join('');
+  } else {
+    itemsHtml = '<div style="color:#666;font-size:13px">السلة فارغة حالياً.</div>';
+  }
+
+  return '' +
+    '<aside id="cartDrawer" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1300">' +
+      '<div style="margin-inline-start:auto;width:min(420px,92vw);height:100%;background:#fff;padding:16px;overflow:auto">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">' +
+          '<strong>السلة</strong>' +
+          '<button onclick="document.getElementById(\'cartDrawer\').style.display=\'none\'">✕</button>' +
+        '</div>' +
+        '<div id="drawerItems">'+itemsHtml+'</div>' +
+        '<a href="cart.html" style="display:inline-block;margin-top:12px;background:var(--orange);color:#fff;padding:8px 12px;border-radius:8px">الذهاب للسلة</a>' +
+      '</div>' +
+    '</aside>';
+}
+
 
 function buildFooter(){
   return '' +
@@ -155,12 +182,27 @@ function buildFooter(){
     '</footer>';
 }
 
+
+function initFirebase(){
+  if (!window.firebase || !window.firebaseConfig) return;
+  if (window.__msFirebaseInit) return;
+  try {
+    if (typeof window.firebase.initializeApp === 'function') {
+      window.firebase.initializeApp(window.firebaseConfig);
+      window.__msFirebaseInit = true;
+    }
+  } catch (_e) {
+    // ignore duplicate init / unavailable SDK methods
+  }
+}
+
 document.addEventListener('DOMContentLoaded', function(){
-  var saved = localStorage.getItem('ms_lang');
+  var saved = localStorage.getItem(STORAGE_KEYS.lang);
   if(saved === 'en'){
     document.body.classList.add('en');
     document.documentElement.dir = 'ltr';
   }
+  initFirebase();
   Cart.load();
   fetchRate();
   setInterval(fetchRate, 30 * 60 * 1000);

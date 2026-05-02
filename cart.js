@@ -1,5 +1,5 @@
 // ══ MISR STEEL — CART SYSTEM ══════════════════════════
-var CART_KEY = 'ms_cart';
+var CART_KEY = (window.STORAGE_KEYS && window.STORAGE_KEYS.cart) || 'ms_cart';
 
 var Cart = window.Cart || {};
 Object.assign(Cart, {
@@ -101,7 +101,7 @@ Object.assign(Cart, {
   buildWAMessage: function(customerName, customerPhone, customerCountry, notes) {
     var items = Cart.get();
     if (!items.length) return '';
-    var USD_EGP = parseFloat(localStorage.getItem('ms_rate') || '51');
+    var USD_EGP = parseFloat(localStorage.getItem((window.STORAGE_KEYS && window.STORAGE_KEYS.rate) || 'ms_rate') || '51');
     var msg = '🛒 طلب جديد من مصر ستيل\n\n';
     msg += '👤 الاسم: ' + customerName + '\n';
     msg += '📱 الواتساب: ' + customerPhone + '\n';
