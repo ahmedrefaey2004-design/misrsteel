@@ -436,9 +436,9 @@ var BACKEND = 'https://misrsteel-backend.vercel.app';
 function resolveAffiliateCode(){
   var fromUrl = new URLSearchParams(location.search).get('ref');
   var fromInput = (document.getElementById('affCodeInp') || {}).value || '';
-  var fromStorage = localStorage.getItem('ms_aff_ref') || '';
+  var fromStorage = localStorage.getItem((window.STORAGE_KEYS && window.STORAGE_KEYS.affiliateRef) || 'ms_aff_ref') || '';
   var code = (fromUrl || fromInput || fromStorage || '').trim().toUpperCase();
-  if (code) localStorage.setItem('ms_aff_ref', code);
+  if (code) localStorage.setItem((window.STORAGE_KEYS && window.STORAGE_KEYS.affiliateRef) || 'ms_aff_ref', code);
   return code;
 }
 
@@ -675,7 +675,7 @@ function openWA(){
 function applyAffCode(){
   var code = document.getElementById('affCodeInp').value.trim().toUpperCase();
   if(code.length >= 4){
-    localStorage.setItem('ms_aff_ref', code);
+    localStorage.setItem((window.STORAGE_KEYS && window.STORAGE_KEYS.affiliateRef) || 'ms_aff_ref', code);
     document.getElementById('affCodeOk').style.display='inline';
     showToast('✓ '+code+' — كود صالح','success');
   }
@@ -701,7 +701,7 @@ document.addEventListener('DOMContentLoaded', function(){
   Cart.save = function(){ origSave(); updateCheckoutSummary(); };
   // Check for checkout redirect from cart
   if(window.location.hash === '#checkout'){
-    var saved = localStorage.getItem('ms_checkout_cart');
+    var saved = localStorage.getItem((window.STORAGE_KEYS && window.STORAGE_KEYS.checkoutCart) || 'ms_checkout_cart');
     if(saved){ Cart.items = JSON.parse(saved); Cart.updateBadge(); updateCheckoutSummary(); goCS(2); }
   }
 });

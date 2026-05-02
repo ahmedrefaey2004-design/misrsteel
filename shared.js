@@ -1,6 +1,9 @@
 /* MISR STEEL — shared.js v2 */
 
-var USD_EGP = parseFloat(localStorage.getItem('ms_rate') || '50.85');
+var STORAGE_KEYS = window.STORAGE_KEYS || { cart:'ms_cart', lang:'ms_lang', rate:'ms_rate', affiliateRef:'ms_aff_ref', checkoutCart:'ms_checkout_cart', affiliateSession:'aff_session' };
+window.STORAGE_KEYS = STORAGE_KEYS;
+
+var USD_EGP = parseFloat(localStorage.getItem(STORAGE_KEYS.rate) || '50.85');
 
 function fetchRate(){
   fetch('https://api.exchangerate-api.com/v4/latest/USD')
@@ -8,7 +11,7 @@ function fetchRate(){
     .then(function(d){
       if(d.rates && d.rates.EGP){
         USD_EGP = parseFloat(d.rates.EGP.toFixed(2));
-        localStorage.setItem('ms_rate', USD_EGP);
+        localStorage.setItem(STORAGE_KEYS.rate, USD_EGP);
         document.querySelectorAll('.rate-display').forEach(function(el){ el.textContent = USD_EGP.toFixed(2); });
         document.querySelectorAll('[data-usd]').forEach(function(el){
           var usd = parseFloat(el.getAttribute('data-usd'));
@@ -23,7 +26,7 @@ function fetchRate(){
 function toggleLang(){
   document.body.classList.toggle('en');
   document.documentElement.dir = document.body.classList.contains('en') ? 'ltr' : 'rtl';
-  localStorage.setItem('ms_lang', document.body.classList.contains('en') ? 'en' : 'ar');
+  localStorage.setItem(STORAGE_KEYS.lang, document.body.classList.contains('en') ? 'en' : 'ar');
 }
 
 function showToast(msg, type){
@@ -40,7 +43,7 @@ var Cart = {
   items: [],
 
   load: function(){
-    var raw = localStorage.getItem('ms_cart');
+    var raw = localStorage.getItem(STORAGE_KEYS.cart);
     if(!raw){
       this.items = [];
       this.updateBadge();
@@ -59,7 +62,7 @@ var Cart = {
   },
 
   save: function(){
-    localStorage.setItem('ms_cart', JSON.stringify(this.items));
+    localStorage.setItem(STORAGE_KEYS.cart, JSON.stringify(this.items));
     this.updateBadge();
     return this.items;
   },
@@ -180,7 +183,7 @@ function buildFooter(){
 }
 
 document.addEventListener('DOMContentLoaded', function(){
-  var saved = localStorage.getItem('ms_lang');
+  var saved = localStorage.getItem(STORAGE_KEYS.lang);
   if(saved === 'en'){
     document.body.classList.add('en');
     document.documentElement.dir = 'ltr';
