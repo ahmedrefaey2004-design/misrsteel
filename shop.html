@@ -25,7 +25,7 @@ body.en .shop-hero h1{font-family:'DM Sans',sans-serif}
 .shop-prod-img{width:140px;height:110px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;border-radius:var(--radius);flex-shrink:0;position:relative;overflow:hidden}
 .shop-prod-badge{position:absolute;top:6px;inset-inline-start:6px;font-size:9px;font-weight:700;padding:2px 7px;border-radius:2px;text-transform:uppercase;letter-spacing:.04em}
 .badge-bs{background:var(--orange);color:#fff}
-.badge-new{background:var(--green-dk);color:#fff}
+.badge-new{background:var(--green-dk,#067a3a);color:#fff}
 .shop-prod-info{}
 .shop-prod-name{font-size:16px;font-weight:700;margin-bottom:4px}
 body.en .shop-prod-name{font-family:'DM Sans',sans-serif}
@@ -436,9 +436,9 @@ var BACKEND = 'https://misrsteel-backend.vercel.app';
 function resolveAffiliateCode(){
   var fromUrl = new URLSearchParams(location.search).get('ref');
   var fromInput = (document.getElementById('affCodeInp') || {}).value || '';
-  var fromStorage = localStorage.getItem('ms_aff_ref') || '';
+  var fromStorage = localStorage.getItem((window.STORAGE_KEYS && window.STORAGE_KEYS.affiliateRef) || 'ms_aff_ref') || '';
   var code = (fromUrl || fromInput || fromStorage || '').trim().toUpperCase();
-  if (code) localStorage.setItem('ms_aff_ref', code);
+  if (code) localStorage.setItem((window.STORAGE_KEYS && window.STORAGE_KEYS.affiliateRef) || 'ms_aff_ref', code);
   return code;
 }
 
@@ -528,12 +528,25 @@ function mapApiProductToShopItem(item, idx){
 
 async function loadProductsFromApi(){
   try{
-    var res = await fetch(BACKEND + '/api/settings/public');
-    if(!res.ok) return;
-    var data = await res.json();
-    var items = Array.isArray(data && data.config && data.config.products) ? data.config.products : [];
-    if(items.length === 0) return;
-    PRODUCTS = items.map(mapApiProductToShopItem);
+    var resProducts = await fetch(BACKEND + '/api/products');
+    if(resProducts.ok){
+      var productsData = await resProducts.json();
+      var directProducts = Array.isArray(productsData && productsData.products) ? productsData.products : [];
+      if(directProducts.length){
+        PRODUCTS = directProducts.map(mapApiProductToShopItem);
+        return;
+      }
+    }
+
+    var resSite = await fetch(BACKEND + '/api/site-config');
+    if(resSite.ok){
+      var siteData = await resSite.json();
+      var siteProducts = Array.isArray(siteData && siteData.config && siteData.config.products) ? siteData.config.products : [];
+      if(siteProducts.length){
+        PRODUCTS = siteProducts.map(mapApiProductToShopItem);
+        return;
+      }
+    }
   }catch(_err){
     // fallback to built-in catalog when API is not available
   }
@@ -662,7 +675,7 @@ function openWA(){
 function applyAffCode(){
   var code = document.getElementById('affCodeInp').value.trim().toUpperCase();
   if(code.length >= 4){
-    localStorage.setItem('ms_aff_ref', code);
+    localStorage.setItem((window.STORAGE_KEYS && window.STORAGE_KEYS.affiliateRef) || 'ms_aff_ref', code);
     document.getElementById('affCodeOk').style.display='inline';
     showToast('✓ '+code+' — كود صالح','success');
   }
@@ -677,15 +690,18 @@ document.addEventListener('DOMContentLoaded', function(){
     document.getElementById('affCodeInp').value = savedRef;
     if (savedRef.length >= 4) document.getElementById('affCodeOk').style.display = 'inline';
   }
-  Cart.load();
-  loadProductsFromApi().then(function(){ renderShopProducts(); updateCheckoutSummary(); });
-  updateCheckoutSummary();
+  Promise.resolve((Cart && typeof Cart.load === 'function') ? Cart.load() : null).then(function(){
+    return loadProductsFromApi();
+  }).then(function(){
+    renderShopProducts();
+    updateCheckoutSummary();
+  });
   // Override cart render to also update checkout summary
   var origSave = Cart.save.bind(Cart);
   Cart.save = function(){ origSave(); updateCheckoutSummary(); };
   // Check for checkout redirect from cart
   if(window.location.hash === '#checkout'){
-    var saved = localStorage.getItem('ms_checkout_cart');
+    var saved = localStorage.getItem((window.STORAGE_KEYS && window.STORAGE_KEYS.checkoutCart) || 'ms_checkout_cart');
     if(saved){ Cart.items = JSON.parse(saved); Cart.updateBadge(); updateCheckoutSummary(); goCS(2); }
   }
 });
