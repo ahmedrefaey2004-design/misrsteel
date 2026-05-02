@@ -278,7 +278,9 @@ function sendWhatsApp() {
 
 // Get live rate
 (async function(){
-  Cart.load();
+  if (Cart && typeof Cart.load === 'function') {
+    await Promise.resolve(Cart.load());
+  }
   try{
     var r = await fetch(BACKEND + '/api/settings/public');
     var d = await r.json();
