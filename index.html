@@ -362,7 +362,7 @@ async function loadDeptImages() {
 
     grid.innerHTML = html;
   } catch(e) {
-    console.log('loadDeptImages error:', e);
+    // ignore and keep static sections when API fails
   }
 }
 
@@ -585,7 +585,7 @@ async function loadPortfolioPreview() {
         '</div></a>';
     }).join('');
   } catch(e) {
-    console.log('portfolio preview error:', e);
+    // ignore and keep page responsive if portfolio preview fails
   }
 }
 loadPortfolioPreview();
