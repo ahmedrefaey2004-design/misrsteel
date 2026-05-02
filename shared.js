@@ -182,12 +182,27 @@ function buildFooter(){
     '</footer>';
 }
 
+
+function initFirebase(){
+  if (!window.firebase || !window.firebaseConfig) return;
+  if (window.__msFirebaseInit) return;
+  try {
+    if (typeof window.firebase.initializeApp === 'function') {
+      window.firebase.initializeApp(window.firebaseConfig);
+      window.__msFirebaseInit = true;
+    }
+  } catch (_e) {
+    // ignore duplicate init / unavailable SDK methods
+  }
+}
+
 document.addEventListener('DOMContentLoaded', function(){
   var saved = localStorage.getItem(STORAGE_KEYS.lang);
   if(saved === 'en'){
     document.body.classList.add('en');
     document.documentElement.dir = 'ltr';
   }
+  initFirebase();
   Cart.load();
   fetchRate();
   setInterval(fetchRate, 30 * 60 * 1000);
