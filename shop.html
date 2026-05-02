@@ -677,9 +677,12 @@ document.addEventListener('DOMContentLoaded', function(){
     document.getElementById('affCodeInp').value = savedRef;
     if (savedRef.length >= 4) document.getElementById('affCodeOk').style.display = 'inline';
   }
-  Cart.load();
-  loadProductsFromApi().then(function(){ renderShopProducts(); updateCheckoutSummary(); });
-  updateCheckoutSummary();
+  Promise.resolve((Cart && typeof Cart.load === 'function') ? Cart.load() : null).then(function(){
+    return loadProductsFromApi();
+  }).then(function(){
+    renderShopProducts();
+    updateCheckoutSummary();
+  });
   // Override cart render to also update checkout summary
   var origSave = Cart.save.bind(Cart);
   Cart.save = function(){ origSave(); updateCheckoutSummary(); };
