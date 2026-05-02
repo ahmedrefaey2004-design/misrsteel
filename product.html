@@ -177,7 +177,8 @@ function getImgSrc(img) {
 
 function renderProduct(p) {
   var imgs = p.imgs || [];
-  var egp = p.price > 0 ? Math.round(p.price * USD_EGP).toLocaleString() : '';
+  var basePrice = Number(p.price) || 0;
+  var egp = basePrice > 0 ? Math.round(basePrice * USD_EGP).toLocaleString() : '';
   var frameColors = p.frameColors || [];
   var fabricColors = p.fabricColors || [];
 
@@ -194,11 +195,11 @@ function renderProduct(p) {
     }).join('') + '</div>' : '';
 
   // Price
-  var p1 = Math.round(p.price * 1.1); // 1-49
-  var p2 = p.price;                    // 50-99
-  var p3 = Math.round(p.price * 0.9); // 100+
+  var p1 = Math.round(basePrice * 1.1); // 1-49
+  var p2 = basePrice;                     // 50-99
+  var p3 = Math.round(basePrice * 0.9); // 100+
 
-  var priceHtml = p.price > 0
+  var priceHtml = basePrice > 0
     ? '<div class="prod-price-box">' +
       '<div style="font-size:11px;font-weight:700;color:#888;margin-bottom:10px;letter-spacing:.05em">اختار الكمية المناسبة:</div>' +
       // Tier cards

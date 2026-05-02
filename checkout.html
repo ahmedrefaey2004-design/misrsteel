@@ -326,13 +326,6 @@ async function initiatePayment() {
   var deposit = Math.round(total * 0.5 * 100) / 100;
   var affiliateCode = resolveAffiliateCode();
 
-  // Bank transfer — no API needed
-  if (selectedMethod === 'bank') {
-    showSuccess('BANK-' + Date.now());
-    sendWAConfirm(name, phone, total, deposit);
-    return;
-  }
-
   setLoading(true);
 
   try {
