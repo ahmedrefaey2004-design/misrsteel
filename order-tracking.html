@@ -164,14 +164,8 @@ window.addEventListener('load', function() {
   });
 });
 
-function fetchWithTimeout(url, timeoutMs) {
-  var controller = new AbortController();
-  var t = setTimeout(function(){ controller.abort(); }, timeoutMs || 8000);
-  return fetch(url, { signal: controller.signal }).finally(function(){ clearTimeout(t); });
-}
-
 async function loadOrderFromBackend(orderId) {
-  var res = await fetchWithTimeout(BACKEND + '/api/orders', 8000);
+  var res = await fetch(BACKEND + '/api/orders');
   if (!res.ok) return null;
   var data = await res.json();
   var orders = Array.isArray(data) ? data : (Array.isArray(data.orders) ? data.orders : []);
