@@ -215,13 +215,33 @@ function requestWithdraw(method){
 }
 
 function downloadMarketingPack(){
+  var lines = [
+    'MISR STEEL — مواد تسويق للمسوّقين',
+    '=================================',
+    '',
+    'روابط جاهزة:',
+    document.getElementById('link1') ? document.getElementById('link1').textContent.trim() : '',
+    document.getElementById('link2') ? document.getElementById('link2').textContent.trim() : '',
+    document.getElementById('link3') ? document.getElementById('link3').textContent.trim() : '',
+    '',
+    'نص واتساب مقترح:',
+    'مرحباً 🌟 عندي عرض مميز من مصر ستيل — أثاث استانلس فاخر مباشرة من المصنع 🏭',
+    '✅ كراسي وترابيزات للمطاعم والفنادق والقاعات',
+    '💰 أسعار المصنع بدون وسطاء',
+    '🚢 تصدير لكل الدول',
+    '⭐ ضمان سنة كاملة'
+  ].filter(Boolean).join('\n');
+
+  var blob = new Blob([lines], { type: 'text/plain;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
   var a = document.createElement('a');
-  a.href = 'affiliate_orders_template.xlsx';
-  a.download = 'affiliate_orders_template.xlsx';
+  a.href = url;
+  a.download = 'misrsteel-marketing-pack.txt';
   document.body.appendChild(a);
   a.click();
   a.remove();
-  showToast('✅ تم تحميل قالب Excel','success');
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+  showToast('✅ تم تحميل ملف المواد التسويقية','success');
 }
 function copyScript(){
   document.getElementById('scriptBox').style.display='block';
