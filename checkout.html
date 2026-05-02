@@ -270,16 +270,23 @@
 <script src="shared.js"></script>
 <script>
 var BACKEND = 'https://misrsteel-backend.vercel.app';
-var USD_EGP = parseFloat(localStorage.getItem('ms_rate') || '50.85');
-var cart    = JSON.parse(localStorage.getItem('ms_cart') || '[]');
+var STORAGE_KEYS = window.STORAGE_KEYS || { cart:'ms_cart', rate:'ms_rate', affiliateRef:'ms_aff_ref', checkoutCart:'ms_checkout_cart' };
+var USD_EGP = parseFloat(localStorage.getItem(STORAGE_KEYS.rate) || '50.85');
+var checkoutCartRaw = localStorage.getItem(STORAGE_KEYS.checkoutCart);
+var cartRaw = checkoutCartRaw || localStorage.getItem(STORAGE_KEYS.cart) || '[]';
+var cart    = JSON.parse(cartRaw || '[]');
+if (checkoutCartRaw) {
+  localStorage.setItem(STORAGE_KEYS.cart, checkoutCartRaw);
+  localStorage.removeItem(STORAGE_KEYS.checkoutCart);
+}
 var selectedMethod = 'card';
 var currentOrderId = null;
 var contractsApproved = false;
 
 function resolveAffiliateCode() {
   var refFromUrl = new URLSearchParams(location.search).get('ref');
-  var affiliateCode = (refFromUrl || localStorage.getItem('ms_aff_ref') || '').trim().toUpperCase();
-  if (affiliateCode) localStorage.setItem('ms_aff_ref', affiliateCode);
+  var affiliateCode = (refFromUrl || localStorage.getItem(STORAGE_KEYS.affiliateRef) || '').trim().toUpperCase();
+  if (affiliateCode) localStorage.setItem(STORAGE_KEYS.affiliateRef, affiliateCode);
   return affiliateCode;
 }
 
@@ -353,7 +360,7 @@ async function initiatePayment() {
     if (selectedMethod === 'bank') {
       setLoading(false);
       showSuccess(orderData.ref || orderData.orderRef || currentOrderId || ('BANK-' + Date.now()));
-      localStorage.removeItem('ms_cart');
+      localStorage.removeItem(STORAGE_KEYS.cart);
       sendWAConfirm(name, phone, total, deposit);
       return;
     }
@@ -411,7 +418,7 @@ function pollPayment(orderId) {
         clearInterval(interval);
         closePayModal();
         showSuccess(d.transactionId || orderId);
-        localStorage.removeItem('ms_cart');
+        localStorage.removeItem(STORAGE_KEYS.cart);
       }
     } catch(e) {}
   }, 5000); // check every 5s
