@@ -748,7 +748,7 @@ function go(key, el) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('panel-' + key).classList.add('show');
   if (el) el.classList.add('active');
-  var map = { overview:loadOverview, products:loadProducts, sections:loadSections, banners:loadBanners, orders:loadOrders, customers:loadCustomers, affiliates:loadAffiliates, inquiries:loadInquiries, ai_users:loadAIUsers, settings:loadSettings, reports:loadReports, partners:loadPartners };
+  var map = { overview:loadOverview, products:loadProducts, sections:loadSections, banners:loadBanners, orders:loadOrders, customers:loadCustomers, affiliates:loadAffiliates, inquiries:loadInquiries, ai_users:loadAIUsers, settings:loadSettings, reports:loadReports, partners:loadPartners, portfolio:loadPortfolio };
   if (map[key]) map[key]();
 }
 function loadAll() { checkAPI(); loadOverview(); }
@@ -895,9 +895,9 @@ async function deleteProdFromModal() {
 // ── SECTIONS ──────────────────────────────────────────
 var localSections = [
   {id:'home',    nameAr:'المنزل',        nameEn:'Home',       desc:'غرف معيشة وسفرة ونوم', link:'section-home.html',       img:'images/'},
-  {id:'hall',    nameAr:'قاعات الأفراح', nameEn:'Halls',      desc:'قاعات أفراح ومؤتمرات',  link:'section-hall.html',       img:'images/p15-new-e-2.jpg'},
-  {id:'museum',  nameAr:'لوبي / متحف',   nameEn:'Lobby',      desc:'لوبي فنادق واستقبال',   link:'section-museum.html',     img:'images/p11-new-a-1.jpg'},
-  {id:'restaurant',nameAr:'مطاعم وكافيهات',nameEn:'Restaurant',desc:'مطاعم وكافيهات فاخرة',link:'section-restaurant.html', img:'images/p05-velvet-red-1.jpg'},
+  {id:'hall',    nameAr:'قاعات الأفراح', nameEn:'Halls',      desc:'قاعات أفراح ومؤتمرات',  link:'section-hall.html',       img:'images/'},
+  {id:'museum',  nameAr:'لوبي / متحف',   nameEn:'Lobby',      desc:'لوبي فنادق واستقبال',   link:'section-museum.html',     img:'images/'},
+  {id:'restaurant',nameAr:'مطاعم وكافيهات',nameEn:'Restaurant',desc:'مطاعم وكافيهات فاخرة',link:'section-restaurant.html', img:'images/'},
 ];
 
 function loadSections() {
@@ -951,8 +951,8 @@ function closeSecModal() { document.getElementById('sectionModal').classList.rem
 // ── BANNERS ───────────────────────────────────────────
 var localBanners = [
   {id:1, titleAr:'أثاث استانلس فاخر', titleEn:'Premium Stainless', desc:'مباشرة من المصنع — بدون حد أدنى', btn:'تسوق الآن', link:'marketplace.html', color:'#ff6000', img:'images/'},
-  {id:2, titleAr:'قاعات الأفراح VIP', titleEn:'Wedding Halls VIP',   desc:'كراسي ذهبية وفضية لقاعاتك',    btn:'اكتشف الآن', link:'section-hall.html', color:'#1a1a1a', img:'images/p15-new-e-2.jpg'},
-  {id:3, titleAr:'AI مصمم الغرفة',    titleEn:'AI Room Designer',   desc:'صمّم مكانك قبل الشراء',          btn:'جرّب مجاناً', link:'ai-designer.html', color:'#2d1200', img:'images/p03-barrel-gold-1.jpg'},
+  {id:2, titleAr:'قاعات الأفراح VIP', titleEn:'Wedding Halls VIP',   desc:'كراسي ذهبية وفضية لقاعاتك',    btn:'اكتشف الآن', link:'section-hall.html', color:'#1a1a1a', img:'images/'},
+  {id:3, titleAr:'AI مصمم الغرفة',    titleEn:'AI Room Designer',   desc:'صمّم مكانك قبل الشراء',          btn:'جرّب مجاناً', link:'ai-designer.html', color:'#2d1200', img:'images/'},
 ];
 
 function loadBanners() {
@@ -1616,6 +1616,48 @@ function closeAffModal() {
   editAffId = null;
 }
 
+// ── BANNERS ─────────────────────────────────────────────
+async function loadBanners() {
+  try {
+    var d = await api('GET', '/api/admin/banners');
+    var banners = d.banners || [];
+    var el = document.getElementById('bannersTable');
+    if (!el) return;
+    if (!banners.length) {
+      el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted)">لا توجد بوسترات — اضغط + لإضافة</div>';
+      return;
+    }
+    var html = '<table><tr><th>الصورة</th><th>العنوان</th><th>الرابط</th><th>النوع</th><th>إجراء</th></tr>';
+    banners.forEach(function(b) {
+      var imgSrc = b.img ? (b.img.startsWith('data:') ? '' : b.img) : '';
+      html += '<tr>' +
+        '<td>' + (imgSrc ? '<img src="'+imgSrc+'" style="width:60px;height:40px;object-fit:cover;border-radius:4px">' : '🖼️') + '</td>' +
+        '<td><strong>' + (b.title||'-') + '</strong></td>' +
+        '<td><a href="' + (b.link||'#') + '" target="_blank" style="color:var(--orange);font-size:11px">🔗 رابط</a></td>' +
+        '<td>' + (b.type||'banner') + '</td>' +
+        '<td><button class="btn btn-red btn-sm" onclick="deleteBanner('+b.id+')">🗑️</button></td>' +
+        '</tr>';
+    });
+    el.innerHTML = html + '</table>';
+  } catch(e) {
+    var el = document.getElementById('bannersTable');
+    if (el) el.innerHTML = '<div style="padding:20px;color:var(--red)">❌ ' + e.message + '</div>';
+  }
+}
+
+async function deleteBanner(id) {
+  if (!confirm('حذف هذا البوستر؟')) return;
+  try {
+    await api('DELETE', '/api/admin/banners/' + id);
+    toast('✅ تم الحذف', 'success');
+    loadBanners();
+  } catch(e) { toast('❌ ' + e.message, 'error'); }
+}
+
+function openAddBanner() {
+  toast('قريباً — رفع البوسترات من خلال الإعدادات', '');
+}
+
 // ── PORTFOLIO ──────────────────────────────────────────
 var editProjId = null;
 var projImgs = [];
@@ -1798,6 +1840,21 @@ async function deleteAllProducts() {
     toast('✅ تم حذف ' + done + ' منتج', 'success');
     loadProducts();
   } catch(e) { toast('❌ ' + e.message, 'error'); }
+}
+
+// ── CALC PROFIT ────────────────────────────────────────
+function calcMyProfit() {
+  var factory = parseFloat(document.getElementById('set_usdRate')?.value) || 0;
+  var sell    = parseFloat(document.getElementById('sell-price')?.value) || 0;
+  var comm    = 10;
+  var commAmount = factory * comm / 100;
+  var extraProfit = sell - factory;
+  var total = commAmount + extraProfit;
+  var el = document.getElementById('my-profit');
+  if (el) {
+    el.textContent = total > 0 ? '$' + total.toFixed(2) : total < 0 ? '⚠️ أقل من السعر' : '0';
+    el.style.color = total > 0 ? 'var(--orange)' : total < 0 ? '#cc0000' : '#888';
+  }
 }
 
 // ── TOAST ─────────────────────────────────────────────
