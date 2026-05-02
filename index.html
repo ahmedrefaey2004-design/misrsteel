@@ -165,6 +165,7 @@ button{cursor:pointer;font-family:inherit}
 <div class="hero-slider">
   <div class="slides" id="slides">
     <div class="slide">
+      <img class="slide-bg" src="images/Seating_Sets/21/vegas-yasam-odasi1.jpg" alt="أثاث استانلس فاخر">
       <div class="slide-overlay"></div>
       <div class="slide-content">
         <div class="slide-tag">🏭 مباشرة من المصنع</div>
@@ -285,13 +286,19 @@ var sectionLabels = {home:'🏠 منزل', hall:'🎪 قاعة', museum:'🏛️
 var badgeClass = {hot:'badge-hot', new:'badge-new'};
 
 // ══ SLIDER ══
-function slide(dir){ slideIdx=(slideIdx+dir+slideCount)%slideCount; document.getElementById('slides').style.transform='translateX('+(slideIdx*100)+'%)'; updateDots(); }
-function goSlide(i){ slideIdx=i; document.getElementById('slides').style.transform='translateX('+(i*100)+'%)'; updateDots(); }
+function slide(dir){ slideIdx=(slideIdx+dir+slideCount)%slideCount; document.getElementById('slides').style.transform='translateX(-'+(slideIdx*100)+'%)'; updateDots(); }
+function goSlide(i){ slideIdx=i; document.getElementById('slides').style.transform='translateX(-'+(i*100)+'%)'; updateDots(); }
 function updateDots(){ document.querySelectorAll('.sdot').forEach(function(d,i){d.classList.toggle('active',i===slideIdx)}); }
 function initSlider(){
-  var dots=''; for(var i=0;i<slideCount;i++) dots+='<div class="sdot'+(i===0?' active':'')+'" onclick="goSlide('+i+')"></div>';
+  var slidesEl = document.getElementById('slides');
+  slideCount = slidesEl ? slidesEl.children.length : 0;
+  if (!slideCount) return;
+  if (slideIdx >= slideCount) slideIdx = 0;
+  var dots=''; for(var i=0;i<slideCount;i++) dots+='<div class="sdot'+(i===slideIdx?' active':'')+'" onclick="goSlide('+i+')"></div>';
   document.getElementById('sliderDots').innerHTML=dots;
+  clearInterval(slideAuto);
   slideAuto=setInterval(function(){slide(1)},4500);
+  goSlide(slideIdx);
 }
 document.querySelector('.hero-slider').addEventListener('mouseenter',function(){clearInterval(slideAuto)});
 document.querySelector('.hero-slider').addEventListener('mouseleave',function(){slideAuto=setInterval(function(){slide(1)},4500)});
@@ -355,7 +362,7 @@ async function loadDeptImages() {
 
     grid.innerHTML = html;
   } catch(e) {
-    console.log('loadDeptImages error:', e);
+    // ignore and keep static sections when API fails
   }
 }
 
@@ -397,6 +404,7 @@ async function loadDynamicSlides() {
        if (slidesEl) slidesEl.appendChild(slide);
      });
 
+     initSlider();
   } catch(e) {}
 }
 
@@ -577,7 +585,7 @@ async function loadPortfolioPreview() {
         '</div></a>';
     }).join('');
   } catch(e) {
-    console.log('portfolio preview error:', e);
+    // ignore and keep page responsive if portfolio preview fails
   }
 }
 loadPortfolioPreview();
