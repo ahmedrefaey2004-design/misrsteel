@@ -121,7 +121,12 @@ button{cursor:pointer;font-family:inherit}
 <!-- NAV -->
 <div class="nav">
   <a class="nav-logo" href="index.html">مصر ستيل</a>
-  <a class="nav-back" href="marketplace.html">← المتجر</a>
+  <div style="display:flex;align-items:center;gap:16px">
+    <a class="nav-back" href="marketplace.html">← المتجر</a>
+    <a href="cart.html" style="position:relative;color:rgba(255,255,255,.7);text-decoration:none;font-size:20px">
+      🛒<span class="cart-badge" style="display:none;position:absolute;top:-6px;right:-10px;background:var(--orange);color:#fff;border-radius:50%;width:18px;height:18px;font-size:10px;font-weight:800;align-items:center;justify-content:center">0</span>
+    </a>
+  </div>
 </div>
 
 <div class="page" id="page">
@@ -130,6 +135,7 @@ button{cursor:pointer;font-family:inherit}
 
 <a class="wa-fab" href="https://wa.me/201050595250" target="_blank">💬</a>
 
+<script src="cart.js"></script>
 <script>
 var BACKEND = 'https://misrsteel-backend.vercel.app';
 var USD_EGP = parseFloat(localStorage.getItem('ms_rate') || '51');
@@ -527,6 +533,5 @@ function toast(msg, type) {
 // ── INIT ──
 loadProduct();
 </script>
-<script src="cart.js"></script>
 </body>
 </html>
