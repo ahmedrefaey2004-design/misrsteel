@@ -183,14 +183,6 @@ function buildFooter(){
 }
 
 
-
-function registerServiceWorker(){
-  if (!('serviceWorker' in navigator)) return;
-  window.addEventListener('load', function(){
-    navigator.serviceWorker.register('/sw.js').catch(function(){});
-  });
-}
-
 function initFirebase(){
   if (!window.firebase || !window.firebaseConfig) return;
   if (window.__msFirebaseInit) return;
@@ -211,7 +203,6 @@ document.addEventListener('DOMContentLoaded', function(){
     document.documentElement.dir = 'ltr';
   }
   initFirebase();
-  registerServiceWorker();
   Cart.load();
   fetchRate();
   setInterval(fetchRate, 30 * 60 * 1000);
