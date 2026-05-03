@@ -183,6 +183,7 @@ var mpAllProds = [];
 var mpPage = 0;
 var mpPageSize = 15;
 var mpLoading = false;
+var mpScrollObserver = null;
 
 function renderGrid(prods) {
   mpAllProds = prods;
@@ -203,12 +204,10 @@ function mpLoadMore() {
   var grid = document.getElementById('mpGrid');
   
   batch.forEach(function(p) {
-    var card = document.createElement('div');
+    var card = document.createElement('a');
     card.className = 'mp-card';
     card.style.cursor = 'pointer';
-    card.addEventListener('click', function(e) {
-      if (!e.target.closest('button')) window.location = 'product.html?id=' + p.id;
-    });
+    card.href = 'product.html?id=' + encodeURIComponent(String(p.id || ''));
 
     var img = p.imgs && p.imgs[0] ? p.imgs[0] : '';
     var imgSrc = img && !img.startsWith('data:') ? (img.startsWith('http') ? img : 'https://misrsteel.vercel.app/' + img) : '';
@@ -236,13 +235,15 @@ function mpLoadMore() {
     
     // Add button events
     card.querySelector('.btn-mp').addEventListener('click', function(e) {
+      e.preventDefault();
       e.stopPropagation();
       Cart.add(p, 1, '', '', p.price);
       // Show mini cart count update
     });
     card.querySelector('.btn-mp-wa').addEventListener('click', function(e) {
+      e.preventDefault();
       e.stopPropagation();
-      waProduct(p.id);
+      waProduct(p);
     });
     
     grid.appendChild(card);
@@ -260,10 +261,11 @@ function mpSetupScroll() {
     s.style.height = '20px';
     document.getElementById('mpGrid').after(s);
   }
-  var obs = new IntersectionObserver(function(e) {
+  if (mpScrollObserver) mpScrollObserver.disconnect();
+  mpScrollObserver = new IntersectionObserver(function(e) {
     if (e[0].isIntersecting && !mpLoading) mpLoadMore();
   }, {threshold:0.1});
-  obs.observe(s);
+  mpScrollObserver.observe(s);
 }
 
 function applyFilters() {
