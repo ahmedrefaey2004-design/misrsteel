@@ -183,6 +183,7 @@ var mpAllProds = [];
 var mpPage = 0;
 var mpPageSize = 15;
 var mpLoading = false;
+var mpScrollObserver = null;
 
 function renderGrid(prods) {
   mpAllProds = prods;
@@ -260,10 +261,11 @@ function mpSetupScroll() {
     s.style.height = '20px';
     document.getElementById('mpGrid').after(s);
   }
-  var obs = new IntersectionObserver(function(e) {
+  if (mpScrollObserver) mpScrollObserver.disconnect();
+  mpScrollObserver = new IntersectionObserver(function(e) {
     if (e[0].isIntersecting && !mpLoading) mpLoadMore();
   }, {threshold:0.1});
-  obs.observe(s);
+  mpScrollObserver.observe(s);
 }
 
 function applyFilters() {
