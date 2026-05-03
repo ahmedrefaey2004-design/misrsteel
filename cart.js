@@ -21,7 +21,7 @@ Object.assign(Cart, {
     var price = tierPrice || product.price || 0;
     // Check if same product+colors already in cart
     var existing = items.find(function(i) {
-      return i.id === product.id && i.frameColor === (frameColor||'') && i.fabricColor === (fabricColor||'');
+      return String(i.id) === String(product.id) && i.frameColor === (frameColor||'') && i.fabricColor === (fabricColor||'');
     });
     if (existing) {
       existing.qty += qty;
