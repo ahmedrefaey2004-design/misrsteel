@@ -743,6 +743,7 @@ function renderStageImgPreviews() {
 function openStageModal(id) {
   activeOrderId = id;
   var o = DB.orders.find(function(x){return x.id===id});
+  if (!o) return;
   document.getElementById('m-stage-title').textContent = o.product + ' — تحديث المرحلة';
   document.getElementById('s-stage').value = o.stage;
   ['s-qty','s-cost','s-worker','s-hours','s-note'].forEach(function(i){document.getElementById(i).value='';});
