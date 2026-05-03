@@ -632,9 +632,9 @@ async function processPayment(){
     var total = Cart.getTotal();
     var affiliateCode = resolveAffiliateCode();
     var payload = {
-      customerName: 'عميل من المتجر',
-      customerPhone: '',
-      customerCountry: 'EG',
+      customerName: document.getElementById('ci_name').value,
+      customerPhone: document.getElementById('ci_wa').value,
+      customerCountry: document.getElementById('ci_country').value,
       items: Cart.items.map(function(i){
         return { id: i.id, nameAr: i.nameAr || i.name || 'منتج', qty: i.qty || 1, priceUSD: i.price || 0 };
       }),

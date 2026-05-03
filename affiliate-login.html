@@ -391,7 +391,7 @@ function handleExcel(input) {
   var reader = new FileReader();
   reader.onload = function(e) {
     try {
-      var wb = XLSX.read(e.target.result, {type:'binary'});
+      var wb = XLSX.read(new Uint8Array(e.target.result), {type:'array'});
       var ws = wb.Sheets[wb.SheetNames[0]];
       var data = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
       var rows = data.slice(3); // skip title + header + instructions
@@ -437,7 +437,7 @@ function handleExcel(input) {
       document.getElementById('xlsxStatus').textContent = '❌ خطأ في قراءة الملف';
     }
   };
-  reader.readAsBinaryString(file);
+  reader.readAsArrayBuffer(file);
 }
 
 function cancelPreview() {

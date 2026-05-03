@@ -101,7 +101,7 @@ var Cart = {
       ex.qty = (parseInt(ex.qty, 10) || 0) + nextItem.qty;
       if(!ex.nameAr) ex.nameAr = ex.name || nextItem.nameAr;
       if(!ex.name) ex.name = ex.nameAr || nextItem.name;
-      if(!ex.price && nextItem.price) ex.price = nextItem.price;
+      if((ex.price === undefined || ex.price === null || ex.price === 0) && nextItem.price) ex.price = nextItem.price;
       if(!ex.img && nextItem.img) ex.img = nextItem.img;
     } else {
       this.items.push(nextItem);
