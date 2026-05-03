@@ -554,7 +554,7 @@ async function loadProductsFromApi(){
 
 function changeShopQty(id, delta){
   var inp = document.getElementById('shopQty'+id);
-  var p = PRODUCTS.find(function(x){ return x.id===id; });
+  var p = PRODUCTS.find(function(x){ return String(x.id)===String(id); });
   var val = parseInt(inp.value)||p.minQty;
   val = Math.max(p.minQty, val + delta);
   inp.value = val;
@@ -569,7 +569,7 @@ function clampQty(id, min, step){
 }
 
 function addToCartFromShop(id){
-  var p = PRODUCTS.find(function(x){ return x.id===id; });
+  var p = PRODUCTS.find(function(x){ return String(x.id)===String(id); });
   var qty = parseInt(document.getElementById('shopQty'+id).value)||p.minQty;
   Cart.add(p, qty);
   updateCheckoutSummary();
