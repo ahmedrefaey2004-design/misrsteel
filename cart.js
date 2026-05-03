@@ -21,7 +21,7 @@ Object.assign(Cart, {
     var price = tierPrice || product.price || 0;
     // Check if same product+colors already in cart
     var existing = items.find(function(i) {
-      return i.id === product.id && i.frameColor === (frameColor||'') && i.fabricColor === (fabricColor||'');
+      return String(i.id) === String(product.id) && i.frameColor === (frameColor||'') && i.fabricColor === (fabricColor||'');
     });
     if (existing) {
       existing.qty += qty;
@@ -101,7 +101,7 @@ Object.assign(Cart, {
   buildWAMessage: function(customerName, customerPhone, customerCountry, notes) {
     var items = Cart.get();
     if (!items.length) return '';
-    var USD_EGP = parseFloat(localStorage.getItem((window.STORAGE_KEYS && window.STORAGE_KEYS.rate) || 'ms_rate') || '51');
+    var USD_EGP = parseFloat(localStorage.getItem((window.STORAGE_KEYS && window.STORAGE_KEYS.rate) || 'ms_rate') || '50.85');
     var msg = '🛒 طلب جديد من مصر ستيل\n\n';
     msg += '👤 الاسم: ' + customerName + '\n';
     msg += '📱 الواتساب: ' + customerPhone + '\n';
