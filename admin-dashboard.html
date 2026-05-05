@@ -783,6 +783,7 @@ async function api(method, path, body) {
   if (!r.ok) throw new Error(d.error || d.message || 'خطأ في الاتصال');
   return d;
 }
+var api = window.__msAdminApi;
 
 
 
