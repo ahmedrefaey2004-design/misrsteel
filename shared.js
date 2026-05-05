@@ -1,9 +1,6 @@
 /* MISR STEEL — shared.js v2 */
 
-var STORAGE_KEYS = window.STORAGE_KEYS || { cart:'ms_cart', lang:'ms_lang', rate:'ms_rate', affiliateRef:'ms_aff_ref', checkoutCart:'ms_checkout_cart', affiliateSession:'aff_session' };
-window.STORAGE_KEYS = STORAGE_KEYS;
-
-var USD_EGP = parseFloat(localStorage.getItem(STORAGE_KEYS.rate) || '50.85');
+var USD_EGP = parseFloat(localStorage.getItem('ms_rate') || '50.85');
 
 function fetchRate(){
   fetch('https://api.exchangerate-api.com/v4/latest/USD')
@@ -11,7 +8,7 @@ function fetchRate(){
     .then(function(d){
       if(d.rates && d.rates.EGP){
         USD_EGP = parseFloat(d.rates.EGP.toFixed(2));
-        localStorage.setItem(STORAGE_KEYS.rate, USD_EGP);
+        localStorage.setItem('ms_rate', USD_EGP);
         document.querySelectorAll('.rate-display').forEach(function(el){ el.textContent = USD_EGP.toFixed(2); });
         document.querySelectorAll('[data-usd]').forEach(function(el){
           var usd = parseFloat(el.getAttribute('data-usd'));
@@ -26,7 +23,7 @@ function fetchRate(){
 function toggleLang(){
   document.body.classList.toggle('en');
   document.documentElement.dir = document.body.classList.contains('en') ? 'ltr' : 'rtl';
-  localStorage.setItem(STORAGE_KEYS.lang, document.body.classList.contains('en') ? 'en' : 'ar');
+  localStorage.setItem('ms_lang', document.body.classList.contains('en') ? 'en' : 'ar');
 }
 
 function showToast(msg, type){
@@ -39,11 +36,11 @@ function showToast(msg, type){
   t._t = setTimeout(function(){ t.classList.remove('show'); }, 2800);
 }
 
-var Cart = {
+if (!window.Cart) { var Cart = {
   items: [],
 
   load: function(){
-    var raw = localStorage.getItem(STORAGE_KEYS.cart);
+    var raw = localStorage.getItem('ms_cart');
     if(!raw){
       this.items = [];
       this.updateBadge();
@@ -62,7 +59,7 @@ var Cart = {
   },
 
   save: function(){
-    localStorage.setItem(STORAGE_KEYS.cart, JSON.stringify(this.items));
+    localStorage.setItem('ms_cart', JSON.stringify(this.items));
     this.updateBadge();
     return this.items;
   },
@@ -128,7 +125,7 @@ var Cart = {
       b.style.display = n > 0 ? 'flex' : 'none';
     });
   }
-};
+}; }
 
 function buildNav(active){
   function isActive(page){ return active === page ? ' style="color:var(--orange);font-weight:700"' : ''; }
@@ -140,8 +137,8 @@ function buildNav(active){
           '<a href="shop.html"' + isActive('shop') + '>المتجر</a>' +
           '<a href="contracts.html"' + isActive('contracts') + '>العقود</a>' +
           '<button onclick="toggleLang()" style="border:1px solid #ddd;background:#fff;border-radius:8px;padding:6px 10px;cursor:pointer">AR/EN</button>' +
-          '<a href="shop.html#checkout" style="position:relative;text-decoration:none;background:var(--orange);color:#fff;border:1px solid var(--orange);border-radius:8px;padding:6px 12px;font-weight:700;display:inline-flex;align-items:center;gap:6px">' +
-            '🛒 السلة <span class="cart-badge" style="display:none;position:absolute;top:-8px;right:-8px;min-width:18px;height:18px;border-radius:999px;background:#fff;color:#ff6a00;font-size:11px;font-weight:800;align-items:center;justify-content:center;padding:0 4px">0</span>' +
+          '<a href="shop.html#checkout" style="position:relative;text-decoration:none;border:1px solid #ddd;border-radius:8px;padding:6px 10px">' +
+            '🛒 <span class="cart-badge" style="display:none;position:absolute;top:-8px;right:-8px;min-width:18px;height:18px;border-radius:999px;background:#ff6a00;color:#fff;font-size:11px;align-items:center;justify-content:center;padding:0 4px">0</span>' +
           '</a>' +
         '</nav>' +
       '</div>' +
@@ -149,31 +146,19 @@ function buildNav(active){
 }
 
 function buildCartDrawer(){
-  var itemsHtml = '';
-  if (Cart && Array.isArray(Cart.items) && Cart.items.length) {
-    itemsHtml = Cart.items.map(function(i){
-      var qty = parseInt(i.qty, 10) || 1;
-      var price = Number(i.price) || 0;
-      var line = (price * qty).toLocaleString();
-      return '<div style="display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid #eee"><span style="font-size:13px;color:#222">'+(i.nameAr || i.name || 'منتج')+' × '+qty+'</span><strong style="font-size:13px">$'+line+'</strong></div>';
-    }).join('');
-  } else {
-    itemsHtml = '<div style="color:#666;font-size:13px">السلة فارغة حالياً.</div>';
-  }
-
-  return '' +
-    '<aside id="cartDrawer" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1300">' +
-      '<div style="margin-inline-start:auto;width:min(420px,92vw);height:100%;background:#fff;padding:16px;overflow:auto">' +
-        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">' +
-          '<strong>السلة</strong>' +
-          '<button onclick="document.getElementById(\'cartDrawer\').style.display=\'none\'">✕</button>' +
-        '</div>' +
-        '<div id="drawerItems">'+itemsHtml+'</div>' +
-        '<a href="cart.html" style="display:inline-block;margin-top:12px;background:var(--orange);color:#fff;padding:8px 12px;border-radius:8px">الذهاب للسلة</a>' +
+  return '<div id="cartDrawer" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:800" onclick="if(event.target===this)this.style.display=\'none\'">' +
+    '<div style="position:absolute;top:0;right:0;width:340px;height:100%;background:#fff;box-shadow:-4px 0 20px rgba(0,0,0,.15);display:flex;flex-direction:column">' +
+      '<div style="padding:16px 18px;background:var(--black);display:flex;align-items:center;justify-content:space-between">' +
+        '<span style="color:#fff;font-weight:800;font-size:15px">🛒 السلة</span>' +
+        '<button onclick="document.getElementById(\'cartDrawer\').style.display=\'none\'" style="background:none;border:none;color:rgba(255,255,255,.6);font-size:20px;cursor:pointer">✕</button>' +
       '</div>' +
-    '</aside>';
+      '<div id="cartDrawerItems" style="flex:1;overflow-y:auto;padding:12px"></div>' +
+      '<div style="padding:14px 18px;border-top:1px solid var(--border)">' +
+        '<a href="cart.html" style="display:block;width:100%;padding:13px;background:var(--orange);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:800;text-align:center;text-decoration:none">إكمال الطلب →</a>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
 }
-
 
 function buildFooter(){
   return '' +
@@ -182,28 +167,14 @@ function buildFooter(){
     '</footer>';
 }
 
-
-function initFirebase(){
-  if (!window.firebase || !window.firebaseConfig) return;
-  if (window.__msFirebaseInit) return;
-  try {
-    if (typeof window.firebase.initializeApp === 'function') {
-      window.firebase.initializeApp(window.firebaseConfig);
-      window.__msFirebaseInit = true;
-    }
-  } catch (_e) {
-    // ignore duplicate init / unavailable SDK methods
-  }
-}
-
 document.addEventListener('DOMContentLoaded', function(){
-  var saved = localStorage.getItem(STORAGE_KEYS.lang);
+  var saved = localStorage.getItem('ms_lang');
   if(saved === 'en'){
     document.body.classList.add('en');
     document.documentElement.dir = 'ltr';
   }
-  initFirebase();
-  Cart.load();
+  if (typeof Cart.load === 'function') Cart.load();
+  else if (typeof Cart.updateBadge === 'function') Cart.updateBadge();
   fetchRate();
   setInterval(fetchRate, 30 * 60 * 1000);
 });
