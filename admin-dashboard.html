@@ -764,6 +764,16 @@ var ADMIN_TOKEN = localStorage.getItem('ms_admin_token') || 'misrsteel_admin_202
 var allOrders=[], allProducts=[], allAffiliates=[];
 var currentOrderId=null, editProdId=null, editSecId=null, editBannerId=null;
 var prodImgs=[], secImg=null, bannerImg=null;
+// ── API HELPER ─────────────────────────────────────────
+async function api(method, path, body) {
+  var opts = { method: method, headers: { 'Content-Type': 'application/json', 'x-admin-token': ADMIN_TOKEN } };
+  if (body) opts.body = JSON.stringify(body);
+  var r = await fetch(API + path, opts);
+  var d = await r.json();
+  if (!r.ok) throw new Error(d.error || d.message || 'خطأ في الاتصال');
+  return d;
+}
+
 
 // ── Image Compressor ────────────────────────────────
 function compressImage(base64, maxKB, callback) {
@@ -806,6 +816,22 @@ function compressImage(base64, maxKB, callback) {
     callback(result);
   };
   img.src = base64;
+}
+
+// ── API HELPER ────────────────────────────────────────
+async function api(method, path, body) {
+  var opts = {
+    method: method,
+    headers: {
+      'Content-Type': 'application/json',
+      'x-admin-token': ADMIN_TOKEN,
+    },
+  };
+  if (body) opts.body = JSON.stringify(body);
+  var r = await fetch(API + path, opts);
+  var d = await r.json();
+  if (!r.ok) throw new Error(d.error || d.message || 'خطأ في الاتصال');
+  return d;
 }
 
 // ── API HELPER ────────────────────────────────────────
