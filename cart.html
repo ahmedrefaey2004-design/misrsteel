@@ -16,8 +16,6 @@ body{font-family:'Cairo',sans-serif;background:var(--bg);direction:rtl;min-heigh
 .nav-links a:hover{color:var(--orange)}
 .page{max-width:900px;margin:0 auto;padding:20px}
 h1{font-size:20px;font-weight:800;margin-bottom:20px}
-
-/* CART ITEMS */
 .cart-empty{text-align:center;padding:60px 20px;color:var(--muted)}
 .cart-empty-icon{font-size:64px;margin-bottom:16px}
 .cart-item{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;display:flex;gap:14px;align-items:flex-start}
@@ -32,16 +30,12 @@ h1{font-size:20px;font-weight:800;margin-bottom:20px}
 .qty-input{width:50px;height:28px;border:1.5px solid var(--border);border-radius:6px;text-align:center;font-size:13px;font-weight:700;font-family:inherit}
 .ci-remove{color:#cc0000;font-size:12px;cursor:pointer;border:none;background:none;font-family:inherit;margin-right:auto}
 .ci-total{font-size:13px;font-weight:800;color:var(--black)}
-
-/* SUMMARY */
 .summary-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px}
 .summary-card h3{font-size:14px;font-weight:800;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--orange)}
 .summary-row{display:flex;justify-content:space-between;padding:6px 0;font-size:13px}
 .summary-row.total{font-size:16px;font-weight:800;color:var(--orange);border-top:1px solid var(--border);margin-top:6px;padding-top:10px}
 .payment-terms{background:var(--orange-lt);border-radius:8px;padding:12px;margin-top:12px;font-size:12px}
 .payment-terms .pt-row{display:flex;justify-content:space-between;padding:3px 0}
-
-/* ORDER FORM */
 .order-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px}
 .order-card h3{font-size:14px;font-weight:800;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--orange)}
 .fg{margin-bottom:12px}
@@ -49,25 +43,18 @@ h1{font-size:20px;font-weight:800;margin-bottom:20px}
 .fg input,.fg select,.fg textarea{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none}
 .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--orange)}
 .fg-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-
-/* BUTTONS */
 .action-btns{display:flex;flex-direction:column;gap:10px}
 .btn-submit{width:100%;padding:15px;background:var(--orange);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;transition:.2s}
 .btn-submit:hover{background:var(--orange-dk)}
 .btn-submit:disabled{opacity:.5;cursor:not-allowed}
 .btn-wa{width:100%;padding:14px;background:#25D366;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px}
 .btn-clear{width:100%;padding:10px;background:#f5f5f5;color:#888;border:1px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit}
-
-/* SUCCESS */
 .success-card{display:none;background:#e8f5ec;border:2px solid var(--green);border-radius:12px;padding:24px;text-align:center;margin-bottom:16px}
 .success-card h2{color:var(--green);font-size:20px;margin-bottom:8px}
-
-/* TOAST */
 .toast{position:fixed;top:65px;left:50%;transform:translateX(-50%) translateY(-20px);background:#111;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:.3s;pointer-events:none;white-space:nowrap}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 .toast.success{background:var(--green)}
 .toast.error{background:#cc0000}
-
 @media(max-width:600px){
   .cart-item{flex-wrap:wrap}
   .fg-2{grid-template-columns:1fr}
@@ -88,7 +75,6 @@ h1{font-size:20px;font-weight:800;margin-bottom:20px}
 <div class="page">
   <h1>🛒 سلة الطلبات</h1>
 
-  <!-- Success Message -->
   <div class="success-card" id="successCard">
     <div style="font-size:48px;margin-bottom:8px">✅</div>
     <h2>تم إرسال طلبك!</h2>
@@ -97,12 +83,8 @@ h1{font-size:20px;font-weight:800;margin-bottom:20px}
   </div>
 
   <div id="cartContent">
-    <!-- Cart Items -->
     <div id="cartItems"></div>
-
-    <!-- Order Form + Summary -->
     <div id="orderSection" style="display:none">
-      <!-- Summary -->
       <div class="summary-card">
         <h3>📋 ملخص الطلب</h3>
         <div id="summaryItems"></div>
@@ -117,7 +99,6 @@ h1{font-size:20px;font-weight:800;margin-bottom:20px}
         </div>
       </div>
 
-      <!-- Customer Info -->
       <div class="order-card">
         <h3>👤 بياناتك</h3>
         <div class="fg-2">
@@ -139,7 +120,6 @@ h1{font-size:20px;font-weight:800;margin-bottom:20px}
         <div class="fg"><label>ملاحظات (اختياري)</label><textarea id="of-notes" rows="2" placeholder="أي تفاصيل إضافية..."></textarea></div>
       </div>
 
-      <!-- Action Buttons -->
       <div class="action-btns">
         <button class="btn-submit" id="submitBtn" onclick="submitOrder()">✅ تأكيد الطلب وإرساله</button>
         <button class="btn-wa" onclick="sendWhatsApp()">💬 إرسال عبر واتساب مباشرة</button>
@@ -150,10 +130,9 @@ h1{font-size:20px;font-weight:800;margin-bottom:20px}
 </div>
 
 <script src="cart.js"></script>
-
 <script>
 var BACKEND = 'https://misrsteel-backend.vercel.app';
-var USD_EGP = parseFloat(localStorage.getItem('ms_rate') || '51');
+var USD_EGP = parseFloat(localStorage.getItem('ms_rate') || '50.85');
 
 function renderCart() {
   var items = Cart.get();
@@ -166,7 +145,6 @@ function renderCart() {
     return;
   }
 
-  // Render items
   cartDiv.innerHTML = items.map(function(item, idx) {
     var imgSrc = item.img ? (item.img.startsWith('http') || item.img.startsWith('data:') ? item.img : 'https://misrsteel.vercel.app/' + item.img) : '';
     var egp = Math.round(item.total * USD_EGP).toLocaleString();
@@ -186,7 +164,6 @@ function renderCart() {
       '</div></div>';
   }).join('');
 
-  // Render summary
   var total = Cart.total();
   var deposit = Math.round(total * 0.75);
   var rem = total - deposit;
@@ -226,7 +203,7 @@ function clearCart() {
 function getFormData() {
   var name  = document.getElementById('of-name').value.trim();
   var phone = document.getElementById('of-phone').value.trim();
-  if (!name || !phone) { toast('أدخل الاسم ورقم واتساب', 'error'); return null; }
+  if (!name || !phone) { toast('أدخل الاسم ورقم الواتساب', 'error'); return null; }
   return {
     name, phone,
     country: document.getElementById('of-country').value,
@@ -249,14 +226,11 @@ async function submitOrder() {
   btn.disabled = true;
   btn.textContent = '⏳ جاري الإرسال...';
 
-  // Save to DB
   var result = await Cart.submitOrder(form.name, form.phone, form.country, form.notes, '');
   
   if (result.success) {
-    // Also send WhatsApp
     var msg = Cart.buildWAMessage(form.name, form.phone, form.country, form.notes);
     window.open('https://wa.me/201050595250?text=' + encodeURIComponent(msg), '_blank');
-    
     Cart.clear();
     document.getElementById('cartContent').style.display = 'none';
     document.getElementById('successCard').style.display = 'block';
@@ -271,23 +245,14 @@ function sendWhatsApp() {
   var form = getFormData();
   if (!form) return;
   var msg = Cart.buildWAMessage(form.name, form.phone, form.country, form.notes);
-  // Save to DB too
   Cart.submitOrder(form.name, form.phone, form.country, form.notes, '');
   window.open('https://wa.me/201050595250?text=' + encodeURIComponent(msg), '_blank');
 }
 
-// Get live rate
-(async function(){
-  if (Cart && typeof Cart.load === 'function') {
-    await Promise.resolve(Cart.load());
-  }
-  try{
-    var r = await fetch(BACKEND + '/api/settings/public');
-    var d = await r.json();
-    if(d.usdRate){ USD_EGP = d.usdRate; localStorage.setItem('ms_rate', USD_EGP); }
-  }catch(_e){}
+fetch(BACKEND + '/api/settings/public').then(function(r){return r.json();}).then(function(d){
+  if(d.usdRate){ USD_EGP = d.usdRate; localStorage.setItem('ms_rate', USD_EGP); }
   renderCart();
-})();
+}).catch(function(){ renderCart(); });
 </script>
 </body>
 </html>
