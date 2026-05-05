@@ -774,16 +774,14 @@ function toggleMobileNav(forceClose) {
   if (forceClose) { side.classList.remove('show-mobile'); return; }
   side.classList.toggle('show-mobile');
 }
-// ── API HELPER (single global binding to avoid accidental duplicates) ───────
-if (!window.__msAdminApi) {
-  window.__msAdminApi = async function(method, path, body) {
-    var opts = { method: method, headers: { 'Content-Type': 'application/json', 'x-admin-token': ADMIN_TOKEN } };
-    if (body) opts.body = JSON.stringify(body);
-    var r = await fetch(API + path, opts);
-    var d = await r.json();
-    if (!r.ok) throw new Error(d.error || d.message || 'خطأ في الاتصال');
-    return d;
-  };
+// ── API HELPER ─────────────────────────────────────────
+async function api(method, path, body) {
+  var opts = { method: method, headers: { 'Content-Type': 'application/json', 'x-admin-token': ADMIN_TOKEN } };
+  if (body) opts.body = JSON.stringify(body);
+  var r = await fetch(API + path, opts);
+  var d = await r.json();
+  if (!r.ok) throw new Error(d.error || d.message || 'خطأ في الاتصال');
+  return d;
 }
 var api = window.__msAdminApi;
 
