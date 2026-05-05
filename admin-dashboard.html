@@ -125,8 +125,16 @@ tr:hover td{background:#fafafa}
 
 @media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar{display:none}.kpi-grid{grid-template-columns:repeat(2,1fr)}.quick-grid{grid-template-columns:repeat(2,1fr)}.sections-grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}}
 
-..modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:400;display:none;align-items:center;justify-content:center;padding:16px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:400;display:none;align-items:center;justify-content:center;padding:16px}
 .modal-overlay.open{display:flex}
+.panel-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:18px}
+.panel-header h2{font-size:18px;font-weight:800}
+.modal-header{background:var(--black);padding:14px 18px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.modal-header h3{color:#fff;font-size:14px;font-weight:700}
+.modal-close{background:none;border:none;color:rgba(255,255,255,.5);font-size:22px;cursor:pointer}
+.modal-body{padding:20px;overflow-y:auto}
+.modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0}
+.fg-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
 </style>
 </head>
 <body>
@@ -396,7 +404,7 @@ tr:hover td{background:#fafafa}
               <option value="restaurant">🍽️ مطعم</option>
             </select>
             <button class="btn btn-gray btn-sm" onclick="toggleSelectAll()">☑️ تحديد الكل</button>
-            <button class="btn btn-red btn-sm" id="bulkDeleteBtn" onclick="bulkDelete()" style="display:none">🗑️ حذف المحدد</button>
+            <button class="btn btn-red btn-sm" id="bulkDeleteBtn2" onclick="bulkDelete()" style="display:none">🗑️ حذف المحدد</button>
           </div>
         </div>
         <div id="prodsTable"><div class="loading"><div class="sp"></div>جاري التحميل...</div></div>
@@ -465,6 +473,7 @@ tr:hover td{background:#fafafa}
     <h2>🤝 المسوّقون</h2>
     <button class="btn btn-orange" onclick="openAddAffiliate()">+ إضافة مسوق</button>
   </div>
+  <div id="affs-count" style="display:none"></div>
   <!-- Tabs -->
   <div style="display:flex;gap:8px;padding:0 16px 12px;border-bottom:1px solid var(--border);margin-bottom:12px">
     <button class="btn btn-orange" id="aff-tab-active" onclick="showAffTab('active')" style="font-size:12px;padding:6px 14px">✅ المسوقون النشطون</button>
