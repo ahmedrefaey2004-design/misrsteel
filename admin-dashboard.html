@@ -316,6 +316,9 @@ tr:hover td{background:#fafafa}
     <div class="nav-item" onclick="go('ai_users',this)">🤖 مستخدمو AI</div>
     <div class="nav-item" onclick="go('partners',this)">🤝 الشركاء والـ API</div>
     <div class="nav-item" onclick="localStorage.setItem('ms_admin_token',ADMIN_TOKEN);window.open('factory.html','_blank')" style="color:var(--orange)">🏭 نظام ERP المصنع</div>
+      <div class="nav-section-title" style="font-size:9px;color:#444;padding:8px 14px 4px;text-transform:uppercase;letter-spacing:1px">المصنع</div>
+      <div class="nav-item" onclick="go('employees',this)">👷 الموظفون</div>
+      <div class="nav-item" onclick="go('attendance',this)">🕐 الحضور والانصراف</div>
     <div class="nav-item" onclick="go('portfolio',null)">🏆 معرض الأعمال</div>
     <div class="nav-section">الإعدادات</div>
     <div class="nav-item" onclick="go('settings',this)">⚙️ الإعدادات</div>
@@ -647,7 +650,60 @@ tr:hover td{background:#fafafa}
     </div>
 
     <!-- SETTINGS -->
-    <div class="panel" id="panel-settings">
+    
+    <!-- EMPLOYEES PANEL -->
+    <div class="panel" id="panel-employees">
+      <div class="panel-header">
+        <h2>👷 إدارة الموظفين</h2>
+        <button class="btn btn-orange" onclick="openAddEmployee()">+ إضافة موظف</button>
+      </div>
+      <div class="table-wrap">
+        <div id="empTable"><div style="padding:20px;text-align:center;color:var(--muted)">⏳ جاري التحميل...</div></div>
+      </div>
+    </div>
+
+    <!-- ATTENDANCE PANEL -->
+    <div class="panel" id="panel-attendance">
+      <div class="panel-header">
+        <h2>🕐 الحضور والانصراف</h2>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="date" id="attDateFilter" onchange="loadAttendance()" style="padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:12px">
+          <button class="btn btn-gray btn-sm" onclick="syncBridge()">🔄 مزامنة البصمة</button>
+          <div id="bridgeStatus" style="font-size:11px;color:var(--muted)">-</div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <div id="attTable"><div style="padding:20px;text-align:center;color:var(--muted)">⏳ جاري التحميل...</div></div>
+      </div>
+    </div>
+
+    <!-- EMPLOYEE MODAL -->
+    <div class="modal-overlay" id="empModal">
+      <div class="modal-box" style="max-width:480px">
+        <div class="modal-header">
+          <h3 id="empModalTitle">إضافة موظف</h3>
+          <button class="modal-close" onclick="closeEmpModal()">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="fg-grid">
+            <div class="fg full"><label>الاسم *</label><input type="text" id="emp_name" placeholder="أحمد محمد"></div>
+            <div class="fg"><label>المسمى الوظيفي</label><input type="text" id="emp_position" placeholder="نجار / حداد..."></div>
+            <div class="fg"><label>القسم</label><input type="text" id="emp_dept" placeholder="الإنتاج / التشطيب..."></div>
+            <div class="fg"><label>رقم في البصمة</label><input type="number" id="emp_deviceId" placeholder="1"></div>
+            <div class="fg"><label>الراتب (ج.م)</label><input type="number" id="emp_salary" placeholder="3000"></div>
+            <div class="fg"><label>رقم الواتساب</label><input type="tel" id="emp_phone" placeholder="+201..."></div>
+            <div class="fg full"><label>ملاحظات</label><input type="text" id="emp_notes" placeholder="..."></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-gray" onclick="closeEmpModal()">إلغاء</button>
+          <button class="btn btn-red" id="deleteEmpBtn" onclick="deleteEmpFromModal()" style="display:none">🗑️ حذف</button>
+          <button class="btn btn-orange" onclick="saveEmployee()">💾 حفظ</button>
+        </div>
+      </div>
+    </div>
+
+<div class="panel" id="panel-settings">
       <div class="panel-title"><span>⚙️ الإعدادات</span></div>
       <div class="settings-card">
         <h3>💵 سعر الدولار</h3>
@@ -748,7 +804,7 @@ function go(key, el) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('panel-' + key).classList.add('show');
   if (el) el.classList.add('active');
-  var map = { overview:loadOverview, products:loadProducts, sections:loadSections, banners:loadBanners, orders:loadOrders, customers:loadCustomers, affiliates:loadAffiliates, inquiries:loadInquiries, ai_users:loadAIUsers, settings:loadSettings, reports:loadReports, partners:loadPartners, portfolio:loadPortfolio };
+  var map = { overview:loadOverview, products:loadProducts, sections:loadSections, banners:loadBanners, orders:loadOrders, customers:loadCustomers, affiliates:loadAffiliates, inquiries:loadInquiries, ai_users:loadAIUsers, settings:loadSettings, reports:loadReports, partners:loadPartners, portfolio:loadPortfolio, employees:loadEmployees, attendance:loadAttendance };
   if (map[key]) map[key]();
 }
 function loadAll() { checkAPI(); loadOverview(); }
@@ -1854,6 +1910,160 @@ function calcMyProfit() {
   if (el) {
     el.textContent = total > 0 ? '$' + total.toFixed(2) : total < 0 ? '⚠️ أقل من السعر' : '0';
     el.style.color = total > 0 ? 'var(--orange)' : total < 0 ? '#cc0000' : '#888';
+  }
+}
+
+// ── EMPLOYEES ──────────────────────────────────────────
+var editEmpId = null;
+
+async function loadEmployees() {
+  try {
+    var d = await api('GET', '/api/admin/employees');
+    var emps = d.employees || [];
+    var el = document.getElementById('empTable');
+    if (!emps.length) {
+      el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted)">لا يوجد موظفون — اضغط + لإضافة</div>';
+      return;
+    }
+    var html = '<table><tr><th>#</th><th>الاسم</th><th>المسمى</th><th>القسم</th><th>رقم البصمة</th><th>الراتب</th><th>إجراء</th></tr>';
+    emps.forEach(function(e) {
+      html += '<tr>' +
+        '<td>' + e.id + '</td>' +
+        '<td><strong>' + (e.name||'-') + '</strong></td>' +
+        '<td>' + (e.position||'-') + '</td>' +
+        '<td>' + (e.department||'-') + '</td>' +
+        '<td><span style="background:var(--orange-lt);color:var(--orange);padding:2px 8px;border-radius:8px;font-weight:700">' + (e.deviceId||'-') + '</span></td>' +
+        '<td>' + (e.salary ? e.salary.toLocaleString() + ' ج.م' : '-') + '</td>' +
+        '<td>' +
+          '<button class="btn btn-gray btn-sm" data-id="' + e.id + '" onclick="editEmpById(this.dataset.id)">✏️</button> ' +
+          '<a class="btn btn-gray btn-sm" href="employee.html?id=' + e.id + '" target="_blank">👤</a>' +
+        '</td></tr>';
+    });
+    html += '</table>';
+    el.innerHTML = html;
+  } catch(e) {
+    document.getElementById('empTable').innerHTML = '<div style="padding:20px;color:var(--red)">❌ ' + e.message + '</div>';
+  }
+}
+
+async function editEmpById(id) {
+  var d = await api('GET', '/api/admin/employees');
+  var emp = (d.employees||[]).find(function(e){ return e.id == id; });
+  if (emp) editEmployee(emp);
+}
+
+function openAddEmployee() {
+  editEmpId = null;
+  document.getElementById('empModalTitle').textContent = '➕ إضافة موظف جديد';
+  ['emp_name','emp_position','emp_dept','emp_phone','emp_notes'].forEach(function(id){ document.getElementById(id).value = ''; });
+  document.getElementById('emp_deviceId').value = '';
+  document.getElementById('emp_salary').value = '';
+  document.getElementById('deleteEmpBtn').style.display = 'none';
+  document.getElementById('empModal').classList.add('open');
+}
+
+function editEmployee(e) {
+  editEmpId = e.id;
+  document.getElementById('empModalTitle').textContent = '✏️ تعديل موظف';
+  document.getElementById('emp_name').value = e.name || '';
+  document.getElementById('emp_position').value = e.position || '';
+  document.getElementById('emp_dept').value = e.department || '';
+  document.getElementById('emp_deviceId').value = e.deviceId || '';
+  document.getElementById('emp_salary').value = e.salary || '';
+  document.getElementById('emp_phone').value = e.phone || '';
+  document.getElementById('emp_notes').value = e.notes || '';
+  document.getElementById('deleteEmpBtn').style.display = 'inline-flex';
+  document.getElementById('empModal').classList.add('open');
+}
+
+async function saveEmployee() {
+  var name = document.getElementById('emp_name').value.trim();
+  if (!name) { toast('أدخل اسم الموظف', 'error'); return; }
+  var body = {
+    name,
+    position: document.getElementById('emp_position').value.trim(),
+    department: document.getElementById('emp_dept').value.trim(),
+    deviceId: document.getElementById('emp_deviceId').value.trim(),
+    salary: parseFloat(document.getElementById('emp_salary').value) || 0,
+    phone: document.getElementById('emp_phone').value.trim(),
+    notes: document.getElementById('emp_notes').value.trim(),
+  };
+  try {
+    if (editEmpId) {
+      await api('PUT', '/api/admin/employees/' + editEmpId, body);
+      toast('✅ تم التعديل', 'success');
+    } else {
+      await api('POST', '/api/admin/employees', body);
+      toast('✅ تم إضافة الموظف', 'success');
+    }
+    closeEmpModal();
+    loadEmployees();
+  } catch(e) { toast('❌ ' + e.message, 'error'); }
+}
+
+async function deleteEmpFromModal() {
+  if (!editEmpId || !confirm('حذف هذا الموظف؟')) return;
+  await api('DELETE', '/api/admin/employees/' + editEmpId);
+  toast('✅ تم الحذف', 'success');
+  closeEmpModal();
+  loadEmployees();
+}
+
+function closeEmpModal() {
+  document.getElementById('empModal').classList.remove('open');
+}
+
+// ── ATTENDANCE ──────────────────────────────────────────
+async function loadAttendance() {
+  var date = document.getElementById('attDateFilter').value;
+  if (!date) {
+    // Default to today
+    date = new Date().toISOString().split('T')[0];
+    document.getElementById('attDateFilter').value = date;
+  }
+  try {
+    var d = await api('GET', '/api/admin/attendance?date=' + date);
+    var records = d.records || [];
+    var el = document.getElementById('attTable');
+    if (!records.length) {
+      el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted)">لا توجد سجلات في ' + date + '</div>';
+      return;
+    }
+    // Group by userId
+    var grouped = {};
+    records.forEach(function(r) {
+      if (!grouped[r.userId]) grouped[r.userId] = { userId:r.userId, ins:[], outs:[] };
+      if (r.type === 'in') grouped[r.userId].ins.push(r.timestamp);
+      else grouped[r.userId].outs.push(r.timestamp);
+    });
+    var html = '<table><tr><th>رقم الموظف</th><th>أول حضور</th><th>آخر انصراف</th><th>عدد السجلات</th></tr>';
+    Object.values(grouped).forEach(function(g) {
+      var firstIn = g.ins.length ? new Date(g.ins[g.ins.length-1]).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}) : '-';
+      var lastOut = g.outs.length ? new Date(g.outs[0]).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}) : '-';
+      html += '<tr>' +
+        '<td><strong>' + g.userId + '</strong></td>' +
+        '<td><span style="color:var(--green);font-weight:700">' + firstIn + '</span></td>' +
+        '<td><span style="color:#cc0000;font-weight:700">' + lastOut + '</span></td>' +
+        '<td>' + (g.ins.length + g.outs.length) + '</td>' +
+        '</tr>';
+    });
+    html += '</table>';
+    el.innerHTML = html;
+  } catch(e) {
+    document.getElementById('attTable').innerHTML = '<div style="padding:20px;color:var(--red)">❌ ' + e.message + '</div>';
+  }
+}
+
+async function syncBridge() {
+  try {
+    document.getElementById('bridgeStatus').textContent = '⏳ جاري المزامنة...';
+    var r = await fetch('http://localhost:3001/sync', { method:'POST' });
+    var d = await r.json();
+    document.getElementById('bridgeStatus').textContent = '✅ آخر مزامنة: ' + new Date().toLocaleTimeString('ar-EG');
+    loadAttendance();
+  } catch(e) {
+    document.getElementById('bridgeStatus').textContent = '❌ Bridge مش شغال';
+    toast('❌ تأكد إن البريدج شغال على الجهاز المحلي', 'error');
   }
 }
 
