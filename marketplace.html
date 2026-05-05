@@ -86,7 +86,6 @@ a{text-decoration:none;color:inherit}button{cursor:pointer;font-family:inherit}
 <div class="mp-hero"><h1>🏭 متجر مصر ستيل</h1><p>أثاث استانلس فاخر مباشرة من المصنع — بدون حد أدنى للطلب</p></div>
 
 <div class="mp-layout">
-  <!-- SIDEBAR -->
   <div class="mp-sidebar">
     <h3>🔍 فلترة</h3>
     <div class="filter-group">
@@ -114,7 +113,6 @@ a{text-decoration:none;color:inherit}button{cursor:pointer;font-family:inherit}
     <button class="reset-btn" onclick="resetFilters()">إعادة الضبط</button>
   </div>
 
-  <!-- MAIN -->
   <div>
     <div class="mp-toolbar">
       <div class="mp-count" id="mpCount">جاري التحميل...</div>
@@ -135,30 +133,24 @@ var USD_EGP = parseFloat(localStorage.getItem('ms_rate') || '50.85');
 var allProducts = [], filtered = [];
 var sectionLabels = {home:'🏠 منزل', hall:'🎪 قاعة', museum:'🏛️ لوبي', restaurant:'🍽️ مطعم'};
 
-// ══ LOAD FROM MONGODB ══
 async function loadProducts() {
   try {
-    // Get live rate
     var sr = await fetch(BACKEND + '/api/settings/public');
     var sd = await sr.json();
     if (sd.usdRate) { USD_EGP = sd.usdRate; localStorage.setItem('ms_rate', USD_EGP); document.querySelectorAll('.rate-display').forEach(function(el){el.textContent=USD_EGP.toFixed(2)}); }
 
-    // Get products
     var r = await fetch(BACKEND + '/api/products');
     var d = await r.json();
     allProducts = d.products || [];
     filtered = allProducts.slice();
 
-    // Check URL params
     var params = new URLSearchParams(location.search);
     var q       = params.get('q');
     var pid     = params.get('id');
     var section = params.get('section');
 
-    // Filter by section if provided
     if (section) {
       filtered = allProducts.filter(function(p){ return p.section === section; });
-      // Update section filter buttons if exist
       var label = {home:'🏠 منزل', hall:'🎪 قاعات', restaurant:'🍽️ مطاعم', museum:'🏛️ لوبي'}[section] || section;
       var countEl = document.getElementById('mpCount');
       if (countEl) countEl.textContent = filtered.length + ' منتج في ' + label;
@@ -167,11 +159,10 @@ async function loadProducts() {
     if (q) { document.getElementById('searchInp').value = q; doSearch(); return; }
     renderGrid(filtered);
 
-    // Auto open product if id in URL
     if (pid) {
       setTimeout(function() {
         var p = allProducts.find(function(x){ return x.id===parseInt(pid)||x.id===pid; });
-        if (p) showProductModal(p);
+        if (p) window.location = 'product.html?id=' + p.id;
       }, 500);
     }
   } catch(e) {
@@ -204,10 +195,12 @@ function mpLoadMore() {
   var grid = document.getElementById('mpGrid');
   
   batch.forEach(function(p) {
-    var card = document.createElement('a');
+    var card = document.createElement('div');
     card.className = 'mp-card';
     card.style.cursor = 'pointer';
-    card.href = 'product.html?id=' + encodeURIComponent(String(p.id || ''));
+    card.addEventListener('click', function(e) {
+      if (!e.target.closest('button')) window.location = 'product.html?id=' + p.id;
+    });
 
     var img = p.imgs && p.imgs[0] ? p.imgs[0] : '';
     var imgSrc = img && !img.startsWith('data:') ? (img.startsWith('http') ? img : 'https://misrsteel.vercel.app/' + img) : '';
@@ -233,15 +226,11 @@ function mpLoadMore() {
     
     card.innerHTML = html;
     
-    // Add button events
     card.querySelector('.btn-mp').addEventListener('click', function(e) {
-      e.preventDefault();
       e.stopPropagation();
       Cart.add(p, 1, '', '', p.price);
-      // Show mini cart count update
     });
     card.querySelector('.btn-mp-wa').addEventListener('click', function(e) {
-      e.preventDefault();
       e.stopPropagation();
       waProduct(p);
     });
@@ -298,11 +287,6 @@ function doSearch() {
   if (!q) { filtered=allProducts.slice(); renderGrid(filtered); return; }
   filtered = allProducts.filter(function(p){ return (p.nameAr||'').includes(q)||(p.nameEn||'').toLowerCase().includes(q)||(p.desc||'').includes(q); });
   renderGrid(filtered);
-}
-
-function waOrder(p) {
-  var msg='مرحباً مصر ستيل 🎉\n\nأريد الطلب:\n\nالمنتج: '+p.nameAr+'\nالسعر: $'+p.price+' للقطعة\n\nأرجو التواصل لتأكيد الطلب.';
-  window.open('https://wa.me/201050595250?text='+encodeURIComponent(msg),'_blank');
 }
 
 function waProduct(p) {
