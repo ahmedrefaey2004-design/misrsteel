@@ -1,8 +1,7 @@
 // ══ MISR STEEL — CART SYSTEM ══════════════════════════
-var CART_KEY = (window.STORAGE_KEYS && window.STORAGE_KEYS.cart) || 'ms_cart';
+var CART_KEY = 'ms_cart';
 
-var Cart = window.Cart || {};
-Object.assign(Cart, {
+var Cart = {
   // Get cart from localStorage
   get: function() {
     try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; }
@@ -101,7 +100,7 @@ Object.assign(Cart, {
   buildWAMessage: function(customerName, customerPhone, customerCountry, notes) {
     var items = Cart.get();
     if (!items.length) return '';
-    var USD_EGP = parseFloat(localStorage.getItem((window.STORAGE_KEYS && window.STORAGE_KEYS.rate) || 'ms_rate') || '50.85');
+    var USD_EGP = parseFloat(localStorage.getItem('ms_rate') || '50.85');
     var msg = '🛒 طلب جديد من مصر ستيل\n\n';
     msg += '👤 الاسم: ' + customerName + '\n';
     msg += '📱 الواتساب: ' + customerPhone + '\n';
@@ -152,8 +151,7 @@ Object.assign(Cart, {
       return { success:false, error:e.message };
     }
   }
-});
-window.Cart = Cart;
+};
 
 // Auto-update badge on page load
 document.addEventListener('DOMContentLoaded', function() {
