@@ -13,6 +13,7 @@ button{cursor:pointer;font-family:inherit}
 .header{background:#1a1a1a;color:#fff;padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:300;border-bottom:2px solid var(--orange)}
 .header-logo{font-size:16px;font-weight:800;color:var(--orange)}
 .header-right{display:flex;align-items:center;gap:10px}
+.mobile-nav-btn{display:none;padding:6px 10px;background:transparent;border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:4px;font-size:15px}
 .api-status{display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(255,255,255,.6)}
 .api-dot{width:8px;height:8px;border-radius:50%;background:#555}
 .api-dot.online{background:var(--green)}
@@ -123,7 +124,7 @@ tr:hover td{background:#fafafa}
 .qcard-icon{font-size:24px;margin-bottom:6px}
 .qcard-label{font-size:12px;font-weight:700}
 
-@media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar{display:none}.kpi-grid{grid-template-columns:repeat(2,1fr)}.quick-grid{grid-template-columns:repeat(2,1fr)}.sections-grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar{display:none;position:fixed;top:56px;right:0;width:260px;height:calc(100vh - 56px);z-index:350;box-shadow:-8px 0 24px rgba(0,0,0,.25)}.sidebar.show-mobile{display:block}.mobile-nav-btn{display:inline-flex;align-items:center;justify-content:center}.kpi-grid{grid-template-columns:repeat(2,1fr)}.quick-grid{grid-template-columns:repeat(2,1fr)}.sections-grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}}
 
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:400;display:none;align-items:center;justify-content:center;padding:16px}
 .modal-overlay.open{display:flex}
@@ -299,7 +300,10 @@ tr:hover td{background:#fafafa}
 
 <!-- HEADER v2.1 FIXED -->
 <div class="header">
-  <div class="header-logo">⚙️ مصر ستيل — Admin</div>
+  <div class="header-right">
+    <button class="mobile-nav-btn" onclick="toggleMobileNav()" aria-label="فتح القائمة">☰</button>
+    <div class="header-logo">⚙️ مصر ستيل — Admin</div>
+  </div>
   <div class="header-right">
     <div class="api-status"><div class="api-dot" id="apiDot"></div><span id="apiTxt">جاري الاتصال...</span></div>
     <button class="header-btn" onclick="localStorage.setItem('ms_admin_token',ADMIN_TOKEN);window.open('factory.html','_blank')" style="background:rgba(255,96,0,.15);border-color:var(--orange);color:var(--orange)">🏭 نظام ERP</button>
@@ -764,15 +768,24 @@ var ADMIN_TOKEN = localStorage.getItem('ms_admin_token') || 'misrsteel_admin_202
 var allOrders=[], allProducts=[], allAffiliates=[];
 var currentOrderId=null, editProdId=null, editSecId=null, editBannerId=null;
 var prodImgs=[], secImg=null, bannerImg=null;
-// ── API HELPER ─────────────────────────────────────────
-async function api(method, path, body) {
-  var opts = { method: method, headers: { 'Content-Type': 'application/json', 'x-admin-token': ADMIN_TOKEN } };
-  if (body) opts.body = JSON.stringify(body);
-  var r = await fetch(API + path, opts);
-  var d = await r.json();
-  if (!r.ok) throw new Error(d.error || d.message || 'خطأ في الاتصال');
-  return d;
+function toggleMobileNav(forceClose) {
+  var side = document.querySelector('.sidebar');
+  if (!side) return;
+  if (forceClose) { side.classList.remove('show-mobile'); return; }
+  side.classList.toggle('show-mobile');
 }
+// ── API HELPER (single global binding to avoid accidental duplicates) ───────
+if (!window.__msAdminApi) {
+  window.__msAdminApi = async function(method, path, body) {
+    var opts = { method: method, headers: { 'Content-Type': 'application/json', 'x-admin-token': ADMIN_TOKEN } };
+    if (body) opts.body = JSON.stringify(body);
+    var r = await fetch(API + path, opts);
+    var d = await r.json();
+    if (!r.ok) throw new Error(d.error || d.message || 'خطأ في الاتصال');
+    return d;
+  };
+}
+var api = window.__msAdminApi;
 
 
 
@@ -826,6 +839,7 @@ function compressImage(base64, maxKB, callback) {
 
 
 function go(key, el) {
+  toggleMobileNav(true);
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('show'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('panel-' + key).classList.add('show');
