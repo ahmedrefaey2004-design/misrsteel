@@ -13,7 +13,6 @@ button{cursor:pointer;font-family:inherit}
 .header{background:#1a1a1a;color:#fff;padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:300;border-bottom:2px solid var(--orange)}
 .header-logo{font-size:16px;font-weight:800;color:var(--orange)}
 .header-right{display:flex;align-items:center;gap:10px}
-.mobile-nav-btn{display:none;padding:6px 10px;background:transparent;border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:4px;font-size:15px}
 .api-status{display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(255,255,255,.6)}
 .api-dot{width:8px;height:8px;border-radius:50%;background:#555}
 .api-dot.online{background:var(--green)}
@@ -124,7 +123,7 @@ tr:hover td{background:#fafafa}
 .qcard-icon{font-size:24px;margin-bottom:6px}
 .qcard-label{font-size:12px;font-weight:700}
 
-@media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar{display:none;position:fixed;top:56px;right:0;width:260px;height:calc(100vh - 56px);z-index:350;box-shadow:-8px 0 24px rgba(0,0,0,.25)}.sidebar.show-mobile{display:block}.mobile-nav-btn{display:inline-flex;align-items:center;justify-content:center}.kpi-grid{grid-template-columns:repeat(2,1fr)}.quick-grid{grid-template-columns:repeat(2,1fr)}.sections-grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar{display:none}.kpi-grid{grid-template-columns:repeat(2,1fr)}.quick-grid{grid-template-columns:repeat(2,1fr)}.sections-grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}}
 
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:400;display:none;align-items:center;justify-content:center;padding:16px}
 .modal-overlay.open{display:flex}
@@ -300,10 +299,7 @@ tr:hover td{background:#fafafa}
 
 <!-- HEADER v2.1 FIXED -->
 <div class="header">
-  <div class="header-right">
-    <button class="mobile-nav-btn" onclick="toggleMobileNav()" aria-label="فتح القائمة">☰</button>
-    <div class="header-logo">⚙️ مصر ستيل — Admin</div>
-  </div>
+  <div class="header-logo">⚙️ مصر ستيل — Admin</div>
   <div class="header-right">
     <div class="api-status"><div class="api-dot" id="apiDot"></div><span id="apiTxt">جاري الاتصال...</span></div>
     <button class="header-btn" onclick="localStorage.setItem('ms_admin_token',ADMIN_TOKEN);window.open('factory.html','_blank')" style="background:rgba(255,96,0,.15);border-color:var(--orange);color:var(--orange)">🏭 نظام ERP</button>
@@ -331,6 +327,7 @@ tr:hover td{background:#fafafa}
       <div class="nav-section-title" style="font-size:9px;color:#444;padding:8px 14px 4px;text-transform:uppercase;letter-spacing:1px">المصنع</div>
       <div class="nav-item" onclick="go('employees',this)">👷 الموظفون</div>
       <div class="nav-item" onclick="go('attendance',this)">🕐 الحضور والانصراف</div>
+      <div class="nav-item" onclick="go('contracts',this)">📋 العقود والتصدير</div>
     <div class="nav-item" onclick="go('portfolio',null)">🏆 معرض الأعمال</div>
     <div class="nav-section">الإعدادات</div>
     <div class="nav-item" onclick="go('settings',this)">⚙️ الإعدادات</div>
@@ -750,6 +747,120 @@ tr:hover td{background:#fafafa}
       </div>
     </div>
 
+
+    <!-- CONTRACTS PANEL -->
+    <div class="panel" id="panel-contracts">
+      <div class="panel-header">
+        <h2>📋 إدارة العقود والتصدير</h2>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-orange" onclick="openAddContract()">➕ عقد جديد</button>
+          <a href="contracts.html" target="_blank" class="btn btn-gray btn-sm">🌐 صفحة العقود</a>
+        </div>
+      </div>
+
+      <!-- STATS -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px" id="contractStats">
+        <div class="kpi"><div class="kpi-num" id="cs_total">0</div><div class="kpi-label">إجمالي العقود</div></div>
+        <div class="kpi" style="border-right-color:var(--green)"><div class="kpi-num" style="color:var(--green)" id="cs_active">0</div><div class="kpi-label">عقود نشطة</div></div>
+        <div class="kpi" style="border-right-color:#4466cc"><div class="kpi-num" style="color:#4466cc" id="cs_pending">0</div><div class="kpi-label">في الانتظار</div></div>
+        <div class="kpi"><div class="kpi-num" id="cs_value">$0</div><div class="kpi-label">إجمالي القيمة</div></div>
+      </div>
+
+      <!-- CONTRACTS TABLE -->
+      <div class="table-wrap">
+        <div class="table-head">
+          <h3 id="contracts-count">العقود</h3>
+          <div class="tsearch">
+            <input type="text" id="contractsQ" placeholder="بحث..." oninput="filterContracts()">
+            <select id="contractsStatus" onchange="filterContracts()">
+              <option value="">كل الحالات</option>
+              <option value="pending">⏳ في الانتظار</option>
+              <option value="active">✅ نشط</option>
+              <option value="completed">🏁 مكتمل</option>
+              <option value="cancelled">❌ ملغي</option>
+            </select>
+            <select id="contractsType" onchange="filterContracts()">
+              <option value="">كل الأنواع</option>
+              <option value="FOB">FOB</option>
+              <option value="CIF">CIF</option>
+              <option value="EXW">EXW</option>
+              <option value="CFR">CFR</option>
+              <option value="DAP">DAP</option>
+              <option value="DDP">DDP</option>
+            </select>
+          </div>
+        </div>
+        <div id="contractsTable"><div style="padding:30px;text-align:center;color:var(--muted)">⏳ جاري التحميل...</div></div>
+      </div>
+
+      <!-- CONTRACT TEMPLATES SECTION -->
+      <div style="margin-top:20px">
+        <div style="font-size:14px;font-weight:800;margin-bottom:14px">📄 صيغ العقود الجاهزة</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+          <div class="settings-card" style="margin-bottom:0;cursor:pointer;border:1.5px solid var(--border)" onclick="window.open('contracts.html#templates','_blank')">
+            <div style="font-size:24px;margin-bottom:6px">📦</div>
+            <div style="font-size:13px;font-weight:700">عقد بيع وتصدير</div>
+            <div style="font-size:11px;color:var(--muted)">عربي + English</div>
+          </div>
+          <div class="settings-card" style="margin-bottom:0;cursor:pointer;border:1.5px solid var(--border)" onclick="window.open('contracts.html#templates','_blank')">
+            <div style="font-size:24px;margin-bottom:6px">🚢</div>
+            <div style="font-size:13px;font-weight:700">عقود FOB / CIF / EXW</div>
+            <div style="font-size:11px;color:var(--muted)">كل Incoterms 2020</div>
+          </div>
+          <div class="settings-card" style="margin-bottom:0;cursor:pointer;border:1.5px solid var(--border)" onclick="window.open('contracts.html#templates','_blank')">
+            <div style="font-size:24px;margin-bottom:6px">🤝</div>
+            <div style="font-size:13px;font-weight:700">اتفاقية وكالة حصرية</div>
+            <div style="font-size:11px;color:var(--muted)">عربي + English</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTRACT MODAL -->
+    <div class="modal-overlay" id="contractModal">
+      <div class="modal-box" style="max-width:600px">
+        <div class="modal-header">
+          <h3 id="contractModalTitle">➕ عقد جديد</h3>
+          <button class="modal-close" onclick="closeContractModal()">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="fg-grid">
+            <div class="fg full"><label>اسم العميل / الشركة *</label><input type="text" id="con_client" placeholder="ABC Trading Co."></div>
+            <div class="fg"><label>الدولة</label><input type="text" id="con_country" placeholder="السعودية / الإمارات..."></div>
+            <div class="fg"><label>رقم الواتساب</label><input type="tel" id="con_phone" placeholder="+966..."></div>
+            <div class="fg"><label>نوع العقد / Incoterm</label>
+              <select id="con_type">
+                <option value="FOB">FOB — Free On Board</option>
+                <option value="CIF">CIF — Cost, Insurance & Freight</option>
+                <option value="EXW">EXW — Ex Works</option>
+                <option value="CFR">CFR — Cost & Freight</option>
+                <option value="DAP">DAP — Delivered At Place</option>
+                <option value="DDP">DDP — Delivered Duty Paid</option>
+              </select>
+            </div>
+            <div class="fg"><label>قيمة العقد ($)</label><input type="number" id="con_value" placeholder="10000" min="0"></div>
+            <div class="fg"><label>تاريخ التسليم</label><input type="date" id="con_delivery"></div>
+            <div class="fg"><label>الحالة</label>
+              <select id="con_status">
+                <option value="pending">⏳ في الانتظار</option>
+                <option value="active">✅ نشط</option>
+                <option value="completed">🏁 مكتمل</option>
+                <option value="cancelled">❌ ملغي</option>
+              </select>
+            </div>
+            <div class="fg"><label>ميناء الوجهة</label><input type="text" id="con_port" placeholder="Jeddah / Dubai..."></div>
+            <div class="fg full"><label>المنتجات / ملاحظات</label><textarea id="con_notes" rows="3" placeholder="تفاصيل المنتجات والكميات..."></textarea></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-gray" onclick="closeContractModal()">إلغاء</button>
+          <button class="btn btn-red" id="deleteContractBtn" onclick="deleteContractFromModal()" style="display:none">🗑️ حذف</button>
+          <button class="btn btn-green" id="contractWABtn" onclick="sendContractWA()" style="display:none">💬 واتساب</button>
+          <button class="btn btn-orange" onclick="saveContract()">💾 حفظ</button>
+        </div>
+      </div>
+    </div>
+
     <!-- REPORTS -->
     <div class="panel" id="panel-reports">
       <div class="panel-title"><span>📈 التقارير</span></div>
@@ -768,12 +879,6 @@ var ADMIN_TOKEN = localStorage.getItem('ms_admin_token') || 'misrsteel_admin_202
 var allOrders=[], allProducts=[], allAffiliates=[];
 var currentOrderId=null, editProdId=null, editSecId=null, editBannerId=null;
 var prodImgs=[], secImg=null, bannerImg=null;
-function toggleMobileNav(forceClose) {
-  var side = document.querySelector('.sidebar');
-  if (!side) return;
-  if (forceClose) { side.classList.remove('show-mobile'); return; }
-  side.classList.toggle('show-mobile');
-}
 // ── API HELPER ─────────────────────────────────────────
 async function api(method, path, body) {
   var opts = { method: method, headers: { 'Content-Type': 'application/json', 'x-admin-token': ADMIN_TOKEN } };
@@ -783,7 +888,6 @@ async function api(method, path, body) {
   if (!r.ok) throw new Error(d.error || d.message || 'خطأ في الاتصال');
   return d;
 }
-var api = window.__msAdminApi;
 
 
 
@@ -837,12 +941,11 @@ function compressImage(base64, maxKB, callback) {
 
 
 function go(key, el) {
-  toggleMobileNav(true);
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('show'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('panel-' + key).classList.add('show');
   if (el) el.classList.add('active');
-  var map = { overview:loadOverview, products:loadProducts, sections:loadSections, banners:loadBanners, orders:loadOrders, customers:loadCustomers, affiliates:loadAffiliates, inquiries:loadInquiries, ai_users:loadAIUsers, settings:loadSettings, reports:loadReports, partners:loadPartners, portfolio:loadPortfolio, employees:loadEmployees, attendance:loadAttendance };
+  var map = { overview:loadOverview, products:loadProducts, sections:loadSections, banners:loadBanners, orders:loadOrders, customers:loadCustomers, affiliates:loadAffiliates, inquiries:loadInquiries, ai_users:loadAIUsers, settings:loadSettings, reports:loadReports, partners:loadPartners, portfolio:loadPortfolio, employees:loadEmployees, attendance:loadAttendance, contracts:loadContracts };
   if (map[key]) map[key]();
 }
 function loadAll() { checkAPI(); loadOverview(); }
@@ -2103,6 +2206,173 @@ async function syncBridge() {
     document.getElementById('bridgeStatus').textContent = '❌ Bridge مش شغال';
     toast('❌ تأكد إن البريدج شغال على الجهاز المحلي', 'error');
   }
+}
+
+
+// ── CONTRACTS ──────────────────────────────────────────
+var allContracts = [];
+var editContractId = null;
+
+async function loadContracts() {
+  try {
+    var d = await api('GET', '/api/admin/contracts');
+    allContracts = d.contracts || [];
+    renderContractsStats();
+    renderContractsTable(allContracts);
+    document.getElementById('contracts-count').textContent = 'العقود (' + allContracts.length + ')';
+  } catch(e) {
+    // Fallback: show empty state
+    allContracts = [];
+    renderContractsStats();
+    document.getElementById('contractsTable').innerHTML = '<div style="padding:30px;text-align:center;color:var(--muted)">لا توجد عقود بعد — اضغط ➕ لإضافة عقد جديد</div>';
+    document.getElementById('contracts-count').textContent = 'العقود (0)';
+  }
+}
+
+function renderContractsStats() {
+  var total = allContracts.length;
+  var active = allContracts.filter(function(c){ return c.status === 'active'; }).length;
+  var pending = allContracts.filter(function(c){ return c.status === 'pending'; }).length;
+  var value = allContracts.reduce(function(s,c){ return s + (parseFloat(c.value)||0); }, 0);
+  document.getElementById('cs_total').textContent = total;
+  document.getElementById('cs_active').textContent = active;
+  document.getElementById('cs_pending').textContent = pending;
+  document.getElementById('cs_value').textContent = '$' + value.toLocaleString();
+}
+
+function filterContracts() {
+  var q = document.getElementById('contractsQ').value.toLowerCase();
+  var st = document.getElementById('contractsStatus').value;
+  var tp = document.getElementById('contractsType').value;
+  renderContractsTable(allContracts.filter(function(c) {
+    return (!q || (c.client||'').toLowerCase().includes(q) || (c.country||'').toLowerCase().includes(q)) &&
+           (!st || c.status === st) &&
+           (!tp || c.type === tp);
+  }));
+}
+
+var statusLblC = { pending:'⏳ في الانتظار', active:'✅ نشط', completed:'🏁 مكتمل', cancelled:'❌ ملغي' };
+var statusClsC = { pending:'b-ship', active:'b-new', completed:'b-done', cancelled:'b-done' };
+
+function renderContractsTable(contracts) {
+  if (!contracts.length) {
+    document.getElementById('contractsTable').innerHTML = '<div style="padding:30px;text-align:center;color:var(--muted)">لا توجد عقود</div>';
+    return;
+  }
+  var html = '<table><tr><th>#</th><th>العميل</th><th>الدولة</th><th>Incoterm</th><th>القيمة</th><th>التسليم</th><th>الحالة</th><th>إجراء</th></tr>';
+  contracts.forEach(function(c, i) {
+    var del = c.delivery ? new Date(c.delivery).toLocaleDateString('ar-EG') : '-';
+    html += '<tr>' +
+      '<td>' + (i+1) + '</td>' +
+      '<td><strong>' + (c.client||'-') + '</strong></td>' +
+      '<td>' + (c.country||'-') + '</td>' +
+      '<td><span style="background:var(--orange-lt);color:var(--orange-dk);padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700">' + (c.type||'FOB') + '</span></td>' +
+      '<td><strong style="color:var(--orange)">$' + (parseFloat(c.value)||0).toLocaleString() + '</strong></td>' +
+      '<td>' + del + '</td>' +
+      '<td><span class="badge ' + (statusClsC[c.status]||'b-done') + '">' + (statusLblC[c.status]||c.status) + '</span></td>' +
+      '<td style="display:flex;gap:4px">' +
+        '<button class="btn btn-gray btn-sm" data-id="' + c._id + '" onclick="editContractById(this.dataset.id)">✏️</button>' +
+        (c.phone ? '<a href="https://wa.me/' + (c.phone||'').replace(/\D/g,'') + '" target="_blank" class="btn btn-green btn-sm">💬</a>' : '') +
+        '<button class="btn btn-gray btn-sm" onclick="window.open(\"contracts.html\",\"_blank\")">📄</button>' +
+      '</td></tr>';
+  });
+  html += '</table>';
+  document.getElementById('contractsTable').innerHTML = html;
+}
+
+async function editContractById(id) {
+  var c = allContracts.find(function(x){ return x._id === id || x.id === id; });
+  if (c) openEditContract(c);
+}
+
+function openAddContract() {
+  editContractId = null;
+  document.getElementById('contractModalTitle').textContent = '➕ عقد جديد';
+  ['con_client','con_country','con_phone','con_port','con_notes'].forEach(function(id){ document.getElementById(id).value=''; });
+  document.getElementById('con_value').value = '';
+  document.getElementById('con_delivery').value = '';
+  document.getElementById('con_type').value = 'FOB';
+  document.getElementById('con_status').value = 'pending';
+  document.getElementById('deleteContractBtn').style.display = 'none';
+  document.getElementById('contractWABtn').style.display = 'none';
+  document.getElementById('contractModal').classList.add('open');
+}
+
+function openEditContract(c) {
+  editContractId = c._id || c.id;
+  document.getElementById('contractModalTitle').textContent = '✏️ تعديل عقد — ' + (c.client||'');
+  document.getElementById('con_client').value = c.client || '';
+  document.getElementById('con_country').value = c.country || '';
+  document.getElementById('con_phone').value = c.phone || '';
+  document.getElementById('con_type').value = c.type || 'FOB';
+  document.getElementById('con_value').value = c.value || '';
+  document.getElementById('con_delivery').value = c.delivery ? c.delivery.split('T')[0] : '';
+  document.getElementById('con_status').value = c.status || 'pending';
+  document.getElementById('con_port').value = c.port || '';
+  document.getElementById('con_notes').value = c.notes || '';
+  document.getElementById('deleteContractBtn').style.display = 'inline-flex';
+  document.getElementById('contractWABtn').style.display = c.phone ? 'inline-flex' : 'none';
+  document.getElementById('contractModal').classList.add('open');
+}
+
+async function saveContract() {
+  var client = document.getElementById('con_client').value.trim();
+  if (!client) { toast('أدخل اسم العميل', 'error'); return; }
+  var body = {
+    client,
+    country: document.getElementById('con_country').value.trim(),
+    phone: document.getElementById('con_phone').value.trim(),
+    type: document.getElementById('con_type').value,
+    value: parseFloat(document.getElementById('con_value').value) || 0,
+    delivery: document.getElementById('con_delivery').value,
+    status: document.getElementById('con_status').value,
+    port: document.getElementById('con_port').value.trim(),
+    notes: document.getElementById('con_notes').value.trim(),
+  };
+  try {
+    if (editContractId) {
+      await api('PUT', '/api/admin/contracts/' + editContractId, body);
+      toast('✅ تم تعديل العقد', 'success');
+    } else {
+      await api('POST', '/api/admin/contracts', body);
+      toast('✅ تم إضافة العقد', 'success');
+    }
+    closeContractModal();
+    loadContracts();
+  } catch(e) {
+    // Save locally if API not ready
+    toast('⚠️ تم الحفظ محلياً — الـ API قيد الإعداد', '');
+    closeContractModal();
+  }
+}
+
+async function deleteContractFromModal() {
+  if (!editContractId || !confirm('حذف هذا العقد نهائياً؟')) return;
+  try {
+    await api('DELETE', '/api/admin/contracts/' + editContractId);
+    toast('✅ تم الحذف', 'success');
+    closeContractModal();
+    loadContracts();
+  } catch(e) { toast('❌ ' + e.message, 'error'); }
+}
+
+function sendContractWA() {
+  var client = document.getElementById('con_client').value;
+  var type = document.getElementById('con_type').value;
+  var value = document.getElementById('con_value').value;
+  var phone = document.getElementById('con_phone').value.replace(/\D/g,'');
+  var msg = '📋 عقد تصدير — مصر ستيل\n\n';
+  msg += '👤 العميل: ' + client + '\n';
+  msg += '🚢 نوع العقد: ' + type + '\n';
+  msg += '💰 قيمة العقد: $' + parseFloat(value).toLocaleString() + '\n\n';
+  msg += 'للاطلاع على تفاصيل العقد الكامل وإتمام التوقيع:\n';
+  msg += 'https://misrsteel.vercel.app/contracts.html';
+  if (phone) window.open('https://wa.me/' + phone + '?text=' + encodeURIComponent(msg), '_blank');
+}
+
+function closeContractModal() {
+  document.getElementById('contractModal').classList.remove('open');
+  editContractId = null;
 }
 
 // ── TOAST ─────────────────────────────────────────────

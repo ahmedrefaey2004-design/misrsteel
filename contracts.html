@@ -3,243 +3,878 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>العقود والشروط — MISR STEEL</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="shared.css">
+<title>عقود التصدير — مصر ستيل</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-.contracts-hero{background:linear-gradient(135deg,#111,#1a1a1a);color:#fff;padding:48px 20px;text-align:center;border-bottom:3px solid var(--orange)}
-.ch-title{font-size:30px;font-weight:700;margin-bottom:8px}
-body.en .ch-title{font-family:'DM Sans',sans-serif}
-.ch-sub{font-size:14px;color:rgba(255,255,255,.55);max-width:560px;margin:0 auto}
-.contracts-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:900px;margin:0 auto}
-.contract-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:all .2s}
-.contract-card:hover{border-color:var(--orange);box-shadow:0 4px 20px rgba(255,106,0,.1)}
-.cc-header{background:linear-gradient(135deg,#111,#222);padding:24px;display:flex;align-items:flex-start;gap:16px}
-.cc-icon{width:48px;height:48px;background:rgba(255,106,0,.15);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;border:1px solid rgba(255,106,0,.25)}
-.cc-title{font-size:16px;font-weight:700;color:#fff;margin-bottom:4px}
-body.en .cc-title{font-family:'DM Sans',sans-serif}
-.cc-sub{font-size:12px;color:rgba(255,255,255,.45)}
-.cc-body{padding:20px}
-.cc-sections{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
-.cc-section{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);padding:6px 0;border-bottom:1px solid var(--border)}
-.cc-section:last-child{border-bottom:none}
-.cc-section-icon{font-size:14px;width:20px;text-align:center}
-.cc-actions{display:flex;gap:8px}
-.cc-download{flex:1;padding:10px;background:var(--orange);color:#fff;border:none;border-radius:var(--radius);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .2s}
-.cc-download:hover{background:var(--orange-dk)}
-.cc-preview{flex:0 0 auto;padding:10px 14px;background:transparent;border:1.5px solid var(--border);border-radius:var(--radius);font-size:13px;cursor:pointer;font-family:inherit;transition:all .2s}
-.cc-preview:hover{border-color:var(--orange);color:var(--orange)}
+:root{--orange:#ff6000;--orange-dk:#d94f00;--orange-lt:#fff3eb;--black:#111;--white:#fff;--bg:#f5f5f5;--border:#e5e5e5;--green:#00a650;--muted:#888}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Cairo',sans-serif;background:var(--bg);direction:rtl}
+/* NAV */
+.nav{background:#111;padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--orange);position:sticky;top:0;z-index:100}
+.nav-logo{font-size:18px;font-weight:800;color:var(--orange);text-decoration:none}
+.nav-links{display:flex;align-items:center;gap:16px}
+.nav-links a{color:rgba(255,255,255,.6);font-size:13px;text-decoration:none;transition:.2s}
+.nav-links a:hover,.nav-links a.active{color:var(--orange)}
+.nav-cart{position:relative;color:#fff;font-size:20px;text-decoration:none}
 
-/* Terms section */
-.terms-section{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden}
-.terms-header{background:var(--orange);color:#fff;padding:16px 20px;display:flex;align-items:center;gap:10px}
-.terms-body{padding:24px}
-.terms-body h3{font-size:15px;font-weight:700;color:var(--orange);margin-bottom:8px;margin-top:20px}
-.terms-body h3:first-child{margin-top:0}
-.terms-body p{font-size:13px;color:var(--muted);line-height:1.75;margin-bottom:8px}
-.terms-body ul{padding-inline-start:20px;margin-bottom:8px}
-.terms-body li{font-size:13px;color:var(--muted);line-height:1.75;margin-bottom:4px}
-.terms-body strong{color:var(--text)}
+/* HERO */
+.hero{background:linear-gradient(135deg,#0a0a0a,#1a0800);padding:60px 20px;text-align:center}
+.hero h1{font-size:32px;font-weight:800;color:#fff;margin-bottom:12px}
+.hero h1 span{color:var(--orange)}
+.hero p{font-size:15px;color:rgba(255,255,255,.6);max-width:600px;margin:0 auto 28px}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn-hero{padding:13px 28px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.btn-hero-orange{background:var(--orange);color:#fff;border:none}
+.btn-hero-outline{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.3)}
 
-/* Preview modal */
-.preview-modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:400;display:none;align-items:center;justify-content:center;padding:20px}
-.preview-modal.open{display:flex}
-.pm-box{background:#fff;width:100%;max-width:700px;max-height:85vh;overflow-y:auto;border-radius:var(--radius);position:relative}
-.pm-header{background:var(--black);color:#fff;padding:16px 20px;position:sticky;top:0;display:flex;justify-content:space-between;align-items:center;z-index:1}
-.pm-header h3{font-size:15px;font-weight:700}
-.pm-close{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;line-height:1;padding:4px 8px}
-.pm-body{padding:28px}
-.pm-body table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:13px}
-.pm-body table th{background:var(--orange);color:#fff;padding:8px 12px;text-align:start;font-weight:600}
-.pm-body table td{padding:8px 12px;border-bottom:1px solid var(--border)}
-.pm-body table tr:nth-child(even) td{background:var(--bg)}
-.pm-section-title{font-size:15px;font-weight:700;color:var(--orange);border-bottom:2px solid var(--orange);padding-bottom:6px;margin-bottom:12px;margin-top:20px}
-.pm-section-title:first-child{margin-top:0}
-.pm-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px}
-.pm-row-label{color:var(--muted)}
-.pm-row-val{font-weight:600;color:var(--text)}
-.pm-blank{display:inline-block;min-width:120px;border-bottom:1.5px solid var(--muted);height:16px}
-.sign-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:24px}
-.sign-box{border-top:2px solid var(--orange);padding-top:10px}
-.sign-label{font-size:12px;color:var(--muted);margin-bottom:6px}
-.sign-line{border-bottom:1px solid var(--text);height:32px;margin-bottom:6px}
+/* PAGE */
+.page{max-width:1100px;margin:0 auto;padding:30px 20px}
+.section-title{font-size:20px;font-weight:800;margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.section-title::after{content:'';flex:1;height:2px;background:var(--border)}
 
-@media(max-width:640px){
-  .contracts-grid{grid-template-columns:1fr}
-  .sign-grid{grid-template-columns:1fr}
+/* STEPS */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:40px}
+.step{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center}
+.step-num{width:36px;height:36px;background:var(--orange);color:#fff;border-radius:50%;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
+.step-title{font-size:13px;font-weight:700;margin-bottom:4px}
+.step-desc{font-size:11px;color:var(--muted)}
+
+/* QUOTE BUILDER */
+.quote-card{background:#fff;border:1px solid var(--border);border-radius:12px;margin-bottom:20px;overflow:hidden}
+.quote-card-head{background:#111;color:#fff;padding:16px 20px;display:flex;align-items:center;justify-content:space-between}
+.quote-card-head h3{font-size:14px;font-weight:700}
+.quote-body{padding:20px}
+
+/* CUSTOMER INFO */
+.fg-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg.full{grid-column:1/-1}
+.fg label{font-size:11px;font-weight:700;color:var(--muted)}
+.fg input,.fg select,.fg textarea{padding:10px 13px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none;width:100%}
+.fg input:focus,.fg select:focus{border-color:var(--orange)}
+
+/* PRODUCT SEARCH */
+.prod-search{display:flex;gap:10px;margin-bottom:16px}
+.prod-search input{flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none}
+.prod-search input:focus{border-color:var(--orange)}
+.prod-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;max-height:320px;overflow-y:auto}
+.prod-item{border:1.5px solid var(--border);border-radius:10px;padding:12px;cursor:pointer;transition:.2s;background:#fafafa}
+.prod-item:hover{border-color:var(--orange);background:var(--orange-lt)}
+.prod-item.selected{border-color:var(--orange);background:var(--orange-lt)}
+.prod-item-img{width:100%;height:70px;object-fit:cover;border-radius:6px;margin-bottom:8px;background:#f0f0f0}
+.prod-item-name{font-size:12px;font-weight:700;margin-bottom:3px}
+.prod-item-price{font-size:11px;color:var(--orange);font-weight:700}
+
+/* QUOTE ITEMS TABLE */
+.items-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px}
+.items-table th{background:#f8f8f8;padding:10px 12px;text-align:right;font-size:11px;font-weight:700;color:var(--muted);border-bottom:2px solid var(--border)}
+.items-table td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+.items-table input{width:80px;padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;text-align:center}
+.items-table input:focus{border-color:var(--orange);outline:none}
+
+/* TOTALS */
+.totals{background:#f8f8f8;border-radius:10px;padding:16px;margin-bottom:16px}
+.total-row{display:flex;justify-content:space-between;padding:5px 0;font-size:13px}
+.total-row.big{font-size:18px;font-weight:800;color:var(--orange);border-top:2px solid var(--border);margin-top:8px;padding-top:10px}
+.payment-terms{background:var(--orange-lt);border-radius:8px;padding:14px;margin-bottom:16px}
+.payment-terms h4{font-size:13px;font-weight:800;margin-bottom:8px;color:var(--orange-dk)}
+.pt-row{display:flex;justify-content:space-between;font-size:12px;padding:3px 0}
+
+/* CONTRACT TERMS */
+.terms-tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.terms-tab{padding:8px 18px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;background:#fff;font-family:inherit;transition:.2s}
+.terms-tab.active{background:var(--orange);color:#fff;border-color:var(--orange)}
+.terms-content{background:#f8f8f8;border-radius:8px;padding:16px;font-size:12px;line-height:1.8;display:none}
+.terms-content.show{display:block}
+.terms-content h4{font-size:13px;font-weight:800;margin-bottom:8px;color:#333}
+.terms-content ul{padding-right:18px}
+.terms-content li{margin-bottom:4px}
+
+/* INCOTERMS */
+.incoterms{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.incoterm-card{border:1.5px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;transition:.2s;background:#fff}
+.incoterm-card:hover,.incoterm-card.selected{border-color:var(--orange);background:var(--orange-lt)}
+.incoterm-tag{display:inline-block;background:var(--orange);color:#fff;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:800;margin-bottom:6px}
+.incoterm-name{font-size:12px;font-weight:700;margin-bottom:3px}
+.incoterm-desc{font-size:10px;color:var(--muted)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:11px 22px;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s}
+.btn-orange{background:var(--orange);color:#fff}
+.btn-orange:hover{background:var(--orange-dk)}
+.btn-green{background:var(--green);color:#fff}
+.btn-gray{background:#f0f0f0;color:var(--muted);border:1px solid var(--border)}
+.btn-dark{background:#111;color:#fff}
+.action-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+
+/* CONTRACT TEMPLATES */
+.templates-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:30px}
+.template-card{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:.2s}
+.template-card:hover{border-color:var(--orange);transform:translateY(-2px)}
+.template-card-top{height:100px;display:flex;align-items:center;justify-content:center;font-size:40px}
+.template-card-body{padding:16px}
+.template-card-name{font-size:14px;font-weight:800;margin-bottom:4px}
+.template-card-desc{font-size:11px;color:var(--muted);margin-bottom:12px}
+.template-card-langs{display:flex;gap:6px;margin-bottom:12px}
+.lang-badge{background:#f0f0f0;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700}
+
+/* PREVIEW MODAL */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+.modal.open{display:flex}
+.modal-box{background:#fff;width:100%;max-width:820px;border-radius:12px;max-height:90vh;display:flex;flex-direction:column}
+.modal-head{background:#111;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;border-radius:12px 12px 0 0}
+.modal-head h3{color:#fff;font-size:14px;font-weight:700}
+.modal-x{background:none;border:none;color:rgba(255,255,255,.5);font-size:24px;cursor:pointer}
+.modal-body{padding:24px;overflow-y:auto;flex:1}
+.contract-preview{font-family:'Cairo',sans-serif;direction:rtl;font-size:13px;line-height:2}
+.contract-preview h2{text-align:center;font-size:18px;margin-bottom:4px}
+.contract-preview .sub{text-align:center;color:var(--muted);font-size:12px;margin-bottom:24px}
+.contract-preview .section{margin-bottom:18px}
+.contract-preview .section h3{font-size:14px;font-weight:800;border-bottom:1.5px solid var(--orange);padding-bottom:4px;margin-bottom:8px}
+.contract-preview table{width:100%;border-collapse:collapse;margin-bottom:12px;font-size:12px}
+.contract-preview table th{background:#f8f8f8;padding:8px;text-align:right;border:1px solid var(--border)}
+.contract-preview table td{padding:8px;border:1px solid var(--border)}
+.contract-preview .sig{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:30px}
+.contract-preview .sig-box{border-top:1.5px solid #333;padding-top:8px;text-align:center;font-size:12px}
+.modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:#111;color:#fff;padding:11px 22px;border-radius:8px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:all .3s;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.success{background:var(--green)}
+
+/* FOOTER */
+.footer{background:#0a0a0a;padding:40px 20px;text-align:center;margin-top:60px}
+.footer-logo{font-size:20px;font-weight:800;color:var(--orange);margin-bottom:8px}
+.footer-links{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
+.footer-links a{color:rgba(255,255,255,.5);font-size:13px;text-decoration:none}
+.footer-links a:hover{color:var(--orange)}
+.footer-copy{font-size:12px;color:rgba(255,255,255,.3)}
+
+@media(max-width:700px){
+  .steps{grid-template-columns:repeat(2,1fr)}
+  .prod-grid{grid-template-columns:repeat(2,1fr)}
+  .incoterms{grid-template-columns:1fr 1fr}
+  .templates-grid{grid-template-columns:1fr}
+  .fg-grid{grid-template-columns:1fr}
 }
 </style>
 </head>
 <body>
+<div class="toast" id="toast"></div>
 
-<div id="navPlaceholder"></div>
-<div id="cartPlaceholder"></div>
+<!-- CONTRACT PREVIEW MODAL -->
+<div class="modal" id="contractModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 id="contractModalTitle">📄 معاينة العقد</h3>
+      <button class="modal-x" onclick="closeContract()">✕</button>
+    </div>
+    <div class="modal-body" id="contractModalBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-gray" onclick="closeContract()">إغلاق</button>
+      <button class="btn btn-dark" onclick="printContract()">🖨️ طباعة</button>
+      <button class="btn btn-green" onclick="sendWA()">💬 تواصل عبر واتساب</button>
+    </div>
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<div class="nav">
+  <a class="nav-logo" href="index.html">مصر ستيل</a>
+  <div class="nav-links">
+    <a href="marketplace.html">المتجر</a>
+    <a href="contracts.html" class="active">📋 العقود</a>
+    <a href="cart.html" class="nav-cart">🛒</a>
+  </div>
+</div>
 
 <!-- HERO -->
-<div class="contracts-hero">
-  <div class="ch-title ar">📄 العقود والشروط</div>
-  <div class="ch-title en-t">📄 Contracts & Terms</div>
-  <p class="ch-sub ar">جميع عقود مصر ستيل شفافة وقانونية — يمكنك تحميل أي عقد بصيغة Word لملئه وإرساله</p>
-  <p class="ch-sub en-t">All MISR STEEL contracts are transparent and legally binding — download any contract as Word file to fill and send</p>
+<div class="hero">
+  <h1>عقود <span>التصدير</span> الدولية</h1>
+  <p>أنشئ عرض سعر احترافي، اختر شروط التسليم، وأتم التعاقد عبر واتساب</p>
+  <div class="hero-btns">
+    <a href="#quote-builder" class="btn-hero btn-hero-orange">🧾 أنشئ عرض سعر</a>
+    <a href="#templates" class="btn-hero btn-hero-outline">📄 صيغ العقود</a>
+  </div>
 </div>
 
-<!-- CONTRACTS -->
-<div class="section">
-  <div class="contracts-grid">
+<div class="page">
 
-    <!-- Sales Contract -->
-    <div class="contract-card">
-      <div class="cc-header">
-        <div class="cc-icon">🤝</div>
-        <div>
-          <div class="cc-title ar">عقد بيع المنتجات</div>
-          <div class="cc-title en-t">Sales Contract</div>
-          <div class="cc-sub ar">بين العميل ومصر ستيل · عربي وإنجليزي</div>
-          <div class="cc-sub en-t">Between client and MISR STEEL · Arabic & English</div>
-        </div>
-      </div>
-      <div class="cc-body">
-        <div class="cc-sections">
-          <div class="cc-section"><span class="cc-section-icon">📋</span><span class="ar">بيانات الطرفين وتفاصيل الأوردر</span><span class="en-t">Party details and order info</span></div>
-          <div class="cc-section"><span class="cc-section-icon">💰</span><span class="ar">شروط الدفع (50% مقدم + 50% قبل الشحن)</span><span class="en-t">Payment terms (50% deposit + 50% before shipping)</span></div>
-          <div class="cc-section"><span class="cc-section-icon">📦</span><span class="ar">الإنتاج والتسليم (21 يوم · FOB الإسكندرية)</span><span class="en-t">Production & delivery (21 days · FOB Alexandria)</span></div>
-          <div class="cc-section"><span class="cc-section-icon">🛡</span><span class="ar">الضمان سنة كاملة على عيوب التصنيع</span><span class="en-t">1-year warranty on manufacturing defects</span></div>
-          <div class="cc-section"><span class="cc-section-icon">⚖️</span><span class="ar">سياسة الإلغاء وحل النزاعات</span><span class="en-t">Cancellation policy & dispute resolution</span></div>
-        </div>
-        <div class="cc-actions">
-          <button class="cc-download" onclick="downloadContract('sales')">⬇️ <span class="ar">تحميل Word</span><span class="en-t">Download Word</span></button>
-          <button class="cc-preview" onclick="openPreview('sales')"><span class="ar">معاينة</span><span class="en-t">Preview</span></button>
-        </div>
+  <!-- STEPS -->
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-title">اختر المنتجات</div><div class="step-desc">أضف المنتجات والكميات</div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-title">حدد شروط التسليم</div><div class="step-desc">FOB · CIF · EXW وغيرها</div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-title">راجع العقد</div><div class="step-desc">معاينة كاملة بالعربي والإنجليزي</div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-title">تواصل وتعاقد</div><div class="step-desc">أرسل عبر واتساب وأتم الصفقة</div></div>
+  </div>
+
+  <!-- ════ QUOTE BUILDER ════ -->
+  <div id="quote-builder">
+  <div class="section-title">🧾 منشئ عرض الأسعار</div>
+
+  <!-- CUSTOMER INFO -->
+  <div class="quote-card">
+    <div class="quote-card-head"><h3>👤 بيانات العميل / المشتري</h3></div>
+    <div class="quote-body">
+      <div class="fg-grid">
+        <div class="fg"><label>اسم الشركة / العميل *</label><input type="text" id="q_name" placeholder="ABC Furniture Trading Co."></div>
+        <div class="fg"><label>الدولة *</label><input type="text" id="q_country" placeholder="Saudi Arabia / UAE / Iraq..."></div>
+        <div class="fg"><label>رقم الواتساب *</label><input type="tel" id="q_phone" placeholder="+966..."></div>
+        <div class="fg"><label>الإيميل</label><input type="email" id="q_email" placeholder="buyer@company.com"></div>
+        <div class="fg"><label>ميناء الوجهة</label><input type="text" id="q_port" placeholder="Jeddah Port / Dubai Port..."></div>
+        <div class="fg"><label>تاريخ التسليم المطلوب</label><input type="date" id="q_delivery"></div>
+        <div class="fg full"><label>ملاحظات خاصة</label><input type="text" id="q_notes" placeholder="أي تفاصيل إضافية..."></div>
       </div>
     </div>
+  </div>
 
-    <!-- Affiliate Contract -->
-    <div class="contract-card">
-      <div class="cc-header">
-        <div class="cc-icon">🤝</div>
-        <div>
-          <div class="cc-title ar">عقد شراكة مسوّق</div>
-          <div class="cc-title en-t">Affiliate Agreement</div>
-          <div class="cc-sub ar">للمسوّقين بالعمولة · سري ومفصّل</div>
-          <div class="cc-sub en-t">For affiliate marketers · Confidential & detailed</div>
+  <!-- PRODUCTS -->
+  <div class="quote-card">
+    <div class="quote-card-head"><h3>🪑 اختر المنتجات</h3><span style="font-size:11px;color:rgba(255,255,255,.5)">ابحث واضغط + لإضافة للعرض</span></div>
+    <div class="quote-body">
+      <div class="prod-search">
+        <input type="text" id="prodSearch" placeholder="🔍 ابحث عن منتج..." oninput="searchProds()">
+        <select id="prodSectionFilter" onchange="searchProds()" style="padding:10px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;outline:none">
+          <option value="">كل الأقسام</option>
+          <option value="home">🏠 المنزل</option>
+          <option value="hall">🎪 قاعة</option>
+          <option value="museum">🏛️ لوبي</option>
+          <option value="restaurant">🍽️ مطعم</option>
+        </select>
+      </div>
+      <div class="prod-grid" id="prodGrid">
+        <div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--muted)"><div class="sp" style="width:24px;height:24px;margin:0 auto 8px"></div>جاري تحميل المنتجات...</div>
+      </div>
+
+      <!-- QUOTE ITEMS -->
+      <div id="quoteItemsWrap" style="display:none">
+        <div style="font-size:13px;font-weight:700;margin-bottom:10px;padding-top:10px;border-top:2px solid var(--border)">📦 المنتجات المختارة:</div>
+        <table class="items-table">
+          <thead><tr><th>#</th><th>المنتج</th><th>اللون/التشطيب</th><th>الكمية</th><th>سعر الوحدة $</th><th>الإجمالي $</th><th>حذف</th></tr></thead>
+          <tbody id="quoteItemsBody"></tbody>
+        </table>
+      </div>
+
+      <button class="btn btn-gray" onclick="openAddCustomItem()" style="font-size:12px;margin-bottom:8px">➕ إضافة منتج يدوي</button>
+    </div>
+  </div>
+
+  <!-- INCOTERMS -->
+  <div class="quote-card">
+    <div class="quote-card-head"><h3>🚢 شروط التسليم (Incoterms 2020)</h3></div>
+    <div class="quote-body">
+      <div class="incoterms" id="incotermsGrid">
+        <div class="incoterm-card selected" data-term="FOB" onclick="selectIncoterm(this,'FOB')">
+          <div class="incoterm-tag">FOB</div>
+          <div class="incoterm-name">Free On Board</div>
+          <div class="incoterm-desc">تكاليف الشحن على المشتري بعد الميناء المصري</div>
+        </div>
+        <div class="incoterm-card" data-term="CIF" onclick="selectIncoterm(this,'CIF')">
+          <div class="incoterm-tag">CIF</div>
+          <div class="incoterm-name">Cost, Insurance & Freight</div>
+          <div class="incoterm-desc">البائع يتحمل الشحن والتأمين حتى ميناء الوجهة</div>
+        </div>
+        <div class="incoterm-card" data-term="EXW" onclick="selectIncoterm(this,'EXW')">
+          <div class="incoterm-tag">EXW</div>
+          <div class="incoterm-name">Ex Works</div>
+          <div class="incoterm-desc">التسليم من المصنع، كل التكاليف على المشتري</div>
+        </div>
+        <div class="incoterm-card" data-term="CFR" onclick="selectIncoterm(this,'CFR')">
+          <div class="incoterm-tag">CFR</div>
+          <div class="incoterm-name">Cost & Freight</div>
+          <div class="incoterm-desc">البائع يدفع الشحن، التأمين على المشتري</div>
+        </div>
+        <div class="incoterm-card" data-term="DAP" onclick="selectIncoterm(this,'DAP')">
+          <div class="incoterm-tag">DAP</div>
+          <div class="incoterm-name">Delivered At Place</div>
+          <div class="incoterm-desc">التسليم عند موقع المشتري (بدون جمارك)</div>
+        </div>
+        <div class="incoterm-card" data-term="DDP" onclick="selectIncoterm(this,'DDP')">
+          <div class="incoterm-tag">DDP</div>
+          <div class="incoterm-name">Delivered Duty Paid</div>
+          <div class="incoterm-desc">التسليم كامل بما فيه الجمارك والضرائب</div>
         </div>
       </div>
-      <div class="cc-body">
-        <div class="cc-sections">
-          <div class="cc-section"><span class="cc-section-icon">💵</span><span class="ar">هيكل العمولات (3% / 5% / 7%) بالتفصيل</span><span class="en-t">Commission structure (3% / 5% / 7%) in detail</span></div>
-          <div class="cc-section"><span class="cc-section-icon">📅</span><span class="ar">صرف العمولات خلال 7 أيام عمل</span><span class="en-t">Commission payout within 7 working days</span></div>
-          <div class="cc-section"><span class="cc-section-icon">🔒</span><span class="ar">السرية وعدم المنافسة</span><span class="en-t">Confidentiality & non-competition</span></div>
-          <div class="cc-section"><span class="cc-section-icon">📋</span><span class="ar">التزامات الطرفين بالتفصيل</span><span class="en-t">Both parties' detailed obligations</span></div>
-          <div class="cc-section"><span class="cc-section-icon">⚖️</span><span class="ar">مدة الاتفاقية والإنهاء وحل النزاعات</span><span class="en-t">Term, termination & dispute resolution</span></div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <div class="fg" style="flex:1;min-width:200px">
+          <label>تكلفة الشحن المقدرة $</label>
+          <input type="number" id="q_shipping" placeholder="0" oninput="calcTotals()" min="0">
         </div>
-        <div class="cc-actions">
-          <button class="cc-download" onclick="downloadContract('affiliate')">⬇️ <span class="ar">تحميل Word</span><span class="en-t">Download Word</span></button>
-          <button class="cc-preview" onclick="openPreview('affiliate')"><span class="ar">معاينة</span><span class="en-t">Preview</span></button>
+        <div class="fg" style="flex:1;min-width:200px">
+          <label>رسوم التأمين $</label>
+          <input type="number" id="q_insurance" placeholder="0" oninput="calcTotals()" min="0">
+        </div>
+        <div class="fg" style="flex:1;min-width:200px">
+          <label>خصم % (اختياري)</label>
+          <input type="number" id="q_discount" placeholder="0" min="0" max="50" oninput="calcTotals()">
         </div>
       </div>
     </div>
   </div>
 
-  <!-- TERMS OF USE -->
-  <div style="max-width:900px;margin:24px auto 0">
-    <div class="terms-section">
-      <div class="terms-header">
-        <span style="font-size:20px">📜</span>
-        <div>
-          <div style="font-size:15px;font-weight:700" class="ar">شروط الاستخدام والخصوصية</div>
-          <div style="font-size:15px;font-weight:700" class="en-t">Terms of Use & Privacy Policy</div>
-          <div style="font-size:12px;color:rgba(255,255,255,.7);margin-top:2px" class="ar">آخر تحديث: 2025</div>
-          <div style="font-size:12px;color:rgba(255,255,255,.7);margin-top:2px" class="en-t">Last updated: 2025</div>
-        </div>
+  <!-- TOTALS -->
+  <div class="quote-card">
+    <div class="quote-card-head"><h3>💰 ملخص السعر</h3></div>
+    <div class="quote-body">
+      <div class="totals" id="totalsBox">
+        <div class="total-row"><span>قيمة البضاعة</span><span id="t_goods">$0</span></div>
+        <div class="total-row"><span>تكلفة الشحن</span><span id="t_ship">$0</span></div>
+        <div class="total-row"><span>التأمين</span><span id="t_ins">$0</span></div>
+        <div class="total-row" id="t_disc_row" style="display:none;color:#cc0000"><span>خصم</span><span id="t_disc">-$0</span></div>
+        <div class="total-row big"><span>إجمالي العرض</span><span id="t_total">$0</span></div>
       </div>
-      <div class="terms-body">
-        <h3 class="ar">1. قبول الشروط</h3><h3 class="en-t">1. Acceptance of Terms</h3>
-        <p class="ar">باستخدام موقع مصر ستيل أو إجراء أي عملية شراء، فأنت توافق على الشروط التالية. إذا كنت لا توافق، يُرجى عدم استخدام الموقع.</p>
-        <p class="en-t">By using the MISR STEEL website or making any purchase, you agree to the following terms. If you do not agree, please do not use the site.</p>
+      <div class="payment-terms">
+        <h4>💳 شروط الدفع المقترحة</h4>
+        <div class="pt-row"><span>مقدم عند التوقيع (30%)</span><span id="pt_deposit">$0</span></div>
+        <div class="pt-row"><span>عند بدء الإنتاج (40%)</span><span id="pt_prod">$0</span></div>
+        <div class="pt-row"><span>قبل الشحن (30%)</span><span id="pt_ship">$0</span></div>
+        <div style="font-size:11px;color:var(--muted);margin-top:8px">* يمكن تعديل شروط الدفع بالاتفاق مع البائع</div>
+      </div>
 
-        <h3 class="ar">2. المنتجات والأسعار</h3><h3 class="en-t">2. Products & Pricing</h3>
-        <ul class="ar"><li>جميع الأسعار بالدولار الأمريكي (USD) ما لم يُذكر غير ذلك</li><li>الأسعار قابلة للتغيير دون إشعار مسبق — السعر المعتمد هو وقت تأكيد الطلب</li><li>الحد الأدنى للطلب: 50 قطعة للكراسي، 20 قطعة للطاولات</li><li>الصور على الموقع للتوضيح — قد تختلف تفاصيل دقيقة</li></ul>
-        <ul class="en-t"><li>All prices in USD unless otherwise stated</li><li>Prices subject to change without notice — confirmed order price is binding</li><li>Minimum order: 50 chairs, 20 tables</li><li>Site images are illustrative — minor details may vary</li></ul>
+      <!-- CONTRACT TERMS TABS -->
+      <div style="font-size:13px;font-weight:700;margin-bottom:12px">📋 شروط العقد</div>
+      <div class="terms-tabs">
+        <button class="terms-tab active" onclick="showTerms('general',this)">الشروط العامة</button>
+        <button class="terms-tab" onclick="showTerms('quality',this)">ضمان الجودة</button>
+        <button class="terms-tab" onclick="showTerms('delivery',this)">التسليم والشحن</button>
+        <button class="terms-tab" onclick="showTerms('payment',this)">الدفع</button>
+        <button class="terms-tab" onclick="showTerms('force',this)">القوة القاهرة</button>
+      </div>
+      <div class="terms-content show" id="terms-general">
+        <h4>General Terms / الشروط العامة</h4>
+        <ul>
+          <li>يُعدّ هذا العقد ملزماً لطرفيه بعد التوقيع وسداد الدفعة الأولى</li>
+          <li>This contract is binding upon both parties after signing and receipt of initial payment</li>
+          <li>أي تعديل في المواصفات يستوجب موافقة خطية من الطرفين</li>
+          <li>Any specification changes require written approval from both parties</li>
+          <li>النزاعات تحل وفق قانون التجارة الدولية (ICC) / Disputes resolved under ICC International Commerce rules</li>
+        </ul>
+      </div>
+      <div class="terms-content" id="terms-quality">
+        <h4>Quality Guarantee / ضمان الجودة</h4>
+        <ul>
+          <li>جميع المنتجات من استانلس ستيل 304 مضمون لمدة 3 سنوات</li>
+          <li>All products manufactured from 304 Stainless Steel with 3-year warranty</li>
+          <li>يحق للمشتري فحص البضاعة قبل الشحن أو تعيين مفتش مستقل</li>
+          <li>Buyer has the right to inspect goods before shipment or appoint independent inspector</li>
+          <li>أي عيب مصنعي يُستبدل مجاناً خلال فترة الضمان</li>
+          <li>Manufacturing defects replaced free of charge during warranty period</li>
+        </ul>
+      </div>
+      <div class="terms-content" id="terms-delivery">
+        <h4>Delivery & Shipping / التسليم والشحن</h4>
+        <ul>
+          <li>مدة التصنيع: 30-45 يوم من تاريخ استلام الدفعة المقدمة</li>
+          <li>Manufacturing lead time: 30-45 days from receipt of advance payment</li>
+          <li>يُرسل إشعار الشحن قبل 7 أيام من التحميل</li>
+          <li>Shipping notice will be sent 7 days prior to loading</li>
+          <li>التأخير لأسباب خارجة عن الإرادة لا يستوجب غرامات</li>
+        </ul>
+      </div>
+      <div class="terms-content" id="terms-payment">
+        <h4>Payment Terms / شروط الدفع</h4>
+        <ul>
+          <li>الدفع عبر تحويل بنكي (T/T) أو خطاب اعتماد (L/C)</li>
+          <li>Payment via Bank Transfer (T/T) or Letter of Credit (L/C)</li>
+          <li>يُبدأ الإنتاج فور استلام الدفعة المقدمة</li>
+          <li>Production commences upon receipt of advance payment</li>
+          <li>في حال التأخر في الدفع يُطبق غرامة 2% شهرياً</li>
+          <li>Late payment incurs 2% monthly penalty</li>
+        </ul>
+      </div>
+      <div class="terms-content" id="terms-force">
+        <h4>Force Majeure / القوة القاهرة</h4>
+        <ul>
+          <li>لا يتحمل أي طرف مسؤولية التأخير الناتج عن القوة القاهرة</li>
+          <li>Neither party is liable for delays caused by force majeure events</li>
+          <li>تشمل: الكوارث الطبيعية، الحروب، القرارات الحكومية، الأوبئة</li>
+          <li>Including: natural disasters, wars, government decisions, pandemics</li>
+          <li>يُخطر الطرف الآخر كتابياً خلال 72 ساعة من وقوع الحدث</li>
+        </ul>
+      </div>
 
-        <h3 class="ar">3. الدفع والأمان</h3><h3 class="en-t">3. Payment & Security</h3>
-        <ul class="ar"><li>المدفوعات تتم عبر Paymob — بوابة دفع مرخصة ومشفرة بـ SSL 256-bit</li><li>المقدم المطلوب 50% لتأكيد الطلب وبدء التصنيع</li><li>الباقي (50%) يُسدَّد قبل الشحن</li><li>نقبل: فيزا، ماستركارد، ميزة، فوري، محافظ إلكترونية، تحويل بنكي</li></ul>
-        <ul class="en-t"><li>Payments via Paymob — licensed gateway with SSL 256-bit encryption</li><li>50% deposit required to confirm order and start production</li><li>Remaining 50% due before shipping</li><li>We accept: Visa, Mastercard, Meeza, Fawry, e-wallets, bank transfer</li></ul>
-
-        <h3 class="ar">4. الإلغاء والاسترداد</h3><h3 class="en-t">4. Cancellation & Refund</h3>
-        <ul class="ar"><li>إلغاء قبل بدء التصنيع: استرداد 25% من المقدم</li><li>إلغاء بعد بدء التصنيع: لا يُسترد المقدم</li><li>عيوب تصنيع: إصلاح مجاني أو استبدال خلال 14 يوم</li></ul>
-        <ul class="en-t"><li>Cancellation before production: 25% of deposit refunded</li><li>Cancellation after production starts: deposit non-refundable</li><li>Manufacturing defects: free repair or replacement within 14 days</li></ul>
-
-        <h3 class="ar">5. الشحن والتسليم</h3><h3 class="en-t">5. Shipping & Delivery</h3>
-        <ul class="ar"><li>التسليم FOB ميناء الإسكندرية — تكاليف الشحن الدولي على العميل</li><li>مدة التصنيع: 21 يوم عمل من تأكيد الطلب</li><li>التأخير بسبب قوة قاهرة لا يُحتسب في مدة التصنيع</li></ul>
-        <ul class="en-t"><li>Delivery FOB Port of Alexandria — international shipping at buyer's expense</li><li>Production time: 21 working days from order confirmation</li><li>Force majeure delays not counted in production time</li></ul>
-
-        <h3 class="ar">6. الخصوصية وحماية البيانات</h3><h3 class="en-t">6. Privacy & Data Protection</h3>
-        <p class="ar">نحترم خصوصيتك. بياناتك الشخصية تُستخدم فقط لإتمام طلباتك والتواصل معك. لا نشارك بياناتك مع أي طرف ثالث بدون موافقتك.</p>
-        <p class="en-t">We respect your privacy. Your personal data is used only to process your orders and communicate with you. We do not share your data with any third party without your consent.</p>
-
-        <h3 class="ar">7. القانون الحاكم</h3><h3 class="en-t">7. Governing Law</h3>
-        <p class="ar">تخضع هذه الشروط للقانون المصري. أي نزاع يُحال لمحاكم القاهرة الابتدائية بعد محاولة التسوية الودية.</p>
-        <p class="en-t">These terms are governed by Egyptian law. Any dispute is referred to Cairo courts after attempting amicable resolution.</p>
+      <div class="action-btns" style="margin-top:20px">
+        <button class="btn btn-gray" onclick="resetQuote()">🔄 إعادة تعيين</button>
+        <button class="btn btn-dark" onclick="previewContract()">👁️ معاينة العقد</button>
+        <button class="btn btn-orange" onclick="sendQuoteWA()">💬 إرسال عبر واتساب</button>
       </div>
     </div>
   </div>
-</div>
+  </div><!-- end quote builder -->
 
-<!-- PREVIEW MODAL -->
-<div class="preview-modal" id="previewModal" onclick="if(event.target===this)closePreview()">
-  <div class="pm-box">
-    <div class="pm-header">
-      <h3 id="pmTitle">معاينة العقد</h3>
-      <button class="pm-close" onclick="closePreview()">✕</button>
+  <!-- CONTRACT TEMPLATES -->
+  <div id="templates" style="margin-top:40px">
+  <div class="section-title">📄 صيغ العقود الجاهزة</div>
+  <div class="templates-grid">
+    <div class="template-card">
+      <div class="template-card-top" style="background:linear-gradient(135deg,#fff3eb,#ffe0cc)">📦</div>
+      <div class="template-card-body">
+        <div class="template-card-name">عقد بيع وتصدير</div>
+        <div class="template-card-desc">عقد بيع دولي شامل لتصدير الأثاث مع كل البنود القانونية</div>
+        <div class="template-card-langs"><span class="lang-badge">عربي</span><span class="lang-badge">English</span></div>
+        <button class="btn btn-orange" style="width:100%;justify-content:center" onclick="showTemplate('sale')">📋 عرض الصيغة</button>
+      </div>
     </div>
-    <div class="pm-body" id="pmBody"></div>
+    <div class="template-card">
+      <div class="template-card-top" style="background:linear-gradient(135deg,#e8f5ec,#c8edcf)">🚢</div>
+      <div class="template-card-body">
+        <div class="template-card-name">عقد FOB</div>
+        <div class="template-card-desc">بيع FOB — تسليم على ظهر السفينة، الشحن على المشتري</div>
+        <div class="template-card-langs"><span class="lang-badge">عربي</span><span class="lang-badge">English</span></div>
+        <button class="btn btn-orange" style="width:100%;justify-content:center" onclick="showTemplate('fob')">📋 عرض الصيغة</button>
+      </div>
+    </div>
+    <div class="template-card">
+      <div class="template-card-top" style="background:linear-gradient(135deg,#e8f0ff,#c8d5ff)">🏭</div>
+      <div class="template-card-body">
+        <div class="template-card-name">عقد EXW (من المصنع)</div>
+        <div class="template-card-desc">تسليم من المصنع — كل التكاليف والمخاطر على المشتري</div>
+        <div class="template-card-langs"><span class="lang-badge">عربي</span><span class="lang-badge">English</span></div>
+        <button class="btn btn-orange" style="width:100%;justify-content:center" onclick="showTemplate('exw')">📋 عرض الصيغة</button>
+      </div>
+    </div>
+    <div class="template-card">
+      <div class="template-card-top" style="background:linear-gradient(135deg,#fff0f0,#ffd5d5)">📋</div>
+      <div class="template-card-body">
+        <div class="template-card-name">عقد CIF شامل</div>
+        <div class="template-card-desc">شامل تكلفة الشحن والتأمين حتى ميناء الوجهة</div>
+        <div class="template-card-langs"><span class="lang-badge">عربي</span><span class="lang-badge">English</span></div>
+        <button class="btn btn-orange" style="width:100%;justify-content:center" onclick="showTemplate('cif')">📋 عرض الصيغة</button>
+      </div>
+    </div>
+    <div class="template-card">
+      <div class="template-card-top" style="background:linear-gradient(135deg,#f5f5f5,#e5e5e5)">🤝</div>
+      <div class="template-card-body">
+        <div class="template-card-name">اتفاقية وكالة حصرية</div>
+        <div class="template-card-desc">عقد تعيين وكيل حصري في دولة أجنبية</div>
+        <div class="template-card-langs"><span class="lang-badge">عربي</span><span class="lang-badge">English</span></div>
+        <button class="btn btn-orange" style="width:100%;justify-content:center" onclick="showTemplate('agency')">📋 عرض الصيغة</button>
+      </div>
+    </div>
+    <div class="template-card">
+      <div class="template-card-top" style="background:linear-gradient(135deg,#fff3eb,#ffe0cc)">📝</div>
+      <div class="template-card-body">
+        <div class="template-card-name">عرض سعر رسمي</div>
+        <div class="template-card-desc">نموذج عرض سعر رسمي للعملاء والموردين</div>
+        <div class="template-card-langs"><span class="lang-badge">عربي</span><span class="lang-badge">English</span></div>
+        <button class="btn btn-orange" style="width:100%;justify-content:center" onclick="previewContract()">📋 أنشئ عرض سعرك</button>
+      </div>
+    </div>
   </div>
+  </div>
+
+</div><!-- end page -->
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="footer-logo">مصر ستيل 🏭</div>
+  <div class="footer-links">
+    <a href="index.html">الرئيسية</a>
+    <a href="marketplace.html">المتجر</a>
+    <a href="contracts.html">العقود</a>
+    <a href="portfolio.html">معرض الأعمال</a>
+  </div>
+  <div class="footer-copy">© 2025 مصر ستيل — جميع الحقوق محفوظة</div>
 </div>
 
-<div id="footerPlaceholder"></div>
+<style>
+.sp{width:32px;height:32px;border:3px solid rgba(255,96,0,.2);border-top-color:var(--orange);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
 
-<script src="shared.js"></script>
 <script>
-var SALES_PREVIEW = '<div class="pm-section-title ar">عقد بيع منتجات — مصر ستيل</div><div class="pm-section-title en-t">Sales Contract — MISR STEEL</div><div style="text-align:center;padding:12px;background:#fafaf7;margin-bottom:16px;font-size:12px;color:var(--muted)"><div style="font-size:18px;font-weight:700;color:var(--orange)">مصر ستيل · MISR STEEL</div><div class="ar">عقد بيع منتجات أثاث استانلس</div><div class="en-t">Stainless Furniture Sales Contract</div><div style="margin-top:4px">رقم العقد: <span class="pm-blank"></span> · التاريخ: <span class="pm-blank"></span></div></div><div class="pm-section-title ar">الطرف الأول — البائع</div><div class="pm-section-title en-t">First Party — Seller</div><table><tr><th class="ar">البيان</th><th class="en-t">Field</th><th class="ar">القيمة</th><th class="en-t">Value</th></tr><tr><td class="ar">الاسم التجاري</td><td class="en-t">Trade Name</td><td>مصر ستيل للأثاث الاستانلس</td><td>MISR STEEL</td></tr><tr><td class="ar">العنوان</td><td class="en-t">Address</td><td colspan="2">القاهرة، جمهورية مصر العربية / Cairo, Egypt</td></tr></table><div class="pm-section-title ar">الطرف الثاني — المشتري</div><div class="pm-section-title en-t">Second Party — Buyer</div><table><tr><th class="ar">البيان</th><th class="en-t">Field</th><th class="ar">القيمة</th><th class="en-t">Value</th></tr><tr><td class="ar">الاسم</td><td class="en-t">Name</td><td colspan="2"><span class="pm-blank"></span></td></tr><tr><td class="ar">الدولة</td><td class="en-t">Country</td><td colspan="2"><span class="pm-blank"></span></td></tr><tr><td class="ar">الواتساب</td><td class="en-t">WhatsApp</td><td colspan="2"><span class="pm-blank"></span></td></tr></table><div class="pm-section-title ar">تفاصيل الأوردر</div><div class="pm-section-title en-t">Order Details</div><table><tr><th>المنتج / Product</th><th>الكمية / Qty</th><th>سعر الوحدة / Price</th><th>الإجمالي / Total</th></tr><tr><td><span class="pm-blank"></span></td><td><span class="pm-blank"></span></td><td>$ <span class="pm-blank"></span></td><td>$ <span class="pm-blank"></span></td></tr></table><div class="pm-section-title ar">شروط الدفع</div><div class="pm-section-title en-t">Payment Terms</div><div class="pm-row"><span class="pm-row-label ar">المقدم (50%) الآن</span><span class="pm-row-label en-t">Deposit (50%) now</span><span class="pm-row-val">$ <span class="pm-blank"></span></span></div><div class="pm-row"><span class="pm-row-label ar">الباقي (50%) قبل الشحن</span><span class="pm-row-label en-t">Balance (50%) before shipping</span><span class="pm-row-val">$ <span class="pm-blank"></span></span></div><div class="pm-section-title ar">التوقيعات</div><div class="pm-section-title en-t">Signatures</div><div class="sign-grid"><div class="sign-box"><div class="sign-label ar">الطرف الأول — البائع</div><div class="sign-label en-t">First Party — Seller</div><div class="sign-line"></div><div style="font-size:12px;color:var(--muted)">الاسم / Name: <span class="pm-blank"></span></div></div><div class="sign-box"><div class="sign-label ar">الطرف الثاني — المشتري</div><div class="sign-label en-t">Second Party — Buyer</div><div class="sign-line"></div><div style="font-size:12px;color:var(--muted)">الاسم / Name: <span class="pm-blank"></span></div></div></div>';
+var BACKEND = 'https://misrsteel-backend.vercel.app';
+var quoteItems = [];
+var selectedIncoterm = 'FOB';
+var allProducts = [];
 
-var AFF_PREVIEW = '<div style="text-align:center;padding:12px;background:#fafaf7;margin-bottom:16px;font-size:12px;color:var(--muted)"><div style="font-size:18px;font-weight:700;color:var(--orange)">مصر ستيل · MISR STEEL</div><div class="ar">عقد شراكة مسوّق بعمولة</div><div class="en-t">Affiliate Commission Agreement</div></div><div class="pm-section-title ar">هيكل العمولات</div><div class="pm-section-title en-t">Commission Structure</div><table><tr><th class="ar">المستوى</th><th class="en-t">Tier</th><th class="ar">حجم الأوردر</th><th class="en-t">Order Size</th><th class="ar">النسبة</th><th class="en-t">Rate</th></tr><tr><td class="ar">مبدئي</td><td class="en-t">Starter</td><td class="ar">أقل من $5,000</td><td class="en-t">Under $5,000</td><td style="color:var(--orange);font-weight:700">3%</td></tr><tr style="background:#fafaf7"><td class="ar">محترف</td><td class="en-t">Pro</td><td>$5,000 – $20,000</td><td>$5,000 – $20,000</td><td style="color:var(--orange);font-weight:700">5%</td></tr><tr><td class="ar">بريميوم</td><td class="en-t">Premium</td><td class="ar">فوق $20,000</td><td class="en-t">Above $20,000</td><td style="color:var(--orange);font-weight:700">7%</td></tr></table><div class="pm-section-title ar">بيانات الأطراف</div><div class="pm-section-title en-t">Party Details</div><div class="pm-row"><span class="pm-row-label ar">اسم المسوّق</span><span class="pm-row-label en-t">Affiliate name</span><span class="pm-blank"></span></div><div class="pm-row"><span class="pm-row-label ar">كود التتبع</span><span class="pm-row-label en-t">Referral code</span><span class="pm-blank"></span></div><div class="pm-row"><span class="pm-row-label ar">تاريخ بدء الاتفاقية</span><span class="pm-row-label en-t">Agreement start date</span><span class="pm-blank"></span></div><div class="pm-row"><span class="pm-row-label ar">مدة الصرف</span><span class="pm-row-label en-t">Payout timeline</span><span class="pm-row-val ar">7 أيام عمل</span><span class="pm-row-val en-t">7 working days</span></div><div class="sign-grid"><div class="sign-box"><div class="sign-label ar">الشركة</div><div class="sign-label en-t">Company</div><div class="sign-line"></div></div><div class="sign-box"><div class="sign-label ar">المسوّق</div><div class="sign-label en-t">Affiliate</div><div class="sign-line"></div></div></div>';
-
-function openPreview(type){
-  var modal = document.getElementById('previewModal');
-  var body = document.getElementById('pmBody');
-  var title = document.getElementById('pmTitle');
-  if(type==='sales'){
-    title.innerHTML = '<span class="ar">معاينة عقد البيع</span><span class="en-t">Sales Contract Preview</span>';
-    body.innerHTML = SALES_PREVIEW;
-  } else {
-    title.innerHTML = '<span class="ar">معاينة عقد المسوّق</span><span class="en-t">Affiliate Contract Preview</span>';
-    body.innerHTML = AFF_PREVIEW;
+// ── LOAD PRODUCTS ─────────────────────────────────────
+async function loadProds() {
+  try {
+    var r = await fetch(BACKEND + '/api/products?limit=100');
+    var d = await r.json();
+    allProducts = d.products || [];
+    renderProdGrid(allProducts);
+  } catch(e) {
+    document.getElementById('prodGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--muted)">تعذر تحميل المنتجات — أضف يدوياً</div>';
   }
-  modal.classList.add('open');
-  document.body.style.overflow='hidden';
 }
 
-function closePreview(){
-  document.getElementById('previewModal').classList.remove('open');
-  document.body.style.overflow='';
+function renderProdGrid(prods) {
+  var grid = document.getElementById('prodGrid');
+  if (!prods.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--muted)">لا توجد منتجات</div>';
+    return;
+  }
+  grid.innerHTML = prods.slice(0,12).map(function(p) {
+    var img = p.imgs && p.imgs[0] ? (p.imgs[0].startsWith('http') || p.imgs[0].startsWith('data:') ? p.imgs[0] : 'https://misrsteel.vercel.app/' + p.imgs[0]) : '';
+    return '<div class="prod-item" onclick="addToQuote(' + JSON.stringify(JSON.stringify(p)).slice(1,-1) + ')" >' +
+      (img ? '<img class="prod-item-img" src="' + img + '" onerror="this.style.display=\'none\'">' : '<div class="prod-item-img" style="display:flex;align-items:center;justify-content:center;font-size:28px">🪑</div>') +
+      '<div class="prod-item-name">' + (p.nameAr||p.nameEn||'منتج') + '</div>' +
+      '<div class="prod-item-price">$' + (p.price||0) + ' / قطعة</div>' +
+      '<div style="font-size:10px;color:var(--muted);margin-top:2px">اضغط للإضافة ➕</div>' +
+      '</div>';
+  }).join('');
 }
 
-function downloadContract(type){
-  var filename = type==='sales' ? 'misrsteel_sales_contract.docx' : 'misrsteel_affiliate_contract.docx';
-  var link = document.createElement('a');
-  link.href = filename;
-  link.download = filename;
-  link.click();
-  showToast(document.body.classList.contains('en') ? '⬇️ Downloading...' : '⬇️ جاري التحميل...', 'success');
+function searchProds() {
+  var q = document.getElementById('prodSearch').value.toLowerCase();
+  var sec = document.getElementById('prodSectionFilter').value;
+  var filtered = allProducts.filter(function(p) {
+    return (!q || (p.nameAr||'').includes(q) || (p.nameEn||'').toLowerCase().includes(q)) &&
+           (!sec || p.section === sec);
+  });
+  renderProdGrid(filtered);
 }
 
-document.addEventListener('keydown', function(e){ if(e.key==='Escape') closePreview(); });
+// ── QUOTE ITEMS ───────────────────────────────────────
+function addToQuote(pStr) {
+  var p;
+  try { p = JSON.parse(pStr); } catch(e) { return; }
+  var existing = quoteItems.find(function(i){ return i.id === p.id; });
+  if (existing) { existing.qty += 1; existing.total = existing.qty * existing.unitPrice; }
+  else {
+    quoteItems.push({ id:p.id||Date.now(), nameAr:p.nameAr||p.nameEn, nameEn:p.nameEn||p.nameAr, unitPrice:p.price||0, qty:1, total:p.price||0, finish:p.finish||'' });
+  }
+  renderQuoteItems();
+  calcTotals();
+  toast('✅ تم الإضافة: ' + (p.nameAr||p.nameEn));
+}
 
-document.addEventListener('DOMContentLoaded', function(){
-  document.getElementById('navPlaceholder').innerHTML = buildNav('contracts');
-  document.getElementById('cartPlaceholder').innerHTML = buildCartDrawer();
-  document.getElementById('footerPlaceholder').innerHTML = buildFooter();
-});
+function openAddCustomItem() {
+  var name = prompt('اسم المنتج:');
+  if (!name) return;
+  var price = parseFloat(prompt('سعر الوحدة ($):') || '0');
+  var qty = parseInt(prompt('الكمية:') || '1');
+  quoteItems.push({ id:Date.now(), nameAr:name, nameEn:name, unitPrice:price, qty:qty, total:price*qty, finish:'' });
+  renderQuoteItems();
+  calcTotals();
+}
+
+function renderQuoteItems() {
+  var wrap = document.getElementById('quoteItemsWrap');
+  var tbody = document.getElementById('quoteItemsBody');
+  if (!quoteItems.length) { wrap.style.display='none'; return; }
+  wrap.style.display = 'block';
+  tbody.innerHTML = quoteItems.map(function(item, i) {
+    return '<tr>' +
+      '<td>' + (i+1) + '</td>' +
+      '<td><strong>' + item.nameAr + '</strong>' + (item.nameEn && item.nameEn !== item.nameAr ? '<br><small style="color:var(--muted)">' + item.nameEn + '</small>' : '') + '</td>' +
+      '<td>' + (item.finish || '-') + '</td>' +
+      '<td><input type="number" value="' + item.qty + '" min="1" onchange="updateQty(' + i + ',this.value)"></td>' +
+      '<td><input type="number" value="' + item.unitPrice + '" min="0" step="0.01" onchange="updatePrice(' + i + ',this.value)"></td>' +
+      '<td><strong style="color:var(--orange)">$' + item.total.toLocaleString() + '</strong></td>' +
+      '<td><button onclick="removeItem(' + i + ')" style="background:#fff0f0;border:none;color:#cc0000;padding:4px 8px;border-radius:4px;cursor:pointer;font-family:inherit">✕</button></td>' +
+      '</tr>';
+  }).join('');
+}
+
+function updateQty(i, val) { quoteItems[i].qty = parseInt(val)||1; quoteItems[i].total = quoteItems[i].qty * quoteItems[i].unitPrice; calcTotals(); }
+function updatePrice(i, val) { quoteItems[i].unitPrice = parseFloat(val)||0; quoteItems[i].total = quoteItems[i].qty * quoteItems[i].unitPrice; renderQuoteItems(); calcTotals(); }
+function removeItem(i) { quoteItems.splice(i,1); renderQuoteItems(); calcTotals(); }
+
+// ── INCOTERMS ─────────────────────────────────────────
+function selectIncoterm(el, term) {
+  document.querySelectorAll('.incoterm-card').forEach(function(c){ c.classList.remove('selected'); });
+  el.classList.add('selected');
+  selectedIncoterm = term;
+}
+
+// ── CALC TOTALS ───────────────────────────────────────
+function calcTotals() {
+  var goods = quoteItems.reduce(function(s,i){ return s + i.total; }, 0);
+  var ship = parseFloat(document.getElementById('q_shipping').value) || 0;
+  var ins = parseFloat(document.getElementById('q_insurance').value) || 0;
+  var discPct = parseFloat(document.getElementById('q_discount').value) || 0;
+  var subtotal = goods + ship + ins;
+  var discAmt = Math.round(subtotal * discPct / 100);
+  var total = subtotal - discAmt;
+
+  document.getElementById('t_goods').textContent = '$' + goods.toLocaleString();
+  document.getElementById('t_ship').textContent = '$' + ship.toLocaleString();
+  document.getElementById('t_ins').textContent = '$' + ins.toLocaleString();
+  document.getElementById('t_total').textContent = '$' + total.toLocaleString();
+
+  var discRow = document.getElementById('t_disc_row');
+  if (discAmt > 0) { discRow.style.display='flex'; document.getElementById('t_disc').textContent = '-$' + discAmt.toLocaleString(); }
+  else { discRow.style.display='none'; }
+
+  document.getElementById('pt_deposit').textContent = '$' + Math.round(total * 0.3).toLocaleString();
+  document.getElementById('pt_prod').textContent = '$' + Math.round(total * 0.4).toLocaleString();
+  document.getElementById('pt_ship').textContent = '$' + Math.round(total * 0.3).toLocaleString();
+}
+
+// ── TERMS TABS ────────────────────────────────────────
+function showTerms(id, btn) {
+  document.querySelectorAll('.terms-content').forEach(function(t){ t.classList.remove('show'); });
+  document.querySelectorAll('.terms-tab').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('terms-' + id).classList.add('show');
+  btn.classList.add('active');
+}
+
+// ── PREVIEW CONTRACT ──────────────────────────────────
+function previewContract() {
+  var name = document.getElementById('q_name').value || 'العميل';
+  var country = document.getElementById('q_country').value || '---';
+  var port = document.getElementById('q_port').value || '---';
+  var delivery = document.getElementById('q_delivery').value || '---';
+  var goods = quoteItems.reduce(function(s,i){ return s + i.total; }, 0);
+  var ship = parseFloat(document.getElementById('q_shipping').value)||0;
+  var ins = parseFloat(document.getElementById('q_insurance').value)||0;
+  var discPct = parseFloat(document.getElementById('q_discount').value)||0;
+  var subtotal = goods + ship + ins;
+  var discAmt = Math.round(subtotal * discPct / 100);
+  var total = subtotal - discAmt;
+  var today = new Date().toLocaleDateString('ar-EG');
+  var quoteNo = 'MS-' + Date.now().toString().slice(-6);
+
+  var itemsRows = quoteItems.map(function(item, i) {
+    return '<tr><td>' + (i+1) + '</td><td>' + item.nameAr + '<br><small>' + (item.nameEn||'') + '</small></td><td>' + item.qty + '</td><td>$' + item.unitPrice + '</td><td><strong>$' + item.total.toLocaleString() + '</strong></td></tr>';
+  }).join('') || '<tr><td colspan="5" style="text-align:center;color:#888">لم يتم إضافة منتجات بعد</td></tr>';
+
+  document.getElementById('contractModalBody').innerHTML = `
+  <div class="contract-preview" id="printArea">
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:22px;font-weight:800;color:var(--orange)">MISR STEEL — مصر ستيل</div>
+      <div style="font-size:11px;color:#888">Egypt · Tel: +20105059525 · misrsteel.vercel.app</div>
+    </div>
+    <h2>عرض سعر وعقد تصدير<br><small style="font-size:14px;font-weight:400">Export Quotation & Contract</small></h2>
+    <div class="sub">رقم العرض: ${quoteNo} | التاريخ: ${today}</div>
+
+    <div class="section">
+      <h3>بيانات الطرفين / Parties</h3>
+      <table><tr>
+        <th>البائع / Seller</th><th>المشتري / Buyer</th>
+      </tr><tr>
+        <td>مصر ستيل للصناعات المعدنية<br>Misr Steel Metal Industries<br>مصر — Egypt</td>
+        <td>${name}<br>${country}<br>ميناء الوجهة: ${port}</td>
+      </tr></table>
+    </div>
+
+    <div class="section">
+      <h3>المنتجات / Products</h3>
+      <table>
+        <tr><th>#</th><th>المنتج / Product</th><th>الكمية / Qty</th><th>سعر الوحدة / Unit Price</th><th>الإجمالي / Total</th></tr>
+        ${itemsRows}
+      </table>
+    </div>
+
+    <div class="section">
+      <h3>الأسعار / Pricing (${selectedIncoterm})</h3>
+      <table>
+        <tr><td>قيمة البضاعة / Goods Value</td><td><strong>$${goods.toLocaleString()}</strong></td></tr>
+        ${ship > 0 ? '<tr><td>تكلفة الشحن / Freight</td><td>$'+ship.toLocaleString()+'</td></tr>' : ''}
+        ${ins > 0 ? '<tr><td>التأمين / Insurance</td><td>$'+ins.toLocaleString()+'</td></tr>' : ''}
+        ${discAmt > 0 ? '<tr><td>خصم / Discount ('+discPct+'%)</td><td style="color:#cc0000">-$'+discAmt.toLocaleString()+'</td></tr>' : ''}
+        <tr style="background:#fff3eb"><td><strong>الإجمالي / Grand Total (${selectedIncoterm})</strong></td><td><strong style="color:var(--orange);font-size:16px">$${total.toLocaleString()}</strong></td></tr>
+      </table>
+    </div>
+
+    <div class="section">
+      <h3>شروط الدفع / Payment Terms</h3>
+      <ul style="padding-right:18px;line-height:2">
+        <li>30% مقدم عند التوقيع / 30% advance upon signing: <strong>$${Math.round(total*0.3).toLocaleString()}</strong></li>
+        <li>40% عند بدء الإنتاج / 40% upon production start: <strong>$${Math.round(total*0.4).toLocaleString()}</strong></li>
+        <li>30% قبل الشحن / 30% before shipment: <strong>$${Math.round(total*0.3).toLocaleString()}</strong></li>
+        <li>التحويل البنكي أو خطاب الاعتماد / Bank Transfer (T/T) or L/C</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h3>شروط التسليم / Delivery Terms</h3>
+      <ul style="padding-right:18px;line-height:2">
+        <li>شرط التسليم / Incoterm: <strong>${selectedIncoterm} 2020</strong></li>
+        <li>ميناء الشحن / Port of Loading: الإسكندرية — Alexandria, Egypt</li>
+        <li>ميناء الوجهة / Port of Destination: <strong>${port}</strong></li>
+        <li>تاريخ التسليم المقدر / Estimated Delivery: <strong>${delivery}</strong></li>
+        <li>مدة التصنيع / Lead Time: 30-45 يوم / days</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h3>ضمان الجودة / Quality Guarantee</h3>
+      <ul style="padding-right:18px;line-height:2">
+        <li>استانلس ستيل 304 — Grade 304 Stainless Steel</li>
+        <li>ضمان 3 سنوات ضد العيوب المصنعية / 3-year warranty against manufacturing defects</li>
+        <li>يحق للمشتري الفحص قبل الشحن / Buyer has right to pre-shipment inspection</li>
+      </ul>
+    </div>
+
+    <div class="sig">
+      <div class="sig-box">
+        <strong>البائع / Seller</strong><br>
+        مصر ستيل<br>
+        التوقيع: __________________<br>
+        التاريخ: ${today}
+      </div>
+      <div class="sig-box">
+        <strong>المشتري / Buyer</strong><br>
+        ${name}<br>
+        التوقيع: __________________<br>
+        التاريخ: ________________
+      </div>
+    </div>
+
+    <div style="text-align:center;font-size:10px;color:#888;margin-top:20px;padding-top:12px;border-top:1px solid #eee">
+      هذا العرض سار لمدة 30 يوم من تاريخ الإصدار | This quotation is valid for 30 days from issue date<br>
+      misrsteel.vercel.app | +20105059525
+    </div>
+  </div>`;
+
+  document.getElementById('contractModalTitle').textContent = '📄 عرض سعر رقم ' + quoteNo;
+  document.getElementById('contractModal').classList.add('open');
+}
+
+function closeContract() { document.getElementById('contractModal').classList.remove('open'); }
+
+function printContract() {
+  var content = document.getElementById('printArea').innerHTML;
+  var win = window.open('','_blank');
+  win.document.write('<html dir="rtl"><head><meta charset="UTF-8"><title>عرض سعر — مصر ستيل</title><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet"><style>body{font-family:Cairo,sans-serif;direction:rtl;padding:20px;font-size:13px;line-height:2}table{width:100%;border-collapse:collapse}th,td{padding:8px;border:1px solid #ddd;text-align:right}th{background:#f8f8f8}h2,h3{margin-bottom:8px}.sig{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:30px}.sig-box{border-top:1.5px solid #333;padding-top:8px;text-align:center}ul{padding-right:18px}@media print{body{padding:10px}}</style></head><body>' + content + '</body></html>');
+  win.document.close();
+  win.print();
+}
+
+function sendWA() {
+  var name = document.getElementById('q_name').value || 'العميل';
+  var country = document.getElementById('q_country').value || '';
+  var phone = document.getElementById('q_phone').value || '';
+  var goods = quoteItems.reduce(function(s,i){ return s + i.total; }, 0);
+  var ship = parseFloat(document.getElementById('q_shipping').value)||0;
+  var ins = parseFloat(document.getElementById('q_insurance').value)||0;
+  var discPct = parseFloat(document.getElementById('q_discount').value)||0;
+  var total = Math.round((goods + ship + ins) * (1 - discPct/100));
+
+  var msg = '📋 عرض سعر جديد — مصر ستيل\n\n';
+  msg += '👤 العميل: ' + name + '\n';
+  msg += '🌍 الدولة: ' + country + '\n\n';
+  msg += '📦 المنتجات:\n';
+  quoteItems.forEach(function(item, i) {
+    msg += (i+1) + '. ' + item.nameAr + ' × ' + item.qty + ' = $' + item.total.toLocaleString() + '\n';
+  });
+  msg += '\n🚢 شرط التسليم: ' + selectedIncoterm + '\n';
+  msg += '💰 إجمالي العرض: $' + total.toLocaleString() + '\n\n';
+  msg += '💳 شروط الدفع:\n';
+  msg += '   مقدم (30%): $' + Math.round(total*0.3).toLocaleString() + '\n';
+  msg += '   عند الإنتاج (40%): $' + Math.round(total*0.4).toLocaleString() + '\n';
+  msg += '   قبل الشحن (30%): $' + Math.round(total*0.3).toLocaleString() + '\n\n';
+  msg += 'نرجو التواصل لإتمام التعاقد 🤝';
+  window.open('https://wa.me/201050595250?text=' + encodeURIComponent(msg), '_blank');
+}
+
+function sendQuoteWA() {
+  var name = document.getElementById('q_name').value;
+  var phone = document.getElementById('q_phone').value;
+  if (!name || !phone) { toast('❌ أدخل اسم العميل والواتساب أولاً', 'error'); return; }
+  if (!quoteItems.length) { toast('❌ أضف منتجات للعرض أولاً', 'error'); return; }
+  sendWA();
+}
+
+// ── CONTRACT TEMPLATES ────────────────────────────────
+function showTemplate(type) {
+  var titles = {
+    sale: 'عقد بيع وتصدير دولي — International Sale & Export Contract',
+    fob: 'عقد FOB — Free On Board Contract',
+    exw: 'عقد EXW — Ex Works Contract',
+    cif: 'عقد CIF — Cost, Insurance & Freight Contract',
+    agency: 'اتفاقية وكالة حصرية — Exclusive Agency Agreement'
+  };
+
+  var bodies = {
+    sale: `<div class="contract-preview"><h2>عقد بيع وتصدير دولي<br><small>International Export Sale Contract</small></h2>
+    <div class="sub">نموذج قابل للتخصيص | Customizable Template</div>
+    <div class="section"><h3>أطراف العقد / Parties</h3>
+    <p>البائع: مصر ستيل للصناعات المعدنية، مصر<br>Seller: Misr Steel Metal Industries, Egypt</p>
+    <p>المشتري: ........................ / Buyer: ........................</p></div>
+    <div class="section"><h3>موضوع العقد / Subject Matter</h3>
+    <p>يتعهد البائع بتصنيع وتوريد أثاث استانلس ستيل حسب المواصفات المتفق عليها.<br>
+    Seller undertakes to manufacture and supply stainless steel furniture per agreed specifications.</p></div>
+    <div class="section"><h3>المواصفات / Specifications</h3>
+    <ul><li>خامة: استانلس ستيل 304 / Material: Grade 304 Stainless Steel</li>
+    <li>التشطيب: حسب الطلب / Finish: As per buyer's request</li>
+    <li>شهادات الجودة متاحة / Quality certificates available upon request</li></ul></div>
+    <div class="section"><h3>الشروط العامة / General Terms</h3>
+    <ul><li>هذا العقد خاضع لقواعد غرفة التجارة الدولية ICC</li>
+    <li>This contract is subject to ICC International Chamber of Commerce rules</li>
+    <li>أي نزاع يحل بالتحكيم في القاهرة / Disputes resolved by arbitration in Cairo</li></ul></div>
+    <div class="sig"><div class="sig-box">البائع / Seller<br>مصر ستيل<br>________________</div>
+    <div class="sig-box">المشتري / Buyer<br>________________<br>________________</div></div></div>`,
+    fob: `<div class="contract-preview"><h2>عقد FOB — Free On Board<br><small>Port of Loading: Alexandria, Egypt</small></h2>
+    <div class="sub">Incoterms® 2020 | ICC Rules</div>
+    <div class="section"><h3>شروط FOB الأساسية</h3>
+    <ul><li>البائع مسؤول عن تسليم البضاعة على ظهر السفينة في ميناء الإسكندرية</li>
+    <li>Seller responsible for delivering goods on board vessel at Alexandria Port</li>
+    <li>المشتري يتحمل تكاليف الشحن والتأمين والمخاطر بعد الشحن</li>
+    <li>Buyer bears freight, insurance and risk from point of loading</li>
+    <li>البائع يوفر وثائق التصدير الجمركية المصرية</li>
+    <li>Seller provides Egyptian customs export documents</li></ul></div>
+    <div class="section"><h3>التزامات البائع / Seller Obligations</h3>
+    <ul><li>تسليم البضاعة في الميعاد المحدد</li><li>توفير فاتورة تجارية وشهادة منشأ</li>
+    <li>تغليف البضاعة تغليفاً مناسباً للشحن البحري</li></ul></div>
+    <div class="section"><h3>التزامات المشتري / Buyer Obligations</h3>
+    <ul><li>ترتيب السفينة في الميعاد المحدد</li><li>دفع تكاليف الشحن والتأمين</li>
+    <li>استيفاء إجراءات الاستيراد في بلده</li></ul></div>
+    <div class="sig"><div class="sig-box">البائع / Seller<br>مصر ستيل<br>________________</div>
+    <div class="sig-box">المشتري / Buyer<br>________________<br>________________</div></div></div>`,
+    exw: `<div class="contract-preview"><h2>عقد EXW — Ex Works<br><small>Factory: Misr Steel, Egypt</small></h2>
+    <div class="section"><h3>شروط EXW الأساسية</h3>
+    <ul><li>التسليم من مصنع مصر ستيل — الكمية والجودة مضمونة</li>
+    <li>Delivery from Misr Steel factory — quantity and quality guaranteed</li>
+    <li>جميع التكاليف والمخاطر بعد التسليم على المشتري بالكامل</li>
+    <li>All costs and risks after delivery are entirely buyer's responsibility</li>
+    <li>المشتري مسؤول عن جمارك التصدير والشحن والتأمين</li></ul></div>
+    <div class="sig"><div class="sig-box">البائع / Seller<br>مصر ستيل<br>________________</div>
+    <div class="sig-box">المشتري / Buyer<br>________________<br>________________</div></div></div>`,
+    cif: `<div class="contract-preview"><h2>عقد CIF — Cost, Insurance & Freight<br><small>Port of Destination: As per buyer's request</small></h2>
+    <div class="section"><h3>شروط CIF الأساسية</h3>
+    <ul><li>البائع يتحمل تكلفة البضاعة + الشحن + التأمين حتى ميناء الوجهة</li>
+    <li>Seller bears cost + freight + insurance to destination port</li>
+    <li>المخاطر تنتقل للمشتري عند شحن البضاعة في ميناء الإسكندرية</li>
+    <li>Risk transfers to buyer when goods are loaded in Alexandria</li>
+    <li>البائع يوفر: فاتورة + بوليصة شحن + شهادة تأمين + شهادة منشأ</li></ul></div>
+    <div class="sig"><div class="sig-box">البائع / Seller<br>مصر ستيل<br>________________</div>
+    <div class="sig-box">المشتري / Buyer<br>________________<br>________________</div></div></div>`,
+    agency: `<div class="contract-preview"><h2>اتفاقية وكالة حصرية<br><small>Exclusive Agency Agreement</small></h2>
+    <div class="section"><h3>الطرفان / Parties</h3>
+    <p>الموكِّل / Principal: مصر ستيل للصناعات المعدنية</p>
+    <p>الوكيل / Agent: ........................</p></div>
+    <div class="section"><h3>نطاق الوكالة / Scope</h3>
+    <ul><li>الوكيل الحصري لمنتجات مصر ستيل في: ........................</li>
+    <li>Exclusive agent for Misr Steel products in: ........................</li>
+    <li>مدة الاتفاقية: سنة قابلة للتجديد / Duration: 1 year, renewable</li></ul></div>
+    <div class="section"><h3>العمولة / Commission</h3>
+    <ul><li>عمولة الوكيل: 10% من قيمة كل صفقة / Agent commission: 10% per deal</li>
+    <li>تُسدَّد العمولة بعد استلام الدفعة الكاملة / Paid after full payment receipt</li></ul></div>
+    <div class="sig"><div class="sig-box">الموكِّل / Principal<br>مصر ستيل<br>________________</div>
+    <div class="sig-box">الوكيل / Agent<br>________________<br>________________</div></div></div>`
+  };
+
+  document.getElementById('contractModalTitle').textContent = '📄 ' + titles[type];
+  document.getElementById('contractModalBody').innerHTML = bodies[type] || '';
+  document.getElementById('contractModal').classList.add('open');
+}
+
+// ── HELPERS ───────────────────────────────────────────
+function resetQuote() {
+  if (!confirm('إعادة تعيين العرض بالكامل؟')) return;
+  quoteItems = [];
+  renderQuoteItems();
+  calcTotals();
+  ['q_name','q_country','q_phone','q_email','q_port','q_notes','q_shipping','q_insurance','q_discount'].forEach(function(id){ document.getElementById(id).value=''; });
+  document.getElementById('q_delivery').value = '';
+}
+
+function toast(msg, type) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (type==='error' ? '' : ' success') + ' show';
+  clearTimeout(t._t);
+  t._t = setTimeout(function(){ t.classList.remove('show'); }, 2500);
+}
+
+// ── INIT ──────────────────────────────────────────────
+loadProds();
 </script>
 </body>
 </html>
