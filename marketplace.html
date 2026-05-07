@@ -74,17 +74,19 @@ a{text-decoration:none;color:inherit}button{cursor:pointer;font-family:inherit}
 <div class="toast" id="toast"></div>
 <div class="topbar">
   <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:rgba(255,255,255,.7)">سعر الدولار: <div class="rate-badge"><span class="rate-display">50.85</span> ج.م</div></div>
-  <div class="topbar-right"><a href="tel:+201050595250">📞 +201050595250</a><a href="https://wa.me/201050595250">💬 واتساب</a></div>
+  <div class="topbar-right"><a href="tel:+201050595250">📞 +201050595250</a><a href="https://wa.me/201050595250">💬 واتساب</a><a href="contracts.html" style="color:rgba(255,255,255,.8);font-weight:600">📋 العقود</a></div>
 </div>
 <nav class="main-nav"><div class="nav-top">
   <a class="nav-logo" href="index.html"><div class="logo-ar">مصر ستيل</div><div class="logo-en">MISR STEEL</div></a>
   <div class="nav-search"><input type="text" id="searchInp" placeholder="ابحث..."><button class="nav-search-btn" onclick="doSearch()">🔍</button></div>
-  <div class="nav-actions" style="display:flex;align-items:center;gap:8px"><a href="cart.html" style="position:relative;display:inline-flex;align-items:center;gap:6px;color:#fff;text-decoration:none;font-size:14px;font-weight:700;background:var(--orange);padding:7px 16px;border-radius:8px;margin-right:8px">🛒 السلة<span class="cart-badge" style="display:none;background:#fff;color:var(--orange);border-radius:50%;min-width:18px;height:18px;font-size:10px;font-weight:800;align-items:center;justify-content:center;padding:0 3px">0</span></a><button class="nav-btn" onclick="window.location='index.html'">← الرئيسية</button></div>
+  <div class="nav-actions" style="display:flex;align-items:center;gap:8px">
+    <a href="contracts.html" style="padding:8px 16px;background:var(--orange-lt);color:var(--orange);border:1.5px solid var(--orange);border-radius:4px;font-size:12px;font-weight:700;text-decoration:none">📋 العقود</a>
+    <a href="cart.html" style="position:relative;display:inline-flex;align-items:center;gap:6px;color:#fff;text-decoration:none;font-size:14px;font-weight:700;background:var(--orange);padding:7px 16px;border-radius:8px;margin-right:8px">🛒 السلة<span class="cart-badge" style="display:none;background:#fff;color:var(--orange);border-radius:50%;min-width:18px;height:18px;font-size:10px;font-weight:800;align-items:center;justify-content:center;padding:0 3px">0</span></a>
+    <button class="nav-btn" onclick="window.location='index.html'">← الرئيسية</button>
+  </div>
 </div>
 </nav>
-
 <div class="mp-hero"><h1>🏭 متجر مصر ستيل</h1><p>أثاث استانلس فاخر مباشرة من المصنع — بدون حد أدنى للطلب</p></div>
-
 <div class="mp-layout">
   <div class="mp-sidebar">
     <h3>🔍 فلترة</h3>
@@ -110,9 +112,9 @@ a{text-decoration:none;color:inherit}button{cursor:pointer;font-family:inherit}
       <label class="filter-check"><input type="checkbox" value="silver" checked onchange="applyFilters()"> 🥈 فضي</label>
       <label class="filter-check"><input type="checkbox" value="black" checked onchange="applyFilters()"> ⬛ أسود</label>
     </div>
+    <a href="contracts.html" style="display:block;text-align:center;padding:10px;background:var(--orange-lt);border:1.5px solid var(--orange);border-radius:8px;color:var(--orange);font-size:12px;font-weight:700;text-decoration:none;margin-bottom:8px">📋 طلب عرض سعر للتصدير</a>
     <button class="reset-btn" onclick="resetFilters()">إعادة الضبط</button>
   </div>
-
   <div>
     <div class="mp-toolbar">
       <div class="mp-count" id="mpCount">جاري التحميل...</div>
@@ -123,42 +125,34 @@ a{text-decoration:none;color:inherit}button{cursor:pointer;font-family:inherit}
     </div>
   </div>
 </div>
-
 <a class="wa-fab" href="https://wa.me/201050595250" target="_blank">💬 واتساب</a>
-
 <script src="cart.js"></script>
 <script>
 var BACKEND = 'https://misrsteel-backend.vercel.app';
 var USD_EGP = parseFloat(localStorage.getItem('ms_rate') || '50.85');
 var allProducts = [], filtered = [];
 var sectionLabels = {home:'🏠 منزل', hall:'🎪 قاعة', museum:'🏛️ لوبي', restaurant:'🍽️ مطعم'};
-
 async function loadProducts() {
   try {
     var sr = await fetch(BACKEND + '/api/settings/public');
     var sd = await sr.json();
     if (sd.usdRate) { USD_EGP = sd.usdRate; localStorage.setItem('ms_rate', USD_EGP); document.querySelectorAll('.rate-display').forEach(function(el){el.textContent=USD_EGP.toFixed(2)}); }
-
     var r = await fetch(BACKEND + '/api/products');
     var d = await r.json();
     allProducts = d.products || [];
     filtered = allProducts.slice();
-
     var params = new URLSearchParams(location.search);
     var q       = params.get('q');
     var pid     = params.get('id');
     var section = params.get('section');
-
     if (section) {
       filtered = allProducts.filter(function(p){ return p.section === section; });
       var label = {home:'🏠 منزل', hall:'🎪 قاعات', restaurant:'🍽️ مطاعم', museum:'🏛️ لوبي'}[section] || section;
       var countEl = document.getElementById('mpCount');
       if (countEl) countEl.textContent = filtered.length + ' منتج في ' + label;
     }
-
     if (q) { document.getElementById('searchInp').value = q; doSearch(); return; }
     renderGrid(filtered);
-
     if (pid) {
       setTimeout(function() {
         var p = allProducts.find(function(x){ return x.id===parseInt(pid)||x.id===pid; });
@@ -169,13 +163,11 @@ async function loadProducts() {
     document.getElementById('mpGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#888">❌ تعذر تحميل المنتجات — <button onclick="loadProducts()" style="color:var(--orange);background:none;border:none;cursor:pointer;font-family:inherit;font-size:13px">أعد المحاولة</button></div>';
   }
 }
-
 var mpAllProds = [];
 var mpPage = 0;
 var mpPageSize = 15;
 var mpLoading = false;
 var mpScrollObserver = null;
-
 function renderGrid(prods) {
   mpAllProds = prods;
   mpPage = 0;
@@ -185,7 +177,6 @@ function renderGrid(prods) {
   mpLoadMore();
   mpSetupScroll();
 }
-
 function mpLoadMore() {
   if (mpLoading) return;
   var start = mpPage * mpPageSize;
@@ -193,7 +184,6 @@ function mpLoadMore() {
   if (!batch.length) return;
   mpLoading = true;
   var grid = document.getElementById('mpGrid');
-  
   batch.forEach(function(p) {
     var card = document.createElement('div');
     card.className = 'mp-card';
@@ -201,20 +191,16 @@ function mpLoadMore() {
     card.addEventListener('click', function(e) {
       if (!e.target.closest('button')) window.location = 'product.html?id=' + p.id;
     });
-
     var img = p.imgs && p.imgs[0] ? p.imgs[0] : '';
     var imgSrc = img && !img.startsWith('data:') ? (img.startsWith('http') ? img : 'https://misrsteel.vercel.app/' + img) : '';
     var egp = p.price > 0 ? Math.round(p.price * USD_EGP).toLocaleString() : '';
-
     var html = '';
     if (p.badge === 'hot') html += '<div class="mp-badge badge-hot">الأكثر طلباً</div>';
     else if (p.badge === 'new') html += '<div class="mp-badge badge-new">جديد</div>';
-    
     html += '<div class="mp-img">';
     if (imgSrc) html += '<img src="' + imgSrc + '" alt="' + p.nameAr + '" loading="lazy">';
     else html += '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:40px">🪑</div>';
     html += '</div>';
-    
     html += '<div class="mp-body">';
     html += '<div class="mp-section-tag">' + (sectionLabels[p.section]||p.section) + '</div>';
     html += '<div class="mp-name">' + p.nameAr + '</div>';
@@ -223,9 +209,7 @@ function mpLoadMore() {
     html += '<button class="btn-mp">🛒 أضف للسلة</button>';
     html += '<button class="btn-mp-wa">💬</button>';
     html += '</div></div>';
-    
     card.innerHTML = html;
-    
     card.querySelector('.btn-mp').addEventListener('click', function(e) {
       e.stopPropagation();
       Cart.add(p, 1, '', '', p.price);
@@ -234,14 +218,11 @@ function mpLoadMore() {
       e.stopPropagation();
       waProduct(p);
     });
-    
     grid.appendChild(card);
   });
-  
   mpPage++;
   mpLoading = false;
 }
-
 function mpSetupScroll() {
   var s = document.getElementById('mp-sentinel');
   if (!s) {
@@ -256,16 +237,16 @@ function mpSetupScroll() {
   }, {threshold:0.1});
   mpScrollObserver.observe(s);
 }
-
 function applyFilters() {
-  var sections = Array.from(document.querySelectorAll('.filter-check input[value="home"],[value="hall"],[value="museum"],[value="restaurant"]')).filter(function(c){return c.checked}).map(function(c){return c.value});
-  var finishes = Array.from(document.querySelectorAll('.filter-check input[value="gold"],[value="silver"],[value="black"]')).filter(function(c){return c.checked}).map(function(c){return c.value});
+  var sections = Array.from(document.querySelectorAll('.filter-check input[value="home"],[value="hall"],[value="museum"],[value="restaurant"]'))
+    .filter(function(c){return c.checked}).map(function(c){return c.value});
+  var finishes = Array.from(document.querySelectorAll('.filter-check input[value="gold"],[value="silver"],[value="black"]'))
+    .filter(function(c){return c.checked}).map(function(c){return c.value});
   var minP = parseFloat(document.getElementById('priceMin').value) || 0;
   var maxP = parseFloat(document.getElementById('priceMax').value) || 9999;
   filtered = allProducts.filter(function(p){ return sections.includes(p.section) && finishes.includes(p.finish) && p.price >= minP && p.price <= maxP; });
   renderGrid(filtered);
 }
-
 function sortProducts(by) {
   var arr = filtered.slice();
   if (by==='price_asc') arr.sort(function(a,b){return a.price-b.price});
@@ -273,7 +254,6 @@ function sortProducts(by) {
   else if (by==='name') arr.sort(function(a,b){return a.nameAr.localeCompare(b.nameAr,'ar')});
   renderGrid(arr);
 }
-
 function resetFilters() {
   document.querySelectorAll('.filter-check input').forEach(function(c){c.checked=true});
   document.getElementById('priceMin').value=0;
@@ -281,19 +261,16 @@ function resetFilters() {
   filtered = allProducts.slice();
   renderGrid(filtered);
 }
-
 function doSearch() {
   var q = document.getElementById('searchInp').value.trim().toLowerCase();
   if (!q) { filtered=allProducts.slice(); renderGrid(filtered); return; }
   filtered = allProducts.filter(function(p){ return (p.nameAr||'').includes(q)||(p.nameEn||'').toLowerCase().includes(q)||(p.desc||'').includes(q); });
   renderGrid(filtered);
 }
-
 function waProduct(p) {
   var msg='مرحباً، عاوز أعرف أكتر عن: '+p.nameAr+'\nالسعر: $'+p.price;
   window.open('https://wa.me/201050595250?text='+encodeURIComponent(msg),'_blank');
 }
-
 document.getElementById('searchInp').addEventListener('keydown',function(e){if(e.key==='Enter')doSearch()});
 loadProducts();
 </script>
