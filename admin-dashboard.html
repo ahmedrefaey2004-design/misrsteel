@@ -1,0 +1,1887 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة الإدارة — مصر ستيل</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+/* ═══════════════════════════════════════════════════════
+   DESIGN TOKENS & RESET
+═══════════════════════════════════════════════════════ */
+:root {
+  --c-bg:        #0c0c0f;
+  --c-surface:   #14141a;
+  --c-card:      #1c1c25;
+  --c-card-h:    #22222e;
+  --c-border:    rgba(255,255,255,.07);
+  --c-border-h:  rgba(255,255,255,.14);
+  --c-text:      #f0f0f5;
+  --c-muted:     #8888a0;
+  --c-hint:      #555566;
+  --orange:      #ff6b2b;
+  --orange-dk:   #e0551a;
+  --orange-gl:   rgba(255,107,43,.12);
+  --orange-gl2:  rgba(255,107,43,.06);
+  --green:       #22c55e;
+  --green-gl:    rgba(34,197,94,.1);
+  --blue:        #3b82f6;
+  --blue-gl:     rgba(59,130,246,.1);
+  --red:         #ef4444;
+  --red-gl:      rgba(239,68,68,.1);
+  --amber:       #f59e0b;
+  --amber-gl:    rgba(245,158,11,.1);
+  --purple:      #8b5cf6;
+  --purple-gl:   rgba(139,92,246,.1);
+  --sidebar-w:   240px;
+  --header-h:    58px;
+  --radius:      10px;
+  --radius-lg:   14px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:14px}
+body{font-family:'Cairo',sans-serif;background:var(--c-bg);color:var(--c-text);direction:rtl;min-height:100vh;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;font-family:inherit}
+img{max-width:100%;display:block}
+input,select,textarea{font-family:inherit}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--c-hint);border-radius:2px}
+
+/* ═══════════════════════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════════════════════ */
+.shell{display:grid;grid-template-columns:var(--sidebar-w) 1fr;grid-template-rows:var(--header-h) 1fr;min-height:100vh}
+
+/* ═══════════════════════════════════════════════════════
+   HEADER
+═══════════════════════════════════════════════════════ */
+.header{
+  grid-column:1/-1;
+  background:var(--c-surface);
+  border-bottom:1px solid var(--c-border);
+  display:flex;align-items:center;
+  padding:0 20px;gap:16px;
+  position:sticky;top:0;z-index:200;
+}
+.header-logo{
+  width:var(--sidebar-w);
+  display:flex;align-items:center;gap:10px;
+  flex-shrink:0;padding-left:4px;
+}
+.logo-icon{
+  width:34px;height:34px;border-radius:9px;
+  background:var(--orange);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:900;color:#fff;
+}
+.logo-text{font-size:15px;font-weight:800;color:var(--c-text)}
+.logo-sub{font-size:10px;color:var(--c-muted);font-weight:500;margin-top:-2px}
+.header-search{
+  flex:1;max-width:380px;
+  display:flex;align-items:center;gap:10px;
+  background:var(--c-card);border:1px solid var(--c-border);
+  border-radius:8px;padding:0 14px;height:36px;
+  transition:border-color .2s;
+}
+.header-search:focus-within{border-color:var(--orange)}
+.header-search input{
+  flex:1;background:transparent;border:none;outline:none;
+  color:var(--c-text);font-size:13px;
+}
+.header-search input::placeholder{color:var(--c-hint)}
+.header-search svg{color:var(--c-muted);flex-shrink:0}
+.header-right{display:flex;align-items:center;gap:8px;margin-right:auto}
+.hbtn{
+  width:34px;height:34px;border-radius:8px;
+  background:var(--c-card);border:1px solid var(--c-border);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--c-muted);font-size:16px;transition:all .2s;position:relative;
+}
+.hbtn:hover{background:var(--c-card-h);color:var(--c-text);border-color:var(--c-border-h)}
+.hbtn-badge{
+  position:absolute;top:-3px;inset-inline-end:-3px;
+  min-width:16px;height:16px;border-radius:8px;
+  background:var(--orange);color:#fff;
+  font-size:9px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;padding:0 4px;
+}
+.api-dot-wrap{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--c-muted);padding:0 8px}
+.api-dot{width:7px;height:7px;border-radius:50%;background:var(--c-hint);transition:background .3s}
+.api-dot.on{background:var(--green)}
+.api-dot.off{background:var(--red)}
+.avatar{
+  width:34px;height:34px;border-radius:50%;
+  background:linear-gradient(135deg,var(--orange),#ff9a5c);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;color:#fff;cursor:pointer;
+}
+.site-btn{
+  padding:0 14px;height:34px;border-radius:8px;
+  background:var(--orange-gl);color:var(--orange);
+  border:1px solid rgba(255,107,43,.25);font-size:12px;font-weight:700;
+  display:flex;align-items:center;gap:6px;transition:all .2s;
+}
+.site-btn:hover{background:var(--orange);color:#fff}
+
+/* ═══════════════════════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════════════════════ */
+.sidebar{
+  background:var(--c-surface);
+  border-inline-start:1px solid var(--c-border);
+  padding:12px 0;overflow-y:auto;
+  position:sticky;top:var(--header-h);
+  height:calc(100vh - var(--header-h));
+}
+.nav-section-label{
+  font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--c-hint);padding:14px 18px 6px;
+}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px 10px 18px;
+  font-size:13px;font-weight:600;
+  color:var(--c-muted);cursor:pointer;
+  border-inline-end:2px solid transparent;
+  transition:all .18s;position:relative;
+}
+.nav-item:hover{color:var(--c-text);background:rgba(255,255,255,.03)}
+.nav-item.active{
+  color:var(--orange);
+  background:var(--orange-gl2);
+  border-inline-end-color:var(--orange);
+}
+.nav-item .ni-icon{
+  width:30px;height:30px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;flex-shrink:0;
+  background:rgba(255,255,255,.04);
+  transition:all .18s;
+}
+.nav-item.active .ni-icon{background:var(--orange-gl);color:var(--orange)}
+.nav-badge{
+  margin-right:auto;min-width:20px;height:20px;border-radius:10px;
+  background:var(--orange);color:#fff;
+  font-size:10px;font-weight:700;padding:0 6px;
+  display:flex;align-items:center;justify-content:center;
+}
+.nav-badge.blue{background:var(--blue)}
+.nav-badge.green{background:var(--green)}
+.nav-divider{height:1px;background:var(--c-border);margin:8px 14px}
+
+/* ═══════════════════════════════════════════════════════
+   CONTENT AREA
+═══════════════════════════════════════════════════════ */
+.content{padding:24px;overflow-y:auto}
+.panel{display:none}.panel.show{display:block}
+
+/* ═══════════════════════════════════════════════════════
+   PAGE HEADER
+═══════════════════════════════════════════════════════ */
+.page-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.page-hd-left h2{font-size:20px;font-weight:800;margin-bottom:2px}
+.page-hd-left p{font-size:12px;color:var(--c-muted)}
+.page-hd-right{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ═══════════════════════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════════════════════ */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:0 16px;height:36px;border-radius:8px;
+  font-size:13px;font-weight:700;border:none;
+  transition:all .18s;cursor:pointer;
+}
+.btn-primary{background:var(--orange);color:#fff}
+.btn-primary:hover{background:var(--orange-dk)}
+.btn-ghost{background:var(--c-card);color:var(--c-muted);border:1px solid var(--c-border)}
+.btn-ghost:hover{background:var(--c-card-h);color:var(--c-text)}
+.btn-danger{background:var(--red-gl);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+.btn-success{background:var(--green-gl);color:var(--green);border:1px solid rgba(34,197,94,.2)}
+.btn-sm{height:30px;padding:0 12px;font-size:12px}
+
+/* ═══════════════════════════════════════════════════════
+   KPI CARDS
+═══════════════════════════════════════════════════════ */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.kpi-card{
+  background:var(--c-card);border:1px solid var(--c-border);
+  border-radius:var(--radius-lg);padding:20px;
+  position:relative;overflow:hidden;transition:border-color .2s;
+}
+.kpi-card:hover{border-color:var(--c-border-h)}
+.kpi-card::before{
+  content:'';position:absolute;top:0;inset-inline-start:0;
+  width:3px;height:100%;
+}
+.kpi-card.orange::before{background:var(--orange)}
+.kpi-card.green::before{background:var(--green)}
+.kpi-card.blue::before{background:var(--blue)}
+.kpi-card.purple::before{background:var(--purple)}
+.kpi-card.amber::before{background:var(--amber)}
+.kpi-card.red::before{background:var(--red)}
+.kpi-icon{
+  width:40px;height:40px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;margin-bottom:14px;
+}
+.kpi-card.orange .kpi-icon{background:var(--orange-gl);color:var(--orange)}
+.kpi-card.green .kpi-icon{background:var(--green-gl);color:var(--green)}
+.kpi-card.blue .kpi-icon{background:var(--blue-gl);color:var(--blue)}
+.kpi-card.purple .kpi-icon{background:var(--purple-gl);color:var(--purple)}
+.kpi-card.amber .kpi-icon{background:var(--amber-gl);color:var(--amber)}
+.kpi-card.red .kpi-icon{background:var(--red-gl);color:var(--red)}
+.kpi-num{font-size:26px;font-weight:800;margin-bottom:4px}
+.kpi-label{font-size:12px;color:var(--c-muted);font-weight:600}
+.kpi-trend{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:11px;font-weight:700;margin-top:8px;
+  padding:3px 8px;border-radius:6px;
+}
+.kpi-trend.up{background:var(--green-gl);color:var(--green)}
+.kpi-trend.down{background:var(--red-gl);color:var(--red)}
+
+/* ═══════════════════════════════════════════════════════
+   CARDS
+═══════════════════════════════════════════════════════ */
+.card{
+  background:var(--c-card);border:1px solid var(--c-border);
+  border-radius:var(--radius-lg);overflow:hidden;margin-bottom:16px;
+}
+.card-head{
+  padding:16px 20px;border-bottom:1px solid var(--c-border);
+  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+}
+.card-head h3{font-size:14px;font-weight:700}
+.card-body{padding:20px}
+
+/* ═══════════════════════════════════════════════════════
+   TABLES
+═══════════════════════════════════════════════════════ */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{
+  background:rgba(255,255,255,.03);
+  padding:10px 16px;text-align:right;
+  font-size:11px;font-weight:700;color:var(--c-muted);
+  letter-spacing:.04em;border-bottom:1px solid var(--c-border);
+  white-space:nowrap;
+}
+td{padding:13px 16px;border-bottom:1px solid var(--c-border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tbody tr{transition:background .15s}
+tbody tr:hover{background:rgba(255,255,255,.025)}
+.td-img{width:42px;height:42px;border-radius:8px;object-fit:cover;background:var(--c-bg)}
+
+/* ═══════════════════════════════════════════════════════
+   BADGES & PILLS
+═══════════════════════════════════════════════════════ */
+.badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;
+}
+.badge-orange{background:var(--orange-gl);color:var(--orange)}
+.badge-green{background:var(--green-gl);color:var(--green)}
+.badge-blue{background:var(--blue-gl);color:var(--blue)}
+.badge-red{background:var(--red-gl);color:var(--red)}
+.badge-amber{background:var(--amber-gl);color:var(--amber)}
+.badge-purple{background:var(--purple-gl);color:var(--purple)}
+.badge-gray{background:rgba(255,255,255,.07);color:var(--c-muted)}
+
+/* ═══════════════════════════════════════════════════════
+   FORMS
+═══════════════════════════════════════════════════════ */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg.full{grid-column:1/-1}
+.fg label{font-size:11px;font-weight:700;color:var(--c-muted);letter-spacing:.05em}
+.fg input,.fg select,.fg textarea{
+  padding:9px 13px;
+  background:var(--c-bg);border:1px solid var(--c-border);
+  border-radius:8px;font-size:13px;color:var(--c-text);
+  outline:none;transition:border-color .18s;width:100%;
+}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--orange)}
+.fg select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:left 12px center}
+.fg input::placeholder,.fg textarea::placeholder{color:var(--c-hint)}
+
+/* ═══════════════════════════════════════════════════════
+   MODALS
+═══════════════════════════════════════════════════════ */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.75);
+  z-index:500;display:none;align-items:center;justify-content:center;padding:20px;
+  backdrop-filter:blur(4px);
+}
+.modal-overlay.open{display:flex}
+.modal-box{
+  background:var(--c-surface);border:1px solid var(--c-border);
+  width:100%;max-width:580px;border-radius:var(--radius-lg);
+  max-height:90vh;display:flex;flex-direction:column;
+  box-shadow:0 24px 80px rgba(0,0,0,.6);
+}
+.modal-box.wide{max-width:780px}
+.modal-hd{
+  padding:18px 22px;border-bottom:1px solid var(--c-border);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.modal-hd h3{font-size:15px;font-weight:700}
+.modal-close{
+  width:30px;height:30px;border-radius:7px;border:none;
+  background:rgba(255,255,255,.06);color:var(--c-muted);font-size:16px;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+}
+.modal-close:hover{background:rgba(255,255,255,.1);color:var(--c-text)}
+.modal-body{padding:22px;overflow-y:auto;flex:1}
+.modal-foot{padding:16px 22px;border-top:1px solid var(--c-border);display:flex;gap:8px;justify-content:flex-end}
+
+/* ═══════════════════════════════════════════════════════
+   QUICK STATS ROW
+═══════════════════════════════════════════════════════ */
+.stats-row{display:grid;grid-template-columns:2fr 1fr 1fr;gap:16px;margin-bottom:24px}
+.chart-placeholder{
+  background:var(--c-card);border:1px solid var(--c-border);
+  border-radius:var(--radius-lg);padding:20px;
+}
+.chart-placeholder h3{font-size:14px;font-weight:700;margin-bottom:16px}
+.bar-chart{display:flex;align-items:flex-end;gap:8px;height:120px}
+.bar-group{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px}
+.bar{
+  width:100%;border-radius:5px 5px 0 0;
+  min-height:4px;transition:opacity .2s;cursor:pointer;
+}
+.bar:hover{opacity:.8}
+.bar-label{font-size:10px;color:var(--c-muted)}
+.mini-list{
+  background:var(--c-card);border:1px solid var(--c-border);
+  border-radius:var(--radius-lg);padding:16px;
+}
+.mini-list h3{font-size:13px;font-weight:700;margin-bottom:12px}
+.mini-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--c-border)}
+.mini-item:last-child{border-bottom:none}
+.mini-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.mini-label{font-size:12px;flex:1}
+.mini-val{font-size:12px;font-weight:700}
+
+/* ═══════════════════════════════════════════════════════
+   SEARCH BAR IN CARD
+═══════════════════════════════════════════════════════ */
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.filter-input{
+  padding:8px 12px;background:var(--c-bg);border:1px solid var(--c-border);
+  border-radius:8px;font-size:12px;color:var(--c-text);outline:none;
+  transition:border-color .18s;flex:1;min-width:160px;
+}
+.filter-input:focus{border-color:var(--orange)}
+.filter-select{
+  padding:8px 28px 8px 12px;background:var(--c-bg);border:1px solid var(--c-border);
+  border-radius:8px;font-size:12px;color:var(--c-text);outline:none;
+  appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:left 10px center;cursor:pointer;
+}
+
+/* ═══════════════════════════════════════════════════════
+   NOTIFICATIONS PANEL
+═══════════════════════════════════════════════════════ */
+.notif-item{
+  display:flex;gap:12px;align-items:flex-start;
+  padding:14px 20px;border-bottom:1px solid var(--c-border);
+  transition:background .15s;
+}
+.notif-item:hover{background:rgba(255,255,255,.02)}
+.notif-item.unread{background:rgba(255,107,43,.03)}
+.notif-icon{
+  width:36px;height:36px;border-radius:9px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+}
+.notif-body{flex:1}
+.notif-title{font-size:13px;font-weight:600;margin-bottom:3px}
+.notif-sub{font-size:11px;color:var(--c-muted)}
+.notif-time{font-size:10px;color:var(--c-hint);margin-top:4px}
+.unread-dot{width:7px;height:7px;border-radius:50%;background:var(--orange);margin-top:4px;flex-shrink:0}
+
+/* ═══════════════════════════════════════════════════════
+   ROLES
+═══════════════════════════════════════════════════════ */
+.role-card{
+  background:var(--c-card);border:1px solid var(--c-border);
+  border-radius:var(--radius-lg);padding:18px;margin-bottom:12px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+}
+.role-info h4{font-size:14px;font-weight:700;margin-bottom:4px}
+.role-info p{font-size:11px;color:var(--c-muted)}
+.perm-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.perm-chip{
+  padding:3px 10px;border-radius:6px;font-size:11px;font-weight:600;
+  background:rgba(255,255,255,.06);color:var(--c-muted);
+  border:1px solid var(--c-border);
+}
+.perm-chip.on{background:var(--green-gl);color:var(--green);border-color:rgba(34,197,94,.2)}
+
+/* ═══════════════════════════════════════════════════════
+   SETTINGS
+═══════════════════════════════════════════════════════ */
+.settings-section{margin-bottom:24px}
+.settings-section h3{font-size:13px;font-weight:700;color:var(--c-muted);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--c-border);letter-spacing:.06em;text-transform:uppercase}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--c-border)}
+.settings-row:last-child{border-bottom:none}
+.settings-row-left h4{font-size:13px;font-weight:600;margin-bottom:2px}
+.settings-row-left p{font-size:11px;color:var(--c-muted)}
+.toggle{
+  width:44px;height:24px;border-radius:12px;background:var(--c-hint);
+  position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;border:none;
+}
+.toggle.on{background:var(--green)}
+.toggle::after{
+  content:'';position:absolute;top:3px;right:3px;
+  width:18px;height:18px;border-radius:50%;background:#fff;
+  transition:transform .2s;
+}
+.toggle.on::after{transform:translateX(-20px)}
+
+/* ═══════════════════════════════════════════════════════
+   SUPPORT
+═══════════════════════════════════════════════════════ */
+.ticket-card{
+  background:var(--c-card);border:1px solid var(--c-border);
+  border-radius:var(--radius-lg);padding:16px 20px;margin-bottom:10px;
+  display:flex;align-items:center;gap:14px;transition:border-color .18s;
+}
+.ticket-card:hover{border-color:var(--c-border-h)}
+.ticket-priority{width:4px;height:44px;border-radius:2px;flex-shrink:0}
+.ticket-body{flex:1}
+.ticket-title{font-size:13px;font-weight:700;margin-bottom:4px}
+.ticket-meta{font-size:11px;color:var(--c-muted)}
+
+/* ═══════════════════════════════════════════════════════
+   ANALYTICS
+═══════════════════════════════════════════════════════ */
+.analytics-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.donut-wrap{display:flex;align-items:center;gap:20px}
+.donut-legend{flex:1}
+.legend-item{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:12px}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+/* ═══════════════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════════════ */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--c-card);border:1px solid var(--c-border);color:var(--c-text);
+  padding:12px 22px;border-radius:10px;font-size:13px;font-weight:600;
+  z-index:9999;opacity:0;transition:all .3s;pointer-events:none;
+  box-shadow:0 8px 30px rgba(0,0,0,.5);white-space:nowrap;
+}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.success{border-color:rgba(34,197,94,.3);color:var(--green)}
+.toast.error{border-color:rgba(239,68,68,.3);color:var(--red)}
+
+/* ═══════════════════════════════════════════════════════
+   LOADING
+═══════════════════════════════════════════════════════ */
+.spin{
+  width:28px;height:28px;border-radius:50%;
+  border:2px solid rgba(255,107,43,.2);border-top-color:var(--orange);
+  animation:spin .7s linear infinite;margin:0 auto;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-box{padding:40px;text-align:center;color:var(--c-muted)}
+
+/* ═══════════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════════ */
+@media(max-width:1024px){
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .stats-row{grid-template-columns:1fr}
+  .analytics-grid{grid-template-columns:1fr}
+}
+@media(max-width:768px){
+  :root{--sidebar-w:0px}
+  .sidebar{display:none}
+  .shell{grid-template-columns:1fr}
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .form-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════ MODALS ═══════════════════ -->
+
+<!-- Product Modal -->
+<div class="modal-overlay" id="prodModal">
+  <div class="modal-box wide">
+    <div class="modal-hd"><h3 id="prodModalTitle">➕ إضافة منتج</h3><button class="modal-close" onclick="closeModal('prodModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="fg"><label>الاسم بالعربي *</label><input type="text" id="pm_nameAr" placeholder="كرسي رويال ذهبي"></div>
+        <div class="fg"><label>الاسم بالإنجليزي</label><input type="text" id="pm_nameEn" placeholder="Royal Gold Chair"></div>
+        <div class="fg"><label>السعر ($) *</label><input type="number" id="pm_price" placeholder="45" min="1"></div>
+        <div class="fg"><label>القسم</label>
+          <select id="pm_section">
+            <option value="home">🏠 المنزل</option>
+            <option value="hall">🎪 قاعة</option>
+            <option value="museum">🏛️ لوبي</option>
+            <option value="restaurant">🍽️ مطعم</option>
+          </select>
+        </div>
+        <div class="fg"><label>التشطيب</label>
+          <select id="pm_finish">
+            <option value="gold">🥇 ذهبي</option>
+            <option value="silver">🥈 فضي</option>
+            <option value="black">⬛ أسود</option>
+          </select>
+        </div>
+        <div class="fg"><label>Badge</label>
+          <select id="pm_badge">
+            <option value="">بدون</option>
+            <option value="hot">🔥 الأكثر طلباً</option>
+            <option value="new">✨ جديد</option>
+            <option value="sale">💸 خصم</option>
+          </select>
+        </div>
+        <div class="fg full"><label>الوصف</label><textarea id="pm_desc" rows="2" placeholder="إطار استانلس ذهبي · مخمل بيج..."></textarea></div>
+        <div class="fg full"><label>رابط الصورة</label><input type="text" id="pm_img" placeholder="https://... أو images/p01.jpg"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('prodModal')">إلغاء</button>
+      <button class="btn btn-danger btn-sm" id="delProdBtn" onclick="deleteProdFromModal()" style="display:none">🗑️ حذف</button>
+      <button class="btn btn-primary" onclick="saveProd()">💾 حفظ المنتج</button>
+    </div>
+  </div>
+</div>
+
+<!-- Order Modal -->
+<div class="modal-overlay" id="orderModal">
+  <div class="modal-box wide">
+    <div class="modal-hd"><h3>📦 تفاصيل الطلب</h3><button class="modal-close" onclick="closeModal('orderModal')">✕</button></div>
+    <div class="modal-body" id="orderModalBody"></div>
+    <div class="modal-foot">
+      <select id="orderStatusSel" class="filter-select" style="min-width:160px">
+        <option value="new">⏳ جديد</option>
+        <option value="confirmed">✅ مؤكد</option>
+        <option value="production">🏭 في التصنيع</option>
+        <option value="shipping">🚢 في الشحن</option>
+        <option value="delivered">📦 تم التسليم</option>
+      </select>
+      <button class="btn btn-primary" onclick="updateOrderStatus()">تحديث الحالة</button>
+      <button class="btn btn-ghost" onclick="closeModal('orderModal')">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<!-- Employee Modal -->
+<div class="modal-overlay" id="empModal">
+  <div class="modal-box">
+    <div class="modal-hd"><h3 id="empModalTitle">➕ إضافة موظف</h3><button class="modal-close" onclick="closeModal('empModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="fg full"><label>الاسم *</label><input type="text" id="emp_name" placeholder="أحمد محمد"></div>
+        <div class="fg"><label>المسمى الوظيفي</label><input type="text" id="emp_position" placeholder="نجار / حداد..."></div>
+        <div class="fg"><label>القسم</label><input type="text" id="emp_dept" placeholder="الإنتاج / التشطيب..."></div>
+        <div class="fg"><label>رقم البصمة</label><input type="number" id="emp_deviceId" placeholder="1"></div>
+        <div class="fg"><label>الراتب (ج.م)</label><input type="number" id="emp_salary" placeholder="3000"></div>
+        <div class="fg"><label>واتساب</label><input type="tel" id="emp_phone" placeholder="+201..."></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('empModal')">إلغاء</button>
+      <button class="btn btn-danger btn-sm" id="delEmpBtn" style="display:none" onclick="deleteEmpFromModal()">🗑️ حذف</button>
+      <button class="btn btn-primary" onclick="saveEmployee()">💾 حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- Contract Modal -->
+<div class="modal-overlay" id="contractModal">
+  <div class="modal-box">
+    <div class="modal-hd"><h3 id="conModalTitle">➕ عقد جديد</h3><button class="modal-close" onclick="closeModal('contractModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="fg full"><label>اسم العميل *</label><input type="text" id="con_client" placeholder="ABC Trading Co."></div>
+        <div class="fg"><label>الدولة</label><input type="text" id="con_country" placeholder="السعودية..."></div>
+        <div class="fg"><label>واتساب</label><input type="tel" id="con_phone" placeholder="+966..."></div>
+        <div class="fg"><label>Incoterm</label>
+          <select id="con_type">
+            <option value="FOB">FOB</option><option value="CIF">CIF</option>
+            <option value="EXW">EXW</option><option value="CFR">CFR</option>
+          </select>
+        </div>
+        <div class="fg"><label>القيمة ($)</label><input type="number" id="con_value" placeholder="10000"></div>
+        <div class="fg"><label>تاريخ التسليم</label><input type="date" id="con_delivery"></div>
+        <div class="fg"><label>الحالة</label>
+          <select id="con_status">
+            <option value="pending">⏳ في الانتظار</option>
+            <option value="active">✅ نشط</option>
+            <option value="completed">🏁 مكتمل</option>
+          </select>
+        </div>
+        <div class="fg"><label>ميناء الوجهة</label><input type="text" id="con_port" placeholder="Jeddah Port..."></div>
+        <div class="fg full"><label>ملاحظات</label><textarea id="con_notes" rows="2"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('contractModal')">إلغاء</button>
+      <button class="btn btn-primary" onclick="saveContract()">💾 حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ SHELL ═══════════════════ -->
+<div class="shell">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-logo">
+      <div class="logo-icon">م</div>
+      <div>
+        <div class="logo-text">مصر ستيل</div>
+        <div class="logo-sub">Admin Dashboard</div>
+      </div>
+    </div>
+
+    <div class="header-search">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" placeholder="بحث في كل شيء..." id="globalSearch">
+    </div>
+
+    <div class="header-right">
+      <div class="api-dot-wrap">
+        <div class="api-dot" id="apiDot"></div>
+        <span id="apiTxt">اتصال...</span>
+      </div>
+
+      <button class="hbtn" onclick="window.open('https://misrsteel.vercel.app','_blank')" title="الموقع">
+        🌐
+      </button>
+
+      <button class="hbtn" onclick="go('notifications')" title="الإشعارات">
+        🔔
+        <div class="hbtn-badge" id="notifBadge">3</div>
+      </button>
+
+      <button class="hbtn site-btn" onclick="window.open('factory.html','_blank')">
+        🏭 ERP
+      </button>
+
+      <div class="avatar" title="الأدمن">أ</div>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="nav-section-label">الرئيسية</div>
+    <div class="nav-item active" onclick="go('overview',this)">
+      <span class="ni-icon">📊</span> Overview
+      <div class="nav-badge" id="nb">0</div>
+    </div>
+
+    <div class="nav-section-label">إدارة المحتوى</div>
+    <div class="nav-item" onclick="go('products',this)">
+      <span class="ni-icon">🪑</span> Products
+    </div>
+    <div class="nav-item" onclick="go('orders',this)">
+      <span class="ni-icon">📦</span> Orders
+      <div class="nav-badge blue" id="ordBadge">0</div>
+    </div>
+
+    <div class="nav-section-label">العلاقات</div>
+    <div class="nav-item" onclick="go('users',this)">
+      <span class="ni-icon">👥</span> Users
+    </div>
+    <div class="nav-item" onclick="go('affiliates',this)">
+      <span class="ni-icon">🤝</span> Affiliates
+    </div>
+    <div class="nav-item" onclick="go('partners',this)">
+      <span class="ni-icon">🔗</span> Partners & API
+    </div>
+    <div class="nav-item" onclick="go('messages',this)">
+      <span class="ni-icon">💬</span> Messages
+      <div class="nav-badge green" id="msgBadge">0</div>
+    </div>
+
+    <div class="nav-section-label">التحليلات</div>
+    <div class="nav-item" onclick="go('analytics',this)">
+      <span class="ni-icon">📈</span> Analytics
+    </div>
+    <div class="nav-item" onclick="go('reports',this)">
+      <span class="ni-icon">📋</span> Reports
+    </div>
+
+    <div class="nav-section-label">المصنع</div>
+    <div class="nav-item" onclick="go('employees',this)">
+      <span class="ni-icon">👷</span> Employees
+    </div>
+    <div class="nav-item" onclick="go('attendance',this)">
+      <span class="ni-icon">🕐</span> Attendance
+    </div>
+    <div class="nav-item" onclick="go('contracts',this)">
+      <span class="ni-icon">📄</span> Contracts
+    </div>
+
+    <div class="nav-section-label">النظام</div>
+    <div class="nav-item" onclick="go('notifications',this)">
+      <span class="ni-icon">🔔</span> Notifications
+    </div>
+    <div class="nav-item" onclick="go('roles',this)">
+      <span class="ni-icon">🔑</span> Roles & Permissions
+    </div>
+    <div class="nav-item" onclick="go('settings',this)">
+      <span class="ni-icon">⚙️</span> Settings
+    </div>
+    <div class="nav-item" onclick="go('support',this)">
+      <span class="ni-icon">🎧</span> Support
+    </div>
+
+    <div class="nav-divider"></div>
+    <div class="nav-item" onclick="window.open('https://misrsteel.vercel.app','_blank')" style="color:var(--orange)">
+      <span class="ni-icon">🌐</span> Visit Site
+    </div>
+    <div class="nav-item" onclick="window.open('factory.html','_blank')" style="color:var(--amber)">
+      <span class="ni-icon">🏭</span> ERP System
+    </div>
+    <div class="nav-item" onclick="window.open('contracts.html','_blank')" style="color:var(--blue)">
+      <span class="ni-icon">📋</span> Contracts Page
+    </div>
+  </nav>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+    <!-- ══════════ OVERVIEW ══════════ -->
+    <div class="panel show" id="panel-overview">
+      <div class="page-hd">
+        <div class="page-hd-left">
+          <h2>📊 Overview</h2>
+          <p>مرحباً بك — آخر تحديث: <span id="lastUpdate">الآن</span></p>
+        </div>
+        <div class="page-hd-right">
+          <button class="btn btn-ghost btn-sm" onclick="loadAll()">🔄 تحديث</button>
+          <button class="btn btn-primary btn-sm" onclick="go('products');openAddProd()">➕ منتج جديد</button>
+        </div>
+      </div>
+
+      <div class="kpi-grid" id="kpiGrid">
+        <div class="kpi-card orange"><div class="kpi-icon">💰</div><div class="kpi-num" id="k-rev">--</div><div class="kpi-label">إجمالي المبيعات</div></div>
+        <div class="kpi-card blue"><div class="kpi-icon">📦</div><div class="kpi-num" id="k-ord">--</div><div class="kpi-label">الطلبات الجديدة</div></div>
+        <div class="kpi-card green"><div class="kpi-icon">👥</div><div class="kpi-num" id="k-cust">--</div><div class="kpi-label">إجمالي العملاء</div></div>
+        <div class="kpi-card purple"><div class="kpi-icon">🤝</div><div class="kpi-num" id="k-comm">--</div><div class="kpi-label">عمولات معلقة</div></div>
+      </div>
+
+      <div class="stats-row">
+        <div class="chart-placeholder">
+          <h3>📊 المبيعات — آخر 7 أيام</h3>
+          <div class="bar-chart" id="barChart">
+            <div class="bar-group"><div class="bar" style="height:60%;background:var(--orange)"></div><div class="bar-label">السبت</div></div>
+            <div class="bar-group"><div class="bar" style="height:80%;background:var(--orange)"></div><div class="bar-label">الأحد</div></div>
+            <div class="bar-group"><div class="bar" style="height:45%;background:var(--orange)"></div><div class="bar-label">الإثنين</div></div>
+            <div class="bar-group"><div class="bar" style="height:90%;background:var(--orange)"></div><div class="bar-label">الثلاثاء</div></div>
+            <div class="bar-group"><div class="bar" style="height:70%;background:var(--orange)"></div><div class="bar-label">الأربعاء</div></div>
+            <div class="bar-group"><div class="bar" style="height:55%;background:var(--orange)"></div><div class="bar-label">الخميس</div></div>
+            <div class="bar-group"><div class="bar" style="height:85%;background:var(--orange)"></div><div class="bar-label">الجمعة</div></div>
+          </div>
+        </div>
+        <div class="mini-list">
+          <h3>🏆 الأقسام</h3>
+          <div class="mini-item"><div class="mini-dot" style="background:var(--orange)"></div><div class="mini-label">القاعات</div><div class="mini-val">38%</div></div>
+          <div class="mini-item"><div class="mini-dot" style="background:var(--blue)"></div><div class="mini-label">المنزل</div><div class="mini-val">29%</div></div>
+          <div class="mini-item"><div class="mini-dot" style="background:var(--green)"></div><div class="mini-label">لوبي</div><div class="mini-val">21%</div></div>
+          <div class="mini-item"><div class="mini-dot" style="background:var(--purple)"></div><div class="mini-label">مطاعم</div><div class="mini-val">12%</div></div>
+        </div>
+        <div class="mini-list">
+          <h3>🌍 الدول</h3>
+          <div class="mini-item"><div class="mini-dot" style="background:var(--amber)"></div><div class="mini-label">🇸🇦 السعودية</div><div class="mini-val">32%</div></div>
+          <div class="mini-item"><div class="mini-dot" style="background:var(--blue)"></div><div class="mini-label">🇮🇶 العراق</div><div class="mini-val">24%</div></div>
+          <div class="mini-item"><div class="mini-dot" style="background:var(--green)"></div><div class="mini-label">🇦🇪 الإمارات</div><div class="mini-val">18%</div></div>
+          <div class="mini-item"><div class="mini-dot" style="background:var(--purple)"></div><div class="mini-label">🌍 أخرى</div><div class="mini-val">26%</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h3>📦 آخر الطلبات</h3>
+          <button class="btn btn-ghost btn-sm" onclick="go('orders')">عرض الكل ←</button>
+        </div>
+        <div class="tbl-wrap">
+          <div id="overviewOrders"><div class="loading-box"><div class="spin"></div></div></div>
+        </div>
+      </div>
+
+      <!-- QUICK ACTIONS -->
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:4px">
+        <div onclick="go('products');openAddProd()" style="background:var(--c-card);border:1px solid var(--c-border);border-radius:var(--radius-lg);padding:18px;text-align:center;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--orange)'" onmouseout="this.style.borderColor='var(--c-border)'">
+          <div style="font-size:24px;margin-bottom:8px">🪑</div>
+          <div style="font-size:12px;font-weight:700">منتج جديد</div>
+        </div>
+        <div onclick="go('contracts');openAddContract()" style="background:var(--c-card);border:1px solid var(--c-border);border-radius:var(--radius-lg);padding:18px;text-align:center;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--blue)'" onmouseout="this.style.borderColor='var(--c-border)'">
+          <div style="font-size:24px;margin-bottom:8px">📄</div>
+          <div style="font-size:12px;font-weight:700">عقد جديد</div>
+        </div>
+        <div onclick="go('employees');openAddEmployee()" style="background:var(--c-card);border:1px solid var(--c-border);border-radius:var(--radius-lg);padding:18px;text-align:center;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--c-border)'">
+          <div style="font-size:24px;margin-bottom:8px">👷</div>
+          <div style="font-size:12px;font-weight:700">موظف جديد</div>
+        </div>
+        <div onclick="window.open('contracts.html','_blank')" style="background:var(--c-card);border:1px solid var(--c-border);border-radius:var(--radius-lg);padding:18px;text-align:center;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--purple)'" onmouseout="this.style.borderColor='var(--c-border)'">
+          <div style="font-size:24px;margin-bottom:8px">🧾</div>
+          <div style="font-size:12px;font-weight:700">عرض سعر</div>
+        </div>
+        <div onclick="window.open('factory.html','_blank')" style="background:var(--c-card);border:1px solid var(--c-border);border-radius:var(--radius-lg);padding:18px;text-align:center;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--amber)'" onmouseout="this.style.borderColor='var(--c-border)'">
+          <div style="font-size:24px;margin-bottom:8px">🏭</div>
+          <div style="font-size:12px;font-weight:700">نظام ERP</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ PRODUCTS ══════════ -->
+    <div class="panel" id="panel-products">
+      <div class="page-hd">
+        <div class="page-hd-left"><h2>🪑 Products</h2><p>إدارة كامل المنتجات والمواصفات</p></div>
+        <div class="page-hd-right">
+          <button class="btn btn-ghost btn-sm" onclick="window.open('marketplace.html','_blank')">🌐 عرض المتجر</button>
+          <button class="btn btn-primary" onclick="openAddProd()">➕ إضافة منتج</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <h3 id="prodsCount">المنتجات</h3>
+          <div class="filter-bar">
+            <input class="filter-input" type="text" id="prodsQ" placeholder="🔍 بحث..." oninput="filterProds()">
+            <select class="filter-select" id="prodsSec" onchange="filterProds()">
+              <option value="">كل الأقسام</option>
+              <option value="home">🏠 المنزل</option>
+              <option value="hall">🎪 قاعة</option>
+              <option value="museum">🏛️ لوبي</option>
+              <option value="restaurant">🍽️ مطعم</option>
+            </select>
+            <button class="btn btn-danger btn-sm" onclick="deleteAllProducts()" title="حذف الكل">⚠️ حذف الكل</button>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <div id="prodsTable"><div class="loading-box"><div class="spin"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ ORDERS ══════════ -->
+    <div class="panel" id="panel-orders">
+      <div class="page-hd">
+        <div class="page-hd-left"><h2>📦 Orders</h2><p>تتبع الطلبات وتحديث حالاتها</p></div>
+        <div class="page-hd-right">
+          <button class="btn btn-ghost btn-sm" onclick="loadOrders()">🔄 تحديث</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <h3 id="ordersCount">الطلبات</h3>
+          <div class="filter-bar">
+            <input class="filter-input" type="text" id="ordersQ" placeholder="🔍 بحث عميل أو رقم..." oninput="filterOrders()">
+            <select class="filter-select" id="ordersStat" onchange="filterOrders()">
+              <option value="">كل الحالات</option>
+              <option value="new">⏳ جديد</option>
+              <option value="confirmed">✅ مؤكد</option>
+              <option value="production">🏭 إنتاج</option>
+              <option value="shipping">🚢 شحن</option>
+              <option value="delivered">📦 تم التسليم</option>
+            </select>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <div id="ordersTable"><div class="loading-box"><div class="spin"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ USERS ══════════ -->
+    <div class="panel" id="panel-users">
+      <div class="page-hd">
+        <div class="page-hd-left"><h2>👥 Users</h2><p>العملاء والمستخدمون</p></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="card">
+          <div class="card-head"><h3>👥 العملاء</h3></div>
+          <div class="tbl-wrap"><div id="custsTable"><div class="loading-box"><div class="spin"></div></div></div></div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <h3>🤖 مستخدمو AI</h3>
+            <button class="btn btn-primary btn-sm" onclick="addCredits()">💳 إضافة رصيد</button>
+          </div>
+          <div class="tbl-wrap"><div id="aiTable"><div class="loading-box"><div class="spin"></div></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ ANALYTICS ══════════ -->
+    <div class="panel" id="panel-analytics">
+      <div class="page-hd">
+        <div class="page-hd-left"><h2>📈 Analytics</h2><p>تحليلات الأداء والمبيعات</p></div>
+        <div class="page-hd-right">
+          <button class="btn btn-ghost btn-sm">⬇️ تصدير Excel</button>
+        </div>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card orange"><div class="kpi-icon">📈</div><div class="kpi-num" id="an-conv">3.2%</div><div class="kpi-label">معدل التحويل</div><div class="kpi-trend up">↑ 0.4%</div></div>
+        <div class="kpi-card green"><div class="kpi-icon">⏱️</div><div class="kpi-num" id="an-avg">$1,840</div><div class="kpi-label">متوسط قيمة الطلب</div><div class="kpi-trend up">↑ $120</div></div>
+        <div class="kpi-card blue"><div class="kpi-icon">📦</div><div class="kpi-num" id="an-ret">92%</div><div class="kpi-label">معدل إتمام الطلبات</div><div class="kpi-trend up">↑ 3%</div></div>
+        <div class="kpi-card amber"><div class="kpi-icon">🌍</div><div class="kpi-num" id="an-exp">8</div><div class="kpi-label">دول تصدير</div><div class="kpi-trend up">↑ 2</div></div>
+      </div>
+
+      <div class="analytics-grid">
+        <div class="chart-placeholder">
+          <h3>📊 الطلبات الشهرية</h3>
+          <div class="bar-chart" style="height:150px">
+            <div class="bar-group"><div class="bar" style="height:40%;background:var(--blue)"></div><div class="bar-label">يناير</div></div>
+            <div class="bar-group"><div class="bar" style="height:60%;background:var(--blue)"></div><div class="bar-label">فبراير</div></div>
+            <div class="bar-group"><div class="bar" style="height:80%;background:var(--blue)"></div><div class="bar-label">مارس</div></div>
+            <div class="bar-group"><div class="bar" style="height:55%;background:var(--blue)"></div><div class="bar-label">أبريل</div></div>
+            <div class="bar-group"><div class="bar" style="height:90%;background:var(--orange)"></div><div class="bar-label">مايو</div></div>
+            <div class="bar-group"><div class="bar" style="height:75%;background:var(--blue)"></div><div class="bar-label">يونيو</div></div>
+          </div>
+        </div>
+        <div class="chart-placeholder">
+          <h3>🌍 توزيع التصدير</h3>
+          <div class="donut-wrap" style="margin-top:16px">
+            <svg width="100" height="100" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="40" fill="none" stroke="var(--c-bg)" stroke-width="16"/>
+              <circle cx="50" cy="50" r="40" fill="none" stroke="var(--orange)" stroke-width="16" stroke-dasharray="80 171" stroke-dashoffset="0" transform="rotate(-90 50 50)"/>
+              <circle cx="50" cy="50" r="40" fill="none" stroke="var(--blue)" stroke-width="16" stroke-dasharray="60 191" stroke-dashoffset="-80" transform="rotate(-90 50 50)"/>
+              <circle cx="50" cy="50" r="40" fill="none" stroke="var(--green)" stroke-width="16" stroke-dasharray="45 206" stroke-dashoffset="-140" transform="rotate(-90 50 50)"/>
+              <circle cx="50" cy="50" r="40" fill="none" stroke="var(--purple)" stroke-width="16" stroke-dasharray="66 185" stroke-dashoffset="-185" transform="rotate(-90 50 50)"/>
+            </svg>
+            <div class="donut-legend">
+              <div class="legend-item"><div class="legend-dot" style="background:var(--orange)"></div>🇸🇦 السعودية 32%</div>
+              <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div>🇮🇶 العراق 24%</div>
+              <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>🇦🇪 الإمارات 18%</div>
+              <div class="legend-item"><div class="legend-dot" style="background:var(--purple)"></div>🌍 أخرى 26%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h3>📊 تقرير المبيعات</h3></div>
+        <div class="tbl-wrap">
+          <div id="reportsBody"><div class="loading-box"><div class="spin"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ MESSAGES ══════════ -->
+    <div class="panel" id="panel-messages">
+      <div class="page-hd">
+        <div class="page-hd-left"><h2>💬 Messages</h2><p>الاستفسارات والرسائل الواردة</p></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3 id="inqsCount">الاستفسارات</h3></div>
+        <div class="tbl-wrap"><div id="inqsTable"><div class="loading-box"><div class="spin"></div></div></div></div>
+      </div>
+    </div>
+
+    <!-- ══════════ NOTIFICATIONS ══════════ -->
+    <div class="panel" id="panel-notifications">
+      <div class="page-hd">
+        <div class="page-hd-left"><h2>🔔 Notifications</h2><p>آخر التنبيهات والأحداث</p></div>
+        <div class="page-hd-right">
+          <button class="btn btn-ghost btn-sm" onclick="markAllRead()">✓ قراءة الكل</button>
+        </div>
+      </div>
+      <div class="card" style="padding:0">
+        <div class="notif-item unread">
+          <div class="notif-icon" style="background:var(--orange-gl)">📦</div>
+          <div class="notif-body"><div class="notif-title">طلب جديد من السعودية</div><div class="notif-sub">طلب 200 كرسي ذهبي — قيمة $4,200</div><div class="notif-time">منذ 5 دقائق</div></div>
+          <div class="unread-dot"></div>
+        </div>
+        <div class="notif-item unread">
+          <div class="notif-icon" style="background:var(--green-gl)">✅</div>
+          <div class="notif-body"><div class="notif-title">تم الشحن للعراق</div><div class="notif-sub">الطلب #MS-4421 — تم تحديث الحالة</div><div class="notif-time">منذ 23 دقيقة</div></div>
+          <div class="unread-dot"></div>
+        </div>
+        <div class="notif-item unread">
+          <div class="notif-icon" style="background:var(--blue-gl)">🤝</div>
+          <div class="notif-body"><div class="notif-title">مسوق جديد انضم</div><div class="notif-sub">محمد أحمد — طلب الانتساب للبرنامج</div><div class="notif-time">منذ ساعة</div></div>
+          <div class="unread-dot"></div>
+        </div>
+        <div class="notif-item">
+          <div class="notif-icon" style="background:var(--amber-gl)">💰</div>
+          <div class="notif-body"><div class="notif-title">عمولة معلقة للصرف</div><div class="notif-sub">3 مسوقين — إجمالي $840</div><div class="notif-time">منذ 3 ساعات</div></div>
+        </div>
+        <div class="notif-item">
+          <div class="notif-icon" style="background:var(--purple-gl)">📄</div>
+          <div class="notif-body"><div class="notif-title">عقد تصدير جديد</div><div class="notif-sub">ABC Trading — 500 قطعة FOB</div><div class="notif-time">منذ يوم</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ SETTINGS ══════════ -->
+    <div class="panel" id="panel-settings">
+      <div class="page-hd">
+        <div class="page-hd-left"><h2>⚙️ Settings</h2><p>إعدادات النظام والموقع</p></div>
+        <div class="page-hd-right">
+          <button class="btn btn-primary" onclick="saveSettings()">💾 حفظ الكل</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <div class="settings-section">
+            <h3>💵 الأسعار والعملات</h3>
+            <div class="settings-row">
+              <div class="settings-row-left"><h4>سعر الدولار (ج.م)</h4><p>يؤثر على الأسعار المعروضة بالجنيه</p></div>
+              <div style="display:flex;gap:8px;align-items:center">
+                <div class="kpi-num" id="curRate" style="font-size:20px">--</div>
+                <input type="number" id="newRate" placeholder="50.85" step="0.01" style="width:100px;padding:7px 10px;background:var(--c-bg);border:1px solid var(--c-border);border-radius:8px;color:var(--c-text);font-size:13px;outline:none">
+                <button class="btn btn-primary btn-sm" onclick="updateRate()">تحديث</button>
+              </div>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-left"><h4>هامش الربح %</h4><p>يضاف تلقائياً على سعر التكلفة</p></div>
+              <input type="number" id="set_margin" value="25" style="width:80px;padding:7px 10px;background:var(--c-bg);border:1px solid var(--c-border);border-radius:8px;color:var(--c-text);font-size:13px;outline:none">
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h3>📞 بيانات التواصل</h3>
+            <div class="settings-row">
+              <div class="settings-row-left"><h4>رقم واتساب</h4><p>يستخدم في كل أزرار التواصل</p></div>
+              <input type="tel" id="set_phone" value="+201050595250" style="width:200px;padding:7px 10px;background:var(--c-bg);border:1px solid var(--c-border);border-radius:8px;color:var(--c-text);font-size:13px;outline:none">
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-left"><h4>الإيميل</h4></div>
+              <input type="email" id="set_email" value="info@misrsteel.com" style="width:200px;padding:7px 10px;background:var(--c-bg);border:1px solid var(--c-border);border-radius:8px;color:var(--c-text);font-size:13px;outline:none">
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <h3>🔧 خيارات النظام</h3>
+            <div class="settings-row">
+              <div class="settings-row-left"><h4>الإشعارات التلقائية</h4><p>إرسال إشعار عند كل طلب جديد</p></div>
+              <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-left"><h4>وضع الصيانة</h4><p>إخفاء الموقع مؤقتاً</p></div>
+              <button class="toggle" onclick="this.classList.toggle('on')"></button>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-left"><h4>عرض أسعار الدولار</h4><p>إظهار الأسعار بالدولار والجنيه</p></div>
+              <button class="toggle on" onclick="this.classList.toggle('on')"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ ROLES & PERMISSIONS ══════════ -->
+    <div class="panel" id="panel-roles">
+      <div class="page-hd">
+        <div class="page-hd-left"><h2>🔑 Roles & Permissions</h2><p>إدارة صلاحيات المستخدمين</p></div>
+        <div class="page-hd-right">
+          <button class="btn btn-primary btn-sm">➕ دور جديد</button>
+        </div>
+      </div>
+
+      <div class="role-card">
+        <div class="role-info">
+          <h4>🔴 Super Admin</h4>
+          <p>كامل الصلاحيات — لا قيود</p>
+          <div class="perm-grid">
+            <span class="perm-chip on">إدارة المنتجات</span>
+            <span class="perm-chip on">إدارة الطلبات</span>
+            <span class="perm-chip on">إدارة المستخدمين</span>
+            <span class="perm-chip on">إدارة الموظفين</span>
+            <span class="perm-chip on">العقود</span>
+            <span class="perm-chip on">الإعدادات</span>
+            <span class="perm-chip on">التقارير</span>
+            <span class="perm-chip on">API الشركاء</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost btn-sm">✏️ تعديل</button>
+        </div>
+      </div>
+
+      <div class="role-card">
+        <div class="role-info">
+          <h4>🟡 مدير المبيعات</h4>
+          <p>إدارة الطلبات والعملاء فقط</p>
+          <div class="perm-grid">
+            <span class="perm-chip on">إدارة الطلبات</span>
+            <span class="perm-chip on">إدارة المستخدمين</span>
+            <span class="perm-chip on">العقود</span>
+            <span class="perm-chip on">التقارير</span>
+            <span class="perm-chip">إدارة المنتجات</span>
+            <span class="perm-chip">الإعدادات</span>
+            <span class="perm-chip">API الشركاء</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost btn-sm">✏️ تعديل</button>
+          <button class="btn btn-danger btn-sm">🗑️</button>
+        </div>
+      </div>
+
+      <div class="role-card">
+        <div class="role-info">
+          <h4>🟢 مشرف المصنع</h4>
+          <p>إدارة الموظفين والإنتاج فقط</p>
+          <div class="perm-grid">
+            <span class="perm-chip on">إدارة الموظفين</span>
+            <span class="perm-chip on">الحضور والانصراف</span>
+            <span class="perm-chip on">التقارير</span>
+            <span class="perm-chip">إدارة الطلبات</span>
+            <span class="perm-chip">العقود</span>
+            <span class="perm-chip">الإعدادات</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost btn-sm">✏️ تعديل</button>
+          <button class="btn btn-danger btn-sm">🗑️</button>
+        </div>
+      </div>
+
+      <div class="role-card">
+        <div class="role-info">
+          <h4>🔵 مسوق / Affiliate</h4>
+          <p>عرض التقارير الخاصة به فقط</p>
+          <div class="perm-grid">
+            <span class="perm-chip on">عرض منتجاته</span>
+            <span class="perm-chip on">تقرير عمولاته</span>
+            <span class="perm-chip">أي صلاحية أخرى</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost btn-sm">✏️ تعديل</button>
+          <button class="btn btn-danger btn-sm">🗑️</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ SUPPORT ══════════ -->
+    <div class="panel" id="panel-support">
+      <div class="page-hd">
+        <div class="page-hd-left"><h2>🎧 Support</h2><p>تذاكر الدعم والمشاكل المفتوحة</p></div>
+        <div class="page-hd-right">
+          <div class="filter-bar">
+            <select class="filter-select">
+              <option>كل التذاكر</option>
+              <option>مفتوحة</option>
+              <option>قيد الحل</option>
+              <option>مغلقة</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="kpi-card red"><div class="kpi-icon">🔴</div><div class="kpi-num">3</div><div class="kpi-label">تذاكر مفتوحة</div></div>
+        <div class="kpi-card amber"><div class="kpi-icon">🟡</div><div class="kpi-num">2</div><div class="kpi-label">قيد المعالجة</div></div>
+        <div class="kpi-card green"><div class="kpi-icon">✅</div><div class="kpi-num">18</div><div class="kpi-label">تم الحل هذا الشهر</div></div>
+      </div>
+
+      <div class="ticket-card"><div class="ticket-priority" style="background:var(--red)"></div><div class="ticket-body"><div class="ticket-title">مشكلة في إتمام الطلب — عميل العراق</div><div class="ticket-meta">أحمد محمد · منذ 2 ساعة · <span style="color:var(--red)">عالي الأهمية</span></div></div><a href="https://wa.me/201050595250" target="_blank" class="btn btn-success btn-sm">💬 رد</a></div>
+
+      <div class="ticket-card"><div class="ticket-priority" style="background:var(--amber)"></div><div class="ticket-body"><div class="ticket-title">استفسار عن أسعار الشحن CIF</div><div class="ticket-meta">شركة الخليج للأثاث · منذ 5 ساعات · <span style="color:var(--amber)">متوسط</span></div></div><a href="https://wa.me/201050595250" target="_blank" class="btn btn-success btn-sm">💬 رد</a></div>
+
+      <div class="ticket-card"><div class="ticket-priority" style="background:var(--amber)"></div><div class="ticket-body"><div class="ticket-title">طلب كتالوج المنتجات 2025</div><div class="ticket-meta">مجموعة النخبة · منذ يوم · <span style="color:var(--amber)">متوسط</span></div></div><a href="https://wa.me/201050595250" target="_blank" class="btn btn-success btn-sm">💬 رد</a></div>
+
+      <div class="ticket-card"><div class="ticket-priority" style="background:var(--c-hint)"></div><div class="ticket-body"><div class="ticket-title">سؤال عن مواصفات الاستانلس 304</div><div class="ticket-meta">عميل مجهول · منذ يومين · <span style="color:var(--c-muted)">منخفض</span></div></div><a href="https://wa.me/201050595250" target="_blank" class="btn btn-success btn-sm">💬 رد</a></div>
+    </div>
+
+    <!-- ══════════ AFFILIATES ══════════ -->
+    <div class="panel" id="panel-affiliates">
+      <div class="page-hd">
+        <div class="page-hd-left"><h2>🤝 Affiliates</h2><p>إدارة المسوقين والعمولات</p></div>
+        <div class="page-hd-right">
+          <button class="btn btn-primary" onclick="openAddAffiliate()">➕ مسوق جديد</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3 id="affsCount">المسوّقون</h3></div>
+        <div id="affsTable"><div class="loading-box"><div class="spin"></div></div></div>
+      </div>
+    </div>
+
+    <!-- ══════════ PARTNERS ══════════ -->
+    <div class="panel" id="panel-partners">
+      <div class="page-hd">
+        <div class="page-hd-left"><h2>🔗 Partners & API</h2><p>الشركاء وروابط الـ API والـ Feed</p></div>
+        <div class="page-hd-right">
+          <button class="btn btn-ghost btn-sm" onclick="copyText('https://misrsteel-backend.vercel.app/api/feed/meta.xml')">📋 XML Feed</button>
+          <button class="btn btn-primary btn-sm">➕ شريك جديد</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-body" style="background:rgba(59,130,246,.04);border-radius:10px;padding:14px;margin-bottom:16px">
+          <div style="font-size:12px;color:var(--blue);font-weight:700;margin-bottom:8px">📡 Meta Feed URLs</div>
+          <div style="font-family:monospace;font-size:11px;color:var(--c-muted);word-break:break-all">
+            https://misrsteel-backend.vercel.app/api/feed/meta.xml<br>
+            https://misrsteel-backend.vercel.app/api/feed/meta
+          </div>
+        </div>
+        <div class="card-head" style="padding:12px 0 12px"><h3 id="partnersCount">الشركاء</h3></div>
+        <div id="partnersTable"><div class="loading-box"><div class="spin"></div></div></div>
+      </div>
+    </div>
+
+    <!-- ══════════ EMPLOYEES ══════════ -->
+    <div class="panel" id="panel-employees">
+      <div class="page-hd">
+        <div class="page-hd-left"><h2>👷 Employees</h2><p>إدارة موظفي المصنع</p></div>
+        <div class="page-hd-right">
+          <button class="btn btn-primary" onclick="openAddEmployee()">➕ إضافة موظف</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3 id="empsCount">الموظفون</h3></div>
+        <div id="empTable"><div class="loading-box"><div class="spin"></div></div></div>
+      </div>
+    </div>
+
+    <!-- ══════════ ATTENDANCE ══════════ -->
+    <div class="panel" id="panel-attendance">
+      <div class="page-hd">
+        <div class="page-hd-left"><h2>🕐 Attendance</h2><p>سجلات الحضور والانصراف</p></div>
+        <div class="page-hd-right">
+          <input type="date" id="attDate" onchange="loadAttendance()" class="filter-input" style="max-width:160px">
+          <button class="btn btn-ghost btn-sm" onclick="syncBridge()">🔄 مزامنة البصمة</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>سجلات اليوم</h3><div id="bridgeStatus" style="font-size:11px;color:var(--c-muted)">-</div></div>
+        <div id="attTable"><div class="loading-box"><div class="spin"></div></div></div>
+      </div>
+    </div>
+
+    <!-- ══════════ CONTRACTS ══════════ -->
+    <div class="panel" id="panel-contracts">
+      <div class="page-hd">
+        <div class="page-hd-left"><h2>📄 Contracts</h2><p>عقود التصدير والاتفاقيات</p></div>
+        <div class="page-hd-right">
+          <button class="btn btn-ghost btn-sm" onclick="window.open('contracts.html','_blank')">🌐 صفحة العقود</button>
+          <button class="btn btn-primary" onclick="openAddContract()">➕ عقد جديد</button>
+        </div>
+      </div>
+      <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="kpi-card orange"><div class="kpi-icon">📄</div><div class="kpi-num" id="con-total">0</div><div class="kpi-label">إجمالي العقود</div></div>
+        <div class="kpi-card green"><div class="kpi-icon">✅</div><div class="kpi-num" id="con-active">0</div><div class="kpi-label">نشطة</div></div>
+        <div class="kpi-card blue"><div class="kpi-icon">⏳</div><div class="kpi-num" id="con-pending">0</div><div class="kpi-label">في الانتظار</div></div>
+        <div class="kpi-card amber"><div class="kpi-icon">💰</div><div class="kpi-num" id="con-value">$0</div><div class="kpi-label">إجمالي القيمة</div></div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <h3 id="consCount">العقود</h3>
+          <div class="filter-bar">
+            <input class="filter-input" type="text" id="consQ" placeholder="🔍 بحث...">
+            <select class="filter-select" id="consStat">
+              <option value="">كل الحالات</option>
+              <option value="pending">⏳ في الانتظار</option>
+              <option value="active">✅ نشط</option>
+              <option value="completed">🏁 مكتمل</option>
+            </select>
+          </div>
+        </div>
+        <div id="contractsTable"><div class="loading-box"><div class="spin"></div></div></div>
+      </div>
+    </div>
+
+    <!-- ══════════ REPORTS ══════════ -->
+    <div class="panel" id="panel-reports">
+      <div class="page-hd">
+        <div class="page-hd-left"><h2>📋 Reports</h2><p>التقارير التفصيلية والإحصائيات</p></div>
+        <div class="page-hd-right">
+          <button class="btn btn-ghost btn-sm">⬇️ تصدير PDF</button>
+          <button class="btn btn-primary btn-sm">⬇️ Excel</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>📊 ملخص الطلبات حسب الحالة</h3></div>
+        <div id="reportsTable"><div class="loading-box"><div class="spin"></div></div></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════
+   CONFIG & STATE
+════════════════════════════════════════════════ */
+var API = 'https://misrsteel-backend.vercel.app';
+var ADMIN_TOKEN = localStorage.getItem('ms_admin_token') || 'misrsteel_admin_2025';
+var allOrders = [], allProducts = [], allAffiliates = [];
+var currentOrderId = null, editProdId = null, editEmpId = null, editContractId = null;
+
+/* ════════════════════════════════════════════════
+   API HELPER
+════════════════════════════════════════════════ */
+async function api(method, path, body) {
+  var opts = { method, headers: { 'Content-Type': 'application/json', 'x-admin-token': ADMIN_TOKEN } };
+  if (body) opts.body = JSON.stringify(body);
+  var r = await fetch(API + path, opts);
+  var d = await r.json();
+  if (!r.ok) throw new Error(d.error || d.message || 'خطأ في الاتصال');
+  return d;
+}
+
+/* ════════════════════════════════════════════════
+   NAVIGATION
+════════════════════════════════════════════════ */
+function go(key, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('show'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  var panel = document.getElementById('panel-' + key);
+  if (panel) panel.classList.add('show');
+  if (el) el.classList.add('active');
+  var map = {
+    overview: loadOverview,
+    products: loadProducts,
+    orders: loadOrders,
+    users: loadUsers,
+    analytics: loadAnalytics,
+    messages: loadMessages,
+    affiliates: loadAffiliates,
+    partners: loadPartners,
+    employees: loadEmployees,
+    attendance: loadAttendance,
+    contracts: loadContracts,
+    reports: loadReports,
+  };
+  if (map[key]) map[key]();
+}
+
+/* ════════════════════════════════════════════════
+   API STATUS
+════════════════════════════════════════════════ */
+async function checkAPI() {
+  try {
+    var d = await fetch(API + '/').then(r => r.json());
+    document.getElementById('apiDot').className = 'api-dot on';
+    document.getElementById('apiTxt').textContent = 'متصل';
+  } catch(e) {
+    document.getElementById('apiDot').className = 'api-dot off';
+    document.getElementById('apiTxt').textContent = 'منقطع';
+  }
+}
+
+/* ════════════════════════════════════════════════
+   OVERVIEW
+════════════════════════════════════════════════ */
+async function loadOverview() {
+  document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('ar-EG');
+  try {
+    var d = await api('GET', '/api/admin/stats');
+    var s = d.stats;
+    document.getElementById('k-rev').textContent = '$' + (s.totalRevenue||0).toLocaleString();
+    document.getElementById('k-ord').textContent = s.newOrders || 0;
+    document.getElementById('k-cust').textContent = s.totalCustomers || 0;
+    document.getElementById('k-comm').textContent = '$' + (s.pendingCommissions||0).toFixed(0);
+    document.getElementById('nb').textContent = s.newOrders || 0;
+    document.getElementById('ordBadge').textContent = s.newOrders || 0;
+    var od = await api('GET', '/api/admin/orders');
+    allOrders = od.orders || [];
+    document.getElementById('overviewOrders').innerHTML = renderOrdersTable(allOrders.slice(0, 5));
+  } catch(e) {
+    document.getElementById('overviewOrders').innerHTML = errBox(e.message);
+  }
+}
+
+/* ════════════════════════════════════════════════
+   PRODUCTS
+════════════════════════════════════════════════ */
+async function loadProducts() {
+  try {
+    var d = await api('GET', '/api/admin/products');
+    allProducts = d.products || [];
+    document.getElementById('prodsCount').textContent = 'المنتجات (' + allProducts.length + ')';
+    renderProds(allProducts);
+  } catch(e) { document.getElementById('prodsTable').innerHTML = errBox(e.message); }
+}
+
+function filterProds() {
+  var q = document.getElementById('prodsQ').value.toLowerCase();
+  var s = document.getElementById('prodsSec').value;
+  renderProds(allProducts.filter(p => (!q || (p.nameAr||'').includes(q)) && (!s || p.section === s)));
+}
+
+var secMap = { home:'🏠 منزل', hall:'🎪 قاعة', museum:'🏛️ لوبي', restaurant:'🍽️ مطعم' };
+
+function renderProds(prods) {
+  if (!prods.length) { document.getElementById('prodsTable').innerHTML = empty('لا توجد منتجات'); return; }
+  document.getElementById('prodsTable').innerHTML =
+    '<div class="tbl-wrap"><table><tr><th>الصورة</th><th>الاسم</th><th>القسم</th><th>السعر</th><th>الحالة</th><th>إجراء</th></tr>' +
+    prods.map(p => {
+      var img = p.imgs && p.imgs[0] ? (p.imgs[0].startsWith('data:') ? '' : p.imgs[0].startsWith('http') ? p.imgs[0] : 'https://misrsteel.vercel.app/' + p.imgs[0]) : '';
+      return '<tr>' +
+        '<td>' + (img ? '<img class="td-img" src="' + img + '" onerror="this.src=\'\'">' : '<div class="td-img" style="display:flex;align-items:center;justify-content:center;font-size:20px;background:var(--c-bg)">🪑</div>') + '</td>' +
+        '<td><div style="font-weight:700">' + (p.nameAr||'-') + '</div><div style="font-size:11px;color:var(--c-muted)">' + (p.nameEn||'') + '</div></td>' +
+        '<td><span class="badge badge-orange">' + (secMap[p.section]||p.section) + '</span></td>' +
+        '<td><span style="font-weight:800;color:var(--orange)">$' + p.price + '</span></td>' +
+        '<td><span class="badge ' + (p.active ? 'badge-green' : 'badge-gray') + '">' + (p.active ? 'متاح' : 'مخفي') + '</span></td>' +
+        '<td style="display:flex;gap:6px">' +
+          '<button class="btn btn-ghost btn-sm" onclick="editProd(' + p.id + ')">✏️</button>' +
+          '<button class="btn ' + (p.active ? 'btn-danger' : 'btn-success') + ' btn-sm" onclick="toggleProd(' + p.id + ',' + p.active + ')">' + (p.active ? '🙈' : '👁️') + '</button>' +
+        '</td></tr>';
+    }).join('') + '</table></div>';
+}
+
+function openAddProd() {
+  editProdId = null;
+  document.getElementById('prodModalTitle').textContent = '➕ إضافة منتج جديد';
+  ['pm_nameAr','pm_nameEn','pm_desc','pm_img'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('pm_price').value = '';
+  document.getElementById('delProdBtn').style.display = 'none';
+  openModal('prodModal');
+}
+
+function editProd(id) {
+  var p = allProducts.find(x => x.id === id); if (!p) return;
+  editProdId = id;
+  document.getElementById('prodModalTitle').textContent = '✏️ تعديل المنتج';
+  document.getElementById('pm_nameAr').value = p.nameAr || '';
+  document.getElementById('pm_nameEn').value = p.nameEn || '';
+  document.getElementById('pm_price').value = p.price || '';
+  document.getElementById('pm_section').value = p.section || 'home';
+  document.getElementById('pm_finish').value = p.finish || 'gold';
+  document.getElementById('pm_badge').value = p.badge || '';
+  document.getElementById('pm_desc').value = p.desc || '';
+  document.getElementById('pm_img').value = (p.imgs && p.imgs[0]) || '';
+  document.getElementById('delProdBtn').style.display = 'inline-flex';
+  openModal('prodModal');
+}
+
+async function saveProd() {
+  var nameAr = document.getElementById('pm_nameAr').value.trim();
+  var price = parseFloat(document.getElementById('pm_price').value);
+  if (!nameAr || !price) { toast('أدخل الاسم والسعر', 'error'); return; }
+  var imgUrl = document.getElementById('pm_img').value.trim();
+  var body = { nameAr, price, nameEn: document.getElementById('pm_nameEn').value.trim(), section: document.getElementById('pm_section').value, finish: document.getElementById('pm_finish').value, badge: document.getElementById('pm_badge').value, desc: document.getElementById('pm_desc').value.trim(), imgs: imgUrl ? [imgUrl] : [] };
+  try {
+    if (editProdId) { await api('PUT', '/api/admin/products/' + editProdId, body); toast('✅ تم التعديل', 'success'); }
+    else { await api('POST', '/api/admin/products', body); toast('✅ تم الإضافة', 'success'); }
+    closeModal('prodModal'); loadProducts();
+  } catch(e) { toast('❌ ' + e.message, 'error'); }
+}
+
+async function deleteProdFromModal() {
+  if (!editProdId || !confirm('حذف المنتج نهائياً؟')) return;
+  try { await api('DELETE', '/api/admin/products/' + editProdId); toast('✅ تم الحذف', 'success'); closeModal('prodModal'); loadProducts(); }
+  catch(e) { toast('❌ ' + e.message, 'error'); }
+}
+
+async function toggleProd(id, active) {
+  try { await api('PUT', '/api/admin/products/' + id, { active: !active }); loadProducts(); }
+  catch(e) { toast('❌ ' + e.message, 'error'); }
+}
+
+async function deleteAllProducts() {
+  if (!confirm('⚠️ حذف كل المنتجات نهائياً؟')) return;
+  if (!confirm('تأكيد ثانٍ — هتمسح كل المنتجات؟')) return;
+  var done = 0;
+  for (var p of allProducts) { try { await api('DELETE', '/api/admin/products/' + p.id); done++; } catch(e) {} }
+  toast('✅ تم حذف ' + done, 'success'); loadProducts();
+}
+
+/* ════════════════════════════════════════════════
+   ORDERS
+════════════════════════════════════════════════ */
+async function loadOrders() {
+  try {
+    var d = await api('GET', '/api/admin/orders');
+    allOrders = d.orders || [];
+    document.getElementById('ordersCount').textContent = 'الطلبات (' + allOrders.length + ')';
+    renderOrders(allOrders);
+  } catch(e) { document.getElementById('ordersTable').innerHTML = errBox(e.message); }
+}
+
+function filterOrders() {
+  var q = document.getElementById('ordersQ').value.toLowerCase();
+  var s = document.getElementById('ordersStat').value;
+  renderOrders(allOrders.filter(o => (!q || (o.id||'').toLowerCase().includes(q) || (o.customerName||'').toLowerCase().includes(q)) && (!s || o.status === s)));
+}
+
+var ordStatus = { new:'⏳ جديد', confirmed:'✅ مؤكد', production:'🏭 إنتاج', shipping:'🚢 شحن', delivered:'📦 تسليم' };
+var ordCls = { new:'badge-amber', confirmed:'badge-blue', production:'badge-orange', shipping:'badge-purple', delivered:'badge-green' };
+
+function renderOrders(orders) {
+  document.getElementById('ordersTable').innerHTML = renderOrdersTable(orders);
+}
+
+function renderOrdersTable(orders) {
+  if (!orders.length) return empty('لا توجد طلبات');
+  return '<div class="tbl-wrap"><table><tr><th>رقم الطلب</th><th>العميل</th><th>الدولة</th><th>القيمة</th><th>الحالة</th><th>التاريخ</th><th>إجراء</th></tr>' +
+    orders.map(o => {
+      var s = o.status || 'new';
+      var date = o.createdAt ? new Date(o.createdAt).toLocaleDateString('ar-EG') : '-';
+      return '<tr><td><span style="font-family:monospace;font-size:11px;color:var(--c-muted)">' + o.id + '</span></td>' +
+        '<td><span style="font-weight:700">' + (o.customerName||'-') + '</span></td>' +
+        '<td>' + (o.customerCountry||'-') + '</td>' +
+        '<td><span style="font-weight:800;color:var(--orange)">$' + (o.totalUSD||0).toLocaleString() + '</span></td>' +
+        '<td><span class="badge ' + (ordCls[s]||'badge-gray') + '">' + (ordStatus[s]||s) + '</span></td>' +
+        '<td style="font-size:11px;color:var(--c-muted)">' + date + '</td>' +
+        '<td style="display:flex;gap:6px">' +
+          '<button class="btn btn-ghost btn-sm" onclick="openOrder(\'' + o.id + '\')">👁️</button>' +
+          '<a href="https://wa.me/' + (o.customerPhone||'').replace(/\D/g,'') + '" target="_blank" class="btn btn-success btn-sm">💬</a>' +
+        '</td></tr>';
+    }).join('') + '</table></div>';
+}
+
+function openOrder(id) {
+  var o = allOrders.find(x => x.id === id); if (!o) return;
+  currentOrderId = id;
+  document.getElementById('orderModalBody').innerHTML =
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;font-size:13px">' +
+    '<div style="background:var(--c-bg);border-radius:8px;padding:12px"><div style="font-size:10px;color:var(--c-muted);margin-bottom:4px">العميل</div><strong>' + (o.customerName||'-') + '</strong></div>' +
+    '<div style="background:var(--c-bg);border-radius:8px;padding:12px"><div style="font-size:10px;color:var(--c-muted);margin-bottom:4px">الدولة</div>' + (o.customerCountry||'-') + '</div>' +
+    '<div style="background:var(--c-bg);border-radius:8px;padding:12px"><div style="font-size:10px;color:var(--c-muted);margin-bottom:4px">الإجمالي</div><strong style="color:var(--orange);font-size:18px">$' + (o.totalUSD||0).toLocaleString() + '</strong></div>' +
+    '<div style="background:var(--c-bg);border-radius:8px;padding:12px"><div style="font-size:10px;color:var(--c-muted);margin-bottom:4px">واتساب</div>' + (o.customerPhone||'-') + '</div>' +
+    '</div>' +
+    '<div style="font-size:12px;font-weight:700;margin-bottom:8px">📦 المنتجات:</div>' +
+    (Array.isArray(o.items) ? o.items.map(i => '<div style="padding:8px 12px;background:var(--c-bg);border-radius:6px;margin-bottom:6px;font-size:12px">' + (i.name||i.nameAr||'منتج') + ' × ' + (i.qty||1) + ' = <strong style="color:var(--orange)">$' + ((i.price||0)*(i.qty||1)).toLocaleString() + '</strong></div>').join('') : '<div style="color:var(--c-muted);font-size:12px">-</div>') +
+    (o.notes ? '<div style="margin-top:10px;padding:10px;background:var(--c-bg);border-radius:6px;font-size:12px;color:var(--c-muted)">📝 ' + o.notes + '</div>' : '');
+  document.getElementById('orderStatusSel').value = o.status || 'new';
+  openModal('orderModal');
+}
+
+async function updateOrderStatus() {
+  if (!currentOrderId) return;
+  var status = document.getElementById('orderStatusSel').value;
+  try {
+    await api('PUT', '/api/admin/orders/' + currentOrderId, { status });
+    var o = allOrders.find(x => x.id === currentOrderId); if (o) o.status = status;
+    closeModal('orderModal'); toast('✅ تم التحديث', 'success');
+    renderOrders(allOrders);
+  } catch(e) { toast('❌ ' + e.message, 'error'); }
+}
+
+/* ════════════════════════════════════════════════
+   USERS
+════════════════════════════════════════════════ */
+async function loadUsers() {
+  try {
+    var [cu, ai] = await Promise.all([api('GET', '/api/admin/customers'), api('GET', '/api/admin/users')]);
+    var c = cu.customers || [];
+    document.getElementById('custsTable').innerHTML = !c.length ? empty('لا يوجد عملاء') :
+      '<div class="tbl-wrap"><table><tr><th>الاسم</th><th>الدولة</th><th>واتساب</th><th>إجراء</th></tr>' +
+      c.map(x => '<tr><td><strong>' + (x.name||'-') + '</strong></td><td>' + (x.country||'-') + '</td><td>' + (x.phone||'-') + '</td><td><a href="https://wa.me/' + (x.phone||'').replace(/\D/g,'') + '" target="_blank" class="btn btn-success btn-sm">💬</a></td></tr>').join('') +
+      '</table></div>';
+    var u = ai.users || [];
+    document.getElementById('aiTable').innerHTML = !u.length ? empty('لا يوجد مستخدمين') :
+      '<div class="tbl-wrap"><table><tr><th>Token</th><th>الرصيد</th><th>الخطة</th></tr>' +
+      u.map(x => '<tr><td><code style="font-size:10px;color:var(--c-muted)">' + (x.id||'').substr(0,20) + '...</code></td><td><span style="color:var(--orange);font-weight:700">' + (x.credits||0) + '</span></td><td><span class="badge badge-green">' + (x.plan||'free') + '</span></td></tr>').join('') +
+      '</table></div>';
+  } catch(e) {}
+}
+
+async function addCredits() {
+  var uid = prompt('أدخل User Token:');
+  var amt = parseInt(prompt('عدد التصاميم:'));
+  if (!uid || !amt) return;
+  try { var d = await api('POST', '/api/admin/add-credits', { userId: uid, credits: amt }); toast('✅ رصيد جديد: ' + d.newCredits, 'success'); }
+  catch(e) { toast('❌ ' + e.message, 'error'); }
+}
+
+/* ════════════════════════════════════════════════
+   ANALYTICS
+════════════════════════════════════════════════ */
+async function loadAnalytics() {
+  loadReports();
+}
+
+/* ════════════════════════════════════════════════
+   MESSAGES
+════════════════════════════════════════════════ */
+async function loadMessages() {
+  try {
+    var d = await api('GET', '/api/admin/inquiries');
+    var inqs = d.inquiries || [];
+    document.getElementById('inqsCount').textContent = 'الاستفسارات (' + inqs.length + ')';
+    document.getElementById('msgBadge').textContent = inqs.length;
+    document.getElementById('inqsTable').innerHTML = !inqs.length ? empty('لا توجد استفسارات') :
+      '<div class="tbl-wrap"><table><tr><th>الاسم</th><th>الدولة</th><th>واتساب</th><th>التاريخ</th><th>إجراء</th></tr>' +
+      inqs.map(i => '<tr><td><strong>' + (i.name||i.customerName||'-') + '</strong></td><td>' + (i.country||'-') + '</td><td>' + (i.phone||'-') + '</td><td style="font-size:11px;color:var(--c-muted)">' + (i.createdAt ? new Date(i.createdAt).toLocaleDateString('ar-EG') : '-') + '</td><td><a href="https://wa.me/' + (i.phone||'').replace(/\D/g,'') + '" target="_blank" class="btn btn-success btn-sm">💬 رد</a></td></tr>').join('') +
+      '</table></div>';
+  } catch(e) {}
+}
+
+/* ════════════════════════════════════════════════
+   AFFILIATES
+════════════════════════════════════════════════ */
+async function loadAffiliates() {
+  try {
+    var d = await api('GET', '/api/admin/affiliates');
+    allAffiliates = d.affiliates || [];
+    document.getElementById('affsCount').textContent = 'المسوّقون (' + allAffiliates.length + ')';
+    document.getElementById('affsTable').innerHTML = !allAffiliates.length ? empty('لا يوجد مسوقون') :
+      '<div class="tbl-wrap"><table><tr><th>الاسم</th><th>الكود</th><th>المستوى</th><th>المبيعات</th><th>عمولة معلقة</th><th>إجراء</th></tr>' +
+      allAffiliates.map(a => '<tr><td><strong>' + (a.name||'-') + '</strong></td><td><span style="background:var(--c-bg);padding:2px 8px;border-radius:5px;font-family:monospace;font-size:11px">' + (a.code||'-') + '</span></td><td><span class="badge badge-purple">' + (a.level||'starter') + '</span></td><td style="color:var(--orange);font-weight:700">$' + (a.totalSales||0) + '</td><td style="font-weight:700">$' + (a.pendingCommission||0).toFixed(2) + '</td><td><button class="btn btn-success btn-sm" onclick="payAff(' + a.id + ')">💰 صرف</button></td></tr>').join('') +
+      '</table></div>';
+  } catch(e) {}
+}
+
+function openAddAffiliate() { toast('استخدم زر ➕ من قائمة المسوقين', ''); }
+
+async function payAff(id) {
+  var a = allAffiliates.find(x => x.id === id); if (!a) return;
+  if (!confirm('صرف $' + (a.pendingCommission||0).toFixed(2) + ' لـ ' + a.name + '؟')) return;
+  try { await api('PUT', '/api/admin/affiliates/' + id + '/commission', { amount: a.pendingCommission }); toast('✅ تم الصرف', 'success'); loadAffiliates(); }
+  catch(e) { toast('❌ ' + e.message, 'error'); }
+}
+
+/* ════════════════════════════════════════════════
+   PARTNERS
+════════════════════════════════════════════════ */
+async function loadPartners() {
+  try {
+    var d = await api('GET', '/api/admin/partners');
+    var partners = d.partners || [];
+    document.getElementById('partnersCount').textContent = 'الشركاء (' + partners.length + ')';
+    document.getElementById('partnersTable').innerHTML = !partners.length ? empty('لا يوجد شركاء') :
+      '<div class="tbl-wrap"><table><tr><th>الشريك</th><th>API Key</th><th>الدولة</th><th>خصم</th><th>الحالة</th><th>إجراء</th></tr>' +
+      partners.map(p => '<tr><td><strong>' + p.name + '</strong></td><td><code style="font-size:10px;color:var(--c-muted)">' + (p.apiKey||'').substr(0,20) + '...</code></td><td>' + (p.country||'-') + '</td><td>' + (p.discount||0) + '%</td><td><span class="badge ' + (p.active ? 'badge-green' : 'badge-gray') + '">' + (p.active ? 'نشط' : 'موقف') + '</span></td><td><button class="btn btn-ghost btn-sm" onclick="copyText(\'' + p.apiKey + '\')">📋</button></td></tr>').join('') +
+      '</table></div>';
+  } catch(e) {}
+}
+
+/* ════════════════════════════════════════════════
+   EMPLOYEES
+════════════════════════════════════════════════ */
+async function loadEmployees() {
+  try {
+    var d = await api('GET', '/api/admin/employees');
+    var emps = d.employees || [];
+    document.getElementById('empsCount').textContent = 'الموظفون (' + emps.length + ')';
+    document.getElementById('empTable').innerHTML = !emps.length ? empty('لا يوجد موظفون') :
+      '<div class="tbl-wrap"><table><tr><th>#</th><th>الاسم</th><th>المسمى</th><th>القسم</th><th>البصمة</th><th>الراتب</th><th>إجراء</th></tr>' +
+      emps.map(e => '<tr><td style="color:var(--c-muted)">' + e.id + '</td><td><strong>' + (e.name||'-') + '</strong></td><td>' + (e.position||'-') + '</td><td>' + (e.department||'-') + '</td><td><span style="background:var(--orange-gl);color:var(--orange);padding:2px 8px;border-radius:5px;font-weight:700">' + (e.deviceId||'-') + '</span></td><td>' + (e.salary ? e.salary.toLocaleString() + ' ج.م' : '-') + '</td><td style="display:flex;gap:4px"><button class="btn btn-ghost btn-sm" data-id="' + e.id + '" onclick="editEmpById(this.dataset.id)">✏️</button><a class="btn btn-ghost btn-sm" href="employee.html?id=' + e.id + '" target="_blank">👤</a></td></tr>').join('') +
+      '</table></div>';
+  } catch(e) { document.getElementById('empTable').innerHTML = errBox(e.message); }
+}
+
+async function editEmpById(id) {
+  var d = await api('GET', '/api/admin/employees');
+  var e = (d.employees||[]).find(x => x.id == id);
+  if (e) { editEmpId = e.id; document.getElementById('empModalTitle').textContent = '✏️ تعديل موظف'; document.getElementById('emp_name').value = e.name||''; document.getElementById('emp_position').value = e.position||''; document.getElementById('emp_dept').value = e.department||''; document.getElementById('emp_deviceId').value = e.deviceId||''; document.getElementById('emp_salary').value = e.salary||''; document.getElementById('emp_phone').value = e.phone||''; document.getElementById('delEmpBtn').style.display = 'inline-flex'; openModal('empModal'); }
+}
+
+function openAddEmployee() { editEmpId = null; document.getElementById('empModalTitle').textContent = '➕ إضافة موظف جديد'; ['emp_name','emp_position','emp_dept','emp_phone'].forEach(id => document.getElementById(id).value = ''); document.getElementById('emp_deviceId').value = ''; document.getElementById('emp_salary').value = ''; document.getElementById('delEmpBtn').style.display = 'none'; openModal('empModal'); }
+
+async function saveEmployee() {
+  var name = document.getElementById('emp_name').value.trim();
+  if (!name) { toast('أدخل الاسم', 'error'); return; }
+  var body = { name, position: document.getElementById('emp_position').value.trim(), department: document.getElementById('emp_dept').value.trim(), deviceId: document.getElementById('emp_deviceId').value.trim(), salary: parseFloat(document.getElementById('emp_salary').value)||0, phone: document.getElementById('emp_phone').value.trim() };
+  try {
+    if (editEmpId) { await api('PUT', '/api/admin/employees/' + editEmpId, body); toast('✅ تم التعديل', 'success'); }
+    else { await api('POST', '/api/admin/employees', body); toast('✅ تم الإضافة', 'success'); }
+    closeModal('empModal'); loadEmployees();
+  } catch(e) { toast('❌ ' + e.message, 'error'); }
+}
+
+async function deleteEmpFromModal() {
+  if (!editEmpId || !confirm('حذف الموظف؟')) return;
+  try { await api('DELETE', '/api/admin/employees/' + editEmpId); toast('✅ تم الحذف', 'success'); closeModal('empModal'); loadEmployees(); }
+  catch(e) { toast('❌ ' + e.message, 'error'); }
+}
+
+/* ════════════════════════════════════════════════
+   ATTENDANCE
+════════════════════════════════════════════════ */
+async function loadAttendance() {
+  var date = document.getElementById('attDate').value || new Date().toISOString().split('T')[0];
+  document.getElementById('attDate').value = date;
+  try {
+    var d = await api('GET', '/api/admin/attendance?date=' + date);
+    var records = d.records || [];
+    if (!records.length) { document.getElementById('attTable').innerHTML = empty('لا توجد سجلات في ' + date); return; }
+    var grouped = {};
+    records.forEach(r => { if (!grouped[r.userId]) grouped[r.userId] = { ins:[], outs:[] }; (r.type==='in' ? grouped[r.userId].ins : grouped[r.userId].outs).push(r.timestamp); });
+    document.getElementById('attTable').innerHTML =
+      '<div class="tbl-wrap"><table><tr><th>رقم الموظف</th><th>أول حضور</th><th>آخر انصراف</th><th>السجلات</th></tr>' +
+      Object.entries(grouped).map(([uid, g]) => {
+        var firstIn = g.ins.length ? new Date(g.ins[g.ins.length-1]).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}) : '-';
+        var lastOut = g.outs.length ? new Date(g.outs[0]).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}) : '-';
+        return '<tr><td><strong>' + uid + '</strong></td><td style="color:var(--green);font-weight:700">' + firstIn + '</td><td style="color:var(--red);font-weight:700">' + lastOut + '</td><td>' + (g.ins.length + g.outs.length) + '</td></tr>';
+      }).join('') + '</table></div>';
+  } catch(e) { document.getElementById('attTable').innerHTML = errBox(e.message); }
+}
+
+async function syncBridge() {
+  try {
+    document.getElementById('bridgeStatus').textContent = '⏳ جاري المزامنة...';
+    await fetch('http://localhost:3001/sync', { method: 'POST' });
+    document.getElementById('bridgeStatus').textContent = '✅ ' + new Date().toLocaleTimeString('ar-EG');
+    loadAttendance();
+  } catch(e) { document.getElementById('bridgeStatus').textContent = '❌ Bridge غير متصل'; }
+}
+
+/* ════════════════════════════════════════════════
+   CONTRACTS
+════════════════════════════════════════════════ */
+var allContracts = [];
+async function loadContracts() {
+  try {
+    var d = await api('GET', '/api/admin/contracts');
+    allContracts = d.contracts || [];
+    renderContractStats();
+    document.getElementById('consCount').textContent = 'العقود (' + allContracts.length + ')';
+    renderContractsTable(allContracts);
+  } catch(e) {
+    allContracts = [];
+    renderContractStats();
+    document.getElementById('contractsTable').innerHTML = empty('لا توجد عقود — اضغط ➕ للإضافة');
+  }
+}
+
+function renderContractStats() {
+  var active = allContracts.filter(c => c.status === 'active').length;
+  var pending = allContracts.filter(c => c.status === 'pending').length;
+  var value = allContracts.reduce((s,c) => s + (parseFloat(c.value)||0), 0);
+  document.getElementById('con-total').textContent = allContracts.length;
+  document.getElementById('con-active').textContent = active;
+  document.getElementById('con-pending').textContent = pending;
+  document.getElementById('con-value').textContent = '$' + value.toLocaleString();
+}
+
+var conStatus = { pending:'⏳ في الانتظار', active:'✅ نشط', completed:'🏁 مكتمل', cancelled:'❌ ملغي' };
+var conCls = { pending:'badge-amber', active:'badge-green', completed:'badge-gray', cancelled:'badge-red' };
+
+function renderContractsTable(cons) {
+  document.getElementById('contractsTable').innerHTML = !cons.length ? empty('لا توجد عقود') :
+    '<div class="tbl-wrap"><table><tr><th>العميل</th><th>الدولة</th><th>Incoterm</th><th>القيمة</th><th>التسليم</th><th>الحالة</th><th>إجراء</th></tr>' +
+    cons.map(c => '<tr><td><strong>' + (c.client||'-') + '</strong></td><td>' + (c.country||'-') + '</td><td><span style="background:var(--orange-gl);color:var(--orange);padding:2px 8px;border-radius:5px;font-size:11px;font-weight:700">' + (c.type||'FOB') + '</span></td><td style="font-weight:800;color:var(--orange)">$' + (parseFloat(c.value)||0).toLocaleString() + '</td><td style="font-size:11px;color:var(--c-muted)">' + (c.delivery ? new Date(c.delivery).toLocaleDateString('ar-EG') : '-') + '</td><td><span class="badge ' + (conCls[c.status]||'badge-gray') + '">' + (conStatus[c.status]||c.status) + '</span></td><td style="display:flex;gap:4px"><button class="btn btn-ghost btn-sm" onclick="editConById(\'' + (c._id||c.id) + '\')">✏️</button>' + (c.phone ? '<a href="https://wa.me/' + (c.phone||'').replace(/\D/g,'') + '" target="_blank" class="btn btn-success btn-sm">💬</a>' : '') + '</td></tr>').join('') +
+    '</table></div>';
+}
+
+function openAddContract() { editContractId = null; document.getElementById('conModalTitle').textContent = '➕ عقد جديد'; ['con_client','con_country','con_phone','con_port','con_notes'].forEach(id => document.getElementById(id).value = ''); document.getElementById('con_value').value = ''; document.getElementById('con_delivery').value = ''; document.getElementById('con_type').value = 'FOB'; document.getElementById('con_status').value = 'pending'; openModal('contractModal'); }
+
+function editConById(id) { var c = allContracts.find(x => (x._id||x.id) === id); if (c) { editContractId = c._id||c.id; document.getElementById('conModalTitle').textContent = '✏️ تعديل عقد'; document.getElementById('con_client').value = c.client||''; document.getElementById('con_country').value = c.country||''; document.getElementById('con_phone').value = c.phone||''; document.getElementById('con_type').value = c.type||'FOB'; document.getElementById('con_value').value = c.value||''; document.getElementById('con_delivery').value = c.delivery ? c.delivery.split('T')[0] : ''; document.getElementById('con_status').value = c.status||'pending'; document.getElementById('con_port').value = c.port||''; document.getElementById('con_notes').value = c.notes||''; openModal('contractModal'); } }
+
+async function saveContract() {
+  var client = document.getElementById('con_client').value.trim();
+  if (!client) { toast('أدخل اسم العميل', 'error'); return; }
+  var body = { client, country: document.getElementById('con_country').value.trim(), phone: document.getElementById('con_phone').value.trim(), type: document.getElementById('con_type').value, value: parseFloat(document.getElementById('con_value').value)||0, delivery: document.getElementById('con_delivery').value, status: document.getElementById('con_status').value, port: document.getElementById('con_port').value.trim(), notes: document.getElementById('con_notes').value.trim() };
+  try {
+    if (editContractId) { await api('PUT', '/api/admin/contracts/' + editContractId, body); toast('✅ تم التعديل', 'success'); }
+    else { await api('POST', '/api/admin/contracts', body); toast('✅ تم الإضافة', 'success'); }
+    closeModal('contractModal'); loadContracts();
+  } catch(e) { toast('⚠️ محفوظ محلياً — ' + e.message, ''); closeModal('contractModal'); }
+}
+
+/* ════════════════════════════════════════════════
+   REPORTS
+════════════════════════════════════════════════ */
+async function loadReports() {
+  try {
+    var d = await api('GET', '/api/admin/orders');
+    var orders = d.orders || [];
+    var byStatus = {};
+    var total = 0;
+    orders.forEach(o => { byStatus[o.status||'new'] = (byStatus[o.status||'new']||0)+1; total += o.totalUSD||0; });
+    var statusLbl = { new:'⏳ جديد', confirmed:'✅ مؤكد', production:'🏭 إنتاج', shipping:'🚢 شحن', delivered:'📦 تسليم' };
+    var tableId = document.getElementById('reportsTable') || document.getElementById('reportsBody');
+    var html = '<div class="tbl-wrap"><table><tr><th>الحالة</th><th>العدد</th><th>النسبة</th><th>شريط</th></tr>' +
+      Object.entries(byStatus).map(([s, n]) => {
+        var pct = Math.round(n/orders.length*100);
+        return '<tr><td>' + (statusLbl[s]||s) + '</td><td><strong>' + n + '</strong></td><td>' + pct + '%</td><td><div style="height:6px;border-radius:3px;background:var(--orange);width:' + pct + '%"></div></td></tr>';
+      }).join('') +
+      '<tr style="background:rgba(255,107,43,.05)"><td><strong>الإجمالي</strong></td><td><strong>' + orders.length + '</strong></td><td>100%</td><td><strong style="color:var(--orange)">$' + total.toLocaleString() + '</strong></td></tr>' +
+      '</table></div>';
+    if (document.getElementById('reportsTable')) document.getElementById('reportsTable').innerHTML = html;
+    if (document.getElementById('reportsBody')) document.getElementById('reportsBody').innerHTML = html;
+  } catch(e) {}
+}
+
+/* ════════════════════════════════════════════════
+   SETTINGS
+════════════════════════════════════════════════ */
+async function loadSettings() {
+  try {
+    var d = await api('GET', '/api/admin/settings');
+    var s = d.settings;
+    document.getElementById('curRate').textContent = s.usdRate || '--';
+    if (s.phone) document.getElementById('set_phone').value = s.phone;
+    if (s.email) document.getElementById('set_email').value = s.email;
+  } catch(e) {}
+}
+
+async function updateRate() {
+  var r = parseFloat(document.getElementById('newRate').value);
+  if (!r || r < 1) { toast('سعر غير صحيح', 'error'); return; }
+  try { await api('PUT', '/api/admin/settings', { usdRate: r }); document.getElementById('curRate').textContent = r.toFixed(2); toast('✅ تم التحديث: ' + r.toFixed(2) + ' ج.م', 'success'); }
+  catch(e) { toast('❌ ' + e.message, 'error'); }
+}
+
+async function saveSettings() {
+  try { await api('PUT', '/api/admin/settings', { phone: document.getElementById('set_phone').value.trim(), email: document.getElementById('set_email').value.trim() }); toast('✅ تم الحفظ', 'success'); }
+  catch(e) { toast('❌ ' + e.message, 'error'); }
+}
+
+/* ════════════════════════════════════════════════
+   NOTIFICATIONS
+════════════════════════════════════════════════ */
+function markAllRead() {
+  document.querySelectorAll('.notif-item.unread').forEach(el => { el.classList.remove('unread'); });
+  document.querySelectorAll('.unread-dot').forEach(el => el.remove());
+  document.getElementById('notifBadge').style.display = 'none';
+  toast('✅ تم تحديد الكل كمقروء', 'success');
+}
+
+/* ════════════════════════════════════════════════
+   MODAL HELPERS
+════════════════════════════════════════════════ */
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+/* ════════════════════════════════════════════════
+   UTILITIES
+════════════════════════════════════════════════ */
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(() => toast('✅ تم النسخ', 'success'));
+}
+
+function toast(msg, type) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + (type||'') + ' show';
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function errBox(msg) { return '<div style="padding:30px;text-align:center;color:var(--red)">❌ ' + msg + '</div>'; }
+function empty(msg) { return '<div style="padding:30px;text-align:center;color:var(--c-muted)">' + msg + '</div>'; }
+
+function loadAll() { checkAPI(); loadOverview(); }
+
+/* ════════════════════════════════════════════════
+   GLOBAL SEARCH
+════════════════════════════════════════════════ */
+document.getElementById('globalSearch').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    var q = this.value.trim();
+    if (q) { go('products'); setTimeout(() => { document.getElementById('prodsQ').value = q; filterProds(); }, 300); }
+  }
+});
+
+/* ════════════════════════════════════════════════
+   CLOSE MODALS ON OUTSIDE CLICK
+════════════════════════════════════════════════ */
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+  });
+});
+
+/* ════════════════════════════════════════════════
+   INIT
+════════════════════════════════════════════════ */
+localStorage.setItem('ms_admin_token', ADMIN_TOKEN);
+checkAPI();
+loadOverview();
+loadSettings();
+setInterval(checkAPI, 30000);
+</script>
+</body>
+</html>
