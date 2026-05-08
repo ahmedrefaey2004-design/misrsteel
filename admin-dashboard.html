@@ -641,13 +641,13 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
       <div class="logo-icon">م</div>
       <div>
         <div class="logo-text">مصر ستيل</div>
-        <div class="logo-sub">Admin Dashboard</div>
+        <div class="logo-sub" data-i18n="logo-sub">Admin Dashboard</div>
       </div>
     </div>
 
     <div class="header-search">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input type="text" placeholder="بحث في كل شيء..." id="globalSearch">
+      <input type="text" placeholder="بحث في كل شيء..." data-i18n="search-placeholder" id="globalSearch">
     </div>
 
     <div class="header-right">
@@ -670,18 +670,27 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
       </button>
 
       <div class="avatar" title="الأدمن">أ</div>
+      <button id="langBtn" onclick="toggleLang()" style="
+        padding:0 14px;height:34px;border-radius:8px;
+        background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
+        color:var(--c-text);font-size:12px;font-weight:700;cursor:pointer;
+        display:flex;align-items:center;gap:6px;transition:all .2s;
+        font-family:'Cairo',sans-serif;
+      " onmouseover="this.style.background='rgba(255,107,43,.15)'" onmouseout="this.style.background='rgba(255,255,255,.06)'">
+        🌐 <span id="langLabel">EN</span>
+      </button>
     </div>
   </header>
 
   <!-- SIDEBAR -->
   <nav class="sidebar">
-    <div class="nav-section-label">الرئيسية</div>
+    <div class="nav-section-label" data-i18n="nav-home">الرئيسية</div>
     <div class="nav-item active" onclick="go('overview',this)">
       <span class="ni-icon">📊</span> Overview
       <div class="nav-badge" id="nb">0</div>
     </div>
 
-    <div class="nav-section-label">إدارة المحتوى</div>
+    <div class="nav-section-label" data-i18n="nav-content">إدارة المحتوى</div>
     <div class="nav-item" onclick="go('products',this)">
       <span class="ni-icon">🪑</span> Products
     </div>
@@ -690,7 +699,7 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
       <div class="nav-badge blue" id="ordBadge">0</div>
     </div>
 
-    <div class="nav-section-label">العلاقات</div>
+    <div class="nav-section-label" data-i18n="nav-relations">العلاقات</div>
     <div class="nav-item" onclick="go('users',this)">
       <span class="ni-icon">👥</span> Users
     </div>
@@ -705,7 +714,7 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
       <div class="nav-badge green" id="msgBadge">0</div>
     </div>
 
-    <div class="nav-section-label">التحليلات</div>
+    <div class="nav-section-label" data-i18n="nav-analytics-sec">التحليلات</div>
     <div class="nav-item" onclick="go('analytics',this)">
       <span class="ni-icon">📈</span> Analytics
     </div>
@@ -713,7 +722,7 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
       <span class="ni-icon">📋</span> Reports
     </div>
 
-    <div class="nav-section-label">المصنع</div>
+    <div class="nav-section-label" data-i18n="nav-factory">المصنع</div>
     <div class="nav-item" onclick="go('employees',this)">
       <span class="ni-icon">👷</span> Employees
     </div>
@@ -724,7 +733,7 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
       <span class="ni-icon">📄</span> Contracts
     </div>
 
-    <div class="nav-section-label">النظام</div>
+    <div class="nav-section-label" data-i18n="nav-system">النظام</div>
     <div class="nav-item" onclick="go('notifications',this)">
       <span class="ni-icon">🔔</span> Notifications
     </div>
@@ -767,15 +776,15 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
       </div>
 
       <div class="kpi-grid" id="kpiGrid">
-        <div class="kpi-card orange"><div class="kpi-icon">💰</div><div class="kpi-num" id="k-rev">--</div><div class="kpi-label">إجمالي المبيعات</div></div>
-        <div class="kpi-card blue"><div class="kpi-icon">📦</div><div class="kpi-num" id="k-ord">--</div><div class="kpi-label">الطلبات الجديدة</div></div>
-        <div class="kpi-card green"><div class="kpi-icon">👥</div><div class="kpi-num" id="k-cust">--</div><div class="kpi-label">إجمالي العملاء</div></div>
-        <div class="kpi-card purple"><div class="kpi-icon">🤝</div><div class="kpi-num" id="k-comm">--</div><div class="kpi-label">عمولات معلقة</div></div>
+        <div class="kpi-card orange"><div class="kpi-icon">💰</div><div class="kpi-num" id="k-rev">--</div><div class="kpi-label" data-i18n="kpi-revenue">إجمالي المبيعات</div></div>
+        <div class="kpi-card blue"><div class="kpi-icon">📦</div><div class="kpi-num" id="k-ord">--</div><div class="kpi-label" data-i18n="kpi-orders">الطلبات الجديدة</div></div>
+        <div class="kpi-card green"><div class="kpi-icon">👥</div><div class="kpi-num" id="k-cust">--</div><div class="kpi-label" data-i18n="kpi-customers">إجمالي العملاء</div></div>
+        <div class="kpi-card purple"><div class="kpi-icon">🤝</div><div class="kpi-num" id="k-comm">--</div><div class="kpi-label" data-i18n="kpi-commissions">عمولات معلقة</div></div>
       </div>
 
       <div class="stats-row">
         <div class="chart-placeholder">
-          <h3>📊 المبيعات — آخر 7 أيام</h3>
+          <h3 data-i18n="chart-weekly">📊 المبيعات — آخر 7 أيام</h3>
           <div class="bar-chart" id="barChart">
             <div class="bar-group"><div class="bar" style="height:60%;background:var(--orange)"></div><div class="bar-label">السبت</div></div>
             <div class="bar-group"><div class="bar" style="height:80%;background:var(--orange)"></div><div class="bar-label">الأحد</div></div>
@@ -787,14 +796,14 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
           </div>
         </div>
         <div class="mini-list">
-          <h3>🏆 الأقسام</h3>
+          <h3 data-i18n="chart-sections">🏆 الأقسام</h3>
           <div class="mini-item"><div class="mini-dot" style="background:var(--orange)"></div><div class="mini-label">القاعات</div><div class="mini-val">38%</div></div>
           <div class="mini-item"><div class="mini-dot" style="background:var(--blue)"></div><div class="mini-label">المنزل</div><div class="mini-val">29%</div></div>
           <div class="mini-item"><div class="mini-dot" style="background:var(--green)"></div><div class="mini-label">لوبي</div><div class="mini-val">21%</div></div>
           <div class="mini-item"><div class="mini-dot" style="background:var(--purple)"></div><div class="mini-label">مطاعم</div><div class="mini-val">12%</div></div>
         </div>
         <div class="mini-list">
-          <h3>🌍 الدول</h3>
+          <h3 data-i18n="chart-countries">🌍 الدول</h3>
           <div class="mini-item"><div class="mini-dot" style="background:var(--amber)"></div><div class="mini-label">🇸🇦 السعودية</div><div class="mini-val">32%</div></div>
           <div class="mini-item"><div class="mini-dot" style="background:var(--blue)"></div><div class="mini-label">🇮🇶 العراق</div><div class="mini-val">24%</div></div>
           <div class="mini-item"><div class="mini-dot" style="background:var(--green)"></div><div class="mini-label">🇦🇪 الإمارات</div><div class="mini-val">18%</div></div>
@@ -804,7 +813,7 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
 
       <div class="card">
         <div class="card-head">
-          <h3>📦 آخر الطلبات</h3>
+          <h3 data-i18n="latest-orders">📦 آخر الطلبات</h3>
           <button class="btn btn-ghost btn-sm" onclick="go('orders')">عرض الكل ←</button>
         </div>
         <div class="tbl-wrap">
@@ -816,23 +825,23 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
       <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:4px">
         <div onclick="go('products');openAddProd()" style="background:var(--c-card);border:1px solid var(--c-border);border-radius:var(--radius-lg);padding:18px;text-align:center;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--orange)'" onmouseout="this.style.borderColor='var(--c-border)'">
           <div style="font-size:24px;margin-bottom:8px">🪑</div>
-          <div style="font-size:12px;font-weight:700">منتج جديد</div>
+          <div style="font-size:12px;font-weight:700" data-i18n="qa-product">منتج جديد</div>
         </div>
         <div onclick="go('contracts');openAddContract()" style="background:var(--c-card);border:1px solid var(--c-border);border-radius:var(--radius-lg);padding:18px;text-align:center;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--blue)'" onmouseout="this.style.borderColor='var(--c-border)'">
           <div style="font-size:24px;margin-bottom:8px">📄</div>
-          <div style="font-size:12px;font-weight:700">عقد جديد</div>
+          <div style="font-size:12px;font-weight:700" data-i18n="qa-contract">عقد جديد</div>
         </div>
         <div onclick="go('employees');openAddEmployee()" style="background:var(--c-card);border:1px solid var(--c-border);border-radius:var(--radius-lg);padding:18px;text-align:center;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--c-border)'">
           <div style="font-size:24px;margin-bottom:8px">👷</div>
-          <div style="font-size:12px;font-weight:700">موظف جديد</div>
+          <div style="font-size:12px;font-weight:700" data-i18n="qa-employee">موظف جديد</div>
         </div>
         <div onclick="window.open('contracts.html','_blank')" style="background:var(--c-card);border:1px solid var(--c-border);border-radius:var(--radius-lg);padding:18px;text-align:center;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--purple)'" onmouseout="this.style.borderColor='var(--c-border)'">
           <div style="font-size:24px;margin-bottom:8px">🧾</div>
-          <div style="font-size:12px;font-weight:700">عرض سعر</div>
+          <div style="font-size:12px;font-weight:700" data-i18n="qa-quote">عرض سعر</div>
         </div>
         <div onclick="window.open('factory.html','_blank')" style="background:var(--c-card);border:1px solid var(--c-border);border-radius:var(--radius-lg);padding:18px;text-align:center;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--amber)'" onmouseout="this.style.borderColor='var(--c-border)'">
           <div style="font-size:24px;margin-bottom:8px">🏭</div>
-          <div style="font-size:12px;font-weight:700">نظام ERP</div>
+          <div style="font-size:12px;font-weight:700" data-i18n="qa-erp">نظام ERP</div>
         </div>
       </div>
     </div>
@@ -986,9 +995,9 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
     <!-- ══════════ NOTIFICATIONS ══════════ -->
     <div class="panel" id="panel-notifications">
       <div class="page-hd">
-        <div class="page-hd-left"><h2>🔔 Notifications</h2><p>آخر التنبيهات والأحداث</p></div>
+        <div class="page-hd-left"><h2 data-i18n="notif-title">🔔 Notifications</h2><p data-i18n="notif-sub">آخر التنبيهات والأحداث</p></div>
         <div class="page-hd-right">
-          <button class="btn btn-ghost btn-sm" onclick="markAllRead()">✓ قراءة الكل</button>
+          <button class="btn btn-ghost btn-sm" onclick="markAllRead()" data-i18n="mark-all-read">✓ قراءة الكل</button>
         </div>
       </div>
       <div class="card" style="padding:0">
@@ -1021,7 +1030,7 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
     <!-- ══════════ SETTINGS ══════════ -->
     <div class="panel" id="panel-settings">
       <div class="page-hd">
-        <div class="page-hd-left"><h2>⚙️ Settings</h2><p>إعدادات النظام والموقع</p></div>
+        <div class="page-hd-left"><h2 data-i18n="settings-title">⚙️ Settings</h2><p data-i18n="settings-sub">إعدادات النظام والموقع</p></div>
         <div class="page-hd-right">
           <button class="btn btn-primary" onclick="saveSettings()">💾 حفظ الكل</button>
         </div>
@@ -1079,7 +1088,7 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
     <!-- ══════════ ROLES & PERMISSIONS ══════════ -->
     <div class="panel" id="panel-roles">
       <div class="page-hd">
-        <div class="page-hd-left"><h2>🔑 Roles & Permissions</h2><p>إدارة صلاحيات المستخدمين</p></div>
+        <div class="page-hd-left"><h2 data-i18n="roles-title">🔑 Roles & Permissions</h2><p data-i18n="roles-sub">إدارة صلاحيات المستخدمين</p></div>
         <div class="page-hd-right">
           <button class="btn btn-primary btn-sm">➕ دور جديد</button>
         </div>
@@ -1164,7 +1173,7 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
     <!-- ══════════ SUPPORT ══════════ -->
     <div class="panel" id="panel-support">
       <div class="page-hd">
-        <div class="page-hd-left"><h2>🎧 Support</h2><p>تذاكر الدعم والمشاكل المفتوحة</p></div>
+        <div class="page-hd-left"><h2 data-i18n="support-title">🎧 Support</h2><p data-i18n="support-sub">تذاكر الدعم والمشاكل المفتوحة</p></div>
         <div class="page-hd-right">
           <div class="filter-bar">
             <select class="filter-select">
@@ -1877,6 +1886,224 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
 /* ════════════════════════════════════════════════
    INIT
 ════════════════════════════════════════════════ */
+
+/* ════════════════════════════════════════════════
+   i18n — BILINGUAL AR / EN
+════════════════════════════════════════════════ */
+var currentLang = localStorage.getItem('ms_lang') || 'ar';
+
+var i18n = {
+  ar: {
+    // Header
+    'logo-sub': 'لوحة الإدارة',
+    'search-placeholder': 'بحث في كل شيء...',
+    'api-connected': 'متصل',
+    'api-disconnected': 'منقطع',
+    // Sidebar sections
+    'nav-home': 'الرئيسية',
+    'nav-content': 'إدارة المحتوى',
+    'nav-relations': 'العلاقات',
+    'nav-analytics-sec': 'التحليلات',
+    'nav-factory': 'المصنع',
+    'nav-system': 'النظام',
+    // Nav items
+    'nav-overview': 'Overview',
+    'nav-products': 'Products',
+    'nav-orders': 'Orders',
+    'nav-users': 'Users',
+    'nav-affiliates': 'Affiliates',
+    'nav-partners': 'Partners & API',
+    'nav-messages': 'Messages',
+    'nav-analytics': 'Analytics',
+    'nav-reports': 'Reports',
+    'nav-employees': 'Employees',
+    'nav-attendance': 'Attendance',
+    'nav-contracts': 'Contracts',
+    'nav-notifications': 'Notifications',
+    'nav-roles': 'Roles & Permissions',
+    'nav-settings': 'Settings',
+    'nav-support': 'Support',
+    'nav-visit-site': 'Visit Site',
+    'nav-erp': 'ERP System',
+    'nav-contracts-page': 'Contracts Page',
+    // Overview
+    'overview-title': 'Overview',
+    'overview-sub': 'مرحباً بك — آخر تحديث:',
+    'btn-refresh': '🔄 تحديث',
+    'btn-add-product': '➕ منتج جديد',
+    'kpi-revenue': 'إجمالي المبيعات',
+    'kpi-orders': 'الطلبات الجديدة',
+    'kpi-customers': 'إجمالي العملاء',
+    'kpi-commissions': 'عمولات معلقة',
+    'chart-weekly': '📊 المبيعات — آخر 7 أيام',
+    'chart-sections': '🏆 الأقسام',
+    'chart-countries': '🌍 الدول',
+    'latest-orders': '📦 آخر الطلبات',
+    'view-all': 'عرض الكل ←',
+    // Quick actions
+    'qa-product': 'منتج جديد',
+    'qa-contract': 'عقد جديد',
+    'qa-employee': 'موظف جديد',
+    'qa-quote': 'عرض سعر',
+    'qa-erp': 'نظام ERP',
+    // Products
+    'products-title': '🪑 Products',
+    'products-sub': 'إدارة كامل المنتجات والمواصفات',
+    'btn-view-store': '🌐 عرض المتجر',
+    'btn-add-prod': '➕ إضافة منتج',
+    'search-products': '🔍 بحث...',
+    'all-sections': 'كل الأقسام',
+    // Orders
+    'orders-title': '📦 Orders',
+    'orders-sub': 'تتبع الطلبات وتحديث حالاتها',
+    'search-orders': '🔍 بحث عميل أو رقم...',
+    'all-statuses': 'كل الحالات',
+    // Notifications
+    'notif-title': '🔔 Notifications',
+    'notif-sub': 'آخر التنبيهات والأحداث',
+    'mark-all-read': '✓ قراءة الكل',
+    // Settings
+    'settings-title': '⚙️ Settings',
+    'settings-sub': 'إعدادات النظام والموقع',
+    'save-all': '💾 حفظ الكل',
+    // Support
+    'support-title': '🎧 Support',
+    'support-sub': 'تذاكر الدعم والمشاكل المفتوحة',
+    // Roles
+    'roles-title': '🔑 Roles & Permissions',
+    'roles-sub': 'إدارة صلاحيات المستخدمين',
+  },
+  en: {
+    // Header
+    'logo-sub': 'Admin Dashboard',
+    'search-placeholder': 'Search everything...',
+    'api-connected': 'Connected',
+    'api-disconnected': 'Disconnected',
+    // Sidebar sections
+    'nav-home': 'Home',
+    'nav-content': 'Content Management',
+    'nav-relations': 'Relationships',
+    'nav-analytics-sec': 'Analytics',
+    'nav-factory': 'Factory',
+    'nav-system': 'System',
+    // Nav items
+    'nav-overview': 'Overview',
+    'nav-products': 'Products',
+    'nav-orders': 'Orders',
+    'nav-users': 'Users',
+    'nav-affiliates': 'Affiliates',
+    'nav-partners': 'Partners & API',
+    'nav-messages': 'Messages',
+    'nav-analytics': 'Analytics',
+    'nav-reports': 'Reports',
+    'nav-employees': 'Employees',
+    'nav-attendance': 'Attendance',
+    'nav-contracts': 'Contracts',
+    'nav-notifications': 'Notifications',
+    'nav-roles': 'Roles & Permissions',
+    'nav-settings': 'Settings',
+    'nav-support': 'Support',
+    'nav-visit-site': 'Visit Site',
+    'nav-erp': 'ERP System',
+    'nav-contracts-page': 'Contracts Page',
+    // Overview
+    'overview-title': 'Overview',
+    'overview-sub': 'Welcome — Last updated:',
+    'btn-refresh': '🔄 Refresh',
+    'btn-add-product': '➕ New Product',
+    'kpi-revenue': 'Total Revenue',
+    'kpi-orders': 'New Orders',
+    'kpi-customers': 'Total Customers',
+    'kpi-commissions': 'Pending Commissions',
+    'chart-weekly': '📊 Sales — Last 7 Days',
+    'chart-sections': '🏆 Sections',
+    'chart-countries': '🌍 Countries',
+    'latest-orders': '📦 Latest Orders',
+    'view-all': 'View All →',
+    // Quick actions
+    'qa-product': 'New Product',
+    'qa-contract': 'New Contract',
+    'qa-employee': 'New Employee',
+    'qa-quote': 'Quotation',
+    'qa-erp': 'ERP System',
+    // Products
+    'products-title': '🪑 Products',
+    'products-sub': 'Manage all products and specifications',
+    'btn-view-store': '🌐 View Store',
+    'btn-add-prod': '➕ Add Product',
+    'search-products': '🔍 Search...',
+    'all-sections': 'All Sections',
+    // Orders
+    'orders-title': '📦 Orders',
+    'orders-sub': 'Track orders and update statuses',
+    'search-orders': '🔍 Search customer or number...',
+    'all-statuses': 'All Statuses',
+    // Notifications
+    'notif-title': '🔔 Notifications',
+    'notif-sub': 'Latest alerts and events',
+    'mark-all-read': '✓ Mark all read',
+    // Settings
+    'settings-title': '⚙️ Settings',
+    'settings-sub': 'System and website settings',
+    'save-all': '💾 Save All',
+    // Support
+    'support-title': '🎧 Support',
+    'support-sub': 'Support tickets and open issues',
+    // Roles
+    'roles-title': '🔑 Roles & Permissions',
+    'roles-sub': 'Manage user permissions',
+  }
+};
+
+function t(key) {
+  return (i18n[currentLang] && i18n[currentLang][key]) || (i18n['ar'][key]) || key;
+}
+
+function applyLang() {
+  var isAr = currentLang === 'ar';
+  // document direction
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = isAr ? 'rtl' : 'ltr';
+
+  // Lang button
+  document.getElementById('langLabel').textContent = isAr ? 'EN' : 'ع';
+
+  // All data-i18n elements
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n');
+    var val = t(key);
+    if (el.tagName === 'INPUT') el.placeholder = val;
+    else el.textContent = val;
+  });
+
+  // Sidebar RTL/LTR border swap
+  document.querySelectorAll('.nav-item').forEach(function(el) {
+    if (isAr) {
+      el.style.borderInlineStart = '';
+      el.style.borderInlineEnd = '';
+    }
+  });
+
+  // API status text
+  var dot = document.getElementById('apiDot');
+  if (dot) {
+    document.getElementById('apiTxt').textContent =
+      dot.classList.contains('on') ? t('api-connected') : t('api-disconnected');
+  }
+
+  localStorage.setItem('ms_lang', currentLang);
+}
+
+function toggleLang() {
+  currentLang = currentLang === 'ar' ? 'en' : 'ar';
+  applyLang();
+}
+
+// Apply on load
+document.addEventListener('DOMContentLoaded', function() {
+  applyLang();
+});
+
 localStorage.setItem('ms_admin_token', ADMIN_TOKEN);
 checkAPI();
 loadOverview();
